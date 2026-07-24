@@ -749,12 +749,51 @@
     position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 560px;
   }
   #app-desktop .search-overlay { position: fixed; inset: 0; }
+  /* ================= auth gate ================= */
+  .auth-gate {
+    position: fixed; inset: 0; z-index: 500;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+  }
+  .auth-gate.hidden { display: none; }
+  .auth-box {
+    width: 100%; max-width: 320px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 26px 24px; box-shadow: var(--shadow);
+  }
+  .auth-box h2 { font-family: 'Inter', sans-serif; font-size: 18px; margin: 0 0 4px; }
+  .auth-box p { color: var(--muted); font-size: 12.5px; margin: 0 0 18px; }
+  .auth-box input {
+    width: 100%; box-sizing: border-box; font-family: 'Inter', sans-serif; font-size: 16px;
+    padding: 11px 13px; margin-bottom: 10px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg); color: var(--ink); outline: none;
+  }
+  .auth-box button {
+    width: 100%; padding: 11px; border-radius: 10px; border: none;
+    background: var(--ink); color: var(--bg); font-family: 'Inter', sans-serif;
+    font-size: 13.5px; font-weight: 700; cursor: pointer; margin-top: 4px;
+  }
+  .auth-error { color: var(--danger); font-size: 12px; margin-top: 10px; min-height: 14px; }
+  #app-desktop.app-loading, #app-mobile.app-loading { visibility: hidden; }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 </head>
 
 <body>
 
-  <div id="app-desktop" class="desktop-frame">
+  <div class="auth-gate hidden" id="auth-gate">
+    <div class="auth-box">
+      <h2>Connexion</h2>
+      <p>Ultimate Dashboard</p>
+      <input type="email" id="auth-email" placeholder="Email" autocomplete="username">
+      <input type="password" id="auth-password" placeholder="Mot de passe" autocomplete="current-password">
+      <button id="auth-submit">Se connecter</button>
+      <div class="auth-error" id="auth-error"></div>
+    </div>
+  </div>
+
+  <div id="app-desktop" class="desktop-frame app-loading">
         <div class="d-rail">
           <div class="brand">控制盤<small>PERSONAL OS</small></div>
           <nav class="d-nav">
@@ -779,7 +818,7 @@
           </div>
 
           <div class="kpi-row">
-            <div class="kpi"><div class="label">Projets</div><div class="value mono">05</div></div>
+            <div class="kpi"><div class="label">Projets</div><div class="value mono"><span id="kpi-projects-desktop">05</span></div></div>
             <div class="kpi"><div class="label">Tâches à faire</div><div class="value mono"><span id="kpi-done-desktop">23</span></div></div>
             <div class="kpi"><div class="label">Complétion moyenne</div><div class="value mono">54<small>%</small></div></div>
             <div class="kpi"><div class="label">Pages</div><div class="value mono">27</div></div>
@@ -790,65 +829,7 @@
               <h3>Projets</h3>
 
               <div class="venture-list" id="venture-list-desktop">
-              <div class="venture-card">
-                <div class="tab" style="background:var(--accent-rosalina)">家</div>
-                <div class="vinfo">
-                  <div class="vname">Domaine Rosalina</div>
-                  <div class="vdesc">Toolsuite location · devis, calendrier, rappels caution</div>
-                </div>
-                <div class="vmeta">
-                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-rosalina)" stroke-width="3" stroke-dasharray="97" stroke-dashoffset="24" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">75%</text></svg>
-                  <div class="vtasks">6/8</div>
-                </div>
-              </div>
 
-              <div class="venture-card">
-                <div class="tab" style="background:var(--accent-food)">食</div>
-                <div class="vinfo">
-                  <div class="vname">Foodmaster</div>
-                  <div class="vdesc">SaaS menu + résa · Drevici Oyster, Les Blancs Becs</div>
-                </div>
-                <div class="vmeta">
-                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-food)" stroke-width="3" stroke-dasharray="63" stroke-dashoffset="49" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">65%</text></svg>
-                  <div class="vtasks">4/9</div>
-                </div>
-              </div>
-
-              <div class="venture-card">
-                <div class="tab" style="background:var(--accent-manga)">漫</div>
-                <div class="vinfo">
-                  <div class="vname">Manga Squad</div>
-                  <div class="vdesc">App collection manga · Lovable + Supabase</div>
-                </div>
-                <div class="vmeta">
-                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-manga)" stroke-width="3" stroke-dasharray="41" stroke-dashoffset="71" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">42%</text></svg>
-                  <div class="vtasks">3/7</div>
-                </div>
-              </div>
-
-              <div class="venture-card">
-                <div class="tab" style="background:var(--accent-pvpp)">服</div>
-                <div class="vinfo">
-                  <div class="vname">PVPP</div>
-                  <div class="vdesc">Pas Vu, Pas Pris · stratégie de marque & contenu</div>
-                </div>
-                <div class="vmeta">
-                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-pvpp)" stroke-width="3" stroke-dasharray="27" stroke-dashoffset="85" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">28%</text></svg>
-                  <div class="vtasks">2/6</div>
-                </div>
-              </div>
-
-              <div class="venture-card">
-                <div class="tab" style="background:var(--accent-vault)">才</div>
-                <div class="vinfo">
-                  <div class="vname">天才 Vault</div>
-                  <div class="vdesc">Inspiration vault personnel · sync GitHub</div>
-                </div>
-                <div class="vmeta">
-                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-vault)" stroke-width="3" stroke-dasharray="88" stroke-dashoffset="10" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">90%</text></svg>
-                  <div class="vtasks">continu</div>
-                </div>
-              </div>
 
               </div>
 
@@ -879,159 +860,25 @@
                   <div class="dt" data-tab="nodate">No date</div>
                 </div>
 
-                <div class="task-list" data-tab="overdue">
-                  <div class="task-row">
-                    <div class="checkbox p-high"></div>
-                    <div class="tinfo">
-                      <div class="tname">Renouveler certificat SSL</div>
-                      <div class="crumb">Rosalina <span>›</span> domainerosalina.com <span>›</span> Infra</div>
-                    </div>
-                    <div class="tmeta"><div class="when" style="color:var(--danger)">22 juil</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-med"></div>
-                    <div class="tinfo">
-                      <div class="tname">Répondre au client</div>
-                      <div class="crumb">Foodmaster <span>›</span> Drevici Oyster <span>›</span> Support</div>
-                    </div>
-                    <div class="tmeta"><div class="when" style="color:var(--danger)">23 juil</div></div>
-                  </div>
-                </div>
+                <div class="task-list" data-tab="overdue"></div>
 
-                <div class="task-list is-active" data-tab="today">
-                  <div class="task-row">
-                    <div class="checkbox p-high"></div>
-                    <div class="tinfo">
-                      <div class="tname">Bouton copier l'email</div>
-                      <div class="crumb">Rosalina <span>›</span> dashboard.html <span>›</span> Rappel caution</div>
-                    </div>
-                    <div class="tmeta"><div class="when">14:30</div><div class="subs-pill">0/2</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-high"></div>
-                    <div class="tinfo">
-                      <div class="tname">Galerie de polices</div>
-                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Admin</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Today</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-med"></div>
-                    <div class="tinfo">
-                      <div class="tname">Corriger contraste dark mode</div>
-                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Formulaire</div>
-                    </div>
-                    <div class="tmeta"><div class="when">16:00</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-low"></div>
-                    <div class="tinfo">
-                      <div class="tname">Compresser les visuels menu</div>
-                      <div class="crumb">Foodmaster <span>›</span> Drevici Oyster <span>›</span> Médias</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Today</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-high"></div>
-                    <div class="tinfo">
-                      <div class="tname">Corriger bug tab bar mobile</div>
-                      <div class="crumb">天才 <span>›</span> Vault <span>›</span> Nav</div>
-                    </div>
-                    <div class="tmeta"><div class="when">17:15</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-med"></div>
-                    <div class="tinfo">
-                      <div class="tname">Recolorer les tags de format</div>
-                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Boissons</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Today</div><div class="subs-pill">0/3</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-low"></div>
-                    <div class="tinfo">
-                      <div class="tname">Trier les visuels PVPP</div>
-                      <div class="crumb">PVPP <span>›</span> Lookbook <span>›</span> Tri</div>
-                    </div>
-                    <div class="tmeta"><div class="when">19:00</div></div>
-                  </div>
-                  <div class="task-row is-done">
-                    <div class="checkbox done"></div>
-                    <div class="tinfo">
-                      <div class="tname">Corriger contraste champs</div>
-                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Dark mode</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Today</div></div>
-                  </div>
-                </div>
+                <div class="task-list is-active" data-tab="today"></div>
 
-                <div class="task-list" data-tab="tomorrow">
-                  <div class="task-row">
-                    <div class="checkbox p-med"></div>
-                    <div class="tinfo">
-                      <div class="tname">Cartes Supabase</div>
-                      <div class="crumb">Manga Squad <span>›</span> Homepage <span>›</span> Dashboard v4</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Demain</div><div class="subs-pill">0/4</div></div>
-                  </div>
-                  <div class="task-row">
-                    <div class="checkbox p-low"></div>
-                    <div class="tinfo">
-                      <div class="tname">Relire le devis</div>
-                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Séjour août</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Demain</div></div>
-                  </div>
-                </div>
+                <div class="task-list" data-tab="tomorrow"></div>
 
-                <div class="task-list" data-tab="d26">
-                  <div class="task-row">
-                    <div class="checkbox p-med"></div>
-                    <div class="tinfo">
-                      <div class="tname">Publier le changelog</div>
-                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Publication</div>
-                    </div>
-                    <div class="tmeta"><div class="when">26 juil</div></div>
-                  </div>
-                </div>
+                <div class="task-list" data-tab="d26"></div>
 
-                <div class="task-list" data-tab="d27">
-                  <div class="task-row">
-                    <div class="checkbox p-low"></div>
-                    <div class="tinfo">
-                      <div class="tname">Export photos lookbook</div>
-                      <div class="crumb">PVPP <span>›</span> Contenu <span>›</span> Instagram</div>
-                    </div>
-                    <div class="tmeta"><div class="when">27 juil</div></div>
-                  </div>
-                </div>
+                <div class="task-list" data-tab="d27"></div>
 
-                <div class="task-list" data-tab="d28">
-                  <div class="empty-state">Aucune tâche</div>
-                </div>
+                <div class="task-list" data-tab="d28"></div>
 
-                <div class="task-list" data-tab="d29">
-                  <div class="empty-state">Aucune tâche</div>
-                </div>
+                <div class="task-list" data-tab="d29"></div>
 
-                <div class="task-list" data-tab="d30">
-                  <div class="empty-state">Aucune tâche</div>
-                </div>
+                <div class="task-list" data-tab="d30"></div>
 
-                <div class="task-list" data-tab="later">
-                  <div class="task-row">
-                    <div class="checkbox p-low"></div>
-                    <div class="tinfo">
-                      <div class="tname">Page paiement Corée</div>
-                      <div class="crumb">Manga Squad <span>›</span> Notion <span>›</span> Mangas workspace</div>
-                    </div>
-                    <div class="tmeta"><div class="when">Plus tard</div></div>
-                  </div>
-                </div>
+                <div class="task-list" data-tab="later"></div>
 
-                <div class="task-list" data-tab="nodate">
-                  <div class="empty-state">Aucune tâche sans date</div>
-                </div>
+                <div class="task-list" data-tab="nodate"></div>
               </div>
 
               <div class="panel">
@@ -1057,7 +904,7 @@
         </div>
   </div>
 
-  <div id="app-mobile" class="phone">
+  <div id="app-mobile" class="phone app-loading">
           <div class="drawer-backdrop" data-drawer-backdrop></div>
           <div class="drawer">
             <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
@@ -1085,7 +932,7 @@
                 <div class="stat-pill">
                   <span class="sp-item" style="color:var(--accent-manga-blue)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-                    <b>5</b>
+                    <b id="kpi-projects-mobile">5</b>
                   </span>
                   <span class="sp-sep"></span>
                   <span class="sp-item" style="color:var(--accent-pvpp)">
@@ -1110,31 +957,7 @@
             </div>
 
             <div class="project-strip">
-              <div class="project-block" data-project="Rosalina">
-                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-rosalina)">家</span><span class="pk-pct">75%</span></div>
-                <div class="bar"><span style="width:75%;background:var(--accent-rosalina)"></span></div>
-                <div class="pk-count">6/8</div>
-              </div>
-              <div class="project-block" data-project="Foodmaster">
-                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-food)">食</span><span class="pk-pct">65%</span></div>
-                <div class="bar"><span style="width:65%;background:var(--accent-food)"></span></div>
-                <div class="pk-count">4/9</div>
-              </div>
-              <div class="project-block" data-project="Manga Squad">
-                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-manga-blue)">漫</span><span class="pk-pct">42%</span></div>
-                <div class="bar"><span style="width:42%;background:var(--accent-manga)"></span></div>
-                <div class="pk-count">3/7</div>
-              </div>
-              <div class="project-block" data-project="PVPP">
-                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-pvpp)">服</span><span class="pk-pct">28%</span></div>
-                <div class="bar"><span style="width:28%;background:var(--accent-pvpp)"></span></div>
-                <div class="pk-count">2/6</div>
-              </div>
-              <div class="project-block" data-project="天才">
-                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-vault)">才</span><span class="pk-pct">90%</span></div>
-                <div class="bar"><span style="width:90%;background:var(--accent-vault)"></span></div>
-                <div class="pk-count">18/20</div>
-              </div>
+
             </div>
 
             <div class="panel">
@@ -1151,175 +974,25 @@
               <div class="dt" data-tab="nodate">No date</div>
             </div>
 
-            <div class="m-tasks" data-tab="overdue">
-              <div class="task-row" data-project="Rosalina">
-                <div class="checkbox p-high"></div>
-                <div class="tinfo">
-                  <div class="tname">Renouveler certificat SSL</div>
-                  <div class="crumb">Rosalina <span>›</span> Infra</div>
-                </div>
-                <div class="tmeta"><div class="when" style="color:var(--danger)">22 juil</div></div>
-              </div>
-            </div>
+            <div class="m-tasks" data-tab="overdue"></div>
 
-            <div class="m-tasks is-active" data-tab="today">
-              <div class="task-row" data-project="Foodmaster">
-                <div class="checkbox p-high"></div>
-                <div class="tinfo">
-                  <div class="tname">Galerie de polices</div>
-                  <div class="crumb">Foodmaster <span>›</span> Blancs Becs</div>
-                </div>
-                <div class="tmeta"><div class="when">14:30</div><div class="subs-pill">0/2</div></div>
-              </div>
-              <div class="task-row" data-project="Rosalina">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Corriger contraste dark mode</div>
-                  <div class="crumb">Rosalina <span>›</span> devis_rosalina</div>
-                </div>
-                <div class="tmeta"><div class="when">16:00</div></div>
-              </div>
-              <div class="task-row" data-project="Foodmaster">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Compresser les visuels menu</div>
-                  <div class="crumb">Foodmaster <span>›</span> Drevici Oyster</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div></div>
-              </div>
-              <div class="task-row" data-project="天才">
-                <div class="checkbox p-high"></div>
-                <div class="tinfo">
-                  <div class="tname">Corriger bug tab bar mobile</div>
-                  <div class="crumb">天才 <span>›</span> Vault</div>
-                </div>
-                <div class="tmeta"><div class="when">17:15</div></div>
-              </div>
-              <div class="task-row" data-project="Foodmaster">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Recolorer les tags de format</div>
-                  <div class="crumb">Foodmaster <span>›</span> Blancs Becs</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div><div class="subs-pill">0/3</div></div>
-              </div>
-              <div class="task-row" data-project="PVPP">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Trier les visuels PVPP</div>
-                  <div class="crumb">PVPP <span>›</span> Lookbook</div>
-                </div>
-                <div class="tmeta"><div class="when">19:00</div></div>
-              </div>
-              <div class="task-row" data-project="Foodmaster">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Répondre au client Blancs Becs</div>
-                  <div class="crumb">Foodmaster <span>›</span> Support</div>
-                </div>
-                <div class="tmeta"><div class="when">20:00</div></div>
-              </div>
-              <div class="task-row" data-project="Manga Squad">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Vérifier sauvegarde Supabase</div>
-                  <div class="crumb">Manga Squad <span>›</span> Infra</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div></div>
-              </div>
-              <div class="task-row" data-project="PVPP">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Retoucher le logo</div>
-                  <div class="crumb">PVPP <span>›</span> Identité</div>
-                </div>
-                <div class="tmeta"><div class="when">21:00</div></div>
-              </div>
-              <div class="task-row" data-project="天才">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Mettre à jour le README</div>
-                  <div class="crumb">天才 <span>›</span> Vault</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div></div>
-              </div>
-              <div class="task-row" data-project="PVPP">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Planifier le post Instagram</div>
-                  <div class="crumb">PVPP <span>›</span> Contenu</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div></div>
-              </div>
-              <div class="task-row is-done" data-project="Rosalina">
-                <div class="checkbox done"></div>
-                <div class="tinfo">
-                  <div class="tname">Bouton copier l'email</div>
-                  <div class="crumb">Rosalina <span>›</span> dashboard.html</div>
-                </div>
-                <div class="tmeta"><div class="when">Today</div></div>
-              </div>
-            </div>
+            <div class="m-tasks is-active" data-tab="today"></div>
 
-            <div class="m-tasks" data-tab="tomorrow">
-              <div class="task-row" data-project="Manga Squad">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Cartes Supabase</div>
-                  <div class="crumb">Manga Squad <span>›</span> Homepage</div>
-                </div>
-                <div class="tmeta"><div class="when">Demain</div><div class="subs-pill">0/4</div></div>
-              </div>
-            </div>
+            <div class="m-tasks" data-tab="tomorrow"></div>
 
-            <div class="m-tasks" data-tab="d26">
-              <div class="task-row" data-project="Foodmaster">
-                <div class="checkbox p-med"></div>
-                <div class="tinfo">
-                  <div class="tname">Publier le changelog</div>
-                  <div class="crumb">Foodmaster <span>›</span> Publication</div>
-                </div>
-                <div class="tmeta"><div class="when">26 juil</div></div>
-              </div>
-            </div>
+            <div class="m-tasks" data-tab="d26"></div>
 
-            <div class="m-tasks" data-tab="d27">
-              <div class="task-row" data-project="PVPP">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Export photos lookbook</div>
-                  <div class="crumb">PVPP <span>›</span> Instagram</div>
-                </div>
-                <div class="tmeta"><div class="when">27 juil</div></div>
-              </div>
-            </div>
+            <div class="m-tasks" data-tab="d27"></div>
 
-            <div class="m-tasks" data-tab="d28">
-              <div class="empty-state">Aucune tâche</div>
-            </div>
+            <div class="m-tasks" data-tab="d28"></div>
 
-            <div class="m-tasks" data-tab="d29">
-              <div class="empty-state">Aucune tâche</div>
-            </div>
+            <div class="m-tasks" data-tab="d29"></div>
 
-            <div class="m-tasks" data-tab="d30">
-              <div class="empty-state">Aucune tâche</div>
-            </div>
+            <div class="m-tasks" data-tab="d30"></div>
 
-            <div class="m-tasks" data-tab="later">
-              <div class="task-row" data-project="Manga Squad">
-                <div class="checkbox p-low"></div>
-                <div class="tinfo">
-                  <div class="tname">Page paiement Corée</div>
-                  <div class="crumb">Manga Squad <span>›</span> Notion</div>
-                </div>
-                <div class="tmeta"><div class="when">Plus tard</div></div>
-              </div>
-            </div>
+            <div class="m-tasks" data-tab="later"></div>
 
-            <div class="m-tasks" data-tab="nodate">
-              <div class="empty-state">Aucune tâche sans date</div>
-            </div>
+            <div class="m-tasks" data-tab="nodate"></div>
             </div>
           </div>
 
@@ -1934,6 +1607,264 @@
     });
   });
 
+</script>
+
+<script>
+  // ================================================================
+  // Supabase — connexion réelle
+  // ================================================================
+  const SUPABASE_URL = 'https://pjjpsvohzeueoivtbenp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_xjpR5VbYJssJTcSSiSma_w_cfyEqJll';
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const authGate = document.getElementById('auth-gate');
+  const authEmail = document.getElementById('auth-email');
+  const authPassword = document.getElementById('auth-password');
+  const authError = document.getElementById('auth-error');
+  const appDesktopEl = document.getElementById('app-desktop');
+  const appMobileEl = document.getElementById('app-mobile');
+
+  function showAuthGate() { authGate.classList.remove('hidden'); }
+  function hideAuthGate() { authGate.classList.add('hidden'); }
+  function revealApp() {
+    appDesktopEl.classList.remove('app-loading');
+    appMobileEl.classList.remove('app-loading');
+  }
+
+  document.getElementById('auth-submit').addEventListener('click', async (e) => {
+    e.preventDefault();
+    authError.textContent = '';
+    const { error } = await sb.auth.signInWithPassword({
+      email: authEmail.value.trim(),
+      password: authPassword.value,
+    });
+    if (error) { authError.textContent = error.message; return; }
+    hideAuthGate();
+    loadData();
+  });
+  [authEmail, authPassword].forEach(input => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('auth-submit').click();
+    });
+  });
+
+  async function checkAuth() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) { hideAuthGate(); loadData(); }
+    else { showAuthGate(); }
+  }
+
+  // ---------------- date helpers ----------------
+  const MONTHS_FR = ['janv.', 'févr.', 'mars', 'avr.', 'mai', 'juin', 'juil.', 'août', 'sept.', 'oct.', 'nov.', 'déc.'];
+  function formatDateShort(dateStr) {
+    const d = new Date(dateStr + 'T00:00:00');
+    return `${d.getDate()} ${MONTHS_FR[d.getMonth()]}`;
+  }
+  // NOTE: le mapping ci-dessous est calé sur les onglets fixes actuels
+  // (Overdue/Today/Demain/26→30 juil/Plus tard/No date). Il faudra le
+  // rendre glissant (basé sur la date du jour réelle) pour un usage
+  // au-delà du 30 juillet 2026 — bon prochain chantier.
+  function classifyDue(dueDateStr) {
+    if (!dueDateStr) return 'nodate';
+    const map = {
+      '2026-07-24': 'today', '2026-07-25': 'tomorrow',
+      '2026-07-26': 'd26', '2026-07-27': 'd27', '2026-07-28': 'd28',
+      '2026-07-29': 'd29', '2026-07-30': 'd30',
+    };
+    if (map[dueDateStr]) return map[dueDateStr];
+    if (dueDateStr < '2026-07-24') return 'overdue';
+    return 'later';
+  }
+  function whenLabel(todo, tabKey) {
+    if (todo.due_time) return todo.due_time.slice(0, 5);
+    if (!todo.due_date) return '';
+    if (tabKey === 'today') return 'Today';
+    if (tabKey === 'tomorrow') return 'Demain';
+    if (tabKey === 'later') return 'Plus tard';
+    return formatDateShort(todo.due_date);
+  }
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // ---------------- rendering ----------------
+  function projectStats(project, pages, todos) {
+    const pageIds = new Set(pages.filter(p => p.project_id === project.id).map(p => p.id));
+    const relevant = todos.filter(t => pageIds.has(t.page_id));
+    const total = relevant.length;
+    const done = relevant.filter(t => t.is_done).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    return { total, done, pct };
+  }
+
+  function ventureCardHtml(project, stats) {
+    const circumference = 97;
+    const offset = Math.round(circumference * (1 - stats.pct / 100));
+    return `
+      <div class="venture-card">
+        <div class="tab" style="background:${project.color}">${escapeHtml(project.kanji)}</div>
+        <div class="vinfo">
+          <div class="vname">${escapeHtml(project.name)}</div>
+          <div class="vdesc"></div>
+        </div>
+        <div class="vmeta">
+          <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="${project.color}" stroke-width="3" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">${stats.pct}%</text></svg>
+          <div class="vtasks">${stats.done}/${stats.total}</div>
+        </div>
+      </div>`;
+  }
+
+  function projectBlockHtml(project, stats) {
+    return `
+      <div class="project-block" data-project="${escapeHtml(project.slug)}">
+        <div class="pk-top"><span class="pk-kanji" style="background:${project.color}">${escapeHtml(project.kanji)}</span><span class="pk-pct">${stats.pct}%</span></div>
+        <div class="bar"><span style="width:${stats.pct}%;background:${project.color}"></span></div>
+        <div class="pk-count">${stats.done}/${stats.total}</div>
+      </div>`;
+  }
+
+  function taskRowHtml(todo, project, page, subStats) {
+    const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : 'p-low';
+    const tabKey = classifyDue(todo.due_date);
+    const label = whenLabel(todo, tabKey);
+    const whenStyle = tabKey === 'overdue' ? ' style="color:var(--danger)"' : '';
+    const subsHtml = (subStats && subStats.total > 0) ? `<div class="subs-pill">${subStats.done}/${subStats.total}</div>` : '';
+    return `
+      <div class="task-row${todo.is_done ? ' is-done' : ''}" data-todo-id="${todo.id}" data-project="${escapeHtml(project ? project.slug : '')}">
+        <div class="checkbox ${pClass}${todo.is_done ? ' done' : ''}"></div>
+        <div class="tinfo">
+          <div class="tname">${escapeHtml(todo.title)}</div>
+          <div class="crumb">${escapeHtml(project ? project.name : '')} <span>›</span> ${escapeHtml(page ? page.title : '')}</div>
+        </div>
+        <div class="tmeta"><div class="when"${whenStyle}>${label}</div>${subsHtml}</div>
+      </div>`;
+  }
+
+  function wireCheckbox(cb) {
+    cb.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      cb.classList.toggle('done');
+      const nowDone = cb.classList.contains('done');
+      const row = cb.closest('.task-row');
+      row?.classList.toggle('is-done', nowDone);
+
+      const list = row?.closest('.task-list, .m-tasks');
+      if (list) { if (nowDone) list.appendChild(row); else sortIncomplete(list); }
+
+      const kpiEl = cb.closest('.desktop-frame') ? kpiDoneDesktop : kpiDoneMobile;
+      if (kpiEl) {
+        const current = parseInt(kpiEl.textContent, 10) || 0;
+        kpiEl.textContent = String(Math.max(0, current + (nowDone ? -1 : 1)));
+      }
+      const phone = cb.closest('.phone');
+      if (phone) updateTasksSummary(phone);
+
+      const todoId = row?.dataset.todoId;
+      if (todoId) {
+        await sb.from('todos').update({
+          is_done: nowDone,
+          completed_at: nowDone ? new Date().toISOString() : null,
+        }).eq('id', todoId);
+      }
+    });
+  }
+
+  function wireTaskRowClick(row) {
+    row.addEventListener('click', () => {
+      const phone = row.closest('.phone');
+      if (phone) { openTaskSheet(phone); return; }
+      row.classList.add('opening');
+      setTimeout(() => row.classList.remove('opening'), 220);
+    });
+  }
+
+  function wireProjectBlock(block) {
+    block.addEventListener('click', () => {
+      const phone = block.closest('.phone') || block.closest('.desktop-frame');
+      if (!phone) return;
+      const wasActive = block.classList.contains('active-filter');
+      phone.querySelectorAll('.project-block').forEach(b => b.classList.remove('active-filter'));
+      if (wasActive) {
+        phone.querySelectorAll('.task-row[data-project]').forEach(row => row.classList.remove('filtered-out'));
+        updateTasksSummary(phone);
+        return;
+      }
+      block.classList.add('active-filter');
+      const project = block.dataset.project;
+      phone.querySelectorAll('.task-row[data-project]').forEach(row => {
+        row.classList.toggle('filtered-out', row.dataset.project !== project);
+      });
+      updateTasksSummary(phone);
+    });
+  }
+
+  function renderProjects(projects, pages, todos) {
+    const deskEl = document.getElementById('venture-list-desktop');
+    const mobEl = document.querySelector('.project-strip');
+    if (deskEl) deskEl.innerHTML = projects.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
+    if (mobEl) {
+      mobEl.innerHTML = projects.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
+      mobEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
+    }
+    const kpiProjD = document.getElementById('kpi-projects-desktop');
+    const kpiProjM = document.getElementById('kpi-projects-mobile');
+    if (kpiProjD) kpiProjD.textContent = String(projects.length).padStart(2, '0');
+    if (kpiProjM) kpiProjM.textContent = String(projects.length);
+  }
+
+  function renderTodos(todos, pages, projects, subtasks) {
+    const pageById = Object.fromEntries(pages.map(p => [p.id, p]));
+    const projectById = Object.fromEntries(projects.map(p => [p.id, p]));
+    const subsByTodo = {};
+    subtasks.forEach(s => {
+      subsByTodo[s.todo_id] = subsByTodo[s.todo_id] || { done: 0, total: 0 };
+      subsByTodo[s.todo_id].total++;
+      if (s.is_done) subsByTodo[s.todo_id].done++;
+    });
+
+    const tabKeys = ['overdue', 'today', 'tomorrow', 'd26', 'd27', 'd28', 'd29', 'd30', 'later', 'nodate'];
+    const buckets = Object.fromEntries(tabKeys.map(k => [k, []]));
+
+    todos.forEach(todo => {
+      const page = pageById[todo.page_id];
+      const project = page ? projectById[page.project_id] : null;
+      const tabKey = classifyDue(todo.due_date);
+      const html = taskRowHtml(todo, project, page, subsByTodo[todo.id]);
+      (buckets[tabKey] || buckets.later).push(html);
+    });
+
+    document.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(container => {
+      const rows = buckets[container.dataset.tab] || [];
+      container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
+    });
+
+    document.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    document.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+    document.querySelectorAll('.task-list, .m-tasks').forEach(list => sortIncomplete(list));
+    document.querySelectorAll('.phone').forEach(phone => updateTasksSummary(phone));
+
+    const remaining = todos.filter(t => !t.is_done).length;
+    if (kpiDoneDesktop) kpiDoneDesktop.textContent = String(remaining);
+    if (kpiDoneMobile) kpiDoneMobile.textContent = String(remaining);
+  }
+
+  async function loadData() {
+    const [{ data: projects, error: pErr }, { data: pages, error: pgErr },
+           { data: todos, error: tErr }, { data: subtasks, error: sErr }] = await Promise.all([
+      sb.from('projects').select('*').eq('is_archived', false).order('position'),
+      sb.from('pages').select('*').eq('is_archived', false),
+      sb.from('todos').select('*').eq('is_archived', false),
+      sb.from('subtasks').select('*').eq('is_archived', false),
+    ]);
+    const err = pErr || pgErr || tErr || sErr;
+    if (err) { console.error('Erreur de chargement Supabase :', err); return; }
+
+    renderProjects(projects || [], pages || [], todos || []);
+    renderTodos(todos || [], pages || [], projects || [], subtasks || []);
+    revealApp();
+  }
+
+  checkAuth();
 </script>
 
 </body>
