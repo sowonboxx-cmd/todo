@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" id="theme-color-meta" content="#14171A">
+<title>Ultimate Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF1EC;
+    --paper: #F5F7F3;
+    --card: #FFFFFF;
+    --ink: #1B1F1C;
+    --muted: #6E7369;
+    --faint: #9BA096;
+    --line: #DDE2D8;
+    --line-soft: #E7EBE3;
+    --accent-rosalina: #2F6F5E;
+    --accent-food: #A64B3B;
+    --accent-manga: #4B4E8F;
+    --accent-manga-blue: #3E72A6;
+    --accent-pvpp: #B4842B;
+    --accent-vault: #3A3D3F;
+    --danger: #B4442E;
+    --accent-due: #C9762E;
+    --tabbar-bg: rgba(255,255,255,0.82);
+    --tabbar-shadow: 0 10px 30px rgba(20,23,20,0.16), inset 0 1px 0 rgba(255,255,255,0.5);
+    --tabbar-icon: rgba(20,23,20,0.48);
+    --tabbar-icon-active: #14171A;
+    --tabbar-active-bg: rgba(20,23,20,0.08);
+    --shadow: 0 1px 2px rgba(20,23,20,0.04), 0 8px 24px -12px rgba(20,23,20,0.10);
+    --radius: 16px;
+  }
+  html[data-theme="dark"] {
+    --bg: #14171A;
+    --paper: #191D20;
+    --card: #1E2326;
+    --ink: #EDEEE9;
+    --muted: #9AA098;
+    --faint: #6B716A;
+    --line: #2B3033;
+    --line-soft: #23282B;
+    --accent-rosalina: #4F9C86;
+    --accent-food: #CE6A4A;
+    --accent-manga: #7478C9;
+    --accent-manga-blue: #5E97CC;
+    --accent-pvpp: #E0A83E;
+    --accent-vault: #9A9EA3;
+    --danger: #E0705A;
+    --accent-due: #E0925A;
+    --tabbar-bg: rgba(8,9,8,0.92);
+    --tabbar-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    --tabbar-icon: rgba(255,255,255,0.5);
+    --tabbar-icon-active: #fff;
+    --tabbar-active-bg: rgba(255,255,255,0.12);
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 32px -14px rgba(0,0,0,0.55);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background .3s ease, color .3s ease;
+  }
+  .mono { font-family: 'Inter', sans-serif; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+  .display { font-family: 'Inter', sans-serif; }
+
+  /* ---------- page chrome (not part of the product mockup) ---------- */
+  .page-head {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 36px 32px 8px;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .page-head h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .page-head p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 6px;
+    box-shadow: var(--shadow);
+  }
+  .theme-toggle button {
+    border: none;
+    background: transparent;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .theme-toggle button.active { background: var(--ink); color: var(--bg); }
+
+  .decks {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 32px 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+  .deck-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .deck-label .tag {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+    border: 1px solid var(--line);
+    padding: 3px 8px;
+    border-radius: 6px;
+  }
+  .deck-label span.name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 15px; }
+
+  /* ================= shared "folder tab" signature ================= */
+  .venture-card { position: relative; }
+  .tab {
+    position: absolute;
+    left: -1px;
+    top: 14px;
+    width: 22px;
+    height: 46px;
+    border-radius: 0 8px 8px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  /* ================================================================
+     DESKTOP MOCKUP
+     ================================================================ */
+  .desktop-frame {
+    position: relative;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    min-height: 720px;
+  }
+  .d-rail {
+    width: 216px;
+    flex-shrink: 0;
+    background: var(--card);
+    border-right: 1px solid var(--line-soft);
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+  }
+  .d-rail .brand {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .d-rail .brand small {
+    display: block;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 10px;
+    color: var(--faint);
+    letter-spacing: 0.06em;
+    margin-top: 2px;
+  }
+  .d-nav { display: flex; flex-direction: column; gap: 2px; }
+  .d-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13.5px;
+    font-weight: 500;
+  }
+  .d-nav a .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+  .d-nav a.active { background: var(--bg); color: var(--ink); }
+  .d-nav a.active .dot { background: var(--accent-rosalina); }
+  .d-rail-foot {
+    margin-top: auto;
+    border-top: 1px solid var(--line-soft);
+    padding-top: 14px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--faint);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .d-main { flex: 1; padding: 26px 30px 30px; overflow: hidden; }
+  .d-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+  }
+  .d-topbar h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0; }
+  .d-topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+  .d-search {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 9px 14px; width: 260px;
+    color: var(--faint); font-size: 12.5px;
+  }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--line-soft);
+    border-radius: 14px; padding: 16px 16px 14px;
+  }
+  .kpi .label {
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--faint); margin-bottom: 10px;
+  }
+  .kpi .value { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+  .kpi .value small { font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 500; }
+
+  .board { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line-soft);
+    border-radius: 14px; padding: 18px 18px 8px;
+  }
+  .panel h3 {
+    font-family: 'Inter', sans-serif; font-size: 14px; margin: 0 0 14px;
+    display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+  }
+  .panel h3 a { font-family: 'Inter', sans-serif; font-size: 10.5px; color: var(--faint); text-decoration: none; font-weight: 600; }
+  .h3-right { display: flex; align-items: center; gap: 10px; position: relative; }
+  .dots-btn {
+    border: none; background: transparent; color: var(--faint); cursor: pointer;
+    font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 6px;
+  }
+  .dots-btn:hover { background: var(--bg); }
+  .panel h3 .dots-btn, .m-section-title .dots-btn { color: var(--ink); }
+  .dots-menu {
+    display: none; position: absolute; top: 26px; right: 0; z-index: 5;
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: var(--shadow); padding: 5px; min-width: 190px;
+  }
+  .dots-menu.open { display: block; }
+  .dots-item {
+    display: block; width: 100%; text-align: left; border: none; background: transparent;
+    color: var(--ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 500;
+    padding: 8px 10px; border-radius: 7px; cursor: pointer;
+  }
+  .dots-item:hover { background: var(--bg); }
+
+  .task-row.is-done { opacity: 0.55; }
+  .task-list.hide-completed .task-row.is-done,
+  .m-tasks.hide-completed .task-row.is-done { display: none; }
+
+  .task-list[data-tab], .m-tasks[data-tab] { display: none; }
+  .task-list[data-tab].is-active, .m-tasks[data-tab].is-active { display: block; }
+
+  .empty-state {
+    padding: 22px 4px; text-align: center; color: var(--faint);
+    font-family: 'Inter', sans-serif; font-size: 11.5px;
+  }
+
+  .venture-card {
+    background: var(--bg); border: 1px solid var(--line-soft);
+    border-radius: 12px; padding: 13px 16px 13px 26px;
+    margin-bottom: 10px; margin-left: 8px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .venture-card .vinfo { flex: 1; min-width: 0; }
+  .venture-card .vname { font-weight: 600; font-size: 13.5px; margin-bottom: 2px; }
+  .venture-card .vdesc { color: var(--muted); font-size: 11.5px; }
+  .venture-card .vmeta {
+    display: flex; align-items: center; gap: 16px; flex-shrink: 0;
+  }
+  .venture-card .vtasks { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 11px; color: var(--muted); text-align: right; }
+  .ring { width: 38px; height: 38px; flex-shrink: 0; }
+  .ring text { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 9.5px; fill: var(--ink); }
+
+  .crumb-path {
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint);
+    letter-spacing: 0.01em;
+  }
+  .crumb-path span { margin: 0 4px; color: var(--faint); opacity: 0.6; font-weight: 400; }
+  .crumb-path b { color: var(--ink); font-weight: 700; }
+  .crumb {
+    display: block; font-family: 'Inter', sans-serif; font-size: 9.5px; font-weight: 600;
+    color: var(--faint); letter-spacing: 0.01em; margin-top: 2px;
+  }
+  .crumb span { margin: 0 3px; opacity: 0.6; font-weight: 400; }
+
+  .date-tabs {
+    display: flex; gap: 2px; overflow-x: auto; padding: 4px;
+    margin-bottom: 14px; background: var(--bg); border-radius: 999px;
+  }
+  .date-tabs::-webkit-scrollbar { display: none; }
+  .date-tabs .dt {
+    flex-shrink: 0; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600;
+    padding: 8px 14px; border-radius: 999px; background: transparent; color: var(--muted);
+    border: none; cursor: pointer; transition: background .12s ease, color .12s ease;
+  }
+  .date-tabs .dt.overdue { color: var(--danger); }
+  #app-mobile .date-tabs { flex-wrap: nowrap; }
+  #app-mobile .date-tabs .dt {
+    flex: 0 0 calc((100% - 8px) / 5); flex-shrink: 0; text-align: center;
+    padding-left: 6px; padding-right: 6px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .date-tabs .dt.active {
+    background: var(--card); color: var(--ink); font-weight: 700;
+  }
+  .date-tabs .dt.overdue.active { color: var(--danger); }
+
+  .task-row {
+    position: relative;
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 8px; margin: 0 -8px;
+    border-bottom: 1px solid var(--line-soft);
+    font-size: 12.5px; cursor: pointer;
+  }
+  .task-row::before {
+    content: ''; position: absolute; inset: 2px 0 3px;
+    border-radius: 8px; background: transparent; z-index: 0;
+    transition: background .12s ease; pointer-events: none;
+  }
+  .task-row:hover::before { background: var(--bg); }
+  .task-row.opening::before { background: var(--line-soft); }
+  .task-row > * { position: relative; z-index: 1; }
+  .task-row:last-child { border-bottom: none; }
+  .checkbox {
+    width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
+    flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .checkbox.p-high { border-color: var(--danger); }
+  .checkbox.p-med { border-color: var(--accent-pvpp); }
+  .checkbox.p-low { border-color: var(--faint); }
+  .checkbox.done { background: var(--accent-rosalina); border-color: var(--accent-rosalina); }
+  .checkbox.done::after { content: '✓'; color: #fff; font-size: 10px; }
+  .task-row .tinfo { flex: 1; min-width: 0; }
+  .task-row .tname { font-weight: 600; }
+  .task-row.is-done .tname { text-decoration: line-through; color: var(--faint); }
+  .task-row .tmeta { flex-shrink: 0; text-align: right; font-family: 'Inter', sans-serif; }
+  .task-row .tmeta .when { font-size: 11.5px; font-weight: 700; color: var(--accent-due); }
+  .subs-pill {
+    display: inline-block;
+    margin-top: 5px; padding: 2px 7px; border-radius: 6px;
+    background: var(--bg); color: var(--muted); font-size: 9.5px; font-weight: 700;
+  }
+
+  .wiki-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft); font-size: 12.5px; }
+  .wiki-row:last-child { border-bottom: none; }
+  .wiki-row .wdot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+  .wiki-row .wname { flex: 1; }
+  .wiki-row .wmeta { color: var(--faint); font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px; }
+
+  .capture-bar {
+    margin-top: 14px; display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1px dashed var(--line);
+    border-radius: 12px; padding: 12px 16px; color: var(--faint); font-size: 12.5px;
+  }
+  .capture-bar .k { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; margin-left: auto; }
+
+  /* ================================================================
+     MOBILE MOCKUP
+     ================================================================ */
+  .phone {
+    position: relative;
+    width: 375px;
+    border-radius: 40px;
+    border: 8px solid var(--ink);
+    background: var(--bg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .m-status {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 14px 22px 4px; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 12px;
+  }
+  .m-hello h2[data-open-drawer] { cursor: pointer; }
+  #venture-list-mobile .m-venture:nth-child(n+3) { display: none; }
+  #venture-list-mobile.expanded .m-venture:nth-child(n+3) { display: block; }
+  #venture-list-desktop { max-height: 460px; overflow-y: auto; padding-right: 10px; }
+  #venture-list-desktop::-webkit-scrollbar { width: 5px; }
+  #venture-list-desktop::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+  #venture-list-desktop:hover::-webkit-scrollbar-thumb,
+  #venture-list-desktop.is-scrolling::-webkit-scrollbar-thumb { background: var(--line); }
+  .m-content { padding: 6px 20px 84px; }
+  .m-hello { display: flex; align-items: center; gap: 12px; margin: 10px 0 18px; }
+  .m-hello-left { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; }
+  .m-hello h2 { font-family: 'Inter', sans-serif; font-size: 19px; margin: 0; line-height: 1.2; flex-shrink: 0; }
+  .m-hello .sub { color: var(--muted); font-size: 11.5px; margin-top: 3px; }
+  .stat-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 999px;
+    padding: 3px 9px;
+  }
+  .stat-pill .sp-item { font-size: 10px; font-weight: 700; color: var(--muted); display: inline-flex; align-items: center; gap: 3px; }
+  .stat-pill .sp-item svg { width: 11px; height: 11px; flex-shrink: 0; }
+  .stat-pill .sp-item b { color: var(--ink); font-weight: 800; }
+  .stat-pill .sp-sep { width: 1px; height: 11px; background: var(--faint); flex-shrink: 0; }
+  .m-hello .h3-right { flex-shrink: 0; }
+  .m-hello .dots-btn { font-size: 16px; color: var(--ink); }
+  .m-search {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: 10px 14px; font-size: 12.5px; color: var(--faint); margin-bottom: 16px;
+  }
+
+  .project-strip {
+    display: flex; overflow-x: auto; margin-bottom: 20px;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+  }
+  .project-strip::-webkit-scrollbar { display: none; }
+  .project-block {
+    flex: 0 0 29%; min-width: 98px; padding: 11px 13px 10px;
+    border-right: 1px solid var(--line-soft);
+  }
+  .project-block:last-child { border-right: none; }
+  .project-block { cursor: pointer; transition: background .12s ease; }
+  .project-block.active-filter { background: var(--bg); }
+  .task-row.filtered-out { display: none; }
+  .pk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .pk-kanji {
+    width: 24px; height: 24px; border-radius: 7px; color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+    filter: saturate(0.85) brightness(1.12);
+  }
+  .pk-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--ink); opacity: 0.88; letter-spacing: -0.01em; }
+  .pk-count { font-size: 10px; font-weight: 700; color: var(--faint); margin-top: 5px; }
+  .m-section-title {
+    display: flex; justify-content: flex-end; align-items: center;
+    margin: 0 0 8px;
+  }
+  .m-section-title h3 { font-family: 'Inter', sans-serif; font-size: 14.5px; margin: 0; font-weight: 700; }
+  .m-section-title a { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 10px; color: var(--faint); text-decoration: none; }
+
+  .m-venture {
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    padding: 13px 14px 13px 24px; margin-bottom: 10px; margin-left: 8px; position: relative;
+  }
+  .m-venture .vtop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .m-venture .vname { font-weight: 600; font-size: 13px; }
+  .m-venture .vpct { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 12px; }
+  .bar { height: 5px; border-radius: 3px; background: var(--line-soft); overflow: hidden; }
+  .bar span { display: block; height: 100%; border-radius: 3px; }
+  .m-venture .vdesc { color: var(--muted); font-size: 11px; margin-top: 7px; }
+
+  .task-list, .m-tasks { overflow-y: auto; padding-right: 10px; padding-left: 8px; margin-left: -8px; }
+  #app-desktop .task-list { max-height: calc(100vh - 300px); }
+  .task-list::-webkit-scrollbar, .m-tasks::-webkit-scrollbar { width: 5px; }
+  .task-list::-webkit-scrollbar-thumb, .m-tasks::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+  .task-list:hover::-webkit-scrollbar-thumb, .m-tasks:hover::-webkit-scrollbar-thumb,
+  .task-list.is-scrolling::-webkit-scrollbar-thumb, .m-tasks.is-scrolling::-webkit-scrollbar-thumb { background: var(--line); }
+
+  .tabbar {
+    position: absolute; left: 20px; right: 20px; bottom: 20px;
+    background: var(--tabbar-bg);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border-radius: 999px;
+    display: flex; align-items: center; gap: 4px;
+    padding: 6px;
+    box-shadow: var(--tabbar-shadow);
+    z-index: 20;
+  }
+  .tabbar .t {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    color: var(--tabbar-icon); font-size: 11.5px; font-family: 'Inter', sans-serif; font-weight: 600;
+    padding: 6px; border-radius: 999px; cursor: pointer;
+  }
+  .tabbar .t .label { display: none; }
+  .tabbar .t.active {
+    flex: 1.7; background: var(--tabbar-active-bg); color: var(--tabbar-icon-active);
+    padding: 6px 14px 6px 6px;
+  }
+  .tabbar .t.active .label { display: inline; }
+  .tabbar .icon-badge {
+    width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--tabbar-icon);
+  }
+  .tabbar .t.active .icon-badge { background: transparent; color: var(--tabbar-icon-active); }
+  .tabbar .icon-badge svg { width: 16px; height: 16px; }
+
+  /* ---------- global predictive search ---------- */
+  .search-overlay {
+    display: none; position: absolute; inset: 0; z-index: 100;
+    background: rgba(15,17,15,0.4); backdrop-filter: blur(2px);
+    align-items: flex-start; justify-content: center; padding-top: 64px;
+  }
+  .search-overlay.open { display: flex; }
+  .search-box {
+    width: 480px; max-width: 90%; background: var(--card);
+    border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .search-input-row {
+    display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .search-input-row input {
+    flex: 1; border: none; background: transparent; outline: none;
+    font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink);
+  }
+  .search-input-row input::placeholder { font-size: 12.5px; font-weight: 400; color: var(--faint); }
+  .search-input-row .search-icon { color: var(--faint); display: flex; flex-shrink: 0; }
+  .search-input-row .search-icon svg { width: 16px; height: 16px; }
+  .search-close { border: none; background: transparent; color: var(--faint); cursor: pointer; font-size: 13px; }
+  .search-results { max-height: 320px; overflow-y: auto; padding: 6px; }
+  .search-result { display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px; cursor: pointer; }
+  .search-result:hover { background: var(--bg); }
+  .search-result .sicon {
+    width: 28px; height: 28px; border-radius: 8px; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .search-result .sinfo { flex: 1; min-width: 0; }
+  .search-result .stitle { font-weight: 600; font-size: 13px; }
+  .search-result .spath { font-size: 10.5px; color: var(--faint); margin-top: 2px; }
+  .search-result .stag {
+    font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+    padding: 2px 7px; border-radius: 6px; background: var(--line-soft); color: var(--muted); flex-shrink: 0;
+  }
+
+  /* ---------- mobile hamburger drawer ---------- */
+  .drawer-backdrop {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.4);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 80;
+  }
+  .drawer-backdrop.open { opacity: 1; pointer-events: auto; }
+  .drawer {
+    position: absolute; top: 0; bottom: 0; left: -82%; width: 78%;
+    background: var(--card); border-right: 1px solid var(--line);
+    padding: 24px 18px; z-index: 90; transition: left .25s ease;
+    display: flex; flex-direction: column; gap: 20px;
+  }
+  .drawer.open { left: 0; }
+  .drawer-header { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; }
+  .drawer-header small {
+    display: block; font-weight: 700; font-size: 9.5px; color: var(--faint);
+    letter-spacing: 0.06em; margin-top: 2px;
+  }
+  .drawer-nav { display: flex; flex-direction: column; gap: 2px; }
+  .drawer-nav a {
+    display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px;
+    color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500;
+  }
+  .drawer-nav a .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+  .drawer-nav a.active { background: var(--bg); color: var(--ink); }
+  .drawer-nav a.active .dot { background: var(--accent-rosalina); }
+  .drawer-sep { height: 1px; background: var(--line-soft); }
+  .drawer-projects { display: flex; flex-direction: column; gap: 2px; }
+  .drawer-project {
+    display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px;
+    font-size: 13px; font-weight: 500;
+  }
+  .drawer-project .dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
+
+  .mobile-wrap { display: flex; justify-content: center; }
+
+  @media (max-width: 900px) {
+    .desktop-frame { display: none; }
+    .board { grid-template-columns: 1fr; }
+  }
+  /* ================= task detail + date/duration/repeat sheets ================= */
+  .sheet-backdrop {
+    position: absolute; inset: 0; background: rgba(15,17,15,0.42);
+    opacity: 0; pointer-events: none; transition: opacity .2s ease; z-index: 150;
+  }
+  .sheet-backdrop.open { opacity: 1; pointer-events: auto; }
+  .task-sheet {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 160;
+    background: var(--card); border-radius: 20px 20px 0 0;
+    max-height: 86%; overflow-y: auto;
+    padding: 10px 18px 22px;
+    transform: translateY(105%); transition: transform .28s ease;
+  }
+  .task-sheet.open { transform: translateY(0); }
+  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 14px; }
+  .sheet-view { display: none; }
+  .sheet-view.active { display: block; }
+  .sheet-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .sheet-topbar.center-only { justify-content: center; }
+  .sheet-topbar .link { border: none; background: transparent; color: var(--accent-due); font-family: 'Inter', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; }
+  .sheet-topbar .link.strong { font-weight: 700; }
+  .sheet-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14.5px; }
+  .segmented { display: flex; background: var(--bg); border-radius: 999px; padding: 3px; }
+  .segmented button { border: none; background: transparent; padding: 6px 14px; border-radius: 999px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--muted); cursor: pointer; }
+  .segmented button.active { background: var(--accent-due); color: #fff; }
+
+  /* task detail view */
+  .td-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .td-list { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 5px; }
+  .td-list .chev { color: var(--faint); font-size: 10px; }
+  .td-icons { display: flex; gap: 14px; }
+  .ic-flat { border: none; background: transparent; color: var(--faint); font-size: 15px; cursor: pointer; padding: 2px; }
+  .td-due { display: flex; align-items: flex-start; gap: 10px; padding: 8px 6px; margin: 0 -6px 14px; border-radius: 8px; cursor: pointer; }
+  .td-due:hover { background: var(--bg); }
+  .td-due-date { color: var(--accent-due); font-weight: 700; font-size: 13.5px; }
+  .td-due-repeat { color: var(--faint); font-size: 11px; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
+  .td-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 14px; }
+  .td-link { color: var(--accent-due); font-size: 12.5px; word-break: break-all; margin-bottom: 22px; line-height: 1.5; }
+  .td-toolbar { display: flex; gap: 22px; border-top: 1px solid var(--line-soft); padding-top: 14px; }
+
+  /* date/duration picker view */
+  .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .cal-nav { border: none; background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; }
+  .cal-month { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px 0; margin-bottom: 16px; }
+  .cal-dow { text-align: center; font-size: 10px; font-weight: 700; color: var(--faint); padding-bottom: 6px; }
+  .cal-cell { text-align: center; padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--ink); cursor: pointer; }
+  .cal-cell.empty { cursor: default; }
+  .cal-cell span { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; }
+  .cal-cell.today span { border: 1.5px solid var(--accent-due); color: var(--accent-due); }
+  .cal-cell.selected span { background: var(--accent-due); color: #fff; }
+  .dd-pane { display: none; }
+  .dd-pane.active { display: block; }
+  .dur-cards { display: flex; gap: 10px; margin-bottom: 14px; }
+  .dur-card { flex: 1; background: var(--bg); border-radius: 12px; padding: 12px 14px; }
+  .dur-label { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .dur-value { color: var(--accent-due); font-weight: 700; font-size: 14px; }
+  .dur-sub { color: var(--faint); font-size: 10.5px; margin-top: 4px; }
+  .dd-tz { text-align: center; color: var(--faint); font-size: 11.5px; margin: 4px 0 14px; }
+  .dd-list { background: var(--bg); border-radius: 12px; margin-bottom: 14px; }
+  .dd-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 14px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--line-soft);
+    cursor: pointer;
+  }
+  .dd-row:last-child { border-bottom: none; }
+  .dd-val { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+  .dd-val.accent { color: var(--accent-due); }
+  .dd-clear { display: block; margin: 6px auto 0; border: none; background: transparent; color: var(--danger); font-weight: 700; font-size: 13px; cursor: pointer; }
+  .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch .slider { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: background .15s ease; }
+  .switch .slider::before { content: ''; position: absolute; width: 18px; height: 18px; left: 2px; top: 2px; background: #fff; border-radius: 50%; transition: transform .15s ease; }
+  .switch input:checked + .slider { background: var(--accent-due); }
+  .switch input:checked + .slider::before { transform: translateX(16px); }
+
+  /* option lists (reminder / repeat) */
+  .opt-list { background: var(--bg); border-radius: 12px; margin-bottom: 14px; }
+  .opt-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 13px 14px; font-size: 13px; font-weight: 600; color: var(--ink);
+    border-bottom: 1px solid var(--line-soft); cursor: pointer;
+  }
+  .opt-row:last-child { border-bottom: none; }
+  .opt-row.selected { color: var(--accent-due); }
+  .opt-row .opt-hint { color: var(--faint); font-weight: 500; margin-right: auto; margin-left: 6px; }
+  .opt-row .check { color: var(--accent-due); font-weight: 700; }
+  .opt-row .chev { color: var(--faint); }
+
+  /* custom repeat */
+  .freq-picker { background: var(--bg); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
+  .freq-label { font-size: 11px; color: var(--muted); font-weight: 700; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .freq-row { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; margin-bottom: 10px; }
+  .freq-select {
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+    border-radius: 8px; padding: 6px 8px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  }
+  .freq-summary { color: var(--accent-due); font-size: 12px; font-weight: 700; }
+  .week-picker { background: var(--bg); border-radius: 12px; padding: 14px; }
+  .week-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .week-pill {
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    border-radius: 999px; padding: 7px 12px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700;
+    cursor: pointer;
+  }
+  .week-pill.active { background: var(--accent-due); color: #fff; border-color: transparent; }
+
+  /* ================= responsive app shell (real site, not a side-by-side draft deck) ================= */
+  body { margin: 0; }
+  #app-desktop, #app-mobile { display: none; }
+  @media (min-width: 900px) { #app-desktop { display: flex; } }
+  @media (max-width: 899px) { #app-mobile { display: block; } }
+
+  #app-desktop.desktop-frame {
+    border: none; border-radius: 0; box-shadow: none; min-height: 100vh; width: 100%;
+  }
+  #app-mobile.phone {
+    position: relative; width: 100%; max-width: 560px; margin: 0 auto;
+    border: none; border-radius: 0; box-shadow: none;
+    height: 100vh; height: 100dvh; background: var(--bg);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  #app-mobile .m-content {
+    flex: 1; display: flex; flex-direction: column; min-height: 0;
+    overflow-y: auto; overflow-x: hidden;
+  }
+  #app-mobile .m-hello, #app-mobile .project-strip { flex-shrink: 0; }
+  #app-mobile .panel:last-child {
+    flex-shrink: 0;
+    display: flex; flex-direction: column;
+  }
+  #app-mobile .m-tasks.is-active {
+    max-height: 375px; overflow-y: auto;
+  }
+  #app-mobile .tabbar {
+    position: fixed; left: 50%; right: auto; bottom: 20px;
+    transform: translateX(-50%);
+    width: min(calc(100% - 40px), 520px);
+  }
+  #app-mobile .drawer-backdrop,
+  #app-mobile .search-overlay,
+  #app-mobile .sheet-backdrop {
+    position: fixed; inset: 0;
+  }
+  #app-mobile .drawer {
+    position: fixed; top: 0; bottom: 0; left: -320px; width: 300px; max-width: 82vw;
+    transition: left .25s ease;
+  }
+  #app-mobile .drawer.open { left: 0; }
+  #app-mobile .task-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 560px;
+  }
+  #app-desktop .search-overlay { position: fixed; inset: 0; }
+</style>
+</head>
+
+<body>
+
+  <div id="app-desktop" class="desktop-frame">
+        <div class="d-rail">
+          <div class="brand">控制盤<small>PERSONAL OS</small></div>
+          <nav class="d-nav">
+            <a class="active"><span class="dot"></span>Tableau de bord</a>
+            <a data-open-search><span class="dot"></span>Recherche</a>
+            <a><span class="dot"></span>Tâches</a>
+            <a><span class="dot"></span>Wiki</a>
+            <a><span class="dot"></span>Projets</a>
+            <a><span class="dot"></span>Réglages</a>
+            <a data-theme-toggle><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
+          </nav>
+          <div class="d-rail-foot">SYNC · CLOUDFLARE WORKER<br>DERNIÈRE MAJ IL Y A 4MIN</div>
+        </div>
+
+        <div class="d-main">
+          <div class="d-topbar">
+            <div>
+              <h2 class="display">Bonjour, Will</h2>
+              <div class="sub">Vendredi 24 juillet — 5 projets actifs</div>
+            </div>
+            <div class="crumb-path">Foodmaster <span>›</span> Website <span>›</span> Accueil <span>›</span> Header <span>›</span> <b>Hero image</b></div>
+          </div>
+
+          <div class="kpi-row">
+            <div class="kpi"><div class="label">Projets</div><div class="value mono">05</div></div>
+            <div class="kpi"><div class="label">Tâches à faire</div><div class="value mono"><span id="kpi-done-desktop">23</span></div></div>
+            <div class="kpi"><div class="label">Complétion moyenne</div><div class="value mono">54<small>%</small></div></div>
+            <div class="kpi"><div class="label">Pages</div><div class="value mono">27</div></div>
+          </div>
+
+          <div class="board">
+            <div class="panel">
+              <h3>Projets</h3>
+
+              <div class="venture-list" id="venture-list-desktop">
+              <div class="venture-card">
+                <div class="tab" style="background:var(--accent-rosalina)">家</div>
+                <div class="vinfo">
+                  <div class="vname">Domaine Rosalina</div>
+                  <div class="vdesc">Toolsuite location · devis, calendrier, rappels caution</div>
+                </div>
+                <div class="vmeta">
+                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-rosalina)" stroke-width="3" stroke-dasharray="97" stroke-dashoffset="24" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">75%</text></svg>
+                  <div class="vtasks">6/8</div>
+                </div>
+              </div>
+
+              <div class="venture-card">
+                <div class="tab" style="background:var(--accent-food)">食</div>
+                <div class="vinfo">
+                  <div class="vname">Foodmaster</div>
+                  <div class="vdesc">SaaS menu + résa · Drevici Oyster, Les Blancs Becs</div>
+                </div>
+                <div class="vmeta">
+                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-food)" stroke-width="3" stroke-dasharray="63" stroke-dashoffset="49" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">65%</text></svg>
+                  <div class="vtasks">4/9</div>
+                </div>
+              </div>
+
+              <div class="venture-card">
+                <div class="tab" style="background:var(--accent-manga)">漫</div>
+                <div class="vinfo">
+                  <div class="vname">Manga Squad</div>
+                  <div class="vdesc">App collection manga · Lovable + Supabase</div>
+                </div>
+                <div class="vmeta">
+                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-manga)" stroke-width="3" stroke-dasharray="41" stroke-dashoffset="71" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">42%</text></svg>
+                  <div class="vtasks">3/7</div>
+                </div>
+              </div>
+
+              <div class="venture-card">
+                <div class="tab" style="background:var(--accent-pvpp)">服</div>
+                <div class="vinfo">
+                  <div class="vname">PVPP</div>
+                  <div class="vdesc">Pas Vu, Pas Pris · stratégie de marque & contenu</div>
+                </div>
+                <div class="vmeta">
+                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-pvpp)" stroke-width="3" stroke-dasharray="27" stroke-dashoffset="85" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">28%</text></svg>
+                  <div class="vtasks">2/6</div>
+                </div>
+              </div>
+
+              <div class="venture-card">
+                <div class="tab" style="background:var(--accent-vault)">才</div>
+                <div class="vinfo">
+                  <div class="vname">天才 Vault</div>
+                  <div class="vdesc">Inspiration vault personnel · sync GitHub</div>
+                </div>
+                <div class="vmeta">
+                  <svg class="ring" viewBox="0 0 36 36"><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--line-soft)" stroke-width="3"/><circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--accent-vault)" stroke-width="3" stroke-dasharray="88" stroke-dashoffset="10" stroke-linecap="round" transform="rotate(-90 18 18)"/><text x="18" y="21" text-anchor="middle">90%</text></svg>
+                  <div class="vtasks">continu</div>
+                </div>
+              </div>
+
+              </div>
+
+              <div class="capture-bar">+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
+            </div>
+
+            <div>
+              <div class="panel" style="margin-bottom:16px;">
+                <h3>Tâches
+                  <span class="h3-right">
+                    <a href="#">TickTick sync</a>
+                    <button class="dots-btn" data-menu-toggle>⋯</button>
+                    <div class="dots-menu">
+                      <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
+                    </div>
+                  </span>
+                </h3>
+                <div class="date-tabs" data-tabgroup>
+                  <div class="dt overdue" data-tab="overdue">Overdue</div>
+                  <div class="dt active" data-tab="today">Today</div>
+                  <div class="dt" data-tab="tomorrow">Demain</div>
+                  <div class="dt" data-tab="d26">26 juil</div>
+                  <div class="dt" data-tab="d27">27 juil</div>
+                  <div class="dt" data-tab="d28">28 juil</div>
+                  <div class="dt" data-tab="d29">29 juil</div>
+                  <div class="dt" data-tab="d30">30 juil</div>
+                  <div class="dt" data-tab="later">Plus tard</div>
+                  <div class="dt" data-tab="nodate">No date</div>
+                </div>
+
+                <div class="task-list" data-tab="overdue">
+                  <div class="task-row">
+                    <div class="checkbox p-high"></div>
+                    <div class="tinfo">
+                      <div class="tname">Renouveler certificat SSL</div>
+                      <div class="crumb">Rosalina <span>›</span> domainerosalina.com <span>›</span> Infra</div>
+                    </div>
+                    <div class="tmeta"><div class="when" style="color:var(--danger)">22 juil</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-med"></div>
+                    <div class="tinfo">
+                      <div class="tname">Répondre au client</div>
+                      <div class="crumb">Foodmaster <span>›</span> Drevici Oyster <span>›</span> Support</div>
+                    </div>
+                    <div class="tmeta"><div class="when" style="color:var(--danger)">23 juil</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list is-active" data-tab="today">
+                  <div class="task-row">
+                    <div class="checkbox p-high"></div>
+                    <div class="tinfo">
+                      <div class="tname">Bouton copier l'email</div>
+                      <div class="crumb">Rosalina <span>›</span> dashboard.html <span>›</span> Rappel caution</div>
+                    </div>
+                    <div class="tmeta"><div class="when">14:30</div><div class="subs-pill">0/2</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-high"></div>
+                    <div class="tinfo">
+                      <div class="tname">Galerie de polices</div>
+                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Admin</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Today</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-med"></div>
+                    <div class="tinfo">
+                      <div class="tname">Corriger contraste dark mode</div>
+                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Formulaire</div>
+                    </div>
+                    <div class="tmeta"><div class="when">16:00</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-low"></div>
+                    <div class="tinfo">
+                      <div class="tname">Compresser les visuels menu</div>
+                      <div class="crumb">Foodmaster <span>›</span> Drevici Oyster <span>›</span> Médias</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Today</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-high"></div>
+                    <div class="tinfo">
+                      <div class="tname">Corriger bug tab bar mobile</div>
+                      <div class="crumb">天才 <span>›</span> Vault <span>›</span> Nav</div>
+                    </div>
+                    <div class="tmeta"><div class="when">17:15</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-med"></div>
+                    <div class="tinfo">
+                      <div class="tname">Recolorer les tags de format</div>
+                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Boissons</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Today</div><div class="subs-pill">0/3</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-low"></div>
+                    <div class="tinfo">
+                      <div class="tname">Trier les visuels PVPP</div>
+                      <div class="crumb">PVPP <span>›</span> Lookbook <span>›</span> Tri</div>
+                    </div>
+                    <div class="tmeta"><div class="when">19:00</div></div>
+                  </div>
+                  <div class="task-row is-done">
+                    <div class="checkbox done"></div>
+                    <div class="tinfo">
+                      <div class="tname">Corriger contraste champs</div>
+                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Dark mode</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Today</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list" data-tab="tomorrow">
+                  <div class="task-row">
+                    <div class="checkbox p-med"></div>
+                    <div class="tinfo">
+                      <div class="tname">Cartes Supabase</div>
+                      <div class="crumb">Manga Squad <span>›</span> Homepage <span>›</span> Dashboard v4</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Demain</div><div class="subs-pill">0/4</div></div>
+                  </div>
+                  <div class="task-row">
+                    <div class="checkbox p-low"></div>
+                    <div class="tinfo">
+                      <div class="tname">Relire le devis</div>
+                      <div class="crumb">Rosalina <span>›</span> devis_rosalina <span>›</span> Séjour août</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Demain</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list" data-tab="d26">
+                  <div class="task-row">
+                    <div class="checkbox p-med"></div>
+                    <div class="tinfo">
+                      <div class="tname">Publier le changelog</div>
+                      <div class="crumb">Foodmaster <span>›</span> Les Blancs Becs <span>›</span> Publication</div>
+                    </div>
+                    <div class="tmeta"><div class="when">26 juil</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list" data-tab="d27">
+                  <div class="task-row">
+                    <div class="checkbox p-low"></div>
+                    <div class="tinfo">
+                      <div class="tname">Export photos lookbook</div>
+                      <div class="crumb">PVPP <span>›</span> Contenu <span>›</span> Instagram</div>
+                    </div>
+                    <div class="tmeta"><div class="when">27 juil</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list" data-tab="d28">
+                  <div class="empty-state">Aucune tâche</div>
+                </div>
+
+                <div class="task-list" data-tab="d29">
+                  <div class="empty-state">Aucune tâche</div>
+                </div>
+
+                <div class="task-list" data-tab="d30">
+                  <div class="empty-state">Aucune tâche</div>
+                </div>
+
+                <div class="task-list" data-tab="later">
+                  <div class="task-row">
+                    <div class="checkbox p-low"></div>
+                    <div class="tinfo">
+                      <div class="tname">Page paiement Corée</div>
+                      <div class="crumb">Manga Squad <span>›</span> Notion <span>›</span> Mangas workspace</div>
+                    </div>
+                    <div class="tmeta"><div class="when">Plus tard</div></div>
+                  </div>
+                </div>
+
+                <div class="task-list" data-tab="nodate">
+                  <div class="empty-state">Aucune tâche sans date</div>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h3>Wiki récent <a href="#">ouvrir →</a></h3>
+                <div class="wiki-row"><div class="wdot" style="background:var(--accent-rosalina)"></div><div class="wname">Rosalina — pitfalls & règles SQL</div><div class="wmeta">2j</div></div>
+                <div class="wiki-row"><div class="wdot" style="background:var(--accent-food)"></div><div class="wname">Foodmaster — workflow publication</div><div class="wmeta">4j</div></div>
+                <div class="wiki-row"><div class="wdot" style="background:var(--accent-manga)"></div><div class="wname">Manga Squad — schéma Supabase</div><div class="wmeta">1sem</div></div>
+                <div class="wiki-row"><div class="wdot" style="background:var(--accent-vault)"></div><div class="wname">天才 — notes oEmbed proxy</div><div class="wmeta">2sem</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="search-overlay" id="search-desktop">
+          <div class="search-box">
+            <div class="search-input-row">
+              <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+              <input type="text" placeholder="Rechercher un projet, une page, une tâche…" data-search-input>
+              <button class="search-close" data-close-search>✕</button>
+            </div>
+            <div class="search-results" data-search-results></div>
+          </div>
+        </div>
+  </div>
+
+  <div id="app-mobile" class="phone">
+          <div class="drawer-backdrop" data-drawer-backdrop></div>
+          <div class="drawer">
+            <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
+            <nav class="drawer-nav">
+              <a class="active"><span class="dot"></span>Tableau de bord</a>
+              <a data-open-search><span class="dot"></span>Recherche</a>
+              <a><span class="dot"></span>Tâches</a>
+              <a><span class="dot"></span>Wiki</a>
+              <a><span class="dot"></span>Projets</a>
+              <a><span class="dot"></span>Réglages</a>
+            </nav>
+            <div class="drawer-sep"></div>
+            <div class="drawer-projects">
+              <div class="drawer-project"><span class="dot" style="background:var(--accent-rosalina)"></span>Domaine Rosalina</div>
+              <div class="drawer-project"><span class="dot" style="background:var(--accent-food)"></span>Foodmaster</div>
+              <div class="drawer-project"><span class="dot" style="background:var(--accent-manga)"></span>Manga Squad</div>
+              <div class="drawer-project"><span class="dot" style="background:var(--accent-pvpp)"></span>PVPP</div>
+              <div class="drawer-project"><span class="dot" style="background:var(--accent-vault)"></span>天才 Vault</div>
+            </div>
+          </div>
+          <div class="m-content">
+            <div class="m-hello">
+              <div class="m-hello-left">
+                <h2 class="display" data-open-drawer>Will</h2>
+                <div class="stat-pill">
+                  <span class="sp-item" style="color:var(--accent-manga-blue)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+                    <b>5</b>
+                  </span>
+                  <span class="sp-sep"></span>
+                  <span class="sp-item" style="color:var(--accent-pvpp)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    <b id="kpi-done-mobile">23</b>
+                  </span>
+                  <span class="sp-sep"></span>
+                  <span class="sp-item" style="color:var(--accent-rosalina)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    <b data-tasks-summary>0/0</b>
+                  </span>
+                </div>
+              </div>
+              <div class="h3-right">
+                <button class="dots-btn" data-menu-toggle>•••</button>
+                <div class="dots-menu">
+                  <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
+                  <button class="dots-item">Activité</button>
+                  <button class="dots-item">Historique</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="project-strip">
+              <div class="project-block" data-project="Rosalina">
+                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-rosalina)">家</span><span class="pk-pct">75%</span></div>
+                <div class="bar"><span style="width:75%;background:var(--accent-rosalina)"></span></div>
+                <div class="pk-count">6/8</div>
+              </div>
+              <div class="project-block" data-project="Foodmaster">
+                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-food)">食</span><span class="pk-pct">65%</span></div>
+                <div class="bar"><span style="width:65%;background:var(--accent-food)"></span></div>
+                <div class="pk-count">4/9</div>
+              </div>
+              <div class="project-block" data-project="Manga Squad">
+                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-manga-blue)">漫</span><span class="pk-pct">42%</span></div>
+                <div class="bar"><span style="width:42%;background:var(--accent-manga)"></span></div>
+                <div class="pk-count">3/7</div>
+              </div>
+              <div class="project-block" data-project="PVPP">
+                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-pvpp)">服</span><span class="pk-pct">28%</span></div>
+                <div class="bar"><span style="width:28%;background:var(--accent-pvpp)"></span></div>
+                <div class="pk-count">2/6</div>
+              </div>
+              <div class="project-block" data-project="天才">
+                <div class="pk-top"><span class="pk-kanji" style="background:var(--accent-vault)">才</span><span class="pk-pct">90%</span></div>
+                <div class="bar"><span style="width:90%;background:var(--accent-vault)"></span></div>
+                <div class="pk-count">18/20</div>
+              </div>
+            </div>
+
+            <div class="panel">
+            <div class="date-tabs" data-tabgroup>
+              <div class="dt overdue" data-tab="overdue">Overdue</div>
+              <div class="dt active" data-tab="today">Today</div>
+              <div class="dt" data-tab="tomorrow">Demain</div>
+              <div class="dt" data-tab="d26">26 juil</div>
+              <div class="dt" data-tab="d27">27 juil</div>
+              <div class="dt" data-tab="d28">28 juil</div>
+              <div class="dt" data-tab="d29">29 juil</div>
+              <div class="dt" data-tab="d30">30 juil</div>
+              <div class="dt" data-tab="later">Plus tard</div>
+              <div class="dt" data-tab="nodate">No date</div>
+            </div>
+
+            <div class="m-tasks" data-tab="overdue">
+              <div class="task-row" data-project="Rosalina">
+                <div class="checkbox p-high"></div>
+                <div class="tinfo">
+                  <div class="tname">Renouveler certificat SSL</div>
+                  <div class="crumb">Rosalina <span>›</span> Infra</div>
+                </div>
+                <div class="tmeta"><div class="when" style="color:var(--danger)">22 juil</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks is-active" data-tab="today">
+              <div class="task-row" data-project="Foodmaster">
+                <div class="checkbox p-high"></div>
+                <div class="tinfo">
+                  <div class="tname">Galerie de polices</div>
+                  <div class="crumb">Foodmaster <span>›</span> Blancs Becs</div>
+                </div>
+                <div class="tmeta"><div class="when">14:30</div><div class="subs-pill">0/2</div></div>
+              </div>
+              <div class="task-row" data-project="Rosalina">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Corriger contraste dark mode</div>
+                  <div class="crumb">Rosalina <span>›</span> devis_rosalina</div>
+                </div>
+                <div class="tmeta"><div class="when">16:00</div></div>
+              </div>
+              <div class="task-row" data-project="Foodmaster">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Compresser les visuels menu</div>
+                  <div class="crumb">Foodmaster <span>›</span> Drevici Oyster</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div></div>
+              </div>
+              <div class="task-row" data-project="天才">
+                <div class="checkbox p-high"></div>
+                <div class="tinfo">
+                  <div class="tname">Corriger bug tab bar mobile</div>
+                  <div class="crumb">天才 <span>›</span> Vault</div>
+                </div>
+                <div class="tmeta"><div class="when">17:15</div></div>
+              </div>
+              <div class="task-row" data-project="Foodmaster">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Recolorer les tags de format</div>
+                  <div class="crumb">Foodmaster <span>›</span> Blancs Becs</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div><div class="subs-pill">0/3</div></div>
+              </div>
+              <div class="task-row" data-project="PVPP">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Trier les visuels PVPP</div>
+                  <div class="crumb">PVPP <span>›</span> Lookbook</div>
+                </div>
+                <div class="tmeta"><div class="when">19:00</div></div>
+              </div>
+              <div class="task-row" data-project="Foodmaster">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Répondre au client Blancs Becs</div>
+                  <div class="crumb">Foodmaster <span>›</span> Support</div>
+                </div>
+                <div class="tmeta"><div class="when">20:00</div></div>
+              </div>
+              <div class="task-row" data-project="Manga Squad">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Vérifier sauvegarde Supabase</div>
+                  <div class="crumb">Manga Squad <span>›</span> Infra</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div></div>
+              </div>
+              <div class="task-row" data-project="PVPP">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Retoucher le logo</div>
+                  <div class="crumb">PVPP <span>›</span> Identité</div>
+                </div>
+                <div class="tmeta"><div class="when">21:00</div></div>
+              </div>
+              <div class="task-row" data-project="天才">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Mettre à jour le README</div>
+                  <div class="crumb">天才 <span>›</span> Vault</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div></div>
+              </div>
+              <div class="task-row" data-project="PVPP">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Planifier le post Instagram</div>
+                  <div class="crumb">PVPP <span>›</span> Contenu</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div></div>
+              </div>
+              <div class="task-row is-done" data-project="Rosalina">
+                <div class="checkbox done"></div>
+                <div class="tinfo">
+                  <div class="tname">Bouton copier l'email</div>
+                  <div class="crumb">Rosalina <span>›</span> dashboard.html</div>
+                </div>
+                <div class="tmeta"><div class="when">Today</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks" data-tab="tomorrow">
+              <div class="task-row" data-project="Manga Squad">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Cartes Supabase</div>
+                  <div class="crumb">Manga Squad <span>›</span> Homepage</div>
+                </div>
+                <div class="tmeta"><div class="when">Demain</div><div class="subs-pill">0/4</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks" data-tab="d26">
+              <div class="task-row" data-project="Foodmaster">
+                <div class="checkbox p-med"></div>
+                <div class="tinfo">
+                  <div class="tname">Publier le changelog</div>
+                  <div class="crumb">Foodmaster <span>›</span> Publication</div>
+                </div>
+                <div class="tmeta"><div class="when">26 juil</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks" data-tab="d27">
+              <div class="task-row" data-project="PVPP">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Export photos lookbook</div>
+                  <div class="crumb">PVPP <span>›</span> Instagram</div>
+                </div>
+                <div class="tmeta"><div class="when">27 juil</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks" data-tab="d28">
+              <div class="empty-state">Aucune tâche</div>
+            </div>
+
+            <div class="m-tasks" data-tab="d29">
+              <div class="empty-state">Aucune tâche</div>
+            </div>
+
+            <div class="m-tasks" data-tab="d30">
+              <div class="empty-state">Aucune tâche</div>
+            </div>
+
+            <div class="m-tasks" data-tab="later">
+              <div class="task-row" data-project="Manga Squad">
+                <div class="checkbox p-low"></div>
+                <div class="tinfo">
+                  <div class="tname">Page paiement Corée</div>
+                  <div class="crumb">Manga Squad <span>›</span> Notion</div>
+                </div>
+                <div class="tmeta"><div class="when">Plus tard</div></div>
+              </div>
+            </div>
+
+            <div class="m-tasks" data-tab="nodate">
+              <div class="empty-state">Aucune tâche sans date</div>
+            </div>
+            </div>
+          </div>
+
+          <div class="tabbar">
+            <div class="t active">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
+              <span class="label">Accueil</span>
+            </div>
+            <div class="t" data-theme-toggle>
+              <span class="icon-badge" data-theme-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
+            </div>
+            <div class="t" data-open-search>
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+            </div>
+            <div class="t">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg></span>
+            </div>
+            <div class="t">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+          </div>
+
+          <div class="search-overlay" id="search-mobile">
+            <div class="search-box">
+              <div class="search-input-row">
+                <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
+                <input type="text" placeholder="Rechercher…" data-search-input>
+                <button class="search-close" data-close-search>✕</button>
+              </div>
+              <div class="search-results" data-search-results></div>
+            </div>
+          </div>
+
+          <div class="sheet-backdrop" data-sheet-backdrop></div>
+          <div class="task-sheet" data-task-sheet>
+            <div class="sheet-handle"></div>
+
+            <!-- VIEW: task detail -->
+            <div class="sheet-view active" data-view="detail">
+              <div class="td-top">
+                <div class="td-list">📋 アニメ <span class="chev">⌄</span></div>
+                <div class="td-icons"><button class="ic-flat">⚑</button><button class="ic-flat">⋯</button></div>
+              </div>
+              <div class="td-due" data-goto="date">
+                <div class="checkbox"></div>
+                <div>
+                  <div class="td-due-date" data-due-summary>Demain, 25 juil</div>
+                  <div class="td-due-repeat">↻ <span data-repeat-summary>Chaque semaine le sam.</span></div>
+                </div>
+              </div>
+              <div class="td-title">Kami no Shizuku</div>
+              <div class="td-link">https://nyaa.si/?f=0&c=0_0&q=%5BSubsPlease%5D+kami+no+shizuku+1080</div>
+              <div class="td-toolbar">
+                <button class="ic-flat">🏷</button>
+                <button class="ic-flat">☑</button>
+                <button class="ic-flat">📎</button>
+              </div>
+            </div>
+
+            <!-- VIEW: date / duration picker -->
+            <div class="sheet-view" data-view="date">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Annuler</button>
+                <div class="segmented" data-datedur-tabs>
+                  <button class="active" data-dd="date">Date</button>
+                  <button data-dd="duration">Durée</button>
+                </div>
+                <button class="link strong" data-back>OK</button>
+              </div>
+
+              <div class="dd-pane active" data-dd-pane="date">
+                <div class="cal-head">
+                  <button class="cal-nav">‹</button>
+                  <div class="cal-month">Juillet 2026</div>
+                  <button class="cal-nav">›</button>
+                </div>
+                <div class="cal-grid" data-cal-grid></div>
+              </div>
+
+              <div class="dd-pane" data-dd-pane="duration">
+                <div class="dur-cards">
+                  <div class="dur-card">
+                    <div class="dur-label">Date</div>
+                    <div class="dur-value">25 juil, sam.</div>
+                    <div class="dur-sub">Demain</div>
+                  </div>
+                  <div class="dur-card">
+                    <div class="dur-label">Heure</div>
+                    <div class="dur-value">17:00 – 18:00</div>
+                    <div class="dur-sub">Durée : 1h</div>
+                  </div>
+                </div>
+                <div class="dd-list" style="margin-bottom:10px;">
+                  <div class="dd-row"><span>Toute la journée</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                </div>
+                <div class="dd-tz">Paris, GMT+2</div>
+              </div>
+
+              <div class="dd-list">
+                <div class="dd-row"><span>⏰ Heure</span><span class="dd-val">Aucune</span></div>
+                <div class="dd-row" data-goto="reminder"><span>⏰ Rappel</span><span class="dd-val" data-reminder-val>Aucun</span></div>
+                <div class="dd-row" data-goto="repeat"><span>↻ Répéter</span><span class="dd-val accent" data-repeat-val>Chaque semaine le sam. ✕</span></div>
+                <div class="dd-row"><span>↻ Fin de répétition</span><span class="dd-val">Jamais</span></div>
+              </div>
+              <button class="dd-clear">Effacer</button>
+            </div>
+
+            <!-- VIEW: reminder options -->
+            <div class="sheet-view" data-view="reminder">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Rappel</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-reminder-options>
+                <div class="opt-row" data-val="Aucun">Aucun</div>
+                <div class="opt-row selected" data-val="À l'heure">À l'heure <span class="check">✓</span></div>
+                <div class="opt-row" data-val="5 min avant">5 min avant</div>
+                <div class="opt-row" data-val="30 min avant">30 min avant</div>
+                <div class="opt-row" data-val="1h avant">1h avant</div>
+                <div class="opt-row" data-val="1 jour avant">1 jour avant</div>
+                <div class="opt-row" data-val="Personnalisé">Personnalisé <span class="chev">›</span></div>
+              </div>
+              <div class="dd-list">
+                <div class="dd-row"><span>Rappel constant</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+              </div>
+            </div>
+
+            <!-- VIEW: repeat options -->
+            <div class="sheet-view" data-view="repeat">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Répéter</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-repeat-options>
+                <div class="opt-row" data-val="Aucune">Aucune</div>
+                <div class="opt-row" data-val="Chaque jour">Chaque jour</div>
+                <div class="opt-row" data-val="Chaque semaine le sam.">Chaque semaine <span class="opt-hint">(samedi)</span></div>
+                <div class="opt-row" data-val="Chaque mois le 25">Chaque mois <span class="opt-hint">(le 25)</span></div>
+                <div class="opt-row" data-val="Chaque année le 25 juil">Chaque année <span class="opt-hint">(25 juil)</span></div>
+                <div class="opt-row" data-val="Jours ouvrés">Jours ouvrés <span class="opt-hint">(lun–ven)</span></div>
+                <div class="opt-row selected" data-goto="custom-repeat" data-val="Chaque semaine le sam.">Personnalisé <span class="opt-hint">(chaque semaine le sam.)</span> <span class="check">✓</span></div>
+              </div>
+            </div>
+
+            <!-- VIEW: custom repeat -->
+            <div class="sheet-view" data-view="custom-repeat">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Annuler</button>
+                <div class="sheet-title">Répétition perso.</div>
+                <button class="link strong" data-back>OK</button>
+              </div>
+              <div class="dd-list" style="margin-bottom:14px;">
+                <div class="dd-row"><span>Type de répétition</span><span class="dd-val">Par date d'échéance</span></div>
+              </div>
+              <div class="freq-picker">
+                <div class="freq-label">Fréquence</div>
+                <div class="freq-row">
+                  <span>Toutes les</span>
+                  <select class="freq-select" data-freq-n>
+                    <option>1</option><option>2</option><option>3</option><option>4</option>
+                  </select>
+                  <select class="freq-select" data-freq-unit>
+                    <option value="jour">jour(s)</option>
+                    <option value="semaine" selected>semaine(s)</option>
+                    <option value="mois">mois</option>
+                    <option value="an">an(s)</option>
+                  </select>
+                </div>
+                <div class="freq-summary" data-freq-summary>Chaque semaine le sam.</div>
+              </div>
+              <div class="week-picker" data-week-picker>
+                <div class="freq-label">Semaine</div>
+                <div class="week-pills">
+                  <button class="week-pill" data-day="Lun">Lun</button>
+                  <button class="week-pill" data-day="Mar">Mar</button>
+                  <button class="week-pill" data-day="Mer">Mer</button>
+                  <button class="week-pill" data-day="Jeu">Jeu</button>
+                  <button class="week-pill" data-day="Ven">Ven</button>
+                  <button class="week-pill active" data-day="Sam">Sam</button>
+                  <button class="week-pill" data-day="Dim">Dim</button>
+                </div>
+              </div>
+            </div>
+          </div>
+  </div>
+
+<script>
+  const MOON_PATH = 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z';
+  const SUN_PATH = 'M12 4V2M12 22v-2M4.93 4.93L3.51 3.51M20.49 20.49l-1.42-1.42M4 12H2M22 12h-2M4.93 19.07l-1.42 1.42M20.49 3.51l-1.42 1.42M16 12a4 4 0 11-8 0 4 4 0 018 0z';
+  const themeColorMeta = document.getElementById('theme-color-meta');
+  function applyTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('[data-theme-icon] svg path').forEach(p => p.setAttribute('d', t === 'light' ? MOON_PATH : SUN_PATH));
+    document.querySelectorAll('[data-theme-label]').forEach(el => el.textContent = t === 'light' ? 'Mode sombre' : 'Mode clair');
+    if (themeColorMeta) themeColorMeta.setAttribute('content', t === 'light' ? '#EEF1EC' : '#14171A');
+  }
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+  });
+  applyTheme(document.documentElement.getAttribute('data-theme'));
+
+  const kpiDoneDesktop = document.getElementById('kpi-done-desktop');
+  const kpiDoneMobile = document.getElementById('kpi-done-mobile');
+
+  // default sort: tasks with a time first (ascending), then by priority (high > med > low)
+  function priorityRank(row) {
+    const cb = row.querySelector('.checkbox');
+    if (cb?.classList.contains('p-high')) return 0;
+    if (cb?.classList.contains('p-med')) return 1;
+    if (cb?.classList.contains('p-low')) return 2;
+    return 3;
+  }
+  function timeOf(row) {
+    const text = row.querySelector('.tmeta .when')?.textContent || '';
+    const m = text.match(/(\d{1,2}):(\d{2})/);
+    return m ? parseInt(m[1], 10) * 60 + parseInt(m[2], 10) : null;
+  }
+  function sortIncomplete(list) {
+    const rows = [...list.querySelectorAll('.task-row')];
+    const incomplete = rows.filter(r => !r.classList.contains('is-done'));
+    const done = rows.filter(r => r.classList.contains('is-done'));
+    incomplete.sort((a, b) => {
+      const ta = timeOf(a), tb = timeOf(b);
+      if (ta !== null && tb !== null) return ta - tb;
+      if (ta !== null) return -1;
+      if (tb !== null) return 1;
+      return priorityRank(a) - priorityRank(b);
+    });
+    [...incomplete, ...done].forEach(r => list.appendChild(r));
+  }
+  document.querySelectorAll('.task-list, .m-tasks').forEach(list => sortIncomplete(list));
+
+  // done/total summary for the active tab (mobile), excludes rows hidden by the project filter
+  function updateTasksSummary(phone) {
+    const summaryEl = phone.querySelector('[data-tasks-summary]');
+    if (!summaryEl) return;
+    const activeList = phone.querySelector('.m-tasks.is-active');
+    if (!activeList) return;
+    const rows = [...activeList.querySelectorAll('.task-row')].filter(r => !r.classList.contains('filtered-out'));
+    const done = rows.filter(r => r.classList.contains('is-done')).length;
+    summaryEl.textContent = `${done}/${rows.length}`;
+  }
+  document.querySelectorAll('.phone').forEach(phone => updateTasksSummary(phone));
+
+  document.querySelectorAll('.checkbox').forEach(cb => {
+    cb.addEventListener('click', (e) => {
+      e.stopPropagation();
+      cb.classList.toggle('done');
+      const nowDone = cb.classList.contains('done');
+      const row = cb.closest('.task-row');
+      row?.classList.toggle('is-done', nowDone);
+
+      const list = row?.closest('.task-list, .m-tasks');
+      if (list) {
+        if (nowDone) {
+          list.appendChild(row); // freshly checked → goes to the bottom, after previously completed ones
+        } else {
+          sortIncomplete(list); // unchecked → rejoins the sorted incomplete group
+        }
+      }
+
+      // "Tâches à faire" = remaining count — goes down when a task is checked off
+      const kpiEl = cb.closest('.desktop-frame') ? kpiDoneDesktop : kpiDoneMobile;
+      if (kpiEl) {
+        const current = parseInt(kpiEl.textContent, 10) || 0;
+        const next = current + (nowDone ? -1 : 1);
+        kpiEl.textContent = String(Math.max(0, next));
+      }
+      const phone = cb.closest('.phone');
+      if (phone) updateTasksSummary(phone);
+    });
+  });
+
+  // "voir tout" — show only 2 projects until expanded
+  document.querySelectorAll('[data-show-all]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      const list = document.getElementById('venture-list-' + link.dataset.showAll);
+      if (!list) return;
+      const expanded = list.classList.toggle('expanded');
+      link.textContent = expanded ? 'réduire ↑' : 'voir tout →';
+    });
+  });
+
+  // hamburger drawer (mobile)
+  document.querySelectorAll('[data-open-drawer]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const phone = btn.closest('.phone');
+      phone.querySelector('.drawer')?.classList.add('open');
+      phone.querySelector('[data-drawer-backdrop]')?.classList.add('open');
+    });
+  });
+  document.querySelectorAll('[data-drawer-backdrop]').forEach(bd => {
+    bd.addEventListener('click', () => {
+      bd.classList.remove('open');
+      bd.closest('.phone')?.querySelector('.drawer')?.classList.remove('open');
+    });
+  });
+
+  // global predictive search
+  const SEARCH_DATA = [
+    { title: "Accueil", type: "Page", project: "Foodmaster", page: "Website" },
+    { title: "Header", type: "Page", project: "Foodmaster", page: "Website" },
+    { title: "Hero image", type: "Sous-tâche", project: "Foodmaster", page: "Website › Header" },
+    { title: "Pitfalls & règles SQL", type: "Page", project: "Rosalina", page: null },
+    { title: "Schéma Supabase", type: "Page", project: "Manga Squad", page: null },
+    { title: "Notes oEmbed proxy", type: "Page", project: "天才 Vault", page: null },
+    { title: "Renouveler certificat SSL", type: "Todo", project: "Rosalina", page: "Infra" },
+    { title: "Répondre au client", type: "Todo", project: "Foodmaster", page: "Drevici Oyster › Support" },
+    { title: "Bouton copier l'email", type: "Todo", project: "Rosalina", page: "dashboard.html" },
+    { title: "Galerie de polices", type: "Todo", project: "Foodmaster", page: "Blancs Becs" },
+    { title: "Corriger contraste dark mode", type: "Todo", project: "Rosalina", page: "devis_rosalina" },
+    { title: "Compresser les visuels menu", type: "Todo", project: "Foodmaster", page: "Drevici Oyster" },
+    { title: "Corriger bug tab bar mobile", type: "Todo", project: "天才", page: "Vault" },
+    { title: "Recolorer les tags de format", type: "Todo", project: "Foodmaster", page: "Blancs Becs" },
+    { title: "Trier les visuels PVPP", type: "Todo", project: "PVPP", page: "Lookbook" },
+    { title: "Corriger contraste champs", type: "Todo", project: "Rosalina", page: "devis_rosalina › Dark mode" },
+    { title: "Cartes Supabase", type: "Todo", project: "Manga Squad", page: "Homepage" },
+    { title: "Relire le devis", type: "Todo", project: "Rosalina", page: "devis_rosalina › Séjour août" },
+    { title: "Publier le changelog", type: "Todo", project: "Foodmaster", page: "Publication" },
+    { title: "Export photos lookbook", type: "Todo", project: "PVPP", page: "Instagram" },
+    { title: "Page paiement Corée", type: "Todo", project: "Manga Squad", page: "Notion" },
+    { title: "Répondre au client Blancs Becs", type: "Todo", project: "Foodmaster", page: "Support" },
+    { title: "Vérifier sauvegarde Supabase", type: "Todo", project: "Manga Squad", page: "Infra" },
+    { title: "Retoucher le logo", type: "Todo", project: "PVPP", page: "Identité" },
+    { title: "Mettre à jour le README", type: "Todo", project: "天才", page: "Vault" },
+    { title: "Planifier le post Instagram", type: "Todo", project: "PVPP", page: "Contenu" },
+  ];
+  function iconFor(type) { return type === 'Page' ? '📄' : type === 'Todo' ? '☐' : '↳'; }
+  function renderSearch(overlay, query) {
+    const list = overlay.querySelector('[data-search-results]');
+    const q = query.trim().toLowerCase();
+    if (!q) { list.innerHTML = ''; return; }
+    const matches = SEARCH_DATA.filter(item => item.title.toLowerCase().includes(q));
+    if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
+    list.innerHTML = matches.slice(0, 6).map(m => `
+      <div class="search-result">
+        <div class="sicon">${iconFor(m.type)}</div>
+        <div class="sinfo">
+          <div class="stitle">${m.title}</div>
+          <div class="spath">${m.project}${m.page ? ' › ' + m.page : ''}</div>
+        </div>
+        <div class="stag">${m.type}</div>
+      </div>
+    `).join('');
+  }
+  document.querySelectorAll('.search-overlay [data-search-input]').forEach(input => {
+    input.addEventListener('input', () => renderSearch(input.closest('.search-overlay'), input.value));
+  });
+  document.querySelectorAll('[data-open-search]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const frame = btn.closest('.desktop-frame') || btn.closest('.phone');
+      if (!frame) return;
+      frame.querySelector('.drawer')?.classList.remove('open');
+      frame.querySelector('[data-drawer-backdrop]')?.classList.remove('open');
+      const overlay = frame.querySelector('.search-overlay');
+      overlay.classList.add('open');
+      overlay.querySelector('[data-search-input]').focus();
+    });
+  });
+  document.querySelectorAll('[data-close-search]').forEach(btn => {
+    btn.addEventListener('click', () => btn.closest('.search-overlay').classList.remove('open'));
+  });
+  document.querySelectorAll('.search-overlay').forEach(ov => {
+    ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('open'); });
+  });
+
+  // ================= task detail / date-duration / reminder / repeat sheet =================
+  function openTaskSheet(phone) {
+    const sheet = phone.querySelector('[data-task-sheet]');
+    const backdrop = phone.querySelector('[data-sheet-backdrop]');
+    if (!sheet || !backdrop) return;
+    sheet.dataset.stack = 'detail';
+    showSheetView(sheet, 'detail');
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+    buildCalendar(sheet, 2026, 6); // July = month index 6
+  }
+  function closeTaskSheet(phone) {
+    phone.querySelector('[data-task-sheet]')?.classList.remove('open');
+    phone.querySelector('[data-sheet-backdrop]')?.classList.remove('open');
+  }
+  function showSheetView(sheet, view) {
+    sheet.querySelectorAll('.sheet-view').forEach(v => v.classList.toggle('active', v.dataset.view === view));
+  }
+  function pushView(sheet, view) {
+    const stack = (sheet.dataset.stack || 'detail').split(',');
+    stack.push(view);
+    sheet.dataset.stack = stack.join(',');
+    showSheetView(sheet, view);
+  }
+  function popView(sheet) {
+    const stack = (sheet.dataset.stack || 'detail').split(',');
+    if (stack.length > 1) stack.pop();
+    sheet.dataset.stack = stack.join(',');
+    showSheetView(sheet, stack[stack.length - 1]);
+    return stack.length;
+  }
+
+  document.querySelectorAll('[data-sheet-backdrop]').forEach(bd => {
+    bd.addEventListener('click', () => closeTaskSheet(bd.closest('.phone')));
+  });
+
+  document.querySelectorAll('[data-task-sheet]').forEach(sheet => {
+    sheet.addEventListener('click', (e) => {
+      const goto = e.target.closest('[data-goto]');
+      if (goto) { pushView(sheet, goto.dataset.goto); return; }
+      const back = e.target.closest('[data-back]');
+      if (back) {
+        const remaining = popView(sheet);
+        if (remaining <= 1 && back.textContent.trim().toLowerCase() === 'annuler') {
+          // "Annuler" on the top-level date view closes the whole sheet
+        }
+      }
+    });
+
+    // Date / Duration segmented control
+    sheet.querySelectorAll('[data-datedur-tabs] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sheet.querySelectorAll('[data-datedur-tabs] button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        sheet.querySelectorAll('.dd-pane').forEach(p => p.classList.toggle('active', p.dataset.ddPane === btn.dataset.dd));
+      });
+    });
+
+    // Reminder options
+    sheet.querySelectorAll('[data-reminder-options] .opt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        sheet.querySelectorAll('[data-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        const val = row.dataset.val;
+        sheet.querySelectorAll('[data-reminder-val]').forEach(el => el.textContent = val);
+        if (val !== 'Personnalisé') popView(sheet);
+      });
+    });
+
+    // Repeat options
+    sheet.querySelectorAll('[data-repeat-options] .opt-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-goto]')) return; // handled by the generic goto listener above
+        sheet.querySelectorAll('[data-repeat-options] .opt-row').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        const val = row.dataset.val;
+        sheet.querySelectorAll('[data-repeat-val]').forEach(el => el.textContent = val + ' ✕');
+        sheet.querySelectorAll('[data-repeat-summary]').forEach(el => el.textContent = val);
+        popView(sheet);
+      });
+    });
+
+    // Custom repeat: week pills
+    sheet.querySelectorAll('.week-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        pill.classList.toggle('active');
+        updateFreqSummary(sheet);
+      });
+    });
+    const freqN = sheet.querySelector('[data-freq-n]');
+    const freqUnit = sheet.querySelector('[data-freq-unit]');
+    [freqN, freqUnit].forEach(sel => sel?.addEventListener('change', () => {
+      const weekPicker = sheet.querySelector('[data-week-picker]');
+      if (weekPicker) weekPicker.style.display = freqUnit.value === 'semaine' ? 'block' : 'none';
+      updateFreqSummary(sheet);
+    }));
+  });
+
+  function updateFreqSummary(sheet) {
+    const n = sheet.querySelector('[data-freq-n]')?.value || '1';
+    const unitSel = sheet.querySelector('[data-freq-unit]');
+    const unitLabel = unitSel?.options[unitSel.selectedIndex]?.text || 'semaine(s)';
+    const days = [...sheet.querySelectorAll('.week-pill.active')].map(p => p.dataset.day);
+    let summary = `Toutes les ${n} ${unitLabel}`;
+    if (unitSel?.value === 'semaine' && days.length) summary += ` le ${days.join(', ')}`;
+    const out = sheet.querySelector('[data-freq-summary]');
+    if (out) out.textContent = summary;
+  }
+
+  function buildCalendar(sheet, year, monthIndex) {
+    const grid = sheet.querySelector('[data-cal-grid]');
+    if (!grid || grid.dataset.built) return;
+    grid.dataset.built = '1';
+    const dows = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+    const firstDay = new Date(year, monthIndex, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7; // Monday-first
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+    for (let i = 0; i < startOffset; i++) html += `<div class="cal-cell empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = d === 24;
+      const isSelected = d === 25;
+      html += `<div class="cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}" data-day="${d}"><span>${d}</span></div>`;
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.cal-cell[data-day]').forEach(cell => {
+      cell.addEventListener('click', () => {
+        grid.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
+        cell.classList.add('selected');
+      });
+    });
+  }
+
+
+  document.querySelectorAll('.task-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const phone = row.closest('.phone');
+      if (phone) {
+        openTaskSheet(phone);
+        return;
+      }
+      row.classList.add('opening');
+      setTimeout(() => row.classList.remove('opening'), 220);
+    });
+  });
+
+  // date-tab switching (desktop panel + mobile share the same markup pattern)
+  document.querySelectorAll('[data-tabgroup]').forEach(group => {
+    const scope = group.parentElement;
+    group.querySelectorAll('.dt').forEach(dt => {
+      dt.addEventListener('click', () => {
+        group.querySelectorAll('.dt').forEach(x => x.classList.remove('active'));
+        dt.classList.add('active');
+        const tab = dt.dataset.tab;
+        scope.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(list => {
+          list.classList.toggle('is-active', list.dataset.tab === tab);
+        });
+        const phone = group.closest('.phone');
+        if (phone) updateTasksSummary(phone);
+      });
+    });
+
+    // swipe left/right over the task content to move between tabs, no tapping needed
+    let touchX = 0, touchY = 0, touchOnTabs = false;
+    scope.addEventListener('touchstart', (e) => {
+      touchX = e.touches[0].clientX;
+      touchY = e.touches[0].clientY;
+      touchOnTabs = !!e.target.closest('.date-tabs');
+    }, { passive: true });
+    scope.addEventListener('touchend', (e) => {
+      if (touchOnTabs) return; // let the tab strip's own horizontal scroll handle that gesture
+      const dx = e.changedTouches[0].clientX - touchX;
+      const dy = e.changedTouches[0].clientY - touchY;
+      if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return; // mostly-vertical = scrolling, ignore
+      const tabs = [...group.querySelectorAll('.dt')];
+      const activeIndex = tabs.findIndex(t => t.classList.contains('active'));
+      const nextIndex = dx < 0 ? activeIndex + 1 : activeIndex - 1; // swipe left = next tab, right = previous
+      if (nextIndex >= 0 && nextIndex < tabs.length) tabs[nextIndex].click();
+    }, { passive: true });
+  });
+
+  // "..." menu — open/close
+  document.querySelectorAll('[data-menu-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menu = btn.parentElement.querySelector('.dots-menu');
+      if (!menu) return;
+      document.querySelectorAll('.dots-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+      menu.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dots-menu.open').forEach(m => m.classList.remove('open'));
+  });
+
+  // show / hide completed tasks
+  document.querySelectorAll('[data-toggle-completed]').forEach(btn => {
+    let hidden = false;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hidden = !hidden;
+      const scope = btn.closest('.panel') || btn.closest('.m-content');
+      scope.querySelectorAll('.task-list, .m-tasks').forEach(l => l.classList.toggle('hide-completed', hidden));
+      btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
+      btn.closest('.dots-menu')?.classList.remove('open');
+    });
+  });
+  // scrollbar only shows while actively scrolling (or hovered, via CSS)
+  document.querySelectorAll('.task-list, .m-tasks, #venture-list-desktop').forEach(el => {
+    let t;
+    el.addEventListener('scroll', () => {
+      el.classList.add('is-scrolling');
+      clearTimeout(t);
+      t = setTimeout(() => el.classList.remove('is-scrolling'), 700);
+    });
+  });
+  // clicking a project block filters the task lists to that project's tasks;
+  // clicking the same (active) block again resets the filter
+  document.querySelectorAll('.project-block').forEach(block => {
+    block.addEventListener('click', () => {
+      const phone = block.closest('.phone') || block.closest('.desktop-frame');
+      if (!phone) return;
+      const wasActive = block.classList.contains('active-filter');
+      phone.querySelectorAll('.project-block').forEach(b => b.classList.remove('active-filter'));
+
+      if (wasActive) {
+        phone.querySelectorAll('.task-row[data-project]').forEach(row => row.classList.remove('filtered-out'));
+        updateTasksSummary(phone);
+        return;
+      }
+
+      block.classList.add('active-filter');
+      const project = block.dataset.project;
+      phone.querySelectorAll('.task-row[data-project]').forEach(row => {
+        row.classList.toggle('filtered-out', row.dataset.project !== project);
+      });
+      updateTasksSummary(phone);
+    });
+  });
+
+</script>
+
+</body>
+</html>
