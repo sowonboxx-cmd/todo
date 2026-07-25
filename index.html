@@ -370,7 +370,7 @@
   .checkbox::before { content: ''; position: absolute; inset: -9px -6px -9px -9px; }
   .checkbox.p-high { border-color: var(--danger); }
   .checkbox.p-med { border-color: var(--accent-pvpp); }
-  .checkbox.p-low { border-color: var(--faint); }
+  .checkbox.p-low { border-color: var(--accent-manga-blue); }
   .checkbox.done { background: var(--accent-rosalina); border-color: var(--accent-rosalina); }
   .checkbox.done::after { content: '✓'; color: #fff; font-size: 10px; }
   .task-row .tinfo { flex: 1; min-width: 0; }
@@ -590,6 +590,13 @@
   }
   .drawer-project .dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
   .drawer-project.edit-affordance::after { content: '✎'; margin-left: auto; color: var(--faint); font-size: 11px; }
+  .drawer-project.expanded { background: var(--bg); }
+  .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
+  .drawer-page-row {
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 8px;
+  }
+  .drawer-page-row.empty { color: var(--faint); font-style: italic; }
 
   .drawer-admin-toggle {
     margin-top: auto; display: flex; align-items: center; gap: 10px;
@@ -622,6 +629,11 @@
     flex: 1; border: none; background: var(--bg); border-radius: 10px; padding: 0 12px;
     height: 40px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
     color: var(--ink); outline: none; min-width: 0;
+  }
+  .pb-page-row { justify-content: space-between; }
+  .pb-count {
+    background: var(--bg); color: var(--muted); font-size: 11px; font-weight: 700;
+    border-radius: 999px; padding: 2px 8px; flex-shrink: 0;
   }
   .pa-section-head {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
@@ -708,6 +720,9 @@
   }
   .ic-flat-btn svg { width: 15px; height: 15px; }
   .ic-flat-btn img { width: 15px; height: 15px; object-fit: contain; }
+  .icon-dark-only { display: none; }
+  html[data-theme="dark"] .icon-light-only { display: none; }
+  html[data-theme="dark"] .icon-dark-only { display: block; }
   .ic-flat-btn:hover { color: var(--ink); }
   .ic-flat-btn.hidden-nest { display: none; }
 
@@ -907,7 +922,6 @@
     width: min(calc(100% - 40px), 520px);
   }
   #app-mobile .drawer-backdrop,
-  #app-mobile .search-overlay,
   #app-mobile .sheet-backdrop {
     position: fixed; inset: 0;
   }
@@ -1183,8 +1197,8 @@
             <div class="t" data-open-search>
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
             </div>
-            <div class="t">
-              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg></span>
+            <div class="t" data-open-drawer>
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="7" x2="20" y2="7"/><circle cx="9" cy="7" r="2.2"/><line x1="4" y1="12" x2="20" y2="12"/><circle cx="15" cy="12" r="2.2"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="17" r="2.2"/></svg></span>
             </div>
             <div class="t" data-open-addtask>
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
@@ -1221,7 +1235,8 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
                   </button>
                   <button type="button" class="ic-flat-btn" data-td-add-speed-btn title="Sous-tâche">
-                    <img src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
+                    <img class="icon-light-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
+                    <img class="icon-dark-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list-white.png" alt="Sous-tâche">
                   </button>
                 </div>
               </div>
@@ -1263,7 +1278,7 @@
               <div class="opt-list" data-td-flag-options>
                 <div class="opt-row" data-val="high"><span class="flag-dot" style="background:var(--danger)"></span>Haute</div>
                 <div class="opt-row" data-val="med"><span class="flag-dot" style="background:var(--accent-pvpp)"></span>Moyenne</div>
-                <div class="opt-row" data-val="low"><span class="flag-dot" style="background:var(--faint)"></span>Basse</div>
+                <div class="opt-row" data-val="low"><span class="flag-dot" style="background:var(--accent-manga-blue)"></span>Basse</div>
               </div>
             </div>
 
@@ -1275,6 +1290,21 @@
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-td-project-options></div>
+            </div>
+
+            <!-- VIEW: page -->
+            <div class="sheet-view" data-view="page">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Page</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-td-page-options></div>
+              <div class="add-subtask-row" data-td-add-page-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Nouvelle page</span>
+              </div>
+              <input type="text" class="add-subtask-input" data-td-add-page-input placeholder="Titre de la page…" style="display:none;">
             </div>
 
             <!-- VIEW: date -->
@@ -1364,6 +1394,29 @@
             </div>
           </div>
 
+          <div class="sheet-backdrop" data-pb-backdrop></div>
+          <div class="task-sheet" data-pb-sheet>
+            <div class="sheet-handle"></div>
+
+            <div class="sheet-view active" data-view="pages">
+              <div class="sheet-topbar">
+                <button class="link" data-pb-close>Fermer</button>
+                <div class="sheet-title" data-pb-project-name>Projet</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-pb-pages-list></div>
+            </div>
+
+            <div class="sheet-view" data-view="page-tasks">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title" data-pb-page-name>Page</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="task-list" data-pb-tasks-list></div>
+            </div>
+          </div>
+
           <div class="sheet-backdrop" data-addtask-backdrop></div>
           <div class="task-sheet" data-addtask-sheet>
             <div class="sheet-handle"></div>
@@ -1402,7 +1455,7 @@
               <div class="opt-list" data-at-flag-options>
                 <div class="opt-row" data-val="high"><span class="flag-dot" style="background:var(--danger)"></span>Haute</div>
                 <div class="opt-row" data-val="med"><span class="flag-dot" style="background:var(--accent-pvpp)"></span>Moyenne</div>
-                <div class="opt-row selected" data-val="low"><span class="flag-dot" style="background:var(--faint)"></span>Basse</div>
+                <div class="opt-row selected" data-val="low"><span class="flag-dot" style="background:var(--accent-manga-blue)"></span>Basse</div>
               </div>
             </div>
 
@@ -1413,6 +1466,20 @@
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-at-project-options></div>
+            </div>
+
+            <div class="sheet-view" data-view="page">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Page</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-at-page-options></div>
+              <div class="add-subtask-row" data-at-add-page-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Nouvelle page</span>
+              </div>
+              <input type="text" class="add-subtask-input" data-at-add-page-input placeholder="Titre de la page…" style="display:none;">
             </div>
 
             <!-- VIEW: date (identique à la fiche tâche) -->
@@ -1701,7 +1768,7 @@
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
-    return 'var(--faint)';
+    return 'var(--accent-manga-blue)';
   }
   function applyFlagColor(sheet, priority) {
     const btn = sheet.querySelector('[data-td-flag-btn]');
@@ -1734,22 +1801,34 @@
         <span class="proj-kanji" style="background:${p.color}">${escapeHtml(p.kanji)}</span>${escapeHtml(p.name)}
       </div>`).join('') || '<div class="empty-state">Aucun projet</div>';
     list.querySelectorAll('.opt-row').forEach(row => {
-      row.addEventListener('click', async () => {
+      row.addEventListener('click', () => {
         const s = row.closest('[data-task-sheet]');
         list.querySelectorAll('.opt-row').forEach(r => r.classList.remove('selected'));
         row.classList.add('selected');
-        s.querySelector('[data-td-project-label]').textContent = row.dataset.projectName;
         const projectId = row.dataset.projectId;
-        let pageId;
-        const { data: existingPages } = await sb.from('pages')
-          .select('*').eq('project_id', projectId).eq('is_archived', false).order('position').limit(1);
-        if (existingPages && existingPages.length) pageId = existingPages[0].id;
-        else {
-          const { data: newPage } = await sb.from('pages').insert({ project_id: projectId, title: 'Général' }).select().single();
-          pageId = newPage.id;
-        }
-        await saveRecordField(s, { page_id: pageId });
-        popView(s);
+        s.dataset.pendingProjectId = projectId;
+        s.dataset.pendingProjectName = row.dataset.projectName;
+        pushView(s, 'page');
+        renderTdPageOptions(s, projectId);
+      });
+    });
+  }
+
+  function renderTdPageOptions(sheet, projectId) {
+    const list = sheet.querySelector('[data-td-page-options]');
+    if (!list) return;
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const currentPageId = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId)?.page_id;
+    list.innerHTML = pages.map(p => `
+      <div class="opt-row${p.id === currentPageId ? ' selected' : ''}" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}">${escapeHtml(p.title)}</div>
+    `).join('') || '<div class="empty-state">Aucune page — crée-en une</div>';
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', async () => {
+        const projectName = sheet.dataset.pendingProjectName;
+        sheet.querySelector('[data-td-project-label]').textContent = `${projectName} › ${row.dataset.pageTitle}`;
+        await saveRecordField(sheet, { page_id: row.dataset.pageId });
+        sheet.dataset.stack = 'detail';
+        showSheetView(sheet, 'detail');
       });
     });
   }
@@ -1949,7 +2028,11 @@
     if (!isSubtask) {
       const page = cachedPages.find(p => p.id === record.page_id);
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
-      sheet.querySelector('[data-td-project-label]').textContent = project ? project.name : 'Projet';
+      sheet.querySelector('[data-td-project-label]').textContent = project
+        ? (page ? `${project.name} › ${page.title}` : project.name)
+        : 'Projet';
+      sheet.dataset.pendingProjectId = project ? project.id : '';
+      sheet.dataset.pendingProjectName = project ? project.name : '';
       renderTdProjectOptions(sheet, page ? page.project_id : null);
     }
 
@@ -2104,6 +2187,33 @@
       if (error) { console.error(error); return; }
       cachedSubtasks.push(newSub);
       renderTdSubtasks(sheet, todoId);
+    });
+
+    sheet.querySelector('[data-td-add-page-row]')?.addEventListener('click', () => {
+      const input = sheet.querySelector('[data-td-add-page-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-td-add-page-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    sheet.querySelector('[data-td-add-page-input]')?.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim();
+      e.target.style.display = 'none';
+      if (!title) return;
+      const projectId = sheet.dataset.pendingProjectId;
+      if (!projectId) return;
+      const { data: newPage, error } = await sb.from('pages')
+        .insert({ project_id: projectId, title, position: cachedPages.filter(p => p.project_id === projectId).length + 1 })
+        .select().single();
+      if (error) { console.error(error); return; }
+      cachedPages.push(newPage);
+      const projectName = sheet.dataset.pendingProjectName;
+      sheet.querySelector('[data-td-project-label]').textContent = `${projectName} › ${newPage.title}`;
+      await saveRecordField(sheet, { page_id: newPage.id });
+      sheet.dataset.stack = 'detail';
+      showSheetView(sheet, 'detail');
     });
 
     // ---- calendrier ----
@@ -2392,7 +2502,7 @@
 
   function projectBlockHtml(project, stats) {
     return `
-      <div class="project-block" data-project="${escapeHtml(project.slug)}">
+      <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}">
         <div class="pk-top"><span class="pk-kanji" style="background:${project.color}">${escapeHtml(project.kanji)}</span><span class="pk-pct">${stats.pct}%</span></div>
         <div class="bar"><span style="width:${stats.pct}%;background:${project.color}"></span></div>
         <div class="pk-count">${stats.done}/${stats.total}</div>
@@ -2472,23 +2582,76 @@
 
   function wireProjectBlock(block) {
     block.addEventListener('click', () => {
-      const phone = block.closest('.phone') || block.closest('.desktop-frame');
+      const phone = block.closest('.phone');
       if (!phone) return;
-      const wasActive = block.classList.contains('active-filter');
-      phone.querySelectorAll('.project-block').forEach(b => b.classList.remove('active-filter'));
-      if (wasActive) {
-        phone.querySelectorAll('.task-row[data-project]').forEach(row => row.classList.remove('filtered-out'));
-        updateTasksSummary(phone);
-        return;
-      }
-      block.classList.add('active-filter');
-      const project = block.dataset.project;
-      phone.querySelectorAll('.task-row[data-project]').forEach(row => {
-        row.classList.toggle('filtered-out', row.dataset.project !== project);
-      });
-      updateTasksSummary(phone);
+      openPagesBrowser(phone, block.dataset.projectRealId);
     });
   }
+
+  function openPagesBrowser(phone, projectId) {
+    const sheet = phone.querySelector('[data-pb-sheet]');
+    const backdrop = phone.querySelector('[data-pb-backdrop]');
+    const project = cachedProjects.find(p => p.id === projectId);
+    if (!sheet || !backdrop || !project) return;
+    sheet.dataset.projectId = projectId;
+    sheet.dataset.stack = 'pages';
+    showSheetView(sheet, 'pages');
+    sheet.querySelector('[data-pb-project-name]').textContent = project.name;
+    renderPbPages(sheet, projectId);
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function renderPbPages(sheet, projectId) {
+    const list = sheet.querySelector('[data-pb-pages-list]');
+    if (!list) return;
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = pages.map(p => {
+      const count = cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
+      return `<div class="opt-row pb-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}">
+        <span>${escapeHtml(p.title)}</span>
+        <span class="pb-count">${count}</span>
+      </div>`;
+    }).join('') || '<div class="empty-state">Aucune page</div>';
+    list.querySelectorAll('.pb-page-row').forEach(row => {
+      row.addEventListener('click', () => openPbPageTasks(sheet, row.dataset.pageId, row.dataset.pageTitle));
+    });
+  }
+  function openPbPageTasks(sheet, pageId, pageTitle) {
+    pushView(sheet, 'page-tasks');
+    sheet.querySelector('[data-pb-page-name]').textContent = pageTitle;
+    const list = sheet.querySelector('[data-pb-tasks-list]');
+    const pageById = Object.fromEntries(cachedPages.map(p => [p.id, p]));
+    const projectById = Object.fromEntries(cachedProjects.map(p => [p.id, p]));
+    const subsByTodo = {};
+    cachedSubtasks.forEach(s => {
+      subsByTodo[s.todo_id] = subsByTodo[s.todo_id] || { done: 0, total: 0 };
+      subsByTodo[s.todo_id].total++;
+      if (s.is_done) subsByTodo[s.todo_id].done++;
+    });
+    const todos = cachedTodos.filter(t => t.page_id === pageId && !t.parent_todo_id);
+    const page = pageById[pageId];
+    const project = page ? projectById[page.project_id] : null;
+    list.innerHTML = todos.map(t => taskRowHtml(t, project, page, subsByTodo[t.id])).join('') || '<div class="empty-state">Aucune tâche</div>';
+    list.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    list.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+    sortIncomplete(list);
+  }
+  function closePagesBrowser(phone) {
+    phone.querySelector('[data-pb-sheet]')?.classList.remove('open');
+    phone.querySelector('[data-pb-backdrop]')?.classList.remove('open');
+  }
+  document.querySelectorAll('[data-pb-close]').forEach(btn => {
+    btn.addEventListener('click', () => closePagesBrowser(btn.closest('.phone')));
+  });
+  document.querySelectorAll('[data-pb-backdrop]').forEach(bd => {
+    bd.addEventListener('click', () => closePagesBrowser(bd.closest('.phone')));
+  });
+  document.querySelectorAll('[data-pb-sheet]').forEach(sheet => {
+    sheet.addEventListener('click', (e) => {
+      const back = e.target.closest('[data-back]');
+      if (back) { popView(sheet); return; }
+    });
+  });
 
   function renderProjects(projects, pages, todos) {
     const deskEl = document.getElementById('venture-list-desktop');
@@ -2570,10 +2733,34 @@
       row.classList.remove('edit-affordance');
       row.addEventListener('click', () => {
         const drawer = row.closest('.drawer');
-        if (!drawer || !drawer.classList.contains('edit-mode')) return;
-        openProjectAdmin(row.closest('.phone'), row.dataset.projectId);
+        if (drawer && drawer.classList.contains('edit-mode')) {
+          openProjectAdmin(row.closest('.phone'), row.dataset.projectId);
+          return;
+        }
+        toggleDrawerProjectPages(row);
       });
     });
+  }
+  function toggleDrawerProjectPages(row) {
+    const existing = row.nextElementSibling;
+    if (existing && existing.classList.contains('drawer-pages-collapse')) {
+      existing.remove();
+      row.classList.remove('expanded');
+      return;
+    }
+    document.querySelectorAll('.drawer-pages-collapse').forEach(el => el.remove());
+    document.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
+
+    const projectId = row.dataset.projectId;
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const wrap = document.createElement('div');
+    wrap.className = 'drawer-pages-collapse';
+    wrap.innerHTML = pages.map(p => {
+      const count = cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
+      return `<div class="drawer-page-row">${escapeHtml(p.title)}<span class="pb-count">${count}</span></div>`;
+    }).join('') || '<div class="drawer-page-row empty">Aucune page</div>';
+    row.classList.add('expanded');
+    row.after(wrap);
   }
 
   document.querySelectorAll('[data-drawer-admin-toggle]').forEach(btn => {
@@ -2582,6 +2769,8 @@
       const active = drawer.classList.toggle('edit-mode');
       btn.classList.toggle('active', active);
       drawer.querySelectorAll('.drawer-project').forEach(row => row.classList.toggle('edit-affordance', active));
+      drawer.querySelectorAll('.drawer-pages-collapse').forEach(el => el.remove());
+      drawer.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
     });
   });
 
@@ -2786,7 +2975,9 @@
     sheet.dataset.stack = 'compose';
     showSheetView(sheet, 'compose');
     sheet.dataset.priority = 'low';
-    sheet.dataset.projectId = '';
+    sheet.dataset.pageId = '';
+    sheet.dataset.pendingProjectId = '';
+    sheet.dataset.pendingProjectName = '';
 
     sheet.querySelector('[data-at-title]').value = '';
     sheet.querySelector('[data-at-desc]').value = '';
@@ -2822,12 +3013,30 @@
     list.querySelectorAll('.opt-row').forEach(row => {
       row.addEventListener('click', () => {
         const s = row.closest('[data-addtask-sheet]');
-        s.dataset.projectId = row.dataset.projectId;
+        s.dataset.pendingProjectId = row.dataset.projectId;
+        s.dataset.pendingProjectName = row.dataset.projectName;
         list.querySelectorAll('.opt-row').forEach(r => r.classList.remove('selected'));
         row.classList.add('selected');
-        s.querySelector('[data-at-project-label]').textContent = row.dataset.projectName;
-        s.querySelector('[data-goto="project"]').classList.add('set');
-        popView(s);
+        pushView(s, 'page');
+        renderAddTaskPageOptions(s, row.dataset.projectId);
+      });
+    });
+  }
+
+  function renderAddTaskPageOptions(sheet, projectId) {
+    const list = sheet.querySelector('[data-at-page-options]');
+    if (!list) return;
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = pages.map(p => `
+      <div class="opt-row${p.id === sheet.dataset.pageId ? ' selected' : ''}" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}">${escapeHtml(p.title)}</div>
+    `).join('') || '<div class="empty-state">Aucune page — crée-en une</div>';
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        sheet.dataset.pageId = row.dataset.pageId;
+        sheet.querySelector('[data-at-project-label]').textContent = `${sheet.dataset.pendingProjectName} › ${row.dataset.pageTitle}`;
+        sheet.querySelector('[data-goto="project"]').classList.add('set');
+        sheet.dataset.stack = 'compose';
+        showSheetView(sheet, 'compose');
       });
     });
   }
@@ -2865,6 +3074,32 @@
         else sheet.querySelector('[data-goto="flag"]').classList.remove('set');
         popView(sheet);
       });
+    });
+    sheet.querySelector('[data-at-add-page-row]')?.addEventListener('click', () => {
+      const input = sheet.querySelector('[data-at-add-page-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-at-add-page-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    sheet.querySelector('[data-at-add-page-input]')?.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim();
+      e.target.style.display = 'none';
+      if (!title) return;
+      const projectId = sheet.dataset.pendingProjectId;
+      if (!projectId) return;
+      const { data: newPage, error } = await sb.from('pages')
+        .insert({ project_id: projectId, title, position: cachedPages.filter(p => p.project_id === projectId).length + 1 })
+        .select().single();
+      if (error) { console.error(error); return; }
+      cachedPages.push(newPage);
+      sheet.dataset.pageId = newPage.id;
+      sheet.querySelector('[data-at-project-label]').textContent = `${sheet.dataset.pendingProjectName} › ${newPage.title}`;
+      sheet.querySelector('[data-goto="project"]').classList.add('set');
+      sheet.dataset.stack = 'compose';
+      showSheetView(sheet, 'compose');
     });
     sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
       let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
@@ -2916,28 +3151,13 @@
       const dateVal = sheet.dataset.pendingDueDate || null;
       const timeVal = sheet.dataset.pendingDueTime || null;
       const priority = sheet.dataset.priority || 'low';
-      const projectId = sheet.dataset.projectId;
+      const pageId = sheet.dataset.pageId;
 
       if (!title) { errorEl.textContent = 'Ajoute un titre.'; return; }
-      if (!projectId) { errorEl.textContent = 'Choisis un projet.'; return; }
+      if (!pageId) { errorEl.textContent = 'Choisis un projet et une page.'; return; }
 
       saveBtn.disabled = true;
       try {
-        let pageId;
-        const { data: existingPages, error: pagesErr } = await sb.from('pages')
-          .select('*').eq('project_id', projectId).eq('is_archived', false)
-          .order('position').limit(1);
-        if (pagesErr) throw pagesErr;
-
-        if (existingPages && existingPages.length) {
-          pageId = existingPages[0].id;
-        } else {
-          const { data: newPage, error: pageErr } = await sb.from('pages')
-            .insert({ project_id: projectId, title: 'Général' }).select().single();
-          if (pageErr) throw pageErr;
-          pageId = newPage.id;
-        }
-
         const { error: insertErr } = await sb.from('todos').insert({
           page_id: pageId,
           title,
