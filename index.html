@@ -348,7 +348,7 @@
 
   .task-row {
     position: relative;
-    display: flex; align-items: flex-start; gap: 10px;
+    display: flex; align-items: center; gap: 10px;
     padding: 10px 8px; margin: 0 -8px;
     border-bottom: 1px solid var(--line-soft);
     font-size: 12.5px; cursor: pointer;
@@ -365,7 +365,6 @@
   .checkbox {
     width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    margin-top: 1px;
   }
   .checkbox.p-high { border-color: var(--danger); }
   .checkbox.p-med { border-color: var(--accent-pvpp); }
@@ -531,7 +530,6 @@
   }
   .search-input-row {
     display: flex; align-items: center; gap: 10px; padding: 14px 16px;
-    border-bottom: 1px solid var(--line-soft);
   }
   .search-input-row input {
     flex: 1; border: none; background: transparent; outline: none;
@@ -647,7 +645,7 @@
   .td-link:empty::before { content: 'Ajouter une description, un lien…'; color: var(--faint); }
   .td-link a { color: var(--accent-due); text-decoration: underline; }
   .td-notes-edit {
-    display: block; width: 100%; box-sizing: border-box; border: 1px solid var(--line-soft); background: var(--bg);
+    display: block; width: 100%; box-sizing: border-box; border: none; background: var(--bg);
     border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
     padding: 10px 12px; resize: vertical; outline: none;
   }
@@ -657,10 +655,11 @@
   .td-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .ic-flat-btn {
     width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 999px; cursor: pointer;
+    border: none; background: var(--bg); color: var(--muted); border-radius: 999px; cursor: pointer;
   }
   .ic-flat-btn svg { width: 15px; height: 15px; }
-  .ic-flat-btn:hover { color: var(--ink); border-color: var(--ink); }
+  .ic-flat-btn img { width: 15px; height: 15px; object-fit: contain; }
+  .ic-flat-btn:hover { color: var(--ink); }
   .ic-flat-btn.hidden-nest { display: none; }
 
   /* images (par lien), 4 max, carrées en ligne */
@@ -977,6 +976,7 @@
                   <div class="dt" data-tab="d6" data-day-offset="6"></div>
                   <div class="dt" data-tab="later">Plus tard</div>
                   <div class="dt" data-tab="nodate">No date</div>
+                  <div class="dt" data-tab="all">All</div>
                 </div>
 
                 <div class="task-list" data-tab="overdue"></div>
@@ -998,6 +998,7 @@
                 <div class="task-list" data-tab="later"></div>
 
                 <div class="task-list" data-tab="nodate"></div>
+                <div class="task-list" data-tab="all"></div>
               </div>
 
               <div class="panel">
@@ -1091,6 +1092,7 @@
               <div class="dt" data-tab="d6" data-day-offset="6"></div>
               <div class="dt" data-tab="later">Plus tard</div>
               <div class="dt" data-tab="nodate">No date</div>
+              <div class="dt" data-tab="all">All</div>
             </div>
 
             <div class="m-tasks" data-tab="overdue"></div>
@@ -1112,6 +1114,7 @@
             <div class="m-tasks" data-tab="later"></div>
 
             <div class="m-tasks" data-tab="nodate"></div>
+            <div class="m-tasks" data-tab="all"></div>
             </div>
           </div>
 
@@ -1164,7 +1167,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
                   </button>
                   <button type="button" class="ic-flat-btn" data-td-add-speed-btn title="Sous-tâche">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8Z"/></svg>
+                    <img src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
                   </button>
                 </div>
               </div>
@@ -1478,51 +1481,51 @@
   });
 
   // global predictive search
-  const SEARCH_DATA = [
-    { title: "Accueil", type: "Page", project: "Foodmaster", page: "Website" },
-    { title: "Header", type: "Page", project: "Foodmaster", page: "Website" },
-    { title: "Hero image", type: "Sous-tâche", project: "Foodmaster", page: "Website › Header" },
-    { title: "Pitfalls & règles SQL", type: "Page", project: "Rosalina", page: null },
-    { title: "Schéma Supabase", type: "Page", project: "Manga Squad", page: null },
-    { title: "Notes oEmbed proxy", type: "Page", project: "天才 Vault", page: null },
-    { title: "Renouveler certificat SSL", type: "Todo", project: "Rosalina", page: "Infra" },
-    { title: "Répondre au client", type: "Todo", project: "Foodmaster", page: "Drevici Oyster › Support" },
-    { title: "Bouton copier l'email", type: "Todo", project: "Rosalina", page: "dashboard.html" },
-    { title: "Galerie de polices", type: "Todo", project: "Foodmaster", page: "Blancs Becs" },
-    { title: "Corriger contraste dark mode", type: "Todo", project: "Rosalina", page: "devis_rosalina" },
-    { title: "Compresser les visuels menu", type: "Todo", project: "Foodmaster", page: "Drevici Oyster" },
-    { title: "Corriger bug tab bar mobile", type: "Todo", project: "天才", page: "Vault" },
-    { title: "Recolorer les tags de format", type: "Todo", project: "Foodmaster", page: "Blancs Becs" },
-    { title: "Trier les visuels PVPP", type: "Todo", project: "PVPP", page: "Lookbook" },
-    { title: "Corriger contraste champs", type: "Todo", project: "Rosalina", page: "devis_rosalina › Dark mode" },
-    { title: "Cartes Supabase", type: "Todo", project: "Manga Squad", page: "Homepage" },
-    { title: "Relire le devis", type: "Todo", project: "Rosalina", page: "devis_rosalina › Séjour août" },
-    { title: "Publier le changelog", type: "Todo", project: "Foodmaster", page: "Publication" },
-    { title: "Export photos lookbook", type: "Todo", project: "PVPP", page: "Instagram" },
-    { title: "Page paiement Corée", type: "Todo", project: "Manga Squad", page: "Notion" },
-    { title: "Répondre au client Blancs Becs", type: "Todo", project: "Foodmaster", page: "Support" },
-    { title: "Vérifier sauvegarde Supabase", type: "Todo", project: "Manga Squad", page: "Infra" },
-    { title: "Retoucher le logo", type: "Todo", project: "PVPP", page: "Identité" },
-    { title: "Mettre à jour le README", type: "Todo", project: "天才", page: "Vault" },
-    { title: "Planifier le post Instagram", type: "Todo", project: "PVPP", page: "Contenu" },
-  ];
-  function iconFor(type) { return type === 'Page' ? '📄' : type === 'Todo' ? '☐' : '↳'; }
+  function buildSearchIndex() {
+    const results = [];
+    cachedTodos.forEach(t => {
+      const page = cachedPages.find(p => p.id === t.page_id);
+      const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
+      results.push({ title: t.title, type: 'Tâche', project: project?.name || '', page: page?.title || null, kind: 'todo', id: t.id });
+    });
+    cachedSubtasks.forEach(s => {
+      const todo = cachedTodos.find(t => t.id === s.todo_id);
+      const page = todo ? cachedPages.find(p => p.id === todo.page_id) : null;
+      const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
+      results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id });
+    });
+    return results;
+  }
   function renderSearch(overlay, query) {
     const list = overlay.querySelector('[data-search-results]');
     const q = query.trim().toLowerCase();
     if (!q) { list.innerHTML = ''; return; }
-    const matches = SEARCH_DATA.filter(item => item.title.toLowerCase().includes(q));
+    const matches = buildSearchIndex().filter(item => item.title.toLowerCase().includes(q));
     if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
-    list.innerHTML = matches.slice(0, 6).map(m => `
-      <div class="search-result">
-        <div class="sicon">${iconFor(m.type)}</div>
+    list.innerHTML = matches.slice(0, 8).map(m => `
+      <div class="search-result" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
+        <div class="sicon">${m.kind === 'subtask' ? '↳' : '☐'}</div>
         <div class="sinfo">
-          <div class="stitle">${m.title}</div>
-          <div class="spath">${m.project}${m.page ? ' › ' + m.page : ''}</div>
+          <div class="stitle">${escapeHtml(m.title)}</div>
+          <div class="spath">${escapeHtml(m.project)}${m.page ? ' › ' + escapeHtml(m.page) : ''}</div>
         </div>
         <div class="stag">${m.type}</div>
       </div>
     `).join('');
+    list.querySelectorAll('.search-result').forEach(el => {
+      el.addEventListener('click', () => {
+        const phone = overlay.closest('.phone');
+        const sheet = phone?.querySelector('[data-task-sheet]');
+        if (!sheet) return;
+        overlay.classList.remove('open');
+        if (el.dataset.searchKind === 'todo') {
+          openTaskSheet(phone, el.dataset.searchId);
+        } else {
+          openTaskSheet(phone, el.dataset.searchParent);
+          openSubtaskDetail(sheet, el.dataset.searchId);
+        }
+      });
+    });
   }
   document.querySelectorAll('.search-overlay [data-search-input]').forEach(input => {
     input.addEventListener('input', () => renderSearch(input.closest('.search-overlay'), input.value));
@@ -1667,8 +1670,7 @@
     wrap.querySelectorAll('.td-img-thumb').forEach(thumb => {
       thumb.addEventListener('click', (e) => {
         if (e.target.closest('[data-img-remove]')) return;
-        const url = images[parseInt(thumb.dataset.imgIndex, 10)];
-        openLightbox(sheet.closest('.phone'), url);
+        openLightbox(sheet.closest('.phone'), images, parseInt(thumb.dataset.imgIndex, 10));
       });
     });
     wrap.querySelectorAll('[data-img-remove]').forEach(btn => {
@@ -1681,11 +1683,26 @@
       });
     });
   }
-  function openLightbox(phone, url) {
+  function openLightbox(phone, images, index) {
     const lb = phone?.querySelector('[data-img-lightbox]');
     if (!lb) return;
-    lb.querySelector('[data-img-lightbox-img]').src = url;
+    lb.dataset.images = JSON.stringify(images || []);
+    lb.dataset.index = String(index || 0);
+    showLightboxImage(lb);
     lb.classList.add('open');
+  }
+  function showLightboxImage(lb) {
+    const images = JSON.parse(lb.dataset.images || '[]');
+    const index = parseInt(lb.dataset.index, 10) || 0;
+    if (images[index]) lb.querySelector('[data-img-lightbox-img]').src = images[index];
+  }
+  function lightboxNav(lb, dir) {
+    const images = JSON.parse(lb.dataset.images || '[]');
+    if (images.length < 2) return;
+    let index = parseInt(lb.dataset.index, 10) || 0;
+    index = (index + dir + images.length) % images.length;
+    lb.dataset.index = String(index);
+    showLightboxImage(lb);
   }
 
   function renderTdSubtasks(sheet, todoId) {
@@ -1914,6 +1931,7 @@
       cb.classList.toggle('done');
       const nowDone = cb.classList.contains('done');
       await saveRecordField(sheet, { is_done: nowDone, completed_at: nowDone ? new Date().toISOString() : null });
+      if (sheet.dataset.recordKind !== 'subtask') { updateGlobalRemainingCount(); refreshProjectBlocks(); }
     });
 
     sheet.querySelector('[data-td-title]')?.addEventListener('blur', (e) => {
@@ -2032,7 +2050,17 @@
   });
 
   document.querySelectorAll('[data-img-lightbox]').forEach(lb => {
-    lb.addEventListener('click', () => lb.classList.remove('open'));
+    lb.addEventListener('click', (e) => {
+      if (e.target.closest('[data-img-lightbox-img]')) return; // le swipe gère l'image, pas la fermeture
+      lb.classList.remove('open');
+    });
+    let touchX = 0;
+    lb.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) < 40) return;
+      lightboxNav(lb, dx < 0 ? 1 : -1);
+    }, { passive: true });
   });
 
 
@@ -2242,7 +2270,7 @@
   // ---------------- rendering ----------------
   function projectStats(project, pages, todos) {
     const pageIds = new Set(pages.filter(p => p.project_id === project.id).map(p => p.id));
-    const relevant = todos.filter(t => pageIds.has(t.page_id));
+    const relevant = todos.filter(t => pageIds.has(t.page_id) && !t.parent_todo_id);
     const total = relevant.length;
     const done = relevant.filter(t => t.is_done).length;
     const pct = total ? Math.round((done / total) * 100) : 0;
@@ -2294,6 +2322,19 @@
       </div>`;
   }
 
+  function updateGlobalRemainingCount() {
+    const remaining = cachedTodos.filter(t => !t.is_done && !t.parent_todo_id).length;
+    if (kpiDoneDesktop) kpiDoneDesktop.textContent = String(remaining);
+    if (kpiDoneMobile) kpiDoneMobile.textContent = String(remaining);
+  }
+  function refreshProjectBlocks() {
+    const activeSlug = document.querySelector('.project-block.active-filter')?.dataset.project;
+    renderProjects(cachedProjects, cachedPages, cachedTodos);
+    if (activeSlug) {
+      document.querySelectorAll(`.project-block[data-project="${activeSlug}"]`).forEach(b => b.classList.add('active-filter'));
+    }
+  }
+
   function wireCheckbox(cb) {
     cb.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2305,15 +2346,16 @@
       const list = row?.closest('.task-list, .m-tasks');
       if (list) { if (nowDone) list.appendChild(row); else sortIncomplete(list); }
 
-      const kpiEl = cb.closest('.desktop-frame') ? kpiDoneDesktop : kpiDoneMobile;
-      if (kpiEl) {
-        const current = parseInt(kpiEl.textContent, 10) || 0;
-        kpiEl.textContent = String(Math.max(0, current + (nowDone ? -1 : 1)));
-      }
+      const todoId = row?.dataset.todoId;
+      const t = cachedTodos.find(x => x.id === todoId);
+      if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
+
+      updateGlobalRemainingCount();
+      refreshProjectBlocks();
+
       const phone = cb.closest('.phone');
       if (phone) updateTasksSummary(phone);
 
-      const todoId = row?.dataset.todoId;
       if (todoId) {
         await sb.from('todos').update({
           is_done: nowDone,
@@ -2376,17 +2418,22 @@
       if (s.is_done) subsByTodo[s.todo_id].done++;
     });
 
-    const tabKeys = ['overdue', 'today', 'tomorrow', 'd2', 'd3', 'd4', 'd5', 'd6', 'later', 'nodate'];
+    const tabKeys = ['overdue', 'today', 'tomorrow', 'd2', 'd3', 'd4', 'd5', 'd6', 'later', 'nodate', 'all'];
     const buckets = Object.fromEntries(tabKeys.map(k => [k, []]));
 
-    todos.forEach(todo => {
-      if (todo.parent_todo_id) return; // sous-tâche détaillée : visible seulement dans la fiche du parent
+    const topLevelTodos = todos.filter(t => !t.parent_todo_id);
+
+    topLevelTodos.forEach(todo => {
       const page = pageById[todo.page_id];
       const project = page ? projectById[page.project_id] : null;
       const tabKey = classifyDue(todo.due_date);
       const html = taskRowHtml(todo, project, page, subsByTodo[todo.id]);
       (buckets[tabKey] || buckets.later).push(html);
     });
+
+    buckets.all = [...topLevelTodos]
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map(todo => taskRowHtml(todo, projectById[pageById[todo.page_id]?.project_id], pageById[todo.page_id], subsByTodo[todo.id]));
 
     document.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(container => {
       const rows = buckets[container.dataset.tab] || [];
@@ -2395,31 +2442,38 @@
 
     document.querySelectorAll('.checkbox').forEach(wireCheckbox);
     document.querySelectorAll('.task-row').forEach(wireTaskRowClick);
-    document.querySelectorAll('.task-list, .m-tasks').forEach(list => sortIncomplete(list));
+    document.querySelectorAll('.task-list, .m-tasks').forEach(list => {
+      if (list.dataset.tab !== 'all') sortIncomplete(list); // "All" garde l'ordre de création, pas le tri heure/priorité
+    });
     document.querySelectorAll('.phone').forEach(phone => updateTasksSummary(phone));
 
-    const remaining = todos.filter(t => !t.is_done).length;
-    if (kpiDoneDesktop) kpiDoneDesktop.textContent = String(remaining);
-    if (kpiDoneMobile) kpiDoneMobile.textContent = String(remaining);
+    updateGlobalRemainingCount();
   }
 
   async function loadData() {
-    const [{ data: projects, error: pErr }, { data: pages, error: pgErr },
-           { data: todos, error: tErr }, { data: subtasks, error: sErr }] = await Promise.all([
+    const results = await Promise.allSettled([
       sb.from('projects').select('*').eq('is_archived', false).order('position'),
       sb.from('pages').select('*').eq('is_archived', false),
       sb.from('todos').select('*').eq('is_archived', false),
       sb.from('subtasks').select('*').eq('is_archived', false),
     ]);
-    const err = pErr || pgErr || tErr || sErr;
-    if (err) { console.error('Erreur de chargement Supabase :', err); return; }
+    const [projectsRes, pagesRes, todosRes, subtasksRes] = results;
+    const unwrap = (res, label) => {
+      if (res.status === 'fulfilled' && !res.value.error) return res.value.data || [];
+      console.error(`Erreur de chargement Supabase (${label}) :`, res.reason || res.value?.error);
+      return null; // null = garde l'ancien cache plutôt que de tout vider
+    };
+    const newProjects = unwrap(projectsRes, 'projects');
+    const newPages = unwrap(pagesRes, 'pages');
+    const newTodos = unwrap(todosRes, 'todos');
+    const newSubtasks = unwrap(subtasksRes, 'subtasks');
+    if (newProjects) cachedProjects = newProjects;
+    if (newPages) cachedPages = newPages;
+    if (newTodos) cachedTodos = newTodos;
+    if (newSubtasks) cachedSubtasks = newSubtasks;
 
-    cachedProjects = projects || [];
-    cachedPages = pages || [];
-    cachedTodos = todos || [];
-    cachedSubtasks = subtasks || [];
-    renderProjects(projects || [], pages || [], todos || []);
-    renderTodos(todos || [], pages || [], projects || [], subtasks || []);
+    renderProjects(cachedProjects, cachedPages, cachedTodos);
+    renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
     revealApp();
   }
 
