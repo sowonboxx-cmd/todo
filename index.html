@@ -363,9 +363,11 @@
   .task-row > * { position: relative; z-index: 1; }
   .task-row:last-child { border-bottom: none; }
   .checkbox {
+    position: relative;
     width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
+  .checkbox::before { content: ''; position: absolute; inset: -9px -6px -9px -9px; }
   .checkbox.p-high { border-color: var(--danger); }
   .checkbox.p-med { border-color: var(--accent-pvpp); }
   .checkbox.p-low { border-color: var(--faint); }
@@ -520,7 +522,7 @@
   .search-overlay {
     display: none; position: absolute; inset: 0; z-index: 100;
     background: rgba(15,17,15,0.4); backdrop-filter: blur(2px);
-    align-items: flex-start; justify-content: center; padding-top: 64px;
+    align-items: center; justify-content: center;
   }
   .search-overlay.open { display: flex; }
   .search-box {
@@ -655,7 +657,7 @@
   .td-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .ic-flat-btn {
     width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-    border: none; background: var(--bg); color: var(--muted); border-radius: 999px; cursor: pointer;
+    border: none; background: var(--bg); color: var(--ink); border-radius: 999px; cursor: pointer;
   }
   .ic-flat-btn svg { width: 15px; height: 15px; }
   .ic-flat-btn img { width: 15px; height: 15px; object-fit: contain; }
@@ -695,6 +697,7 @@
   }
   .td-subtask-row:last-child { border-bottom: none; }
   .td-subtask-title { flex: 1; font-size: 13px; }
+  .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
   .td-subtask-row.done .td-subtask-title { text-decoration: line-through; color: var(--faint); }
 
   /* date/duration picker view */
@@ -751,6 +754,7 @@
     border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink);
     padding: 10px 12px; outline: none; margin-top: 4px;
   }
+  .add-subtask-input::placeholder { font-size: 12.5px; font-weight: 400; color: var(--faint); }
   .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .switch .slider { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: background .15s ease; }
@@ -810,6 +814,8 @@
     font-size: 12px; font-weight: 600; cursor: pointer;
   }
   .at-icon-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+  [data-td-project-btn] { color: var(--ink); }
+  [data-addtask-sheet] .at-icon-btn { color: var(--ink); }
   .at-icon-btn.set { color: var(--ink); }
   .at-icon-btn.flag-only { padding: 7px; }
   .at-date-native { position: absolute; inset: 0; opacity: 0; border: none; padding: 0; margin: 0; font-size: 16px; cursor: pointer; }
@@ -1287,8 +1293,9 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                   <span data-at-date-label>Date</span>
                 </button>
-                <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-at-flag-btn>
+                <button type="button" class="at-icon-btn" data-goto="flag" data-at-flag-btn>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
+                  <span data-at-flag-label>Importance</span>
                 </button>
                 <button type="button" class="at-icon-btn" data-goto="project">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
@@ -1609,7 +1616,7 @@
     return 'var(--faint)';
   }
   function applyFlagColor(sheet, priority) {
-    const btn = sheet.querySelector('[data-td-flag-btn]') || sheet.querySelector('[data-at-flag-btn]');
+    const btn = sheet.querySelector('[data-td-flag-btn]');
     if (btn) btn.style.color = priorityColor(priority || 'low');
   }
 
@@ -1708,11 +1715,13 @@
   function renderTdSubtasks(sheet, todoId) {
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
-    const subs = cachedSubtasks.filter(s => s.todo_id === todoId);
+    const subs = [...cachedSubtasks.filter(s => s.todo_id === todoId)]
+      .sort((a, b) => (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1));
     list.innerHTML = subs.map(s => `
       <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
         <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
+        ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
       </div>`).join('');
     list.querySelectorAll('[data-subtask-checkbox]').forEach(cb => {
       cb.addEventListener('click', async (e) => {
@@ -1720,11 +1729,10 @@
         const row = cb.closest('.td-subtask-row');
         const subtaskId = row.dataset.subtaskId;
         const nowDone = !cb.classList.contains('done');
-        cb.classList.toggle('done', nowDone);
-        row.classList.toggle('done', nowDone);
         await sb.from('subtasks').update({ is_done: nowDone }).eq('id', subtaskId);
         const s = cachedSubtasks.find(x => x.id === subtaskId);
         if (s) s.is_done = nowDone;
+        renderTdSubtasks(sheet, todoId); // re-tri : la case cochée descend en bas
       });
     });
     list.querySelectorAll('[data-subtask-open]').forEach(el => {
@@ -2498,7 +2506,7 @@
     sheet.querySelector('[data-at-date-label]').textContent = 'Date';
     sheet.querySelector('[data-goto="date"]').classList.remove('set');
     sheet.querySelector('[data-goto="flag"]').classList.remove('set');
-    applyFlagColor(sheet, 'low');
+    sheet.querySelector('[data-at-flag-label]').textContent = 'Importance';
     sheet.querySelector('[data-at-project-label]').textContent = 'Projet';
     sheet.querySelector('[data-goto="project"]').classList.remove('set');
     sheet.querySelector('[data-at-error]').textContent = '';
@@ -2563,7 +2571,7 @@
         sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
         row.classList.add('selected');
         sheet.dataset.priority = row.dataset.val;
-        applyFlagColor(sheet, row.dataset.val);
+        sheet.querySelector('[data-at-flag-label]').textContent = PRIORITY_LABEL[row.dataset.val] || 'Basse';
         if (row.dataset.val !== 'low') sheet.querySelector('[data-goto="flag"]').classList.add('set');
         else sheet.querySelector('[data-goto="flag"]').classList.remove('set');
         popView(sheet);
