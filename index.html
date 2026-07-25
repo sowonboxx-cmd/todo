@@ -1413,6 +1413,10 @@
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-pb-pages-list></div>
+              <div class="add-subtask-row" data-pb-add-task-from-pages>
+                <span class="add-subtask-plus">+</span>
+                <span>Ajouter une tâche</span>
+              </div>
             </div>
 
             <div class="sheet-view" data-view="page-tasks">
@@ -1422,6 +1426,10 @@
                 <div class="pb-project-progress" data-pb-project-progress></div>
               </div>
               <div class="task-list" data-pb-tasks-list></div>
+              <div class="add-subtask-row" data-pb-add-task-from-page>
+                <span class="add-subtask-plus">+</span>
+                <span>Ajouter une tâche</span>
+              </div>
             </div>
           </div>
 
@@ -2700,6 +2708,7 @@
   function openPbPageTasks(sheet, pageId, pageTitle) {
     pushView(sheet, 'page-tasks');
     sheet.querySelector('[data-pb-page-name]').textContent = pageTitle;
+    sheet.dataset.currentPageId = pageId;
     renderPbTasksList(sheet, pageId);
   }
   function openPbPageTasksDirect(phone, pageId, pageTitle) {
@@ -2709,6 +2718,9 @@
     sheet.dataset.stack = 'page-tasks';
     showSheetView(sheet, 'page-tasks');
     sheet.querySelector('[data-pb-page-name]').textContent = pageTitle;
+    sheet.dataset.currentPageId = pageId;
+    const page = cachedPages.find(p => p.id === pageId);
+    sheet.dataset.projectId = page ? page.project_id : '';
     renderPbTasksList(sheet, pageId);
     sheet.classList.add('open');
     backdrop.classList.add('open');
@@ -2727,6 +2739,19 @@
     sheet.addEventListener('click', (e) => {
       const back = e.target.closest('[data-back]');
       if (back) { popView(sheet); return; }
+    });
+    sheet.querySelector('[data-pb-add-task-from-pages]')?.addEventListener('click', () => {
+      const phone = sheet.closest('.phone');
+      const projectId = sheet.dataset.projectId;
+      closePagesBrowser(phone);
+      openAddTaskSheet(phone, projectId);
+    });
+    sheet.querySelector('[data-pb-add-task-from-page]')?.addEventListener('click', () => {
+      const phone = sheet.closest('.phone');
+      const projectId = sheet.dataset.projectId;
+      const pageId = sheet.dataset.currentPageId;
+      closePagesBrowser(phone);
+      openAddTaskSheet(phone, projectId, pageId);
     });
   });
 
@@ -3055,7 +3080,7 @@
   // Quick add — bouton "+" de la nav du bas
   // ================================================================
 
-  function openAddTaskSheet(phone) {
+  function openAddTaskSheet(phone, presetProjectId, presetPageId) {
     const sheet = phone.querySelector('[data-addtask-sheet]');
     const backdrop = phone.querySelector('[data-addtask-backdrop]');
     if (!sheet || !backdrop) return;
@@ -3086,6 +3111,22 @@
     renderAtSubtasks(sheet);
 
     renderAddTaskProjectOptions(sheet);
+
+    if (presetProjectId) {
+      const project = cachedProjects.find(p => p.id === presetProjectId);
+      if (project) {
+        sheet.dataset.pendingProjectId = presetProjectId;
+        sheet.dataset.pendingProjectName = project.name;
+        sheet.querySelector('[data-goto="project"]').classList.add('set');
+        if (presetPageId) {
+          const page = cachedPages.find(pg => pg.id === presetPageId);
+          sheet.dataset.pageId = presetPageId;
+          sheet.querySelector('[data-at-project-label]').textContent = `${project.name} › ${page?.title || ''}`;
+        } else {
+          sheet.querySelector('[data-at-project-label]').textContent = project.name;
+        }
+      }
+    }
 
     sheet.classList.add('open');
     backdrop.classList.add('open');
