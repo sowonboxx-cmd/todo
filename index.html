@@ -676,7 +676,7 @@
     transform: translateY(105%); transition: transform .28s ease;
   }
   .task-sheet.open { transform: translateY(0); }
-  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 14px; }
+  .sheet-handle { display: none; }
   .sheet-view { display: none; }
   .sheet-view.active { display: block; }
   .sheet-topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -2595,6 +2595,9 @@
       const phone = cb.closest('.phone');
       if (phone) updateTasksSummary(phone);
 
+      const pbList = row?.closest('[data-pb-tasks-list]');
+      if (pbList) refreshPbProgress(pbList.closest('[data-pb-sheet]'));
+
       if (todoId) {
         await sb.from('todos').update({
           is_done: nowDone,
@@ -2676,13 +2679,23 @@
 
     const progressEl = sheet.querySelector('[data-pb-project-progress]');
     if (progressEl) {
-      if (project) {
-        const stats = projectStats(project, cachedPages, cachedTodos);
-        progressEl.innerHTML = `<span>${stats.done}/${stats.total}</span><span class="pct">${stats.pct}%</span>`;
-      } else {
-        progressEl.innerHTML = '';
-      }
+      const total = todos.length;
+      const done = todos.filter(t => t.is_done).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      progressEl.innerHTML = `<span>${done}/${total}</span><span class="pct">${pct}%</span>`;
+      progressEl.dataset.pageId = pageId;
     }
+  }
+  function refreshPbProgress(sheet) {
+    if (!sheet) return;
+    const progressEl = sheet.querySelector('[data-pb-project-progress]');
+    const pageId = progressEl?.dataset.pageId;
+    if (!pageId) return;
+    const todos = cachedTodos.filter(t => t.page_id === pageId && !t.parent_todo_id);
+    const total = todos.length;
+    const done = todos.filter(t => t.is_done).length;
+    const pct = total ? Math.round((done / total) * 100) : 0;
+    progressEl.innerHTML = `<span>${done}/${total}</span><span class="pct">${pct}%</span>`;
   }
   function openPbPageTasks(sheet, pageId, pageTitle) {
     pushView(sheet, 'page-tasks');
