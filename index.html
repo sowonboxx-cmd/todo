@@ -647,6 +647,49 @@
     padding: 10px 12px; resize: vertical; outline: none;
   }
 
+  /* task detail header: projet à gauche, flag/upload/sous-tâche à droite */
+  .td-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; }
+  .td-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .ic-flat-btn {
+    width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line); background: var(--bg); color: var(--muted); border-radius: 999px; cursor: pointer;
+  }
+  .ic-flat-btn svg { width: 15px; height: 15px; }
+  .ic-flat-btn:hover { color: var(--ink); border-color: var(--ink); }
+
+  /* images (par lien), 4 max, carrées en ligne */
+  .td-images { display: flex; gap: 8px; margin: 14px 0 4px; }
+  .td-img-thumb {
+    position: relative; width: 62px; height: 62px; border-radius: 10px; overflow: hidden;
+    background-size: cover; background-position: center; cursor: zoom-in; border: 1px solid var(--line-soft); flex-shrink: 0;
+  }
+  .td-img-remove {
+    position: absolute; top: 2px; right: 2px; width: 16px; height: 16px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); color: #fff; border: none; font-size: 10px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .img-lightbox {
+    position: fixed; inset: 0; z-index: 600; background: rgba(10,10,10,0.88);
+    display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .img-lightbox.open { display: flex; }
+  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+
+  /* sous-tâches */
+  .td-subtasks-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin: 18px 0 8px; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .td-subtasks-head span[data-td-subtasks-summary] { color: var(--accent-rosalina); text-transform: none; letter-spacing: 0; }
+  .td-subtasks { display: flex; flex-direction: column; }
+  .td-subtask-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft);
+  }
+  .td-subtask-row:last-child { border-bottom: none; }
+  .td-subtask-title { flex: 1; font-size: 13px; }
+  .td-subtask-row.done .td-subtask-title { text-decoration: line-through; color: var(--faint); }
+
   /* date/duration picker view */
   .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .cal-nav { border: none; background: transparent; color: var(--muted); font-size: 16px; cursor: pointer; }
@@ -893,11 +936,11 @@
                   <div class="dt overdue" data-tab="overdue">Overdue</div>
                   <div class="dt active" data-tab="today">Today</div>
                   <div class="dt" data-tab="tomorrow">Demain</div>
-                  <div class="dt" data-tab="d26">26 juil</div>
-                  <div class="dt" data-tab="d27">27 juil</div>
-                  <div class="dt" data-tab="d28">28 juil</div>
-                  <div class="dt" data-tab="d29">29 juil</div>
-                  <div class="dt" data-tab="d30">30 juil</div>
+                  <div class="dt" data-tab="d2" data-day-offset="2"></div>
+                  <div class="dt" data-tab="d3" data-day-offset="3"></div>
+                  <div class="dt" data-tab="d4" data-day-offset="4"></div>
+                  <div class="dt" data-tab="d5" data-day-offset="5"></div>
+                  <div class="dt" data-tab="d6" data-day-offset="6"></div>
                   <div class="dt" data-tab="later">Plus tard</div>
                   <div class="dt" data-tab="nodate">No date</div>
                 </div>
@@ -908,15 +951,15 @@
 
                 <div class="task-list" data-tab="tomorrow"></div>
 
-                <div class="task-list" data-tab="d26"></div>
+                <div class="task-list" data-tab="d2"></div>
 
-                <div class="task-list" data-tab="d27"></div>
+                <div class="task-list" data-tab="d3"></div>
 
-                <div class="task-list" data-tab="d28"></div>
+                <div class="task-list" data-tab="d4"></div>
 
-                <div class="task-list" data-tab="d29"></div>
+                <div class="task-list" data-tab="d5"></div>
 
-                <div class="task-list" data-tab="d30"></div>
+                <div class="task-list" data-tab="d6"></div>
 
                 <div class="task-list" data-tab="later"></div>
 
@@ -1007,11 +1050,11 @@
               <div class="dt overdue" data-tab="overdue">Overdue</div>
               <div class="dt active" data-tab="today">Today</div>
               <div class="dt" data-tab="tomorrow">Demain</div>
-              <div class="dt" data-tab="d26">26 juil</div>
-              <div class="dt" data-tab="d27">27 juil</div>
-              <div class="dt" data-tab="d28">28 juil</div>
-              <div class="dt" data-tab="d29">29 juil</div>
-              <div class="dt" data-tab="d30">30 juil</div>
+              <div class="dt" data-tab="d2" data-day-offset="2"></div>
+              <div class="dt" data-tab="d3" data-day-offset="3"></div>
+              <div class="dt" data-tab="d4" data-day-offset="4"></div>
+              <div class="dt" data-tab="d5" data-day-offset="5"></div>
+              <div class="dt" data-tab="d6" data-day-offset="6"></div>
               <div class="dt" data-tab="later">Plus tard</div>
               <div class="dt" data-tab="nodate">No date</div>
             </div>
@@ -1022,15 +1065,15 @@
 
             <div class="m-tasks" data-tab="tomorrow"></div>
 
-            <div class="m-tasks" data-tab="d26"></div>
+            <div class="m-tasks" data-tab="d2"></div>
 
-            <div class="m-tasks" data-tab="d27"></div>
+            <div class="m-tasks" data-tab="d3"></div>
 
-            <div class="m-tasks" data-tab="d28"></div>
+            <div class="m-tasks" data-tab="d4"></div>
 
-            <div class="m-tasks" data-tab="d29"></div>
+            <div class="m-tasks" data-tab="d5"></div>
 
-            <div class="m-tasks" data-tab="d30"></div>
+            <div class="m-tasks" data-tab="d6"></div>
 
             <div class="m-tasks" data-tab="later"></div>
 
@@ -1074,15 +1117,23 @@
 
             <!-- VIEW: task detail -->
             <div class="sheet-view active" data-view="detail">
-              <div class="at-icons" style="margin-bottom: 18px;">
-                <button type="button" class="at-icon-btn" data-goto="flag">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
-                  <span data-td-flag-label>Importance</span>
-                </button>
+              <div class="td-header-row">
                 <button type="button" class="at-icon-btn" data-goto="project">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                   <span data-td-project-label>Projet</span>
                 </button>
+                <div class="td-header-actions">
+                  <button type="button" class="at-icon-btn" data-goto="flag">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
+                    <span data-td-flag-label>Importance</span>
+                  </button>
+                  <button type="button" class="ic-flat-btn" data-td-upload-btn title="Ajouter une image (lien)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+                  </button>
+                  <button type="button" class="ic-flat-btn" data-td-add-subtask-btn title="Ajouter une sous-tâche">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                  </button>
+                </div>
               </div>
 
               <div class="td-due">
@@ -1099,6 +1150,14 @@
                 <div class="td-link" data-td-notes-view></div>
                 <textarea class="td-notes-edit" rows="3" data-td-notes-edit placeholder="Description, lien…" style="display:none;"></textarea>
               </div>
+
+              <div class="td-images" data-td-images></div>
+
+              <div class="td-subtasks-head" data-td-subtasks-head style="display:none;">
+                <span>Sous-tâches</span>
+                <span data-td-subtasks-summary></span>
+              </div>
+              <div class="td-subtasks" data-td-subtasks></div>
             </div>
 
             <!-- VIEW: importance -->
@@ -1125,6 +1184,10 @@
               <div class="opt-list" data-td-project-options></div>
             </div>
 
+          </div>
+
+          <div class="img-lightbox" data-img-lightbox>
+            <img data-img-lightbox-img alt="">
           </div>
 
           <div class="sheet-backdrop" data-addtask-backdrop></div>
@@ -1371,6 +1434,7 @@
   let cachedTodos = [];
   let cachedPages = [];
   let cachedProjects = [];
+  let cachedSubtasks = [];
 
   function showSheetView(sheet, view) {
     sheet.querySelectorAll('.sheet-view').forEach(v => v.classList.toggle('active', v.dataset.view === view));
@@ -1439,6 +1503,72 @@
     });
   }
 
+  function renderTdImages(sheet, todo) {
+    const wrap = sheet.querySelector('[data-td-images]');
+    if (!wrap) return;
+    const images = Array.isArray(todo.images) ? todo.images : [];
+    wrap.innerHTML = images.map((url, i) => `
+      <div class="td-img-thumb" style="background-image:url('${escapeHtml(url)}')" data-img-index="${i}">
+        <button type="button" class="td-img-remove" data-img-remove="${i}" title="Retirer">✕</button>
+      </div>`).join('');
+    wrap.querySelectorAll('.td-img-thumb').forEach(thumb => {
+      thumb.addEventListener('click', (e) => {
+        if (e.target.closest('[data-img-remove]')) return;
+        const url = images[parseInt(thumb.dataset.imgIndex, 10)];
+        openLightbox(sheet.closest('.phone'), url);
+      });
+    });
+    wrap.querySelectorAll('[data-img-remove]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.imgRemove, 10);
+        const next = images.filter((_, i) => i !== idx);
+        await saveTodoField(sheet, { images: next });
+        const t = cachedTodos.find(x => x.id === sheet.dataset.todoId);
+        renderTdImages(sheet, t);
+      });
+    });
+  }
+  function openLightbox(phone, url) {
+    const lb = phone?.querySelector('[data-img-lightbox]');
+    if (!lb) return;
+    lb.querySelector('[data-img-lightbox-img]').src = url;
+    lb.classList.add('open');
+  }
+
+  function renderTdSubtasks(sheet, todoId) {
+    const list = sheet.querySelector('[data-td-subtasks]');
+    const head = sheet.querySelector('[data-td-subtasks-head]');
+    const summary = sheet.querySelector('[data-td-subtasks-summary]');
+    if (!list) return;
+    const subs = cachedSubtasks.filter(s => s.todo_id === todoId);
+    head.style.display = subs.length ? 'flex' : 'none';
+    if (subs.length) {
+      const done = subs.filter(s => s.is_done).length;
+      const pct = Math.round((done / subs.length) * 100);
+      summary.textContent = `${done}/${subs.length} · ${pct}%`;
+    }
+    list.innerHTML = subs.map(s => `
+      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
+        <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
+        <div class="td-subtask-title">${escapeHtml(s.title)}</div>
+      </div>`).join('');
+    list.querySelectorAll('[data-subtask-checkbox]').forEach(cb => {
+      cb.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const row = cb.closest('.td-subtask-row');
+        const subtaskId = row.dataset.subtaskId;
+        const nowDone = !cb.classList.contains('done');
+        cb.classList.toggle('done', nowDone);
+        row.classList.toggle('done', nowDone);
+        await sb.from('subtasks').update({ is_done: nowDone }).eq('id', subtaskId);
+        const s = cachedSubtasks.find(x => x.id === subtaskId);
+        if (s) s.is_done = nowDone;
+        renderTdSubtasks(sheet, todoId); // recalcule le compteur/%
+      });
+    });
+  }
+
   function openTaskSheet(phone, todoId) {
     const sheet = phone.querySelector('[data-task-sheet]');
     const backdrop = phone.querySelector('[data-sheet-backdrop]');
@@ -1469,6 +1599,9 @@
 
     sheet.querySelector('[data-td-project-label]').textContent = project ? project.name : 'Projet';
     renderTdProjectOptions(sheet, page ? page.project_id : null);
+
+    renderTdImages(sheet, todo);
+    renderTdSubtasks(sheet, todoId);
 
     sheet.classList.add('open');
     backdrop.classList.add('open');
@@ -1536,6 +1669,31 @@
         popView(sheet);
       });
     });
+
+    sheet.querySelector('[data-td-upload-btn]')?.addEventListener('click', async () => {
+      const todo = cachedTodos.find(t => t.id === sheet.dataset.todoId);
+      const current = Array.isArray(todo?.images) ? todo.images : [];
+      if (current.length >= 4) { alert('4 images maximum par tâche.'); return; }
+      const url = prompt('Lien de l\'image (URL) :');
+      if (!url) return;
+      const next = [...current, url.trim()];
+      await saveTodoField(sheet, { images: next });
+      renderTdImages(sheet, cachedTodos.find(t => t.id === sheet.dataset.todoId));
+    });
+
+    sheet.querySelector('[data-td-add-subtask-btn]')?.addEventListener('click', async () => {
+      const title = prompt('Titre de la sous-tâche :');
+      if (!title || !title.trim()) return;
+      const todoId = sheet.dataset.todoId;
+      const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title: title.trim() }).select().single();
+      if (error) { alert(error.message); return; }
+      cachedSubtasks.push(newSub);
+      renderTdSubtasks(sheet, todoId);
+    });
+  });
+
+  document.querySelectorAll('[data-img-lightbox]').forEach(lb => {
+    lb.addEventListener('click', () => lb.classList.remove('open'));
   });
 
 
@@ -1698,20 +1856,37 @@
     const d = new Date(dateStr + 'T00:00:00');
     return `${d.getDate()} ${MONTHS_FR[d.getMonth()]}`;
   }
-  // NOTE: le mapping ci-dessous est calé sur les onglets fixes actuels
-  // (Overdue/Today/Demain/26→30 juil/Plus tard/No date). Il faudra le
-  // rendre glissant (basé sur la date du jour réelle) pour un usage
-  // au-delà du 30 juillet 2026 — bon prochain chantier.
+  function todayISO() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function isoPlusDays(n) {
+    const d = new Date();
+    d.setDate(d.getDate() + n);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  // diff en jours calendaires (pas d'heures) — évite tout souci de fuseau horaire
+  function daysFromToday(dateStr) {
+    const [y1, m1, d1] = dateStr.split('-').map(Number);
+    const [y2, m2, d2] = todayISO().split('-').map(Number);
+    const a = Date.UTC(y1, m1 - 1, d1);
+    const b = Date.UTC(y2, m2 - 1, d2);
+    return Math.round((a - b) / 86400000);
+  }
   function classifyDue(dueDateStr) {
     if (!dueDateStr) return 'nodate';
-    const map = {
-      '2026-07-24': 'today', '2026-07-25': 'tomorrow',
-      '2026-07-26': 'd26', '2026-07-27': 'd27', '2026-07-28': 'd28',
-      '2026-07-29': 'd29', '2026-07-30': 'd30',
-    };
-    if (map[dueDateStr]) return map[dueDateStr];
-    if (dueDateStr < '2026-07-24') return 'overdue';
+    const diff = daysFromToday(dueDateStr);
+    if (diff < 0) return 'overdue';
+    if (diff === 0) return 'today';
+    if (diff === 1) return 'tomorrow';
+    if (diff >= 2 && diff <= 6) return 'd' + diff;
     return 'later';
+  }
+  function relabelDayTabs() {
+    document.querySelectorAll('.dt[data-day-offset]').forEach(el => {
+      const offset = parseInt(el.dataset.dayOffset, 10);
+      el.textContent = formatDateShort(isoPlusDays(offset));
+    });
   }
   function whenLabel(todo, tabKey) {
     if (todo.due_time) return todo.due_time.slice(0, 5);
@@ -1766,7 +1941,9 @@
     const tabKey = classifyDue(todo.due_date);
     const label = whenLabel(todo, tabKey);
     const whenStyle = tabKey === 'overdue' ? ' style="color:var(--danger)"' : '';
-    const subsHtml = (subStats && subStats.total > 0) ? `<div class="subs-pill">${subStats.done}/${subStats.total}</div>` : '';
+    const subsHtml = (subStats && subStats.total > 0)
+      ? `<div class="subs-pill">${subStats.done}/${subStats.total} · ${Math.round((subStats.done / subStats.total) * 100)}%</div>`
+      : '';
     return `
       <div class="task-row${todo.is_done ? ' is-done' : ''}" data-todo-id="${todo.id}" data-project="${escapeHtml(project ? project.slug : '')}">
         <div class="checkbox ${pClass}${todo.is_done ? ' done' : ''}"></div>
@@ -1900,6 +2077,7 @@
     cachedProjects = projects || [];
     cachedPages = pages || [];
     cachedTodos = todos || [];
+    cachedSubtasks = subtasks || [];
     renderProjects(projects || [], pages || [], todos || []);
     renderTodos(todos || [], pages || [], projects || [], subtasks || []);
     revealApp();
@@ -2054,6 +2232,7 @@
     });
   });
 
+  relabelDayTabs();
   checkAuth();
 </script>
 
