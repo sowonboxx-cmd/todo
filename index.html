@@ -623,18 +623,29 @@
   .segmented button.active { background: var(--accent-due); color: #fff; }
 
   /* task detail view */
-  .td-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-  .td-list { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13.5px; display: flex; align-items: center; gap: 5px; }
-  .td-list .chev { color: var(--faint); font-size: 10px; }
-  .td-icons { display: flex; gap: 14px; }
-  .ic-flat { border: none; background: transparent; color: var(--faint); font-size: 15px; cursor: pointer; padding: 2px; }
-  .td-due { display: flex; align-items: flex-start; gap: 10px; padding: 8px 6px; margin: 0 -6px 14px; border-radius: 8px; cursor: pointer; }
-  .td-due:hover { background: var(--bg); }
+  .td-due { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .td-due-text { position: relative; flex: 1; padding: 6px; margin: -6px; border-radius: 8px; cursor: pointer; }
+  .td-due-text:hover { background: var(--bg); }
   .td-due-date { color: var(--accent-due); font-weight: 700; font-size: 13.5px; }
-  .td-due-repeat { color: var(--faint); font-size: 11px; margin-top: 2px; display: flex; align-items: center; gap: 4px; }
-  .td-title { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; margin-bottom: 14px; }
-  .td-link { color: var(--accent-due); font-size: 12.5px; word-break: break-all; margin-bottom: 22px; line-height: 1.5; }
-  .td-toolbar { display: flex; gap: 22px; border-top: 1px solid var(--line-soft); padding-top: 14px; }
+  .td-title-input {
+    display: block; width: 100%; box-sizing: border-box; border: none; background: transparent; outline: none;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; color: var(--ink);
+    padding: 4px 0; margin-bottom: 12px;
+  }
+  .td-title-input::placeholder { color: var(--faint); }
+  .td-notes-wrap { margin-bottom: 8px; }
+  .td-link {
+    min-height: 20px; color: var(--ink); font-size: 13px; line-height: 1.6; white-space: pre-wrap;
+    word-break: break-word; cursor: text; border-radius: 8px; padding: 6px; margin: -6px;
+  }
+  .td-link:hover { background: var(--bg); }
+  .td-link:empty::before { content: 'Ajouter une description, un lien…'; color: var(--faint); }
+  .td-link a { color: var(--accent-due); text-decoration: underline; }
+  .td-notes-edit {
+    display: block; width: 100%; box-sizing: border-box; border: 1px solid var(--line-soft); background: var(--bg);
+    border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
+    padding: 10px 12px; resize: vertical; outline: none;
+  }
 
   /* date/duration picker view */
   .cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -1063,152 +1074,57 @@
 
             <!-- VIEW: task detail -->
             <div class="sheet-view active" data-view="detail">
-              <div class="td-top">
-                <div class="td-list">📋 アニメ <span class="chev">⌄</span></div>
-                <div class="td-icons"><button class="ic-flat">⚑</button><button class="ic-flat">⋯</button></div>
+              <div class="at-icons" style="margin-bottom: 18px;">
+                <button type="button" class="at-icon-btn" data-goto="flag">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
+                  <span data-td-flag-label>Importance</span>
+                </button>
+                <button type="button" class="at-icon-btn" data-goto="project">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+                  <span data-td-project-label>Projet</span>
+                </button>
               </div>
-              <div class="td-due" data-goto="date">
-                <div class="checkbox"></div>
-                <div>
-                  <div class="td-due-date" data-due-summary>Demain, 25 juil</div>
-                  <div class="td-due-repeat">↻ <span data-repeat-summary>Chaque semaine le sam.</span></div>
+
+              <div class="td-due">
+                <div class="checkbox" data-td-checkbox></div>
+                <div class="td-due-text" data-td-date-wrap>
+                  <div class="td-due-date" data-td-due-label>Sans échéance</div>
+                  <input type="date" class="at-date-native" data-td-date-input>
                 </div>
               </div>
-              <div class="td-title">Kami no Shizuku</div>
-              <div class="td-link">https://nyaa.si/?f=0&c=0_0&q=%5BSubsPlease%5D+kami+no+shizuku+1080</div>
-              <div class="td-toolbar">
-                <button class="ic-flat">🏷</button>
-                <button class="ic-flat">☑</button>
-                <button class="ic-flat">📎</button>
+
+              <input type="text" class="td-title-input" data-td-title placeholder="Titre de la tâche">
+
+              <div class="td-notes-wrap">
+                <div class="td-link" data-td-notes-view></div>
+                <textarea class="td-notes-edit" rows="3" data-td-notes-edit placeholder="Description, lien…" style="display:none;"></textarea>
               </div>
             </div>
 
-            <!-- VIEW: date / duration picker -->
-            <div class="sheet-view" data-view="date">
-              <div class="sheet-topbar">
-                <button class="link" data-back>Annuler</button>
-                <div class="segmented" data-datedur-tabs>
-                  <button class="active" data-dd="date">Date</button>
-                  <button data-dd="duration">Durée</button>
-                </div>
-                <button class="link strong" data-back>OK</button>
-              </div>
-
-              <div class="dd-pane active" data-dd-pane="date">
-                <div class="cal-head">
-                  <button class="cal-nav">‹</button>
-                  <div class="cal-month">Juillet 2026</div>
-                  <button class="cal-nav">›</button>
-                </div>
-                <div class="cal-grid" data-cal-grid></div>
-              </div>
-
-              <div class="dd-pane" data-dd-pane="duration">
-                <div class="dur-cards">
-                  <div class="dur-card">
-                    <div class="dur-label">Date</div>
-                    <div class="dur-value">25 juil, sam.</div>
-                    <div class="dur-sub">Demain</div>
-                  </div>
-                  <div class="dur-card">
-                    <div class="dur-label">Heure</div>
-                    <div class="dur-value">17:00 – 18:00</div>
-                    <div class="dur-sub">Durée : 1h</div>
-                  </div>
-                </div>
-                <div class="dd-list" style="margin-bottom:10px;">
-                  <div class="dd-row"><span>Toute la journée</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
-                </div>
-                <div class="dd-tz">Paris, GMT+2</div>
-              </div>
-
-              <div class="dd-list">
-                <div class="dd-row"><span>⏰ Heure</span><span class="dd-val">Aucune</span></div>
-                <div class="dd-row" data-goto="reminder"><span>⏰ Rappel</span><span class="dd-val" data-reminder-val>Aucun</span></div>
-                <div class="dd-row" data-goto="repeat"><span>↻ Répéter</span><span class="dd-val accent" data-repeat-val>Chaque semaine le sam. ✕</span></div>
-                <div class="dd-row"><span>↻ Fin de répétition</span><span class="dd-val">Jamais</span></div>
-              </div>
-              <button class="dd-clear">Effacer</button>
-            </div>
-
-            <!-- VIEW: reminder options -->
-            <div class="sheet-view" data-view="reminder">
+            <!-- VIEW: importance -->
+            <div class="sheet-view" data-view="flag">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Rappel</div>
+                <div class="sheet-title">Importance</div>
                 <span style="width:44px"></span>
               </div>
-              <div class="opt-list" data-reminder-options>
-                <div class="opt-row" data-val="Aucun">Aucun</div>
-                <div class="opt-row selected" data-val="À l'heure">À l'heure <span class="check">✓</span></div>
-                <div class="opt-row" data-val="5 min avant">5 min avant</div>
-                <div class="opt-row" data-val="30 min avant">30 min avant</div>
-                <div class="opt-row" data-val="1h avant">1h avant</div>
-                <div class="opt-row" data-val="1 jour avant">1 jour avant</div>
-                <div class="opt-row" data-val="Personnalisé">Personnalisé <span class="chev">›</span></div>
-              </div>
-              <div class="dd-list">
-                <div class="dd-row"><span>Rappel constant</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+              <div class="opt-list" data-td-flag-options>
+                <div class="opt-row" data-val="high"><span class="flag-dot" style="background:var(--danger)"></span>Haute</div>
+                <div class="opt-row" data-val="med"><span class="flag-dot" style="background:var(--accent-pvpp)"></span>Moyenne</div>
+                <div class="opt-row" data-val="low"><span class="flag-dot" style="background:var(--faint)"></span>Basse</div>
               </div>
             </div>
 
-            <!-- VIEW: repeat options -->
-            <div class="sheet-view" data-view="repeat">
+            <!-- VIEW: projet -->
+            <div class="sheet-view" data-view="project">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Répéter</div>
+                <div class="sheet-title">Projet</div>
                 <span style="width:44px"></span>
               </div>
-              <div class="opt-list" data-repeat-options>
-                <div class="opt-row" data-val="Aucune">Aucune</div>
-                <div class="opt-row" data-val="Chaque jour">Chaque jour</div>
-                <div class="opt-row" data-val="Chaque semaine le sam.">Chaque semaine <span class="opt-hint">(samedi)</span></div>
-                <div class="opt-row" data-val="Chaque mois le 25">Chaque mois <span class="opt-hint">(le 25)</span></div>
-                <div class="opt-row" data-val="Chaque année le 25 juil">Chaque année <span class="opt-hint">(25 juil)</span></div>
-                <div class="opt-row" data-val="Jours ouvrés">Jours ouvrés <span class="opt-hint">(lun–ven)</span></div>
-                <div class="opt-row selected" data-goto="custom-repeat" data-val="Chaque semaine le sam.">Personnalisé <span class="opt-hint">(chaque semaine le sam.)</span> <span class="check">✓</span></div>
-              </div>
+              <div class="opt-list" data-td-project-options></div>
             </div>
 
-            <!-- VIEW: custom repeat -->
-            <div class="sheet-view" data-view="custom-repeat">
-              <div class="sheet-topbar">
-                <button class="link" data-back>Annuler</button>
-                <div class="sheet-title">Répétition perso.</div>
-                <button class="link strong" data-back>OK</button>
-              </div>
-              <div class="dd-list" style="margin-bottom:14px;">
-                <div class="dd-row"><span>Type de répétition</span><span class="dd-val">Par date d'échéance</span></div>
-              </div>
-              <div class="freq-picker">
-                <div class="freq-label">Fréquence</div>
-                <div class="freq-row">
-                  <span>Toutes les</span>
-                  <select class="freq-select" data-freq-n>
-                    <option>1</option><option>2</option><option>3</option><option>4</option>
-                  </select>
-                  <select class="freq-select" data-freq-unit>
-                    <option value="jour">jour(s)</option>
-                    <option value="semaine" selected>semaine(s)</option>
-                    <option value="mois">mois</option>
-                    <option value="an">an(s)</option>
-                  </select>
-                </div>
-                <div class="freq-summary" data-freq-summary>Chaque semaine le sam.</div>
-              </div>
-              <div class="week-picker" data-week-picker>
-                <div class="freq-label">Semaine</div>
-                <div class="week-pills">
-                  <button class="week-pill" data-day="Lun">Lun</button>
-                  <button class="week-pill" data-day="Mar">Mar</button>
-                  <button class="week-pill" data-day="Mer">Mer</button>
-                  <button class="week-pill" data-day="Jeu">Jeu</button>
-                  <button class="week-pill" data-day="Ven">Ven</button>
-                  <button class="week-pill active" data-day="Sam">Sam</button>
-                  <button class="week-pill" data-day="Dim">Dim</button>
-                </div>
-              </div>
-            </div>
           </div>
 
           <div class="sheet-backdrop" data-addtask-backdrop></div>
@@ -1451,21 +1367,11 @@
     ov.addEventListener('click', (e) => { if (e.target === ov) ov.classList.remove('open'); });
   });
 
-  // ================= task detail / date-duration / reminder / repeat sheet =================
-  function openTaskSheet(phone) {
-    const sheet = phone.querySelector('[data-task-sheet]');
-    const backdrop = phone.querySelector('[data-sheet-backdrop]');
-    if (!sheet || !backdrop) return;
-    sheet.dataset.stack = 'detail';
-    showSheetView(sheet, 'detail');
-    sheet.classList.add('open');
-    backdrop.classList.add('open');
-    buildCalendar(sheet, 2026, 6); // July = month index 6
-  }
-  function closeTaskSheet(phone) {
-    phone.querySelector('[data-task-sheet]')?.classList.remove('open');
-    phone.querySelector('[data-sheet-backdrop]')?.classList.remove('open');
-  }
+  // ================= task detail sheet (données réelles) =================
+  let cachedTodos = [];
+  let cachedPages = [];
+  let cachedProjects = [];
+
   function showSheetView(sheet, view) {
     sheet.querySelectorAll('.sheet-view').forEach(v => v.classList.toggle('active', v.dataset.view === view));
   }
@@ -1483,6 +1389,96 @@
     return stack.length;
   }
 
+  function renderTdNotes(sheet, notes) {
+    const view = sheet.querySelector('[data-td-notes-view]');
+    const edit = sheet.querySelector('[data-td-notes-edit]');
+    edit.value = notes || '';
+    const trimmed = (notes || '').trim();
+    if (/^https?:\/\//i.test(trimmed)) {
+      view.innerHTML = `<a href="${escapeHtml(trimmed)}" target="_blank" rel="noopener">${escapeHtml(trimmed)}</a>`;
+    } else {
+      view.textContent = trimmed;
+    }
+    view.style.display = 'block';
+    edit.style.display = 'none';
+  }
+
+  async function saveTodoField(sheet, patch) {
+    const todoId = sheet.dataset.todoId;
+    if (!todoId) return;
+    await sb.from('todos').update(patch).eq('id', todoId);
+    const t = cachedTodos.find(x => x.id === todoId);
+    if (t) Object.assign(t, patch);
+  }
+
+  function renderTdProjectOptions(sheet, currentProjectId) {
+    const list = sheet.querySelector('[data-td-project-options]');
+    if (!list) return;
+    list.innerHTML = cachedProjects.map(p => `
+      <div class="opt-row${p.id === currentProjectId ? ' selected' : ''}" data-project-id="${p.id}" data-project-name="${escapeHtml(p.name)}">
+        <span class="proj-kanji" style="background:${p.color}">${escapeHtml(p.kanji)}</span>${escapeHtml(p.name)}
+      </div>`).join('') || '<div class="empty-state">Aucun projet</div>';
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', async () => {
+        const s = row.closest('[data-task-sheet]');
+        list.querySelectorAll('.opt-row').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        s.querySelector('[data-td-project-label]').textContent = row.dataset.projectName;
+        const projectId = row.dataset.projectId;
+        let pageId;
+        const { data: existingPages } = await sb.from('pages')
+          .select('*').eq('project_id', projectId).eq('is_archived', false).order('position').limit(1);
+        if (existingPages && existingPages.length) pageId = existingPages[0].id;
+        else {
+          const { data: newPage } = await sb.from('pages').insert({ project_id: projectId, title: 'Général' }).select().single();
+          pageId = newPage.id;
+        }
+        await saveTodoField(s, { page_id: pageId });
+        popView(s);
+      });
+    });
+  }
+
+  function openTaskSheet(phone, todoId) {
+    const sheet = phone.querySelector('[data-task-sheet]');
+    const backdrop = phone.querySelector('[data-sheet-backdrop]');
+    const todo = cachedTodos.find(t => t.id === todoId);
+    if (!sheet || !backdrop || !todo) return;
+    sheet.dataset.todoId = todoId;
+    sheet.dataset.stack = 'detail';
+    showSheetView(sheet, 'detail');
+
+    const page = cachedPages.find(p => p.id === todo.page_id);
+    const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
+
+    sheet.querySelector('[data-td-title]').value = todo.title || '';
+    renderTdNotes(sheet, todo.notes);
+
+    const cb = sheet.querySelector('[data-td-checkbox]');
+    cb.className = 'checkbox' + (todo.priority === 'high' ? ' p-high' : todo.priority === 'med' ? ' p-med' : ' p-low') + (todo.is_done ? ' done' : '');
+
+    const dueLabel = sheet.querySelector('[data-td-due-label]');
+    dueLabel.textContent = todo.due_date
+      ? formatDateShort(todo.due_date) + (todo.due_time ? ' · ' + todo.due_time.slice(0, 5) : '')
+      : 'Sans échéance';
+    sheet.querySelector('[data-td-date-input]').value = todo.due_date || '';
+
+    const labelMap = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+    sheet.querySelector('[data-td-flag-label]').textContent = labelMap[todo.priority] || 'Basse';
+    sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (todo.priority || 'low')));
+
+    sheet.querySelector('[data-td-project-label]').textContent = project ? project.name : 'Projet';
+    renderTdProjectOptions(sheet, page ? page.project_id : null);
+
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closeTaskSheet(phone) {
+    phone.querySelector('[data-task-sheet]')?.classList.remove('open');
+    phone.querySelector('[data-sheet-backdrop]')?.classList.remove('open');
+    loadData(); // reflète les modifs faites pendant que la fiche était ouverte
+  }
+
   document.querySelectorAll('[data-sheet-backdrop]').forEach(bd => {
     bd.addEventListener('click', () => closeTaskSheet(bd.closest('.phone')));
   });
@@ -1492,104 +1488,62 @@
       const goto = e.target.closest('[data-goto]');
       if (goto) { pushView(sheet, goto.dataset.goto); return; }
       const back = e.target.closest('[data-back]');
-      if (back) {
-        const remaining = popView(sheet);
-        if (remaining <= 1 && back.textContent.trim().toLowerCase() === 'annuler') {
-          // "Annuler" on the top-level date view closes the whole sheet
-        }
-      }
+      if (back) { popView(sheet); return; }
     });
 
-    // Date / Duration segmented control
-    sheet.querySelectorAll('[data-datedur-tabs] button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        sheet.querySelectorAll('[data-datedur-tabs] button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        sheet.querySelectorAll('.dd-pane').forEach(p => p.classList.toggle('active', p.dataset.ddPane === btn.dataset.dd));
-      });
+    sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const cb = e.currentTarget;
+      cb.classList.toggle('done');
+      const nowDone = cb.classList.contains('done');
+      await saveTodoField(sheet, { is_done: nowDone, completed_at: nowDone ? new Date().toISOString() : null });
     });
 
-    // Reminder options
-    sheet.querySelectorAll('[data-reminder-options] .opt-row').forEach(row => {
-      row.addEventListener('click', () => {
-        sheet.querySelectorAll('[data-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
+    sheet.querySelector('[data-td-date-input]')?.addEventListener('change', async (e) => {
+      const val = e.target.value;
+      sheet.querySelector('[data-td-due-label]').textContent = val ? formatDateShort(val) : 'Sans échéance';
+      await saveTodoField(sheet, { due_date: val || null });
+    });
+
+    sheet.querySelector('[data-td-title]')?.addEventListener('blur', (e) => {
+      saveTodoField(sheet, { title: e.target.value.trim() });
+    });
+
+    sheet.querySelector('[data-td-notes-view]')?.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A') return; // laisse le lien s'ouvrir normalement
+      const view = sheet.querySelector('[data-td-notes-view]');
+      const edit = sheet.querySelector('[data-td-notes-edit]');
+      view.style.display = 'none';
+      edit.style.display = 'block';
+      edit.focus();
+    });
+    sheet.querySelector('[data-td-notes-edit]')?.addEventListener('blur', (e) => {
+      const val = e.target.value.trim();
+      renderTdNotes(sheet, val);
+      saveTodoField(sheet, { notes: val || null });
+    });
+
+    sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(row => {
+      row.addEventListener('click', async () => {
+        const labelMap = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+        sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
         row.classList.add('selected');
-        const val = row.dataset.val;
-        sheet.querySelectorAll('[data-reminder-val]').forEach(el => el.textContent = val);
-        if (val !== 'Personnalisé') popView(sheet);
-      });
-    });
-
-    // Repeat options
-    sheet.querySelectorAll('[data-repeat-options] .opt-row').forEach(row => {
-      row.addEventListener('click', (e) => {
-        if (e.target.closest('[data-goto]')) return; // handled by the generic goto listener above
-        sheet.querySelectorAll('[data-repeat-options] .opt-row').forEach(r => r.classList.remove('selected'));
-        row.classList.add('selected');
-        const val = row.dataset.val;
-        sheet.querySelectorAll('[data-repeat-val]').forEach(el => el.textContent = val + ' ✕');
-        sheet.querySelectorAll('[data-repeat-summary]').forEach(el => el.textContent = val);
+        sheet.querySelector('[data-td-flag-label]').textContent = labelMap[row.dataset.val];
+        const cb = sheet.querySelector('[data-td-checkbox]');
+        cb.classList.remove('p-high', 'p-med', 'p-low');
+        cb.classList.add('p-' + row.dataset.val);
+        await saveTodoField(sheet, { priority: row.dataset.val });
         popView(sheet);
       });
     });
-
-    // Custom repeat: week pills
-    sheet.querySelectorAll('.week-pill').forEach(pill => {
-      pill.addEventListener('click', () => {
-        pill.classList.toggle('active');
-        updateFreqSummary(sheet);
-      });
-    });
-    const freqN = sheet.querySelector('[data-freq-n]');
-    const freqUnit = sheet.querySelector('[data-freq-unit]');
-    [freqN, freqUnit].forEach(sel => sel?.addEventListener('change', () => {
-      const weekPicker = sheet.querySelector('[data-week-picker]');
-      if (weekPicker) weekPicker.style.display = freqUnit.value === 'semaine' ? 'block' : 'none';
-      updateFreqSummary(sheet);
-    }));
   });
-
-  function updateFreqSummary(sheet) {
-    const n = sheet.querySelector('[data-freq-n]')?.value || '1';
-    const unitSel = sheet.querySelector('[data-freq-unit]');
-    const unitLabel = unitSel?.options[unitSel.selectedIndex]?.text || 'semaine(s)';
-    const days = [...sheet.querySelectorAll('.week-pill.active')].map(p => p.dataset.day);
-    let summary = `Toutes les ${n} ${unitLabel}`;
-    if (unitSel?.value === 'semaine' && days.length) summary += ` le ${days.join(', ')}`;
-    const out = sheet.querySelector('[data-freq-summary]');
-    if (out) out.textContent = summary;
-  }
-
-  function buildCalendar(sheet, year, monthIndex) {
-    const grid = sheet.querySelector('[data-cal-grid]');
-    if (!grid || grid.dataset.built) return;
-    grid.dataset.built = '1';
-    const dows = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-    let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
-    const firstDay = new Date(year, monthIndex, 1);
-    const startOffset = (firstDay.getDay() + 6) % 7; // Monday-first
-    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-    for (let i = 0; i < startOffset; i++) html += `<div class="cal-cell empty"></div>`;
-    for (let d = 1; d <= daysInMonth; d++) {
-      const isToday = d === 24;
-      const isSelected = d === 25;
-      html += `<div class="cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}" data-day="${d}"><span>${d}</span></div>`;
-    }
-    grid.innerHTML = html;
-    grid.querySelectorAll('.cal-cell[data-day]').forEach(cell => {
-      cell.addEventListener('click', () => {
-        grid.querySelectorAll('.cal-cell').forEach(c => c.classList.remove('selected'));
-        cell.classList.add('selected');
-      });
-    });
-  }
 
 
   document.querySelectorAll('.task-row').forEach(row => {
     row.addEventListener('click', () => {
       const phone = row.closest('.phone');
       if (phone) {
-        openTaskSheet(phone);
+        openTaskSheet(phone, row.dataset.todoId);
         return;
       }
       row.classList.add('opening');
@@ -1856,7 +1810,7 @@
   function wireTaskRowClick(row) {
     row.addEventListener('click', () => {
       const phone = row.closest('.phone');
-      if (phone) { openTaskSheet(phone); return; }
+      if (phone) { openTaskSheet(phone, row.dataset.todoId); return; }
       row.classList.add('opening');
       setTimeout(() => row.classList.remove('opening'), 220);
     });
@@ -1944,6 +1898,8 @@
     if (err) { console.error('Erreur de chargement Supabase :', err); return; }
 
     cachedProjects = projects || [];
+    cachedPages = pages || [];
+    cachedTodos = todos || [];
     renderProjects(projects || [], pages || [], todos || []);
     renderTodos(todos || [], pages || [], projects || [], subtasks || []);
     revealApp();
@@ -1952,7 +1908,6 @@
   // ================================================================
   // Quick add — bouton "+" de la nav du bas
   // ================================================================
-  let cachedProjects = [];
 
   function openAddTaskSheet(phone) {
     const sheet = phone.querySelector('[data-addtask-sheet]');
