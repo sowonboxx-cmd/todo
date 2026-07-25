@@ -599,7 +599,6 @@
   }
   .drawer-page-row:hover { background: var(--card); color: var(--ink); }
   .drawer-page-row.empty { color: var(--faint); font-style: italic; }
-  .task-row.pb-armed { background: var(--bg); box-shadow: inset 0 0 0 1.5px var(--accent-due); border-radius: 10px; }
 
   .drawer-admin-toggle {
     margin-top: auto; display: flex; align-items: center; gap: 10px;
@@ -638,6 +637,11 @@
     background: var(--bg); color: var(--muted); font-size: 11px; font-weight: 700;
     border-radius: 999px; padding: 2px 8px; flex-shrink: 0;
   }
+  .pb-project-progress {
+    display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; white-space: nowrap;
+  }
+  .pb-project-progress .pct { color: var(--accent-rosalina); }
   .pa-section-head {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
     text-transform: uppercase; letter-spacing: 0.03em; margin: 18px 0 8px;
@@ -1415,7 +1419,7 @@
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
                 <div class="sheet-title" data-pb-page-name>Page</div>
-                <span style="width:44px"></span>
+                <div class="pb-project-progress" data-pb-project-progress></div>
               </div>
               <div class="task-list" data-pb-tasks-list></div>
             </div>
@@ -2660,20 +2664,25 @@
     const project = page ? projectById[page.project_id] : null;
     list.innerHTML = todos.map(t => taskRowHtml(t, project, page, subsByTodo[t.id])).join('') || '<div class="empty-state">Aucune tâche</div>';
     list.querySelectorAll('.checkbox').forEach(wireCheckbox);
-    // un seul clic sélectionne (pas d'ouverture) — un second clic sur la même tâche ouvre sa fiche.
-    // Évite le chevauchement/rognage visuel de deux fiches empilées en même temps.
+    // clic direct : on ferme d'abord la fiche "pages" pour éviter l'empilement/rognage visuel des deux fiches
     list.querySelectorAll('.task-row').forEach(row => {
       row.addEventListener('click', () => {
-        if (row.classList.contains('pb-armed')) {
-          openTaskSheet(sheet.closest('.phone'), row.dataset.todoId);
-          row.classList.remove('pb-armed');
-        } else {
-          list.querySelectorAll('.task-row').forEach(r => r.classList.remove('pb-armed'));
-          row.classList.add('pb-armed');
-        }
+        const phone = sheet.closest('.phone');
+        closePagesBrowser(phone);
+        openTaskSheet(phone, row.dataset.todoId);
       });
     });
     sortIncomplete(list);
+
+    const progressEl = sheet.querySelector('[data-pb-project-progress]');
+    if (progressEl) {
+      if (project) {
+        const stats = projectStats(project, cachedPages, cachedTodos);
+        progressEl.innerHTML = `<span>${stats.done}/${stats.total}</span><span class="pct">${stats.pct}%</span>`;
+      } else {
+        progressEl.innerHTML = '';
+      }
+    }
   }
   function openPbPageTasks(sheet, pageId, pageTitle) {
     pushView(sheet, 'page-tasks');
