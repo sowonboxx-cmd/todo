@@ -711,7 +711,7 @@
   .dd-tz { text-align: center; color: var(--faint); font-size: 11.5px; margin: 4px 0 14px; }
   .dd-list { background: var(--bg); border-radius: 12px; margin-bottom: 14px; }
   .dd-row {
-    display: flex; justify-content: space-between; align-items: center;
+    position: relative; display: flex; justify-content: space-between; align-items: center;
     padding: 12px 14px; font-size: 13px; font-weight: 600; border-bottom: 1px solid var(--line-soft);
     cursor: pointer;
   }
@@ -719,6 +719,31 @@
   .dd-val { color: var(--muted); font-weight: 600; font-size: 12.5px; }
   .dd-val.accent { color: var(--accent-due); }
   .dd-clear { display: block; margin: 6px auto 0; border: none; background: transparent; color: var(--danger); font-weight: 700; font-size: 13px; cursor: pointer; }
+
+  /* raccourcis de date */
+  .quick-dates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+  .quick-date-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    border: none; background: transparent; cursor: pointer; padding: 4px;
+    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 600; color: var(--ink);
+  }
+  .qd-icon {
+    width: 40px; height: 40px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; color: var(--accent-due);
+  }
+  .qd-icon svg { width: 19px; height: 19px; }
+
+  /* sous-tâches — ligne "+ Sous-tâche" */
+  .add-subtask-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 4px; cursor: pointer; color: var(--accent-due);
+    font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  }
+  .add-subtask-plus { font-size: 16px; line-height: 1; }
+  .add-subtask-input {
+    width: 100%; box-sizing: border-box; border: 1px solid var(--line); background: var(--bg);
+    border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink);
+    padding: 10px 12px; outline: none; margin-top: 4px;
+  }
   .switch { position: relative; width: 38px; height: 22px; flex-shrink: 0; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .switch .slider { position: absolute; inset: 0; background: var(--line); border-radius: 999px; transition: background .15s ease; }
@@ -1130,17 +1155,18 @@
                   <button type="button" class="ic-flat-btn" data-td-upload-btn title="Ajouter une image (lien)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
                   </button>
-                  <button type="button" class="ic-flat-btn" data-td-add-subtask-btn title="Ajouter une sous-tâche">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+                  <button type="button" class="ic-flat-btn" data-goto="subtasks" title="Sous-tâches">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
                 </div>
               </div>
 
-              <div class="td-due">
+              <input type="text" class="add-subtask-input" data-td-image-url-input placeholder="Lien de l'image…" style="display:none; margin-bottom: 14px;">
+
+              <div class="td-due" data-goto="date">
                 <div class="checkbox" data-td-checkbox></div>
-                <div class="td-due-text" data-td-date-wrap>
+                <div class="td-due-text">
                   <div class="td-due-date" data-td-due-label>Sans échéance</div>
-                  <input type="date" class="at-date-native" data-td-date-input>
                 </div>
               </div>
 
@@ -1152,12 +1178,6 @@
               </div>
 
               <div class="td-images" data-td-images></div>
-
-              <div class="td-subtasks-head" data-td-subtasks-head style="display:none;">
-                <span>Sous-tâches</span>
-                <span data-td-subtasks-summary></span>
-              </div>
-              <div class="td-subtasks" data-td-subtasks></div>
             </div>
 
             <!-- VIEW: importance -->
@@ -1182,6 +1202,62 @@
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-td-project-options></div>
+            </div>
+
+            <!-- VIEW: date -->
+            <div class="sheet-view" data-view="date">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Annuler</button>
+                <div class="sheet-title">Date</div>
+                <button class="link strong" data-back>OK</button>
+              </div>
+              <div class="quick-dates">
+                <button type="button" class="quick-date-btn" data-quick="today">
+                  <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+                  <span>Today</span>
+                </button>
+                <button type="button" class="quick-date-btn" data-quick="tomorrow">
+                  <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v6M5 13a7 7 0 0114 0"/><path d="M2 13h20M4 17h16"/></svg></span>
+                  <span>Demain</span>
+                </button>
+                <button type="button" class="quick-date-btn" data-quick="nextmonday">
+                  <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="17" font-size="7" text-anchor="middle" fill="currentColor" stroke="none">Lu</text></svg></span>
+                  <span>Lundi pro.</span>
+                </button>
+                <button type="button" class="quick-date-btn" data-quick="tonight">
+                  <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
+                  <span>Ce soir</span>
+                </button>
+              </div>
+              <div class="cal-head">
+                <button type="button" class="cal-nav" data-cal-prev>‹</button>
+                <div class="cal-month" data-cal-month-label></div>
+                <button type="button" class="cal-nav" data-cal-next>›</button>
+              </div>
+              <div class="cal-grid" data-cal-grid></div>
+              <div class="dd-list">
+                <div class="dd-row" data-td-time-wrap>
+                  <span>Heure</span>
+                  <span class="dd-val" data-td-time-val>Aucune</span>
+                  <input type="time" class="at-date-native" data-td-time-input>
+                </div>
+              </div>
+              <button type="button" class="dd-clear" data-td-clear-date>Effacer la date</button>
+            </div>
+
+            <!-- VIEW: sous-tâches -->
+            <div class="sheet-view" data-view="subtasks">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Sous-tâches</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="td-subtasks-list" data-td-subtasks-list></div>
+              <div class="add-subtask-row" data-add-subtask-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Sous-tâche</span>
+              </div>
+              <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Titre de la sous-tâche" style="display:none;">
             </div>
 
           </div>
@@ -1537,17 +1613,9 @@
   }
 
   function renderTdSubtasks(sheet, todoId) {
-    const list = sheet.querySelector('[data-td-subtasks]');
-    const head = sheet.querySelector('[data-td-subtasks-head]');
-    const summary = sheet.querySelector('[data-td-subtasks-summary]');
+    const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
     const subs = cachedSubtasks.filter(s => s.todo_id === todoId);
-    head.style.display = subs.length ? 'flex' : 'none';
-    if (subs.length) {
-      const done = subs.filter(s => s.is_done).length;
-      const pct = Math.round((done / subs.length) * 100);
-      summary.textContent = `${done}/${subs.length} · ${pct}%`;
-    }
     list.innerHTML = subs.map(s => `
       <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
@@ -1564,9 +1632,74 @@
         await sb.from('subtasks').update({ is_done: nowDone }).eq('id', subtaskId);
         const s = cachedSubtasks.find(x => x.id === subtaskId);
         if (s) s.is_done = nowDone;
-        renderTdSubtasks(sheet, todoId); // recalcule le compteur/%
       });
     });
+  }
+
+  function updateDueLabelFromCache(sheet) {
+    const todo = cachedTodos.find(t => t.id === sheet.dataset.todoId);
+    const dueLabel = sheet.querySelector('[data-td-due-label]');
+    if (dueLabel) {
+      dueLabel.textContent = todo?.due_date
+        ? formatDateShort(todo.due_date) + (todo.due_time ? ' · ' + todo.due_time.slice(0, 5) : '')
+        : 'Sans échéance';
+    }
+    const timeVal = sheet.querySelector('[data-td-time-val]');
+    if (timeVal) timeVal.textContent = todo?.due_time ? todo.due_time.slice(0, 5) : 'Aucune';
+  }
+
+  function nextMondayISO() {
+    const d = new Date();
+    const day = d.getDay(); // 0 = dimanche
+    let add = (8 - day) % 7;
+    if (add === 0) add = 7;
+    d.setDate(d.getDate() + add);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+
+  const MONTHS_FULL_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+  function renderCalendar(sheet) {
+    const grid = sheet.querySelector('[data-cal-grid]');
+    const monthLabel = sheet.querySelector('[data-cal-month-label]');
+    if (!grid) return;
+    const viewYear = parseInt(sheet.dataset.calYear, 10);
+    const viewMonth = parseInt(sheet.dataset.calMonth, 10);
+    monthLabel.textContent = `${MONTHS_FULL_FR[viewMonth]} ${viewYear}`;
+
+    const dows = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+    let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
+    const firstDay = new Date(viewYear, viewMonth, 1);
+    const startOffset = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const todayStr = todayISO();
+    const selected = sheet.dataset.pendingDate || '';
+    for (let i = 0; i < startOffset; i++) html += `<div class="cal-cell empty"></div>`;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      const isToday = dateStr === todayStr;
+      const isSelected = dateStr === selected;
+      html += `<div class="cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}" data-date="${dateStr}"><span>${d}</span></div>`;
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('.cal-cell[data-date]').forEach(cell => {
+      cell.addEventListener('click', async () => {
+        const dateStr = cell.dataset.date;
+        sheet.dataset.pendingDate = dateStr;
+        await saveTodoField(sheet, { due_date: dateStr });
+        updateDueLabelFromCache(sheet);
+        renderCalendar(sheet);
+      });
+    });
+  }
+  function openDateView(sheet) {
+    const todo = cachedTodos.find(t => t.id === sheet.dataset.todoId);
+    const base = todo?.due_date ? new Date(todo.due_date + 'T00:00:00') : new Date();
+    sheet.dataset.calYear = base.getFullYear();
+    sheet.dataset.calMonth = base.getMonth();
+    sheet.dataset.pendingDate = todo?.due_date || '';
+    sheet.querySelector('[data-td-time-input]').value = todo?.due_time ? todo.due_time.slice(0, 5) : '';
+    updateDueLabelFromCache(sheet);
+    renderCalendar(sheet);
   }
 
   function openTaskSheet(phone, todoId) {
@@ -1591,7 +1724,6 @@
     dueLabel.textContent = todo.due_date
       ? formatDateShort(todo.due_date) + (todo.due_time ? ' · ' + todo.due_time.slice(0, 5) : '')
       : 'Sans échéance';
-    sheet.querySelector('[data-td-date-input]').value = todo.due_date || '';
 
     const labelMap = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
     sheet.querySelector('[data-td-flag-label]').textContent = labelMap[todo.priority] || 'Basse';
@@ -1619,7 +1751,12 @@
   document.querySelectorAll('[data-task-sheet]').forEach(sheet => {
     sheet.addEventListener('click', (e) => {
       const goto = e.target.closest('[data-goto]');
-      if (goto) { pushView(sheet, goto.dataset.goto); return; }
+      if (goto) {
+        pushView(sheet, goto.dataset.goto);
+        if (goto.dataset.goto === 'date') openDateView(sheet);
+        if (goto.dataset.goto === 'subtasks') renderTdSubtasks(sheet, sheet.dataset.todoId);
+        return;
+      }
       const back = e.target.closest('[data-back]');
       if (back) { popView(sheet); return; }
     });
@@ -1630,12 +1767,6 @@
       cb.classList.toggle('done');
       const nowDone = cb.classList.contains('done');
       await saveTodoField(sheet, { is_done: nowDone, completed_at: nowDone ? new Date().toISOString() : null });
-    });
-
-    sheet.querySelector('[data-td-date-input]')?.addEventListener('change', async (e) => {
-      const val = e.target.value;
-      sheet.querySelector('[data-td-due-label]').textContent = val ? formatDateShort(val) : 'Sans échéance';
-      await saveTodoField(sheet, { due_date: val || null });
     });
 
     sheet.querySelector('[data-td-title]')?.addEventListener('blur', (e) => {
@@ -1670,25 +1801,92 @@
       });
     });
 
-    sheet.querySelector('[data-td-upload-btn]')?.addEventListener('click', async () => {
+    // ---- images : champ inline à la place de prompt() (bloqué sur certains navigateurs mobiles) ----
+    sheet.querySelector('[data-td-upload-btn]')?.addEventListener('click', () => {
       const todo = cachedTodos.find(t => t.id === sheet.dataset.todoId);
       const current = Array.isArray(todo?.images) ? todo.images : [];
-      if (current.length >= 4) { alert('4 images maximum par tâche.'); return; }
-      const url = prompt('Lien de l\'image (URL) :');
+      if (current.length >= 4) return;
+      const input = sheet.querySelector('[data-td-image-url-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-td-image-url-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    sheet.querySelector('[data-td-image-url-input]')?.addEventListener('blur', async (e) => {
+      const url = e.target.value.trim();
+      e.target.style.display = 'none';
       if (!url) return;
-      const next = [...current, url.trim()];
+      const todo = cachedTodos.find(t => t.id === sheet.dataset.todoId);
+      const current = Array.isArray(todo?.images) ? todo.images : [];
+      const next = [...current, url].slice(0, 4);
       await saveTodoField(sheet, { images: next });
       renderTdImages(sheet, cachedTodos.find(t => t.id === sheet.dataset.todoId));
     });
 
-    sheet.querySelector('[data-td-add-subtask-btn]')?.addEventListener('click', async () => {
-      const title = prompt('Titre de la sous-tâche :');
-      if (!title || !title.trim()) return;
+    // ---- sous-tâches : champ inline à la place de prompt() ----
+    sheet.querySelector('[data-add-subtask-row]')?.addEventListener('click', () => {
+      const row = sheet.querySelector('[data-add-subtask-row]');
+      const input = sheet.querySelector('[data-add-subtask-input]');
+      row.style.display = 'none';
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-add-subtask-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    sheet.querySelector('[data-add-subtask-input]')?.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim();
+      const row = sheet.querySelector('[data-add-subtask-row]');
+      const input = sheet.querySelector('[data-add-subtask-input]');
+      input.style.display = 'none';
+      row.style.display = 'flex';
+      if (!title) return;
       const todoId = sheet.dataset.todoId;
-      const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title: title.trim() }).select().single();
-      if (error) { alert(error.message); return; }
+      const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title }).select().single();
+      if (error) { console.error(error); return; }
       cachedSubtasks.push(newSub);
       renderTdSubtasks(sheet, todoId);
+    });
+
+    // ---- calendrier ----
+    sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
+      let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
+      if (m < 0) { m = 11; y--; }
+      sheet.dataset.calYear = y; sheet.dataset.calMonth = m;
+      renderCalendar(sheet);
+    });
+    sheet.querySelector('[data-cal-next]')?.addEventListener('click', () => {
+      let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) + 1;
+      if (m > 11) { m = 0; y++; }
+      sheet.dataset.calYear = y; sheet.dataset.calMonth = m;
+      renderCalendar(sheet);
+    });
+    sheet.querySelectorAll('[data-quick]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const patch = {};
+        if (btn.dataset.quick === 'today') patch.due_date = todayISO();
+        else if (btn.dataset.quick === 'tomorrow') patch.due_date = isoPlusDays(1);
+        else if (btn.dataset.quick === 'nextmonday') patch.due_date = nextMondayISO();
+        else if (btn.dataset.quick === 'tonight') { patch.due_date = todayISO(); patch.due_time = '20:00'; }
+        await saveTodoField(sheet, patch);
+        updateDueLabelFromCache(sheet);
+        popView(sheet);
+      });
+    });
+    sheet.querySelector('[data-td-time-input]')?.addEventListener('change', async (e) => {
+      await saveTodoField(sheet, { due_time: e.target.value || null });
+      updateDueLabelFromCache(sheet);
+    });
+    sheet.querySelector('[data-td-clear-date]')?.addEventListener('click', async () => {
+      await saveTodoField(sheet, { due_date: null, due_time: null });
+      sheet.dataset.pendingDate = '';
+      sheet.querySelector('[data-td-time-input]').value = '';
+      updateDueLabelFromCache(sheet);
+      renderCalendar(sheet);
+      popView(sheet);
     });
   });
 
