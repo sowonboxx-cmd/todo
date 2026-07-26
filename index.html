@@ -598,6 +598,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 8px; cursor: pointer;
   }
+  .drawer-page-label { display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .drawer-page-row:hover { background: var(--card); color: var(--ink); }
   .drawer-page-row.empty { color: var(--faint); font-style: italic; }
 
@@ -707,15 +708,15 @@
   .td-title-input {
     display: block; width: 100%; box-sizing: border-box; border: none; background: transparent; outline: none;
     font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; color: var(--ink);
-    padding: 4px 0; margin-bottom: 12px;
+    padding: 4px 0; margin-bottom: 2px;
   }
   .td-title-input::placeholder { color: var(--faint); }
   .td-project-link {
-    display: inline-block; opacity: 0.6;
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer;
+    display: inline-block; opacity: 0.85;
+    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: #3E72A6; cursor: pointer;
     margin-bottom: 14px;
   }
-  .td-project-link:hover { opacity: 0.95; }
+  .td-project-link:hover { opacity: 1; }
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
@@ -1037,11 +1038,12 @@
   }
   .docs-toolbar button:active { background: var(--bg); }
   .docs-toolbar button svg { width: 17px; height: 17px; }
-  .docs-edit-toggle { color: var(--accent-due) !important; }
+  .docs-edit-toggle { color: var(--accent-due) !important; margin-left: auto; order: 2; }
+  .docs-toolbar-edit-only { order: 1; }
   .docs-toolbar-edit-only { display: none; align-items: center; gap: 4px; border-left: 1px solid var(--line-soft); padding-left: 6px; margin-left: 2px; }
   .docs-toolbar-edit-only.open { display: flex; }
   .docs-block-popup, .docs-color-popup {
-    display: none; position: fixed; left: 10px; z-index: 402; background: var(--card);
+    display: none; position: fixed; left: 10px; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 402; background: var(--card);
     border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; min-width: 180px;
   }
   .docs-block-popup.open, .docs-color-popup.open { display: block; }
@@ -2292,7 +2294,7 @@
   function renderTdPageOptions(sheet, projectId) {
     const list = sheet.querySelector('[data-td-page-options]');
     if (!list) return;
-    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
     const currentPageId = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId)?.page_id;
     list.innerHTML = pages.map(p => `
       <div class="opt-row${p.id === currentPageId ? ' selected' : ''}" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}">${escapeHtml(p.title)}</div>
@@ -3152,7 +3154,7 @@
 
   // ---------------- rendering ----------------
   function projectStats(project, pages, todos) {
-    const pageIds = new Set(pages.filter(p => p.project_id === project.id).map(p => p.id));
+    const pageIds = new Set(pages.filter(p => p.project_id === project.id && p.page_type !== 'doc').map(p => p.id));
     const relevant = todos.filter(t => pageIds.has(t.page_id) && !t.parent_todo_id);
     const total = relevant.length;
     const done = relevant.filter(t => t.is_done).length;
@@ -3528,7 +3530,7 @@
     wrap.innerHTML = pages.map(p => {
       const isDoc = p.page_type === 'doc';
       const count = isDoc ? '' : cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
-      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}">${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
+      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}"><span class="drawer-page-label">${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}</span>${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
     }).join('') || '<div class="drawer-page-row empty">Aucune page</div>';
     wrap.querySelectorAll('.drawer-page-row[data-page-id]').forEach(pageRow => {
       pageRow.addEventListener('click', (e) => {
@@ -3884,7 +3886,7 @@
   function renderAddTaskPageOptions(sheet, projectId) {
     const list = sheet.querySelector('[data-at-page-options]');
     if (!list) return;
-    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
     list.innerHTML = pages.map(p => `
       <div class="opt-row${p.id === sheet.dataset.pageId ? ' selected' : ''}" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}">${escapeHtml(p.title)}</div>
     `).join('') || '<div class="empty-state">Aucune page — crée-en une</div>';
@@ -4270,6 +4272,22 @@
     sel.removeAllRanges();
     sel.addRange(editor._savedRange);
   }
+  function selectCurrentLineIfCollapsed(editor) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || !sel.isCollapsed) return; // une vraie sélection existe déjà, on n'y touche pas
+    const content = editor.querySelector('[data-docs-content]');
+    const range = sel.getRangeAt(0);
+    let block = range.startContainer.nodeType === 3 ? range.startContainer.parentElement : range.startContainer;
+    while (block && block !== content && !['P', 'LI', 'H1', 'H2', 'H3', 'DIV'].includes(block.tagName)) {
+      block = block.parentElement;
+    }
+    if (!block || block === content || !block.textContent) return;
+    const newRange = document.createRange();
+    newRange.selectNodeContents(block);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+    editor._savedRange = newRange;
+  }
 
   document.querySelectorAll('[data-docs-editor]').forEach(editor => {
     const phone = editor.closest('.phone');
@@ -4299,15 +4317,16 @@
 
     editor.querySelectorAll('[data-docs-cmd]').forEach(btn => {
       btn.addEventListener('click', () => {
-        restoreDocsSelection(editor);
         content.focus();
+        restoreDocsSelection(editor);
+        selectCurrentLineIfCollapsed(editor);
         document.execCommand(btn.dataset.docsCmd, false, null);
         saveDocsSelection(editor);
       });
     });
     editor.querySelector('[data-docs-hr]')?.addEventListener('click', () => {
-      restoreDocsSelection(editor);
       content.focus();
+      restoreDocsSelection(editor);
       document.execCommand('insertHorizontalRule');
       saveDocsSelection(editor);
     });
@@ -4317,8 +4336,8 @@
     });
     editor.querySelectorAll('[data-docs-block]').forEach(btn => {
       btn.addEventListener('click', () => {
-        restoreDocsSelection(editor);
         content.focus();
+        restoreDocsSelection(editor);
         const tag = { h1: 'H1', h2: 'H2', h3: 'H3', p: 'P' }[btn.dataset.docsBlock] || 'P';
         document.execCommand('formatBlock', false, tag);
         editor.querySelector('[data-docs-block-popup]').classList.remove('open');
@@ -4332,8 +4351,9 @@
     });
     editor.querySelectorAll('[data-docs-color]').forEach(btn => {
       btn.addEventListener('click', () => {
-        restoreDocsSelection(editor);
         content.focus();
+        restoreDocsSelection(editor);
+        selectCurrentLineIfCollapsed(editor);
         const color = btn.dataset.docsColor;
         document.execCommand('foreColor', false, color || 'inherit');
         editor.querySelector('[data-docs-color-popup]').classList.remove('open');
