@@ -710,6 +710,13 @@
     padding: 4px 0; margin-bottom: 12px;
   }
   .td-title-input::placeholder { color: var(--faint); }
+  .td-project-link {
+    display: inline-flex; align-items: center; gap: 6px; opacity: 0.55;
+    background: var(--bg); border-radius: 999px; padding: 6px 11px; margin-bottom: 14px;
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .td-project-link svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .td-project-link:hover { opacity: 0.85; }
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
@@ -729,7 +736,7 @@
   .td-source-add-row { display: flex; gap: 8px; margin-bottom: 4px; }
   .td-source-input {
     flex: 1; min-width: 0; border: none; background: var(--bg); border-radius: 10px;
-    font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink); padding: 10px 12px; outline: none;
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); padding: 10px 12px; outline: none;
   }
   .td-source-input::placeholder { font-size: 12.5px; font-weight: 400; color: var(--faint); }
   .td-link {
@@ -1304,6 +1311,11 @@
               </div>
 
               <input type="text" class="td-title-input" data-td-title placeholder="Titre de la tâche">
+
+              <div class="td-project-link" data-td-project-link style="display:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+                <span data-td-project-link-label></span>
+              </div>
 
               <div class="td-notes-wrap">
                 <div class="td-link" data-td-notes-view></div>
@@ -2001,7 +2013,7 @@
     list.innerHTML = sources.map((s, i) => `
       <div class="td-source-row" data-idx="${i}">
         <span class="td-source-bullet">•</span>
-        <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)}:</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
+        <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)} :</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
         <button type="button" class="td-source-edit" data-source-edit="${i}" title="Modifier">✎</button>
         <button type="button" class="td-img-remove" data-source-remove="${i}" title="Retirer">✕</button>
       </div>`).join('');
@@ -2041,6 +2053,7 @@
   }
 
   const PRIORITY_LABEL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+  const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
@@ -2361,6 +2374,7 @@
     const isSubtask = kind === 'subtask';
     // le projet n'a de sens que pour une tâche (une sous-tâche vit dans sa tâche parente)
     sheet.querySelector('[data-td-project-btn]')?.classList.toggle('hidden-nest', isSubtask);
+    const linkPill = sheet.querySelector('[data-td-project-link]');
     if (!isSubtask) {
       const page = cachedPages.find(p => p.id === record.page_id);
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
@@ -2370,6 +2384,19 @@
       sheet.dataset.pendingProjectId = project ? project.id : '';
       sheet.dataset.pendingProjectName = project ? project.name : '';
       renderTdProjectOptions(sheet, page ? page.project_id : null);
+
+      if (linkPill) {
+        if (project && page) {
+          linkPill.style.display = 'inline-flex';
+          linkPill.querySelector('[data-td-project-link-label]').textContent = `${project.name} › ${page.title}`;
+          linkPill.dataset.linkPageId = page.id;
+          linkPill.dataset.linkPageTitle = page.title;
+        } else {
+          linkPill.style.display = 'none';
+        }
+      }
+    } else if (linkPill) {
+      linkPill.style.display = 'none';
     }
 
     // sous-tâches : uniquement pour une tâche (pas d'imbrication)
@@ -2439,6 +2466,16 @@
     });
 
     sheet.querySelector('[data-td-back-row]')?.addEventListener('click', () => backToParentTask(sheet));
+
+    sheet.querySelector('[data-td-project-link]')?.addEventListener('click', () => {
+      const pill = sheet.querySelector('[data-td-project-link]');
+      const pageId = pill.dataset.linkPageId;
+      const pageTitle = pill.dataset.linkPageTitle;
+      if (!pageId) return;
+      const phone = sheet.closest('.phone');
+      closeTaskSheet(phone);
+      openPbPageTasksDirect(phone, pageId, pageTitle);
+    });
 
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -2683,7 +2720,7 @@
       const unitLabel = unit + (n > 1 ? 's' : '');
       let label = `Every ${n} ${unitLabel}`;
       if (unit === 'week') {
-        const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => p.dataset.day);
+        const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => FULL_DAY_NAMES[p.dataset.day] || p.dataset.day);
         if (days.length) label += ` on ${days.join(', ')}`;
       }
       updateRepeatDisplay(sheet, label);
@@ -3706,7 +3743,7 @@
       const unitLabel = unit + (n > 1 ? 's' : '');
       let label = `Every ${n} ${unitLabel}`;
       if (unit === 'week') {
-        const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => p.dataset.day);
+        const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => FULL_DAY_NAMES[p.dataset.day] || p.dataset.day);
         if (days.length) label += ` on ${days.join(', ')}`;
       }
       sheet.dataset.pendingRepeatRule = label;
