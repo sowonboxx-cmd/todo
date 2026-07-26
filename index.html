@@ -368,7 +368,7 @@
     width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  .checkbox::before { content: ''; position: absolute; inset: -9px -6px -9px -9px; }
+  .checkbox::before { content: ''; position: absolute; inset: -12px -10px -12px -12px; z-index: 2; }
   .checkbox.p-high { border-color: var(--danger); }
   .checkbox.p-med { border-color: var(--accent-pvpp); }
   .checkbox.p-low { border-color: var(--accent-manga-blue); }
@@ -699,6 +699,11 @@
   .td-back-row svg { width: 14px; height: 14px; flex-shrink: 0; }
   .td-due-text:hover { background: var(--bg); }
   .td-due-date { color: var(--accent-due); font-weight: 700; font-size: 13.5px; }
+  .td-due-repeat {
+    display: flex; align-items: center; gap: 4px; color: var(--muted);
+    font-size: 11px; font-weight: 600; margin-top: 2px;
+  }
+  .td-due-repeat svg { width: 11px; height: 11px; }
   .td-title-input {
     display: block; width: 100%; box-sizing: border-box; border: none; background: transparent; outline: none;
     font-family: 'Inter', sans-serif; font-weight: 700; font-size: 19px; color: var(--ink);
@@ -708,11 +713,19 @@
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
-    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    display: flex; align-items: flex-start; gap: 8px;
     padding: 7px 0; border-bottom: 1px solid var(--line-soft);
   }
   .td-source-row:last-child { border-bottom: none; }
-  .td-source-row a { color: var(--accent-due); text-decoration: underline; font-size: 13px; word-break: break-word; }
+  .td-source-bullet { color: var(--faint); font-size: 13px; line-height: 1.6; flex-shrink: 0; }
+  .td-source-text { flex: 1; font-size: 13px; line-height: 1.6; word-break: break-word; }
+  .td-source-title { color: var(--ink); font-weight: 600; text-decoration: none; }
+  .td-source-link { color: #3E72A6; text-decoration: none; }
+  .td-source-edit {
+    border: none; background: transparent; color: var(--faint); cursor: pointer;
+    font-size: 12px; padding: 2px 4px; flex-shrink: 0;
+  }
+  .td-source-edit:hover { color: var(--ink); }
   .td-source-add-row { display: flex; gap: 8px; margin-bottom: 4px; }
   .td-source-input {
     flex: 1; min-width: 0; border: none; background: var(--bg); border-radius: 10px;
@@ -1278,6 +1291,10 @@
                 <div class="checkbox" data-td-checkbox></div>
                 <div class="td-due-text">
                   <div class="td-due-date" data-td-due-label>Sans échéance</div>
+                  <div class="td-due-repeat" data-td-due-repeat style="display:none;">
+                    <span data-td-due-repeat-text></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-1a4 4 0 0 1 4-4h14"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v1a4 4 0 0 1-4 4H3"/></svg>
+                  </div>
                 </div>
               </div>
 
@@ -1663,6 +1680,84 @@
                   <span class="dd-val" data-td-time-val>Aucune</span>
                   <input type="time" class="at-date-native" data-td-time-input>
                 </div>
+                <div class="dd-row" data-goto="reminder">
+                  <span>Reminder</span>
+                  <span class="dd-val" data-td-reminder-val>None</span>
+                </div>
+                <div class="dd-row" data-goto="repeat">
+                  <span>Repeat</span>
+                  <span class="dd-val" data-td-repeat-val>None</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- VIEW: reminder -->
+            <div class="sheet-view" data-view="reminder">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Reminder</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-td-reminder-options>
+                <div class="opt-row" data-val="">None</div>
+                <div class="opt-row" data-val="On time">On time</div>
+                <div class="opt-row" data-val="5 minutes early">5 minutes early</div>
+                <div class="opt-row" data-val="30 minutes early">30 minutes early</div>
+                <div class="opt-row" data-val="1 hour early">1 hour early</div>
+                <div class="opt-row" data-val="1 day early">1 day early</div>
+              </div>
+            </div>
+
+            <!-- VIEW: repeat -->
+            <div class="sheet-view" data-view="repeat">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Repeat</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-td-repeat-options>
+                <div class="opt-row" data-val="">None</div>
+                <div class="opt-row" data-val="Daily">Daily</div>
+                <div class="opt-row" data-val="Weekly">Weekly</div>
+                <div class="opt-row" data-val="Monthly">Monthly</div>
+                <div class="opt-row" data-val="Yearly">Yearly</div>
+                <div class="opt-row" data-val="Every Weekday">Every Weekday (Mon – Fri)</div>
+                <div class="opt-row" data-goto="custom-repeat">Custom</div>
+              </div>
+            </div>
+
+            <!-- VIEW: custom repeat -->
+            <div class="sheet-view" data-view="custom-repeat">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Annuler</button>
+                <div class="sheet-title">Custom Repeat</div>
+                <button class="link strong" data-td-custom-repeat-done>Done</button>
+              </div>
+              <div class="dd-list" style="margin-bottom:16px;">
+                <div class="dd-row" style="cursor:default;">
+                  <span>Every</span>
+                  <span style="display:flex; align-items:center; gap:6px;">
+                    <input type="number" min="1" max="99" value="1" class="td-freq-n" data-td-freq-n>
+                    <select class="td-freq-unit" data-td-freq-unit>
+                      <option value="day">Day</option>
+                      <option value="week" selected>Week</option>
+                      <option value="month">Month</option>
+                      <option value="year">Year</option>
+                    </select>
+                  </span>
+                </div>
+              </div>
+              <div class="week-picker" data-td-week-picker>
+                <div class="pa-section-head" style="margin-top:0;">Week</div>
+                <div class="week-pills">
+                  <button type="button" class="week-pill" data-day="Mon">Mon</button>
+                  <button type="button" class="week-pill" data-day="Tue">Tue</button>
+                  <button type="button" class="week-pill" data-day="Wed">Wed</button>
+                  <button type="button" class="week-pill" data-day="Thu">Thu</button>
+                  <button type="button" class="week-pill" data-day="Fri">Fri</button>
+                  <button type="button" class="week-pill" data-day="Sat">Sat</button>
+                  <button type="button" class="week-pill" data-day="Sun">Sun</button>
+                </div>
               </div>
             </div>
           </div>
@@ -1905,7 +2000,9 @@
     const sources = Array.isArray(record?.sources) ? record.sources : [];
     list.innerHTML = sources.map((s, i) => `
       <div class="td-source-row" data-idx="${i}">
-        <a href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(s.title || siteNameFromUrl(s.url))}</a>
+        <span class="td-source-bullet">•</span>
+        <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)}:</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
+        <button type="button" class="td-source-edit" data-source-edit="${i}" title="Modifier">✎</button>
         <button type="button" class="td-img-remove" data-source-remove="${i}" title="Retirer">✕</button>
       </div>`).join('');
     list.querySelectorAll('[data-source-remove]').forEach(btn => {
@@ -1915,6 +2012,19 @@
         const next = sources.filter((_, i) => i !== idx);
         await saveRecordField(sheet, { sources: next });
         renderTdSources(sheet, getRecord(sheet.dataset.recordKind, sheet.dataset.recordId));
+      });
+    });
+    list.querySelectorAll('[data-source-edit]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.sourceEdit, 10);
+        const s = sources[idx];
+        sheet.dataset.editingSourceIdx = String(idx);
+        const row = sheet.querySelector('[data-td-source-add-row]');
+        row.style.display = 'flex';
+        sheet.querySelector('[data-td-source-title-input]').value = s.title || '';
+        sheet.querySelector('[data-td-source-url-input]').value = s.url || '';
+        sheet.querySelector('[data-td-source-title-input]').focus();
       });
     });
   }
@@ -1939,6 +2049,16 @@
   function applyFlagColor(sheet, priority) {
     const btn = sheet.querySelector('[data-td-flag-btn]');
     if (btn) btn.style.color = priorityColor(priority || 'low');
+  }
+  function updateRepeatDisplay(sheet, repeatRule) {
+    const repeatVal = sheet.querySelector('[data-td-repeat-val]');
+    if (repeatVal) repeatVal.textContent = repeatRule || 'None';
+    const subLabel = sheet.querySelector('[data-td-due-repeat]');
+    const subText = sheet.querySelector('[data-td-due-repeat-text]');
+    if (subLabel && subText) {
+      if (repeatRule) { subText.textContent = repeatRule; subLabel.style.display = 'flex'; }
+      else { subLabel.style.display = 'none'; }
+    }
   }
 
   // ---------- modèle unifié : une "fiche" affiche soit une tâche (todos), soit une sous-tâche (subtasks) ----------
@@ -2061,9 +2181,21 @@
         e.stopPropagation();
         const row = cb.closest('.td-subtask-row');
         const subtaskId = row.dataset.subtaskId;
-        const nowDone = !cb.classList.contains('done');
-        await sb.from('subtasks').update({ is_done: nowDone }).eq('id', subtaskId);
         const s = cachedSubtasks.find(x => x.id === subtaskId);
+        const nowDone = !cb.classList.contains('done');
+
+        if (s && s.repeat_rule && nowDone) {
+          const nextDate = computeNextOccurrence(s.repeat_rule, s.due_date);
+          if (nextDate) {
+            await sb.from('subtasks').update({ due_date: nextDate, is_done: false }).eq('id', subtaskId);
+            s.due_date = nextDate;
+            s.is_done = false;
+            renderTdSubtasks(sheet, todoId);
+            return;
+          }
+        }
+
+        await sb.from('subtasks').update({ is_done: nowDone }).eq('id', subtaskId);
         if (s) s.is_done = nowDone;
         renderTdSubtasks(sheet, todoId); // re-tri : la case cochée descend en bas
       });
@@ -2118,6 +2250,36 @@
     if (add === 0) add = 7;
     d.setDate(d.getDate() + add);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  function isoFromDate(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  }
+  // Nos règles de répétition sont stockées en texte lisible (ex: "Weekly (Monday)",
+  // "Every 2 weeks on Mon, Wed") — on les reparse ici pour avancer à la prochaine échéance.
+  function computeNextOccurrence(rule, dueDateStr) {
+    if (!rule || !dueDateStr) return null;
+    const d = new Date(dueDateStr + 'T00:00:00');
+    if (rule.startsWith('Daily')) { d.setDate(d.getDate() + 1); return isoFromDate(d); }
+    if (rule.startsWith('Weekly')) { d.setDate(d.getDate() + 7); return isoFromDate(d); }
+    if (rule.startsWith('Monthly')) { d.setMonth(d.getMonth() + 1); return isoFromDate(d); }
+    if (rule.startsWith('Yearly')) { d.setFullYear(d.getFullYear() + 1); return isoFromDate(d); }
+    if (rule.startsWith('Every Weekday')) {
+      do { d.setDate(d.getDate() + 1); } while (d.getDay() === 0 || d.getDay() === 6);
+      return isoFromDate(d);
+    }
+    if (rule.startsWith('Every ')) {
+      const m = rule.match(/^Every (\d+) (day|week|month|year)/);
+      if (m) {
+        const n = parseInt(m[1], 10);
+        const unit = m[2];
+        if (unit === 'day') d.setDate(d.getDate() + n);
+        else if (unit === 'week') d.setDate(d.getDate() + n * 7);
+        else if (unit === 'month') d.setMonth(d.getMonth() + n);
+        else if (unit === 'year') d.setFullYear(d.getFullYear() + n);
+        return isoFromDate(d);
+      }
+    }
+    return null;
   }
 
   const MONTHS_FULL_FR = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
@@ -2188,8 +2350,7 @@
       reminderVal.textContent = record.reminder || 'None';
       sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (record.reminder || '')));
     }
-    const repeatVal = sheet.querySelector('[data-td-repeat-val]');
-    if (repeatVal) repeatVal.textContent = record.repeat_rule || 'None';
+    updateRepeatDisplay(sheet, record.repeat_rule);
 
     applyFlagColor(sheet, record.priority);
     sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (record.priority || 'low')));
@@ -2282,6 +2443,19 @@
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
       e.stopPropagation();
       const cb = e.currentTarget;
+      const willBeDone = !cb.classList.contains('done');
+      const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
+
+      if (record && record.repeat_rule && willBeDone) {
+        const nextDate = computeNextOccurrence(record.repeat_rule, record.due_date);
+        if (nextDate) {
+          await saveRecordField(sheet, { due_date: nextDate, is_done: false, completed_at: null });
+          updateDueLabelFromCache(sheet);
+          if (sheet.dataset.recordKind !== 'subtask') { updateGlobalRemainingCount(); refreshProjectBlocks(); }
+          return;
+        }
+      }
+
       cb.classList.toggle('done');
       const nowDone = cb.classList.contains('done');
       await saveRecordField(sheet, { is_done: nowDone, completed_at: nowDone ? new Date().toISOString() : null });
@@ -2347,6 +2521,7 @@
     sheet.querySelector('[data-td-add-source-row]')?.addEventListener('click', () => {
       const row = sheet.querySelector('[data-td-source-add-row]');
       row.style.display = 'flex';
+      sheet.dataset.editingSourceIdx = '';
       sheet.querySelector('[data-td-source-title-input]').value = '';
       sheet.querySelector('[data-td-source-url-input]').value = '';
       sheet.querySelector('[data-td-source-title-input]').focus();
@@ -2356,10 +2531,17 @@
       const urlInput = sheet.querySelector('[data-td-source-url-input]');
       const title = titleInput.value.trim();
       const url = urlInput.value.trim();
+      const editIdx = sheet.dataset.editingSourceIdx;
+      sheet.dataset.editingSourceIdx = '';
       if (!url) { sheet.querySelector('[data-td-source-add-row]').style.display = 'none'; return; }
       const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
       const current = Array.isArray(record?.sources) ? record.sources : [];
-      const next = [...current, { title, url }];
+      let next;
+      if (editIdx !== undefined && editIdx !== '' && current[parseInt(editIdx, 10)]) {
+        next = current.map((s, i) => i === parseInt(editIdx, 10) ? { title, url } : s);
+      } else {
+        next = [...current, { title, url }];
+      }
       await saveRecordField(sheet, { sources: next });
       renderTdSources(sheet, getRecord(sheet.dataset.recordKind, sheet.dataset.recordId));
       sheet.querySelector('[data-td-source-add-row]').style.display = 'none';
@@ -2480,7 +2662,7 @@
         else if (preset === 'Monthly') label = `Monthly (day ${d.getDate()})`;
         else if (preset === 'Yearly') label = `Yearly (${formatDateShort(dueDate || todayISO())})`;
         else if (preset === 'Every Weekday') label = 'Every Weekday (Mon\u2013Fri)';
-        sheet.querySelector('[data-td-repeat-val]').textContent = label || 'None';
+        updateRepeatDisplay(sheet, label || null);
         await saveRecordField(sheet, { repeat_rule: label || null });
         popView(sheet);
       });
@@ -2504,7 +2686,7 @@
         const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => p.dataset.day);
         if (days.length) label += ` on ${days.join(', ')}`;
       }
-      sheet.querySelector('[data-td-repeat-val]').textContent = label;
+      updateRepeatDisplay(sheet, label);
       await saveRecordField(sheet, { repeat_rule: label });
       sheet.dataset.stack = 'date';
       showSheetView(sheet, 'date');
@@ -2801,16 +2983,30 @@
   function wireCheckbox(cb) {
     cb.addEventListener('click', async (e) => {
       e.stopPropagation();
+      const row = cb.closest('.task-row');
+      const todoId = row?.dataset.todoId;
+      const t = cachedTodos.find(x => x.id === todoId);
+      const willBeDone = !cb.classList.contains('done');
+
+      if (t && t.repeat_rule && willBeDone) {
+        const nextDate = computeNextOccurrence(t.repeat_rule, t.due_date);
+        if (nextDate) {
+          t.due_date = nextDate;
+          t.is_done = false;
+          t.completed_at = null;
+          await sb.from('todos').update({ due_date: nextDate, is_done: false, completed_at: null }).eq('id', todoId);
+          loadData(); // la tâche doit changer d'onglet de date, un simple toggle local ne suffit pas
+          return;
+        }
+      }
+
       cb.classList.toggle('done');
       const nowDone = cb.classList.contains('done');
-      const row = cb.closest('.task-row');
       row?.classList.toggle('is-done', nowDone);
 
       const list = row?.closest('.task-list, .m-tasks');
       if (list) { if (nowDone) list.appendChild(row); else sortIncomplete(list); }
 
-      const todoId = row?.dataset.todoId;
-      const t = cachedTodos.find(x => x.id === todoId);
       if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
 
       updateGlobalRemainingCount();
@@ -3323,6 +3519,12 @@
     sheet.querySelector('[data-at-flag-options] .opt-row[data-val="low"]')?.classList.add('selected');
     sheet.dataset.stagedImages = '[]';
     sheet.dataset.stagedSubtasks = '[]';
+    sheet.dataset.pendingReminder = '';
+    sheet.dataset.pendingRepeatRule = '';
+    updateRepeatDisplay(sheet, null);
+    const remVal = sheet.querySelector('[data-td-reminder-val]');
+    if (remVal) remVal.textContent = 'None';
+    sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
     renderAtImages(sheet);
     renderAtSubtasks(sheet);
 
@@ -3463,6 +3665,55 @@
         popView(sheet);
       });
     });
+
+    sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const val = row.dataset.val;
+        sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        sheet.dataset.pendingReminder = val;
+        sheet.querySelector('[data-td-reminder-val]').textContent = val || 'None';
+        popView(sheet);
+      });
+    });
+    sheet.querySelectorAll('[data-td-repeat-options] .opt-row[data-val]').forEach(row => {
+      row.addEventListener('click', () => {
+        const preset = row.dataset.val;
+        let label = '';
+        const dueDate = sheet.dataset.pendingDueDate || todayISO();
+        const d = new Date(dueDate + 'T00:00:00');
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        if (preset === 'Daily') label = 'Daily';
+        else if (preset === 'Weekly') label = `Weekly (${dayNames[d.getDay()]})`;
+        else if (preset === 'Monthly') label = `Monthly (day ${d.getDate()})`;
+        else if (preset === 'Yearly') label = `Yearly (${formatDateShort(dueDate)})`;
+        else if (preset === 'Every Weekday') label = 'Every Weekday (Mon\u2013Fri)';
+        sheet.dataset.pendingRepeatRule = label;
+        updateRepeatDisplay(sheet, label || null);
+        popView(sheet);
+      });
+    });
+    sheet.querySelectorAll('[data-td-week-picker] .week-pill').forEach(pill => {
+      pill.addEventListener('click', () => pill.classList.toggle('active'));
+    });
+    sheet.querySelector('[data-td-freq-unit]')?.addEventListener('change', (e) => {
+      const picker = sheet.querySelector('[data-td-week-picker]');
+      if (picker) picker.style.display = e.target.value === 'week' ? 'block' : 'none';
+    });
+    sheet.querySelector('[data-td-custom-repeat-done]')?.addEventListener('click', () => {
+      const n = parseInt(sheet.querySelector('[data-td-freq-n]').value, 10) || 1;
+      const unit = sheet.querySelector('[data-td-freq-unit]').value;
+      const unitLabel = unit + (n > 1 ? 's' : '');
+      let label = `Every ${n} ${unitLabel}`;
+      if (unit === 'week') {
+        const days = [...sheet.querySelectorAll('[data-td-week-picker] .week-pill.active')].map(p => p.dataset.day);
+        if (days.length) label += ` on ${days.join(', ')}`;
+      }
+      sheet.dataset.pendingRepeatRule = label;
+      updateRepeatDisplay(sheet, label);
+      sheet.dataset.stack = 'date';
+      showSheetView(sheet, 'date');
+    });
     sheet.querySelector('[data-at-add-page-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-at-add-page-input]');
       input.style.display = 'block';
@@ -3587,6 +3838,8 @@
           due_time: timeVal,
           priority,
           images,
+          reminder: sheet.dataset.pendingReminder || null,
+          repeat_rule: sheet.dataset.pendingRepeatRule || null,
         }).select().single();
         if (insertErr) throw insertErr;
 
