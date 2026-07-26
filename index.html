@@ -711,12 +711,11 @@
     padding: 4px 0; margin-bottom: 2px;
   }
   .td-title-input::placeholder { color: var(--faint); }
-  .td-project-link {
-    display: inline-block;
-    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer;
-    margin-top: -1px; margin-bottom: 10px;
+  .td-project-goto-btn {
+    width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; border: none;
+    background: var(--bg); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
-  .td-project-link:hover { color: var(--ink); }
+  .td-project-goto-btn svg { width: 13px; height: 13px; }
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
@@ -1477,6 +1476,9 @@
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                   <span data-td-project-label>Projet</span>
                 </button>
+                <button type="button" class="td-project-goto-btn" data-td-project-goto title="Aller à la liste des tâches" style="display:none;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
                 <div class="td-header-actions">
                   <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-td-flag-btn>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
@@ -1511,14 +1513,16 @@
 
               <input type="text" class="td-title-input" data-td-title placeholder="Titre de la tâche">
 
-              <div class="td-project-link" data-td-project-link style="display:none;">
-                <span data-td-project-link-label></span>
-              </div>
-
               <div class="td-notes-wrap">
                 <div class="td-link" data-td-notes-view></div>
                 <textarea class="td-notes-edit" rows="3" data-td-notes-edit placeholder="Description…" style="display:none;"></textarea>
               </div>
+
+              <div class="pa-section-head" data-td-subtasks-head style="display:none;">Sous-tâches</div>
+              <div class="td-subtasks-list" data-td-subtasks-list></div>
+              <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
+
+              <div class="td-images" data-td-images></div>
 
               <div class="pa-section-head">Sources</div>
               <div class="td-sources-list" data-td-sources-list></div>
@@ -1530,11 +1534,6 @@
                 <span class="add-subtask-plus">+</span>
                 <span>Ajouter</span>
               </div>
-
-              <div class="td-subtasks-list" data-td-subtasks-list></div>
-              <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
-
-              <div class="td-images" data-td-images></div>
             </div>
 
             <!-- VIEW: importance -->
@@ -1763,7 +1762,7 @@
                 <div class="sheet-title" data-pb-page-name>Page</div>
                 <div class="pb-project-progress" data-pb-project-progress></div>
               </div>
-              <div class="task-list" data-pb-tasks-list></div>
+              <div class="task-list" data-pb-tasks-list data-sort-mode="date"></div>
               <div class="add-subtask-row" data-pb-add-task-from-page>
                 <span class="add-subtask-plus">+</span>
                 <span>Ajouter une tâche</span>
@@ -2024,6 +2023,19 @@
       if (ta !== null) return -1;
       if (tb !== null) return 1;
       return priorityRank(a) - priorityRank(b);
+    });
+    [...incomplete, ...done].forEach(r => list.appendChild(r));
+  }
+  function sortByDueDate(list) {
+    const rows = [...list.querySelectorAll('.task-row')];
+    const incomplete = rows.filter(r => !r.classList.contains('is-done'));
+    const done = rows.filter(r => r.classList.contains('is-done'));
+    incomplete.sort((a, b) => {
+      const ta = cachedTodos.find(t => t.id === a.dataset.todoId);
+      const tb = cachedTodos.find(t => t.id === b.dataset.todoId);
+      const ad = ta?.due_date || '9999-99-99';
+      const bd = tb?.due_date || '9999-99-99';
+      return ad.localeCompare(bd);
     });
     [...incomplete, ...done].forEach(r => list.appendChild(r));
   }
@@ -2621,7 +2633,7 @@
     const isSubtask = kind === 'subtask';
     // le projet n'a de sens que pour une tâche (une sous-tâche vit dans sa tâche parente)
     sheet.querySelector('[data-td-project-btn]')?.classList.toggle('hidden-nest', isSubtask);
-    const linkPill = sheet.querySelector('[data-td-project-link]');
+    const gotoBtn = sheet.querySelector('[data-td-project-goto]');
     if (!isSubtask) {
       const page = cachedPages.find(p => p.id === record.page_id);
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
@@ -2632,23 +2644,24 @@
       sheet.dataset.pendingProjectName = project ? project.name : '';
       renderTdProjectOptions(sheet, page ? page.project_id : null);
 
-      if (linkPill) {
+      if (gotoBtn) {
         if (project && page) {
-          linkPill.style.display = 'inline-flex';
-          linkPill.querySelector('[data-td-project-link-label]').textContent = `/${project.name}/${page.title}`;
-          linkPill.dataset.linkPageId = page.id;
-          linkPill.dataset.linkPageTitle = page.title;
+          gotoBtn.style.display = 'flex';
+          gotoBtn.dataset.linkPageId = page.id;
+          gotoBtn.dataset.linkPageTitle = page.title;
         } else {
-          linkPill.style.display = 'none';
+          gotoBtn.style.display = 'none';
         }
       }
-    } else if (linkPill) {
-      linkPill.style.display = 'none';
+    } else if (gotoBtn) {
+      gotoBtn.style.display = 'none';
     }
 
     // sous-tâches : uniquement pour une tâche (pas d'imbrication)
     sheet.querySelector('[data-td-add-speed-btn]')?.classList.toggle('hidden-nest', isSubtask);
     sheet.querySelector('[data-td-subtasks-list]')?.classList.toggle('hidden-nest', isSubtask);
+    const subtasksHead = sheet.querySelector('[data-td-subtasks-head]');
+    if (subtasksHead) subtasksHead.style.display = isSubtask ? 'none' : 'block';
     if (!isSubtask) renderTdSubtasks(sheet, id);
     else sheet.querySelector('[data-td-subtasks-list]').innerHTML = '';
 
@@ -2715,10 +2728,11 @@
 
     sheet.querySelector('[data-td-back-row]')?.addEventListener('click', () => backToParentTask(sheet));
 
-    sheet.querySelector('[data-td-project-link]')?.addEventListener('click', () => {
-      const pill = sheet.querySelector('[data-td-project-link]');
-      const pageId = pill.dataset.linkPageId;
-      const pageTitle = pill.dataset.linkPageTitle;
+    sheet.querySelector('[data-td-project-goto]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const btn = sheet.querySelector('[data-td-project-goto]');
+      const pageId = btn.dataset.linkPageId;
+      const pageTitle = btn.dataset.linkPageTitle;
       if (!pageId) return;
       const phone = sheet.closest('.phone');
       closeTaskSheet(phone);
@@ -3305,7 +3319,11 @@
       row?.classList.toggle('is-done', nowDone);
 
       const list = row?.closest('.task-list, .m-tasks');
-      if (list) { if (nowDone) list.appendChild(row); else sortIncomplete(list); }
+      if (list) {
+        if (nowDone) list.appendChild(row);
+        else if (list.dataset.sortMode === 'date') sortByDueDate(list);
+        else sortIncomplete(list);
+      }
 
       if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
 
@@ -4196,13 +4214,20 @@
       const dateVal = sheet.dataset.pendingDueDate || null;
       const timeVal = sheet.dataset.pendingDueTime || null;
       const priority = sheet.dataset.priority || 'low';
-      const pageId = sheet.dataset.pageId;
+      let pageId = sheet.dataset.pageId;
 
       if (!title) { errorEl.textContent = 'Ajoute un titre.'; return; }
-      if (!pageId) { errorEl.textContent = 'Choisis un projet et une page.'; return; }
 
       saveBtn.disabled = true;
       try {
+        if (!pageId) {
+          const inboxProject = cachedProjects.find(p => p.name.trim().toLowerCase() === 'inbox');
+          if (!inboxProject) throw new Error('Choisis un projet et une page (aucun projet "Inbox" trouvé).');
+          const inboxPages = cachedPages.filter(p => p.project_id === inboxProject.id && !p.is_archived && p.page_type !== 'doc');
+          const bordelPage = inboxPages.find(p => p.title.trim().toLowerCase() === 'bordel') || inboxPages[0];
+          if (!bordelPage) throw new Error('Choisis un projet et une page (aucune page dans "Inbox").');
+          pageId = bordelPage.id;
+        }
         const images = JSON.parse(sheet.dataset.stagedImages || '[]');
         const { data: newTodo, error: insertErr } = await sb.from('todos').insert({
           page_id: pageId,
