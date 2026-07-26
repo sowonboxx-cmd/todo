@@ -1025,6 +1025,23 @@
   .docs-content p { margin: 0 0 10px; }
   .docs-content ul, .docs-content ol { padding-left: 22px; margin: 0 0 10px; }
   .docs-content hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
+  .docs-content a { color: #3E72A6; text-decoration: none; }
+  .docs-media-section { margin-top: 24px; }
+  .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
+  .docs-media-head {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 10px;
+  }
+  .docs-media-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .docs-media-thumb {
+    position: relative; width: 84px; height: 84px; border-radius: 10px; overflow: hidden;
+    background-size: cover; background-position: center; cursor: zoom-in; border: 1px solid var(--line-soft); flex-shrink: 0;
+  }
+  .docs-media-thumb .td-img-remove {
+    position: absolute; top: 3px; right: 3px; width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); color: #fff; border: none; font-size: 11px; line-height: 1; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
 
   .docs-toolbar {
     display: flex; align-items: center; position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
@@ -1038,7 +1055,8 @@
   }
   .docs-toolbar button:active { background: var(--bg); }
   .docs-toolbar button svg { width: 17px; height: 17px; }
-  .docs-edit-toggle { color: var(--accent-due) !important; margin-left: auto; order: 2; }
+  .docs-upload-btn { margin-left: auto; order: 2; }
+  .docs-edit-toggle { color: var(--accent-due) !important; order: 3; }
   .docs-toolbar-edit-only { order: 1; }
   .docs-toolbar-edit-only { display: none; align-items: center; gap: 4px; border-left: 1px solid var(--line-soft); padding-left: 6px; margin-left: 2px; }
   .docs-toolbar-edit-only.open { display: flex; }
@@ -1349,7 +1367,7 @@
           </div>
 
           <div class="tabbar">
-            <div class="t active">
+            <div class="t active" data-go-home>
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></span>
               <span class="label">Accueil</span>
             </div>
@@ -1379,6 +1397,13 @@
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
+
+              <div class="docs-media-section" data-docs-media-section id="docs-media-anchor" style="display:none;">
+                <hr>
+                <div class="docs-media-head">Médias</div>
+                <div class="docs-media-grid" data-docs-media-grid></div>
+              </div>
+              <input type="text" class="add-subtask-input" data-docs-image-url-input placeholder="Lien de l'image…" style="display:none;">
             </div>
 
             <button type="button" class="docs-toc-tab" data-docs-toc-tab title="Sommaire">
@@ -1391,6 +1416,9 @@
             </div>
 
             <div class="docs-toolbar" data-docs-toolbar>
+              <button type="button" class="docs-upload-btn" data-docs-upload-btn title="Ajouter une image (lien)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+              </button>
               <button type="button" class="docs-edit-toggle" data-docs-edit-fab title="Modifier">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
               </button>
@@ -2082,6 +2110,10 @@
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
       results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id });
     });
+    cachedPages.filter(p => p.page_type === 'doc' && !p.is_archived).forEach(p => {
+      const project = cachedProjects.find(pr => pr.id === p.project_id);
+      results.push({ title: p.title, type: 'Document', project: project?.name || '', page: null, kind: 'doc', id: p.id });
+    });
     return results;
   }
   function renderSearch(overlay, query) {
@@ -2092,7 +2124,7 @@
     if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
     list.innerHTML = matches.slice(0, 8).map(m => `
       <div class="search-result" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
-        <div class="sicon">${m.kind === 'subtask' ? '↳' : '☐'}</div>
+        <div class="sicon">${m.kind === 'subtask' ? '↳' : m.kind === 'doc' ? DOC_ICON_SVG : '☐'}</div>
         <div class="sinfo">
           <div class="stitle">${escapeHtml(m.title)}</div>
           <div class="spath">${escapeHtml(m.project)}${m.page ? ' › ' + escapeHtml(m.page) : ''}</div>
@@ -2103,9 +2135,14 @@
     list.querySelectorAll('.search-result').forEach(el => {
       el.addEventListener('click', () => {
         const phone = overlay.closest('.phone');
-        const sheet = phone?.querySelector('[data-task-sheet]');
-        if (!sheet) return;
+        if (!phone) return;
         overlay.classList.remove('open');
+        if (el.dataset.searchKind === 'doc') {
+          openDocsEditor(phone, el.dataset.searchId, false);
+          return;
+        }
+        const sheet = phone.querySelector('[data-task-sheet]');
+        if (!sheet) return;
         if (el.dataset.searchKind === 'todo') {
           openTaskSheet(phone, el.dataset.searchId);
         } else {
@@ -2160,6 +2197,9 @@
     const backdropSelectors = ['[data-sheet-backdrop]', '[data-addtask-backdrop]', '[data-pa-backdrop]', '[data-pb-backdrop]'];
     backdropSelectors.forEach(sel => phone.querySelector(sel)?.classList.remove('open'));
     phone.querySelector('[data-docs-editor]')?.classList.remove('open');
+    phone.querySelector('.search-overlay')?.classList.remove('open');
+    phone.querySelector('.drawer')?.classList.remove('open');
+    phone.querySelector('[data-drawer-backdrop]')?.classList.remove('open');
   }
   function showSheetView(sheet, view) {
     sheet.querySelectorAll('.sheet-view').forEach(v => v.classList.toggle('active', v.dataset.view === view));
@@ -2973,6 +3013,15 @@
   });
 
   // date-tab switching (desktop panel + mobile share the same markup pattern)
+  document.querySelectorAll('[data-go-home]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const phone = btn.closest('.phone') || btn.closest('.desktop-frame');
+      if (phone) closeAllPhoneSheets(phone, null);
+      const scope = btn.closest('.phone') || btn.closest('.desktop-frame') || document;
+      scope.querySelectorAll('[data-tabgroup] .dt[data-tab="today"]').forEach(dt => dt.click());
+    });
+  });
+
   document.querySelectorAll('[data-tabgroup]').forEach(group => {
     const scope = group.parentElement;
     group.querySelectorAll('.dt').forEach(dt => {
@@ -4202,7 +4251,37 @@
     editor.querySelector('[data-docs-header]').classList.remove('scrolled');
     editor.classList.add('open');
     setDocsEditMode(editor, !!startInEdit);
+    renderDocsMedia(editor, page);
     buildDocsToc(editor);
+  }
+  function renderDocsMedia(editor, page) {
+    const section = editor.querySelector('[data-docs-media-section]');
+    const grid = editor.querySelector('[data-docs-media-grid]');
+    const images = Array.isArray(page?.images) ? page.images : [];
+    section.style.display = images.length ? 'block' : 'none';
+    grid.innerHTML = images.map((url, i) => `
+      <div class="docs-media-thumb" style="background-image:url('${escapeHtml(url)}')" data-img-index="${i}">
+        <button type="button" class="td-img-remove" data-docs-media-remove="${i}" title="Retirer">✕</button>
+      </div>`).join('');
+    grid.querySelectorAll('.docs-media-thumb').forEach(thumb => {
+      thumb.addEventListener('click', (e) => {
+        if (e.target.closest('[data-docs-media-remove]')) return;
+        openLightbox(editor.closest('.phone'), images, parseInt(thumb.dataset.imgIndex, 10));
+      });
+    });
+    grid.querySelectorAll('[data-docs-media-remove]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.docsMediaRemove, 10);
+        const next = images.filter((_, i) => i !== idx);
+        const pageId = editor.dataset.pageId;
+        await sb.from('pages').update({ images: next }).eq('id', pageId);
+        const p = cachedPages.find(x => x.id === pageId);
+        if (p) p.images = next;
+        renderDocsMedia(editor, p);
+        buildDocsToc(editor);
+      });
+    });
   }
   function setDocsEditMode(editor, editing) {
     const content = editor.querySelector('[data-docs-content]');
@@ -4245,21 +4324,28 @@
     const list = editor.querySelector('[data-docs-toc-list]');
     const tab = editor.querySelector('[data-docs-toc-tab]');
     const headings = [...content.querySelectorAll('h1, h2')];
-    if (!headings.length) {
+    const mediaSection = editor.querySelector('[data-docs-media-section]');
+    const hasMedia = mediaSection && mediaSection.style.display !== 'none';
+    if (!headings.length && !hasMedia) {
       tab.style.display = 'none';
       list.innerHTML = '';
       return;
     }
     tab.style.display = 'flex';
-    list.innerHTML = headings.map((h, i) => {
+    let html = headings.map((h, i) => {
       const id = 'docs-h-' + i;
       h.id = id;
       const level = h.tagName === 'H1' ? 'lvl1' : 'lvl2';
       return `<button type="button" class="docs-toc-item ${level}" data-toc-target="${id}">${escapeHtml(h.textContent || '(sans titre)')}</button>`;
     }).join('');
+    if (hasMedia) {
+      html += `<button type="button" class="docs-toc-item lvl1" data-toc-target="docs-media-anchor">Médias</button>`;
+    }
+    list.innerHTML = html;
     list.querySelectorAll('[data-toc-target]').forEach(btn => {
       btn.addEventListener('click', () => {
-        const target = content.querySelector('#' + btn.dataset.tocTarget);
+        const targetId = btn.dataset.tocTarget;
+        const target = targetId === 'docs-media-anchor' ? mediaSection : content.querySelector('#' + targetId);
         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         closeDocsToc(editor);
       });
@@ -4324,6 +4410,29 @@
       editor.querySelector('[data-docs-header]').classList.toggle('scrolled', e.target.scrollTop > 40);
     });
 
+    editor.querySelector('[data-docs-upload-btn]')?.addEventListener('click', () => {
+      const input = editor.querySelector('[data-docs-image-url-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    editor.querySelector('[data-docs-image-url-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    editor.querySelector('[data-docs-image-url-input]')?.addEventListener('blur', async (e) => {
+      const url = e.target.value.trim();
+      e.target.style.display = 'none';
+      if (!url) return;
+      const pageId = editor.dataset.pageId;
+      const page = cachedPages.find(p => p.id === pageId);
+      const current = Array.isArray(page?.images) ? page.images : [];
+      const next = [...current, url];
+      await sb.from('pages').update({ images: next }).eq('id', pageId);
+      if (page) page.images = next;
+      renderDocsMedia(editor, page);
+      buildDocsToc(editor);
+    });
+
     editor.querySelector('[data-docs-undo]')?.addEventListener('click', () => {
       content.focus();
       document.execCommand('undo');
@@ -4382,8 +4491,12 @@
     // colle en texte brut : uniformise toujours la police (Inter), quelle que soit la source
     content.addEventListener('paste', (e) => {
       e.preventDefault();
-      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-      document.execCommand('insertText', false, text);
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
+      if (/^https?:\/\/\S+$/i.test(text)) {
+        document.execCommand('insertHTML', false, `<a href="${escapeHtml(text)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(text))}</a>&nbsp;`);
+      } else {
+        document.execCommand('insertText', false, text);
+      }
     });
 
     // sommaire
