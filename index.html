@@ -594,6 +594,14 @@
   .drawer-page-count { margin-left: auto; color: var(--faint); font-size: 11px; font-weight: 700; flex-shrink: 0; }
   .drawer-project.expanded { background: var(--bg); }
   .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
+  .drawer-docfolders { display: flex; flex-direction: column; padding: 4px 0 8px; }
+  .drawer-folder-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .drawer-folder-row:hover { background: var(--bg); }
+  .drawer-folder-row.expanded { background: var(--bg); }
+  .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
   .drawer-page-row {
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 8px; cursor: pointer;
@@ -753,6 +761,7 @@
 
   /* task detail header: projet à gauche, flag/upload/sous-tâche à droite */
   .td-header-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 18px; }
+  .td-header-left { display: flex; align-items: center; gap: 4px; min-width: 0; }
   .td-header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
   .ic-flat-btn {
     width: 32px; height: 32px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
@@ -1161,11 +1170,7 @@
         <div class="d-rail">
           <div class="brand">控制盤<small>PERSONAL OS</small></div>
           <nav class="d-nav">
-            <a class="active"><span class="dot"></span>Tableau de bord</a>
-            <a data-open-search><span class="dot"></span>Recherche</a>
-            <a><span class="dot"></span>Tâches</a>
-            <a><span class="dot"></span>Docs</a>
-            <a><span class="dot"></span>Projets</a>
+            <a class="active"><span class="dot"></span>Documents</a>
             <a><span class="dot"></span>Réglages</a>
             <a data-theme-toggle><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
           </nav>
@@ -1275,13 +1280,10 @@
           <div class="drawer">
             <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
             <nav class="drawer-nav">
-              <a class="active"><span class="dot"></span>Tableau de bord</a>
-              <a data-open-search><span class="dot"></span>Recherche</a>
-              <a><span class="dot"></span>Tâches</a>
-              <a><span class="dot"></span>Docs</a>
-              <a><span class="dot"></span>Projets</a>
+              <a class="active" data-drawer-toggle-docs><span class="dot"></span>Documents</a>
               <a><span class="dot"></span>Réglages</a>
             </nav>
+            <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
             <div class="drawer-sep"></div>
             <div class="drawer-projects" data-drawer-projects></div>
             <div class="drawer-add-project" data-drawer-add-project>
@@ -1472,13 +1474,15 @@
             <!-- VIEW: task detail -->
             <div class="sheet-view active" data-view="detail">
               <div class="td-header-row">
-                <button type="button" class="at-icon-btn" data-goto="project" data-td-project-btn>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-                  <span data-td-project-label>Projet</span>
-                </button>
-                <button type="button" class="td-project-goto-btn" data-td-project-goto title="Aller à la liste des tâches" style="display:none;">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-                </button>
+                <div class="td-header-left">
+                  <button type="button" class="at-icon-btn" data-goto="project" data-td-project-btn>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
+                    <span data-td-project-label>Projet</span>
+                  </button>
+                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Aller à la liste des tâches" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  </button>
+                </div>
                 <div class="td-header-actions">
                   <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-td-flag-btn>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
@@ -1522,8 +1526,6 @@
               <div class="td-subtasks-list" data-td-subtasks-list></div>
               <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
 
-              <div class="td-images" data-td-images></div>
-
               <div class="pa-section-head">Sources</div>
               <div class="td-sources-list" data-td-sources-list></div>
               <div class="td-source-add-row" data-td-source-add-row style="display:none;">
@@ -1534,6 +1536,8 @@
                 <span class="add-subtask-plus">+</span>
                 <span>Ajouter</span>
               </div>
+
+              <div class="td-images" data-td-images></div>
             </div>
 
             <!-- VIEW: importance -->
@@ -1770,6 +1774,24 @@
             </div>
           </div>
 
+          <div class="sheet-backdrop" data-df-backdrop></div>
+          <div class="task-sheet" data-df-sheet>
+            <div class="sheet-handle"></div>
+            <div class="sheet-view active" data-view="docs">
+              <div class="sheet-topbar">
+                <button class="link" data-df-close>Fermer</button>
+                <div class="sheet-title" data-df-folder-name>Dossier</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-df-docs-list></div>
+              <div class="add-subtask-row" data-df-add-doc-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Ajouter un document</span>
+              </div>
+              <input type="text" class="add-subtask-input" data-df-add-doc-input placeholder="Nom du document…" style="display:none;">
+            </div>
+          </div>
+
           <div class="sheet-backdrop" data-addtask-backdrop></div>
           <div class="task-sheet" data-addtask-sheet>
             <div class="sheet-handle"></div>
@@ -1842,6 +1864,24 @@
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-at-project-options></div>
+            </div>
+
+            <div class="sheet-view" data-view="docfolder">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Dossier</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-at-docfolder-options></div>
+            </div>
+
+            <div class="sheet-view" data-view="docsubfolder">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Sous-dossier</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list" data-at-docsubfolder-options></div>
             </div>
 
             <div class="sheet-view" data-view="page">
@@ -2123,8 +2163,10 @@
       results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id });
     });
     cachedPages.filter(p => p.page_type === 'doc' && !p.is_archived).forEach(p => {
-      const project = cachedProjects.find(pr => pr.id === p.project_id);
-      results.push({ title: p.title, type: 'Document', project: project?.name || '', page: null, kind: 'doc', id: p.id });
+      const subfolder = cachedDocFolders.find(f => f.id === p.doc_folder_id);
+      const topFolder = subfolder ? cachedDocFolders.find(f => f.id === subfolder.parent_folder_id) : null;
+      const path = topFolder ? `${topFolder.name} / ${subfolder.name}` : (subfolder?.name || '');
+      results.push({ title: p.title, type: 'Document', project: path, page: null, kind: 'doc', id: p.id });
     });
     return results;
   }
@@ -2199,6 +2241,7 @@
   let cachedPages = [];
   let cachedProjects = [];
   let cachedSubtasks = [];
+  let cachedDocFolders = [];
 
   function closeAllPhoneSheets(phone, exceptSelector) {
     const selectors = ['[data-task-sheet]', '[data-addtask-sheet]', '[data-pa-sheet]', '[data-pb-sheet]'];
@@ -2422,7 +2465,12 @@
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
     const subs = [...cachedSubtasks.filter(s => s.todo_id === todoId)]
-      .sort((a, b) => (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1));
+      .sort((a, b) => {
+        if (a.is_done !== b.is_done) return a.is_done ? 1 : -1;
+        const ad = a.due_date || '9999-99-99';
+        const bd = b.due_date || '9999-99-99';
+        return ad.localeCompare(bd);
+      });
     list.innerHTML = subs.map(s => `
       <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
@@ -3627,6 +3675,124 @@
     row.after(wrap);
   }
 
+  // ================================================================
+  // Documents — arborescence indépendante (dossier principal > sous-dossier)
+  // ================================================================
+  function renderDrawerDocFolders() {
+    const container = document.querySelector('[data-drawer-docfolders]');
+    if (!container) return;
+    const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    container.innerHTML = top.map(f => `
+      <div class="drawer-folder-row" data-folder-id="${f.id}">${escapeHtml(f.name)}</div>
+    `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
+    container.querySelectorAll('.drawer-folder-row').forEach(row => {
+      row.addEventListener('click', () => toggleDrawerSubfolders(row));
+    });
+  }
+  function toggleDrawerSubfolders(row) {
+    const existing = row.nextElementSibling;
+    if (existing && existing.classList.contains('drawer-subfolders-collapse')) {
+      existing.remove();
+      row.classList.remove('expanded');
+      return;
+    }
+    document.querySelectorAll('.drawer-subfolders-collapse').forEach(el => el.remove());
+    document.querySelectorAll('.drawer-folder-row.expanded').forEach(el => el.classList.remove('expanded'));
+
+    const folderId = row.dataset.folderId;
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const wrap = document.createElement('div');
+    wrap.className = 'drawer-subfolders-collapse';
+    wrap.innerHTML = subs.map(f => `<div class="drawer-page-row" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>`).join('') || '<div class="drawer-page-row empty">Aucun sous-dossier</div>';
+    wrap.querySelectorAll('[data-subfolder-id]').forEach(subRow => {
+      subRow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const phone = row.closest('.phone');
+        openDocFolderBrowser(phone, subRow.dataset.subfolderId, subRow.dataset.subfolderName);
+      });
+    });
+    row.classList.add('expanded');
+    row.after(wrap);
+  }
+  document.querySelectorAll('[data-drawer-toggle-docs]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const drawer = a.closest('.drawer');
+      const container = drawer?.querySelector('[data-drawer-docfolders]');
+      if (!container) return;
+      const showing = container.style.display !== 'none';
+      container.style.display = showing ? 'none' : 'block';
+      if (!showing) renderDrawerDocFolders();
+    });
+  });
+
+  function openDocFolderBrowser(phone, folderId, folderName) {
+    const sheet = phone.querySelector('[data-df-sheet]');
+    const backdrop = phone.querySelector('[data-df-backdrop]');
+    if (!sheet || !backdrop) return;
+    closeAllPhoneSheets(phone, '[data-df-sheet]');
+    sheet.dataset.folderId = folderId;
+    sheet.querySelector('[data-df-folder-name]').textContent = folderName;
+    renderDfDocsList(sheet, folderId);
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function renderDfDocsList(sheet, folderId) {
+    const list = sheet.querySelector('[data-df-docs-list]');
+    if (!list) return;
+    const docs = cachedPages.filter(p => p.doc_folder_id === folderId && !p.is_archived && p.page_type === 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = docs.map(d => `<div class="opt-row" data-doc-id="${d.id}">${DOC_ICON_SVG}${escapeHtml(d.title)}</div>`).join('') || '<div class="empty-state">Aucun document</div>';
+    list.querySelectorAll('[data-doc-id]').forEach(row => {
+      row.addEventListener('click', () => {
+        const phone = sheet.closest('.phone');
+        sheet.classList.remove('open');
+        phone.querySelector('[data-df-backdrop]')?.classList.remove('open');
+        openDocsEditor(phone, row.dataset.docId, false);
+      });
+    });
+  }
+  document.querySelectorAll('[data-df-close]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const phone = btn.closest('.phone');
+      phone.querySelector('[data-df-sheet]')?.classList.remove('open');
+      phone.querySelector('[data-df-backdrop]')?.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('[data-df-backdrop]').forEach(bd => {
+    bd.addEventListener('click', () => {
+      const phone = bd.closest('.phone');
+      phone.querySelector('[data-df-sheet]')?.classList.remove('open');
+      bd.classList.remove('open');
+    });
+  });
+  document.querySelectorAll('[data-df-add-doc-row]').forEach(row => {
+    row.addEventListener('click', () => {
+      const sheet = row.closest('[data-df-sheet]');
+      const input = sheet.querySelector('[data-df-add-doc-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+  });
+  document.querySelectorAll('[data-df-add-doc-input]').forEach(input => {
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
+    input.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim();
+      e.target.style.display = 'none';
+      if (!title) return;
+      const sheet = input.closest('[data-df-sheet]');
+      const folderId = sheet.dataset.folderId;
+      const position = cachedPages.filter(p => p.doc_folder_id === folderId).length + 1;
+      const { data: newPage, error } = await sb.from('pages')
+        .insert({ doc_folder_id: folderId, project_id: null, title, page_type: 'doc', content: '', position })
+        .select().single();
+      if (error) { console.error(error); return; }
+      cachedPages.push(newPage);
+      renderDfDocsList(sheet, folderId);
+    });
+  });
+
+
   document.querySelectorAll('[data-drawer-admin-toggle]').forEach(btn => {
     btn.addEventListener('click', () => {
       const drawer = btn.closest('.drawer');
@@ -3807,8 +3973,9 @@
       sb.from('pages').select('*').eq('is_archived', false),
       sb.from('todos').select('*').eq('is_archived', false),
       sb.from('subtasks').select('*').eq('is_archived', false),
+      sb.from('doc_folders').select('*').eq('is_archived', false).order('position'),
     ]);
-    const [projectsRes, pagesRes, todosRes, subtasksRes] = results;
+    const [projectsRes, pagesRes, todosRes, subtasksRes, docFoldersRes] = results;
     const unwrap = (res, label) => {
       if (res.status === 'fulfilled' && !res.value.error) return res.value.data || [];
       console.error(`Erreur de chargement Supabase (${label}) :`, res.reason || res.value?.error);
@@ -3818,10 +3985,12 @@
     const newPages = unwrap(pagesRes, 'pages');
     const newTodos = unwrap(todosRes, 'todos');
     const newSubtasks = unwrap(subtasksRes, 'subtasks');
+    const newDocFolders = unwrap(docFoldersRes, 'doc_folders');
     if (newProjects) cachedProjects = newProjects;
     if (newPages) cachedPages = newPages;
     if (newTodos) cachedTodos = newTodos;
     if (newSubtasks) cachedSubtasks = newSubtasks;
+    if (newDocFolders) cachedDocFolders = newDocFolders;
 
     renderProjects(cachedProjects, cachedPages, cachedTodos);
     renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
@@ -3848,6 +4017,9 @@
     sheet.dataset.priority = 'low';
     sheet.dataset.pageId = '';
     sheet.dataset.pendingProjectId = '';
+    sheet.dataset.pendingFolderId = '';
+    sheet.dataset.pendingFolderName = '';
+    sheet.dataset.pendingDocFolderId = '';
     sheet.dataset.pendingProjectName = '';
 
     sheet.querySelector('[data-at-title]').value = '';
@@ -3983,6 +4155,44 @@
     });
   }
 
+  function renderAddTaskDocFolders(sheet) {
+    const list = sheet.querySelector('[data-at-docfolder-options]');
+    if (!list) return;
+    const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = top.map(f => `
+      <div class="opt-row" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+    `).join('') || '<div class="empty-state">Aucun dossier</div>';
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const s = row.closest('[data-addtask-sheet]');
+        s.dataset.pendingFolderId = row.dataset.folderId;
+        s.dataset.pendingFolderName = row.dataset.folderName;
+        list.querySelectorAll('.opt-row').forEach(r => r.classList.remove('selected'));
+        row.classList.add('selected');
+        pushView(s, 'docsubfolder');
+        renderAddTaskDocSubfolders(s, row.dataset.folderId);
+      });
+    });
+  }
+  function renderAddTaskDocSubfolders(sheet, folderId) {
+    const list = sheet.querySelector('[data-at-docsubfolder-options]');
+    if (!list) return;
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = subs.map(f => `
+      <div class="opt-row${f.id === sheet.dataset.pendingDocFolderId ? ' selected' : ''}" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+    `).join('') || '<div class="empty-state">Aucun sous-dossier</div>';
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', () => {
+        sheet.dataset.pendingDocFolderId = row.dataset.subfolderId;
+        const folderName = sheet.dataset.pendingFolderName;
+        sheet.querySelector('[data-at-project-label]').textContent = `${folderName} / ${row.dataset.subfolderName}`;
+        sheet.querySelector('[data-goto="project"]').classList.add('set');
+        sheet.dataset.stack = 'compose';
+        showSheetView(sheet, 'compose');
+      });
+    });
+  }
+
   document.querySelectorAll('[data-open-addtask]').forEach(btn => {
     btn.addEventListener('click', () => {
       const phone = btn.closest('.phone');
@@ -3999,8 +4209,11 @@
     sheet.addEventListener('click', (e) => {
       const goto = e.target.closest('[data-goto]');
       if (goto) {
-        pushView(sheet, goto.dataset.goto);
-        if (goto.dataset.goto === 'date') openDateView(sheet);
+        const isDocMode = sheet.dataset.addType === 'doc';
+        const targetView = (goto.dataset.goto === 'project' && isDocMode) ? 'docfolder' : goto.dataset.goto;
+        pushView(sheet, targetView);
+        if (targetView === 'date') openDateView(sheet);
+        if (targetView === 'docfolder') renderAddTaskDocFolders(sheet);
         return;
       }
       const back = e.target.closest('[data-back]');
@@ -4189,14 +4402,14 @@
       const title = sheet.querySelector('[data-at-title]').value.trim();
 
       if (sheet.dataset.addType === 'doc') {
-        const projectId = sheet.dataset.pendingProjectId;
+        const docFolderId = sheet.dataset.pendingDocFolderId;
         if (!title) { errorEl.textContent = 'Ajoute un nom de document.'; return; }
-        if (!projectId) { errorEl.textContent = 'Choisis un projet.'; return; }
+        if (!docFolderId) { errorEl.textContent = 'Choisis un dossier et un sous-dossier.'; return; }
         saveBtn.disabled = true;
         try {
-          const position = cachedPages.filter(p => p.project_id === projectId).length + 1;
+          const position = cachedPages.filter(p => p.doc_folder_id === docFolderId).length + 1;
           const { data: newPage, error } = await sb.from('pages')
-            .insert({ project_id: projectId, title, page_type: 'doc', content: '', position })
+            .insert({ doc_folder_id: docFolderId, project_id: null, title, page_type: 'doc', content: '', position })
             .select().single();
           if (error) throw error;
           cachedPages.push(newPage);
