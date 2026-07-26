@@ -712,11 +712,11 @@
   }
   .td-title-input::placeholder { color: var(--faint); }
   .td-project-link {
-    display: inline-block; opacity: 0.85;
-    font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: #3E72A6; cursor: pointer;
-    margin-bottom: 14px;
+    display: inline-block;
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer;
+    margin-top: -1px; margin-bottom: 10px;
   }
-  .td-project-link:hover { opacity: 1; }
+  .td-project-link:hover { color: var(--ink); }
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
@@ -2151,6 +2151,16 @@
   let cachedProjects = [];
   let cachedSubtasks = [];
 
+  function closeAllPhoneSheets(phone, exceptSelector) {
+    const selectors = ['[data-task-sheet]', '[data-addtask-sheet]', '[data-pa-sheet]', '[data-pb-sheet]'];
+    selectors.forEach(sel => {
+      if (sel === exceptSelector) return;
+      phone.querySelector(sel)?.classList.remove('open');
+    });
+    const backdropSelectors = ['[data-sheet-backdrop]', '[data-addtask-backdrop]', '[data-pa-backdrop]', '[data-pb-backdrop]'];
+    backdropSelectors.forEach(sel => phone.querySelector(sel)?.classList.remove('open'));
+    phone.querySelector('[data-docs-editor]')?.classList.remove('open');
+  }
   function showSheetView(sheet, view) {
     sheet.querySelectorAll('.sheet-view').forEach(v => v.classList.toggle('active', v.dataset.view === view));
   }
@@ -2617,6 +2627,7 @@
     const sheet = phone.querySelector('[data-task-sheet]');
     const backdrop = phone.querySelector('[data-sheet-backdrop]');
     if (!sheet || !backdrop || !cachedTodos.find(t => t.id === todoId)) return;
+    closeAllPhoneSheets(phone, '[data-task-sheet]');
     sheet.dataset.recordKind = 'todo';
     sheet.dataset.recordId = todoId;
     sheet.dataset.todoId = todoId; // rétro-compat pour tout ce qui lit encore ce champ
@@ -3289,6 +3300,7 @@
     const backdrop = phone.querySelector('[data-pb-backdrop]');
     const project = cachedProjects.find(p => p.id === projectId);
     if (!sheet || !backdrop || !project) return;
+    closeAllPhoneSheets(phone, '[data-pb-sheet]');
     sheet.dataset.projectId = projectId;
     sheet.dataset.stack = 'pages';
     showSheetView(sheet, 'pages');
@@ -3381,6 +3393,7 @@
     const sheet = phone.querySelector('[data-pb-sheet]');
     const backdrop = phone.querySelector('[data-pb-backdrop]');
     if (!sheet || !backdrop) return;
+    closeAllPhoneSheets(phone, '[data-pb-sheet]');
     sheet.dataset.stack = 'page-tasks';
     showSheetView(sheet, 'page-tasks');
     sheet.querySelector('[data-pb-page-name]').textContent = pageTitle;
@@ -3617,6 +3630,7 @@
     if (!sheet || !backdrop) return;
     const project = cachedProjects.find(p => p.id === projectId);
     if (!project) return;
+    closeAllPhoneSheets(phone, '[data-pa-sheet]');
     sheet.dataset.projectId = projectId;
     sheet.dataset.stack = 'main';
     showSheetView(sheet, 'main');
@@ -3755,6 +3769,7 @@
     const sheet = phone.querySelector('[data-addtask-sheet]');
     const backdrop = phone.querySelector('[data-addtask-backdrop]');
     if (!sheet || !backdrop) return;
+    closeAllPhoneSheets(phone, '[data-addtask-sheet]');
 
     sheet.dataset.stack = 'compose';
     showSheetView(sheet, 'compose');
@@ -4177,6 +4192,7 @@
     const editor = phone.querySelector('[data-docs-editor]');
     const page = cachedPages.find(p => p.id === pageId);
     if (!editor || !page) return;
+    closeAllPhoneSheets(phone, null);
     editor.dataset.pageId = pageId;
     const titleInput = editor.querySelector('[data-docs-hero-title]');
     titleInput.value = page.title || '';
@@ -4293,8 +4309,10 @@
     const phone = editor.closest('.phone');
     const content = editor.querySelector('[data-docs-content]');
 
-    content.addEventListener('mouseup', () => saveDocsSelection(editor));
-    content.addEventListener('keyup', () => saveDocsSelection(editor));
+    document.addEventListener('selectionchange', () => {
+      if (editor.dataset.editing !== '1') return;
+      saveDocsSelection(editor);
+    });
 
     editor.querySelector('[data-docs-back]').addEventListener('click', () => closeDocsEditor(phone));
     editor.querySelector('[data-docs-edit-fab]').addEventListener('click', () => {
