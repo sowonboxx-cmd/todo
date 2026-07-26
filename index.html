@@ -1024,26 +1024,27 @@
   .docs-content p { margin: 0 0 10px; }
   .docs-content ul, .docs-content ol { padding-left: 22px; margin: 0 0 10px; }
   .docs-content hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
-  .docs-content .doc-todo { display: flex; align-items: flex-start; gap: 8px; margin: 6px 0; }
-  .docs-content .doc-todo input { margin-top: 4px; }
+
   .docs-toolbar {
-    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
+    display: flex; align-items: center; position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
     background: var(--card); border-top: 1px solid var(--line);
     padding: 8px calc(10px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));
     gap: 4px; overflow-x: auto;
   }
-  .docs-toolbar.open { display: flex; }
   .docs-toolbar button {
     flex-shrink: 0; width: 36px; height: 36px; border: none; background: transparent;
     color: var(--ink); font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer;
   }
   .docs-toolbar button:active { background: var(--bg); }
   .docs-toolbar button svg { width: 17px; height: 17px; }
-  .docs-block-popup {
+  .docs-edit-toggle { color: var(--accent-due) !important; }
+  .docs-toolbar-edit-only { display: none; align-items: center; gap: 4px; border-left: 1px solid var(--line-soft); padding-left: 6px; margin-left: 2px; }
+  .docs-toolbar-edit-only.open { display: flex; }
+  .docs-block-popup, .docs-color-popup {
     display: none; position: fixed; left: 10px; z-index: 402; background: var(--card);
     border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; min-width: 180px;
   }
-  .docs-block-popup.open { display: block; }
+  .docs-block-popup.open, .docs-color-popup.open { display: block; }
   .docs-block-popup button {
     display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent;
     text-align: left; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
@@ -1051,14 +1052,39 @@
   }
   .docs-block-popup button:hover { background: var(--bg); }
   .docs-block-popup .bp-tag { color: var(--faint); font-size: 11px; font-weight: 700; width: 20px; flex-shrink: 0; }
-  .docs-edit-fab {
-    position: fixed; right: 20px; bottom: 24px; z-index: 401;
-    width: 50px; height: 50px; border-radius: 50%; border: none;
-    background: var(--ink); color: var(--bg); box-shadow: var(--shadow);
-    display: flex; align-items: center; justify-content: center; cursor: pointer;
+  .docs-color-popup { display: none; min-width: unset; padding: 8px; }
+  .docs-color-popup.open { display: flex; gap: 6px; }
+  .docs-color-popup button {
+    width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line-soft); background: var(--bg);
+    font-weight: 800; font-size: 13px; cursor: pointer; flex-shrink: 0;
   }
-  .docs-edit-fab.hidden-nest { display: none; }
-  .docs-edit-fab svg { width: 20px; height: 20px; }
+  .docs-color-default { color: var(--ink) !important; }
+
+  /* sommaire (TOC) */
+  .docs-toc-tab {
+    position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 399;
+    background: var(--card); border: 1px solid var(--line); border-right: none;
+    border-radius: 10px 0 0 10px; width: 34px; height: 44px;
+    display: flex; align-items: center; justify-content: center; color: var(--muted); cursor: pointer;
+  }
+  .docs-toc-tab svg { width: 16px; height: 16px; }
+  .docs-toc-backdrop { display: none; position: fixed; inset: 0; z-index: 402; background: rgba(0,0,0,0.15); }
+  .docs-toc-backdrop.open { display: block; }
+  .docs-toc-panel {
+    position: fixed; right: -240px; top: 0; bottom: 0; width: 220px; z-index: 403;
+    background: var(--card); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 60px 14px 14px; transition: right .2s ease; overflow-y: auto;
+  }
+  .docs-toc-panel.open { right: 0; }
+  .docs-toc-head { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13px; color: var(--ink); margin-bottom: 10px; }
+  .docs-toc-list { display: flex; flex-direction: column; gap: 2px; }
+  .docs-toc-item {
+    text-align: left; border: none; background: transparent; padding: 7px 8px; border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; color: var(--muted); cursor: pointer;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .docs-toc-item:hover { background: var(--bg); color: var(--ink); }
+  .docs-toc-item.lvl2 { padding-left: 20px; font-size: 11.5px; }
 
   /* ajout : sélecteur type tâche / doc */
   .at-type-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--bg); border-radius: 999px; padding: 3px; }
@@ -1344,28 +1370,52 @@
               <button type="button" class="docs-back" data-docs-back>‹</button>
               <div class="docs-header-title" data-docs-title-sticky></div>
               <div class="docs-header-actions">
-                <button type="button" title="Partager"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg></button>
+                <button type="button" data-docs-undo title="Annuler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+                <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
               </div>
             </div>
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
             </div>
+
+            <button type="button" class="docs-toc-tab" data-docs-toc-tab title="Sommaire">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
+            </button>
+            <div class="docs-toc-backdrop" data-docs-toc-backdrop></div>
+            <div class="docs-toc-panel" data-docs-toc-panel>
+              <div class="docs-toc-head">Sommaire</div>
+              <div class="docs-toc-list" data-docs-toc-list></div>
+            </div>
+
             <div class="docs-toolbar" data-docs-toolbar>
-              <button type="button" data-docs-block-menu title="Titres"><b>H+</b></button>
-              <button type="button" data-docs-cmd="bold"><b>B</b></button>
-              <button type="button" data-docs-cmd="italic"><i>I</i></button>
-              <button type="button" data-docs-cmd="underline"><u>U</u></button>
-              <button type="button" data-docs-cmd="insertUnorderedList">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/><path d="M9 6h11M9 12h11M9 18h11"/></svg>
+              <button type="button" class="docs-edit-toggle" data-docs-edit-fab title="Modifier">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
               </button>
-              <button type="button" data-docs-cmd="insertOrderedList">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><text x="1" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="1" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="1" y="20" font-size="7" fill="currentColor" stroke="none">3</text></svg>
-              </button>
-              <button type="button" data-docs-todo title="Case à cocher">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 12l3 3 5-6"/></svg>
-              </button>
-              <button type="button" data-docs-hr title="Séparateur">—</button>
+              <div class="docs-toolbar-edit-only" data-docs-toolbar-edit-only>
+                <button type="button" data-docs-block-menu title="Titres"><b>H+</b></button>
+                <button type="button" data-docs-cmd="bold"><b>B</b></button>
+                <button type="button" data-docs-cmd="italic"><i>I</i></button>
+                <button type="button" data-docs-cmd="insertUnorderedList">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.2" fill="currentColor" stroke="none"/><path d="M9 6h11M9 12h11M9 18h11"/></svg>
+                </button>
+                <button type="button" data-docs-cmd="insertOrderedList">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><text x="1" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="1" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="1" y="20" font-size="7" fill="currentColor" stroke="none">3</text></svg>
+                </button>
+                <button type="button" data-docs-color-menu title="Couleur">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-.5-1.5-.5-2.5S14 16 15 16h2a4 4 0 004-4c0-5-4.5-9-9-9z" fill="currentColor" stroke="none" opacity=".18"/></svg>
+                </button>
+                <button type="button" data-docs-hr title="Séparateur">—</button>
+              </div>
+            </div>
+            <div class="docs-color-popup" data-docs-color-popup>
+              <button type="button" data-docs-color="" class="docs-color-default" title="Par défaut">A</button>
+              <button type="button" data-docs-color="#E5484D" style="color:#E5484D">A</button>
+              <button type="button" data-docs-color="#F5A524" style="color:#F5A524">A</button>
+              <button type="button" data-docs-color="#2F6F5E" style="color:#2F6F5E">A</button>
+              <button type="button" data-docs-color="#3E72A6" style="color:#3E72A6">A</button>
+              <button type="button" data-docs-color="#8B5CF6" style="color:#8B5CF6">A</button>
+              <button type="button" data-docs-color="#6B716A" style="color:#6B716A">A</button>
             </div>
             <div class="docs-block-popup" data-docs-block-popup>
               <button type="button" data-docs-block="h1"><span class="bp-tag">H1</span>Heading 1</button>
@@ -1373,9 +1423,6 @@
               <button type="button" data-docs-block="h3"><span class="bp-tag">H3</span>Heading 3</button>
               <button type="button" data-docs-block="p"><span class="bp-tag">T</span>Text</button>
             </div>
-            <button type="button" class="docs-edit-fab" data-docs-edit-fab title="Modifier">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            </button>
           </div>
 
           <div class="search-overlay" id="search-mobile">
@@ -1707,7 +1754,7 @@
 
               <div class="at-type-tabs">
                 <button type="button" class="at-type-tab active" data-at-type="task">Tâche</button>
-                <button type="button" class="at-type-tab" data-at-type="doc">Doc</button>
+                <button type="button" class="at-type-tab" data-at-type="doc">Document</button>
               </div>
 
               <input type="text" class="at-title" placeholder="Nom de la tâche" data-at-title>
@@ -2182,6 +2229,7 @@
   const PRIORITY_LABEL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
   const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
+  const DOC_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>';
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
@@ -3255,7 +3303,7 @@
       const isDoc = p.page_type === 'doc';
       const count = isDoc ? '' : cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
       return `<div class="opt-row pb-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}">
-        <span>${isDoc ? '📄 ' : ''}${escapeHtml(p.title)}</span>
+        <span>${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}</span>
         ${isDoc ? '' : `<span class="pb-count">${count}</span>`}
       </div>`;
     }).join('') || '<div class="empty-state">Aucune page</div>';
@@ -3480,7 +3528,7 @@
     wrap.innerHTML = pages.map(p => {
       const isDoc = p.page_type === 'doc';
       const count = isDoc ? '' : cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
-      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}">${isDoc ? '📄 ' : ''}${escapeHtml(p.title)}${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
+      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}">${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
     }).join('') || '<div class="drawer-page-row empty">Aucune page</div>';
     wrap.querySelectorAll('.drawer-page-row[data-page-id]').forEach(pageRow => {
       pageRow.addEventListener('click', (e) => {
@@ -3881,7 +3929,7 @@
         sheet.dataset.addType = tab.dataset.atType;
         const isDoc = tab.dataset.atType === 'doc';
         sheet.querySelector('[data-at-title]').placeholder = isDoc ? 'Nom du document' : 'Nom de la tâche';
-        sheet.querySelector('[data-at-sheet-title]').textContent = isDoc ? 'Nouveau doc' : 'Nouvelle tâche';
+        sheet.querySelector('[data-at-sheet-title]').textContent = isDoc ? 'Nouveau document' : 'Nouvelle tâche';
         sheet.querySelector('[data-at-save]').textContent = isDoc ? 'Créer' : 'Ajouter';
       });
     });
@@ -4136,14 +4184,16 @@
     editor.querySelector('[data-docs-header]').classList.remove('scrolled');
     editor.classList.add('open');
     setDocsEditMode(editor, !!startInEdit);
+    buildDocsToc(editor);
   }
   function setDocsEditMode(editor, editing) {
     const content = editor.querySelector('[data-docs-content]');
     const titleInput = editor.querySelector('[data-docs-hero-title]');
     content.setAttribute('contenteditable', editing ? 'true' : 'false');
     titleInput.readOnly = !editing;
-    editor.querySelector('[data-docs-toolbar]').classList.toggle('open', editing);
+    editor.querySelector('[data-docs-toolbar-edit-only]').classList.toggle('open', editing);
     editor.querySelector('[data-docs-block-popup]').classList.remove('open');
+    editor.querySelector('[data-docs-color-popup]').classList.remove('open');
     editor.querySelector('[data-docs-edit-fab]').innerHTML = editing
       ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
       : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
@@ -4161,6 +4211,7 @@
     const page = cachedPages.find(p => p.id === pageId);
     if (page) { page.title = title; page.content = html; }
     editor.querySelector('[data-docs-title-sticky]').textContent = title;
+    buildDocsToc(editor);
   }
   function closeDocsEditor(phone) {
     const editor = phone.querySelector('[data-docs-editor]');
@@ -4170,8 +4221,63 @@
     loadData();
   }
 
+  // ---- sommaire (TOC) : liste des H1/H2 du document, clic = défilement ----
+  function buildDocsToc(editor) {
+    const content = editor.querySelector('[data-docs-content]');
+    const list = editor.querySelector('[data-docs-toc-list]');
+    const tab = editor.querySelector('[data-docs-toc-tab]');
+    const headings = [...content.querySelectorAll('h1, h2')];
+    if (!headings.length) {
+      tab.style.display = 'none';
+      list.innerHTML = '';
+      return;
+    }
+    tab.style.display = 'flex';
+    list.innerHTML = headings.map((h, i) => {
+      const id = 'docs-h-' + i;
+      h.id = id;
+      const level = h.tagName === 'H1' ? 'lvl1' : 'lvl2';
+      return `<button type="button" class="docs-toc-item ${level}" data-toc-target="${id}">${escapeHtml(h.textContent || '(sans titre)')}</button>`;
+    }).join('');
+    list.querySelectorAll('[data-toc-target]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = content.querySelector('#' + btn.dataset.tocTarget);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        closeDocsToc(editor);
+      });
+    });
+  }
+  function openDocsToc(editor) {
+    editor.querySelector('[data-docs-toc-panel]').classList.add('open');
+    editor.querySelector('[data-docs-toc-backdrop]').classList.add('open');
+  }
+  function closeDocsToc(editor) {
+    editor.querySelector('[data-docs-toc-panel]').classList.remove('open');
+    editor.querySelector('[data-docs-toc-backdrop]').classList.remove('open');
+  }
+
+  // ---- préserve la sélection/curseur entre les clics sur la barre d'outils (hors zone éditable) ----
+  function saveDocsSelection(editor) {
+    const content = editor.querySelector('[data-docs-content]');
+    const sel = window.getSelection();
+    if (sel.rangeCount > 0 && content.contains(sel.anchorNode)) {
+      editor._savedRange = sel.getRangeAt(0);
+    }
+  }
+  function restoreDocsSelection(editor) {
+    if (!editor._savedRange) return;
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(editor._savedRange);
+  }
+
   document.querySelectorAll('[data-docs-editor]').forEach(editor => {
     const phone = editor.closest('.phone');
+    const content = editor.querySelector('[data-docs-content]');
+
+    content.addEventListener('mouseup', () => saveDocsSelection(editor));
+    content.addEventListener('keyup', () => saveDocsSelection(editor));
+
     editor.querySelector('[data-docs-back]').addEventListener('click', () => closeDocsEditor(phone));
     editor.querySelector('[data-docs-edit-fab]').addEventListener('click', () => {
       const editing = editor.dataset.editing === '1';
@@ -4181,36 +4287,72 @@
     editor.querySelector('[data-docs-scroll]').addEventListener('scroll', (e) => {
       editor.querySelector('[data-docs-header]').classList.toggle('scrolled', e.target.scrollTop > 40);
     });
+
+    editor.querySelector('[data-docs-undo]')?.addEventListener('click', () => {
+      content.focus();
+      document.execCommand('undo');
+    });
+    editor.querySelector('[data-docs-redo]')?.addEventListener('click', () => {
+      content.focus();
+      document.execCommand('redo');
+    });
+
     editor.querySelectorAll('[data-docs-cmd]').forEach(btn => {
       btn.addEventListener('click', () => {
-        editor.querySelector('[data-docs-content]').focus();
+        restoreDocsSelection(editor);
+        content.focus();
         document.execCommand(btn.dataset.docsCmd, false, null);
+        saveDocsSelection(editor);
       });
     });
-    editor.querySelector('[data-docs-todo]')?.addEventListener('click', () => {
-      editor.querySelector('[data-docs-content]').focus();
-      document.execCommand('insertHTML', false, '<div class="doc-todo"><input type="checkbox">&nbsp;</div><p></p>');
-    });
     editor.querySelector('[data-docs-hr]')?.addEventListener('click', () => {
-      editor.querySelector('[data-docs-content]').focus();
+      restoreDocsSelection(editor);
+      content.focus();
       document.execCommand('insertHorizontalRule');
+      saveDocsSelection(editor);
     });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', () => {
+      editor.querySelector('[data-docs-color-popup]').classList.remove('open');
       editor.querySelector('[data-docs-block-popup]').classList.toggle('open');
     });
     editor.querySelectorAll('[data-docs-block]').forEach(btn => {
       btn.addEventListener('click', () => {
-        editor.querySelector('[data-docs-content]').focus();
+        restoreDocsSelection(editor);
+        content.focus();
         const tag = { h1: 'H1', h2: 'H2', h3: 'H3', p: 'P' }[btn.dataset.docsBlock] || 'P';
         document.execCommand('formatBlock', false, tag);
         editor.querySelector('[data-docs-block-popup]').classList.remove('open');
+        saveDocsSelection(editor);
+        buildDocsToc(editor);
       });
     });
-    // les cases à cocher d'un doc-todo restent utilisables même en lecture simple
-    editor.querySelector('[data-docs-content]').addEventListener('change', (e) => {
-      if (e.target.matches('.doc-todo input[type="checkbox"]')) saveDocsContent(editor);
+    editor.querySelector('[data-docs-color-menu]')?.addEventListener('click', () => {
+      editor.querySelector('[data-docs-block-popup]').classList.remove('open');
+      editor.querySelector('[data-docs-color-popup]').classList.toggle('open');
     });
+    editor.querySelectorAll('[data-docs-color]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        restoreDocsSelection(editor);
+        content.focus();
+        const color = btn.dataset.docsColor;
+        document.execCommand('foreColor', false, color || 'inherit');
+        editor.querySelector('[data-docs-color-popup]').classList.remove('open');
+        saveDocsSelection(editor);
+      });
+    });
+
+    // colle en texte brut : uniformise toujours la police (Inter), quelle que soit la source
+    content.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      document.execCommand('insertText', false, text);
+    });
+
+    // sommaire
+    editor.querySelector('[data-docs-toc-tab]')?.addEventListener('click', () => openDocsToc(editor));
+    editor.querySelector('[data-docs-toc-backdrop]')?.addEventListener('click', () => closeDocsToc(editor));
   });
+
 
 
   relabelDayTabs();
