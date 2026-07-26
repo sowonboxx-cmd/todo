@@ -1014,6 +1014,14 @@
   .docs-header.scrolled .docs-header-title { opacity: 1; }
   .docs-header-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .docs-header-actions button { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; }
+  .docs-breadcrumb {
+    flex-shrink: 0; padding: 0 16px 10px; margin-top: -6px;
+  }
+  .docs-breadcrumb span {
+    display: inline-block; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+  }
+  .docs-breadcrumb span:hover { color: var(--ink); }
   .docs-header-actions svg { width: 18px; height: 18px; }
   .docs-scroll { flex: 1; overflow-y: auto; padding: 8px 20px 100px; }
   .docs-hero-title {
@@ -1171,7 +1179,6 @@
           <div class="brand">控制盤<small>PERSONAL OS</small></div>
           <nav class="d-nav">
             <a class="active"><span class="dot"></span>Documents</a>
-            <a><span class="dot"></span>Réglages</a>
             <a data-theme-toggle><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
           </nav>
           <div class="d-rail-foot">SYNC · CLOUDFLARE WORKER<br>DERNIÈRE MAJ IL Y A 4MIN</div>
@@ -1281,9 +1288,11 @@
             <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
             <nav class="drawer-nav">
               <a class="active" data-drawer-toggle-docs><span class="dot"></span>Documents</a>
-              <a><span class="dot"></span>Réglages</a>
             </nav>
             <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
+            <div class="drawer-add-project" data-drawer-add-docfolder>
+              <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
+            </div>
             <div class="drawer-sep"></div>
             <div class="drawer-projects" data-drawer-projects></div>
             <div class="drawer-add-project" data-drawer-add-project>
@@ -1395,6 +1404,9 @@
                 <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
               </div>
             </div>
+            <div class="docs-breadcrumb" data-docs-breadcrumb>
+              <span data-docs-breadcrumb-text></span>
+            </div>
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
@@ -1414,6 +1426,15 @@
             <div class="docs-toc-panel" data-docs-toc-panel>
               <div class="docs-toc-head">Sommaire</div>
               <div class="docs-toc-list" data-docs-toc-list></div>
+            </div>
+
+            <div class="docs-toc-backdrop" data-docs-move-backdrop></div>
+            <div class="docs-toc-panel" data-docs-move-panel>
+              <div class="docs-toc-head" style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="link" data-docs-move-back style="display:none; padding:0; font-size:12px;">‹</button>
+                <span data-docs-move-title>Déplacer vers…</span>
+              </div>
+              <div class="docs-toc-list" data-docs-move-list></div>
             </div>
 
             <div class="docs-toolbar" data-docs-toolbar>
@@ -1740,6 +1761,42 @@
                 Supprimer <b data-pa-delete-name></b> ? Toutes ses pages et tâches seront archivées avec lui.
               </div>
               <button type="button" class="dd-clear" data-pa-confirm-delete>Oui, supprimer le projet</button>
+            </div>
+          </div>
+
+          <div class="sheet-backdrop" data-doca-backdrop></div>
+          <div class="task-sheet" data-doca-sheet>
+            <div class="sheet-handle"></div>
+
+            <div class="sheet-view active" data-view="main">
+              <div class="sheet-topbar">
+                <button class="link" data-doca-close>Fermer</button>
+                <div class="sheet-title" data-doca-heading>Dossier</div>
+                <button class="link" style="color:var(--danger);" data-doca-goto-delete>Supprimer</button>
+              </div>
+
+              <input type="text" class="pa-title-input" placeholder="Nom du dossier" data-doca-name-input style="width:100%; height:auto; padding:10px 12px; margin-bottom:16px;">
+
+              <div class="pa-section-head">Sous-dossiers</div>
+              <div class="pa-pages-list" data-doca-subfolders-list></div>
+              <div class="add-subtask-row" data-doca-add-subfolder-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Ajouter un sous-dossier</span>
+              </div>
+              <input type="text" class="add-subtask-input" data-doca-add-subfolder-input placeholder="Nom du sous-dossier…" style="display:none;">
+              <div class="at-error" data-doca-error></div>
+            </div>
+
+            <div class="sheet-view" data-view="delete">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Confirmer</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="pa-delete-confirm-text">
+                Supprimer <b data-doca-delete-name></b> ? Tous ses sous-dossiers et documents seront archivés avec lui.
+              </div>
+              <button type="button" class="dd-clear" data-doca-confirm-delete>Oui, supprimer le dossier</button>
             </div>
           </div>
 
@@ -3681,12 +3738,20 @@
   function renderDrawerDocFolders() {
     const container = document.querySelector('[data-drawer-docfolders]');
     if (!container) return;
+    const editMode = container.closest('.drawer')?.classList.contains('edit-mode');
     const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
     container.innerHTML = top.map(f => `
-      <div class="drawer-folder-row" data-folder-id="${f.id}">${escapeHtml(f.name)}</div>
+      <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
     `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
     container.querySelectorAll('.drawer-folder-row').forEach(row => {
-      row.addEventListener('click', () => toggleDrawerSubfolders(row));
+      row.addEventListener('click', () => {
+        const drawer = row.closest('.drawer');
+        if (drawer?.classList.contains('edit-mode')) {
+          openDocFolderAdmin(row.closest('.phone'), row.dataset.folderId);
+          return;
+        }
+        toggleDrawerSubfolders(row);
+      });
     });
   }
   function toggleDrawerSubfolders(row) {
@@ -3714,6 +3779,17 @@
     row.classList.add('expanded');
     row.after(wrap);
   }
+  document.querySelectorAll('[data-drawer-add-docfolder]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const phone = btn.closest('.phone');
+      const position = cachedDocFolders.filter(f => !f.parent_folder_id).length + 1;
+      const { data: newFolder, error } = await sb.from('doc_folders').insert({ name: 'Nouveau dossier', position }).select().single();
+      if (error) { console.error(error); return; }
+      cachedDocFolders.push(newFolder);
+      renderDrawerDocFolders();
+      openDocFolderAdmin(phone, newFolder.id);
+    });
+  });
   document.querySelectorAll('[data-drawer-toggle-docs]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -3801,6 +3877,8 @@
       drawer.querySelectorAll('.drawer-project').forEach(row => row.classList.toggle('edit-affordance', active));
       drawer.querySelectorAll('.drawer-pages-collapse').forEach(el => el.remove());
       drawer.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
+      const docContainer = drawer.querySelector('[data-drawer-docfolders]');
+      if (docContainer && docContainer.style.display !== 'none') renderDrawerDocFolders();
     });
   });
 
@@ -3896,6 +3974,145 @@
 
   document.querySelectorAll('[data-drawer-add-project]').forEach(btn => {
     btn.addEventListener('click', () => openProjectAdminNew(btn.closest('.phone')));
+  });
+
+  // ---- Admin des dossiers de Documents ----
+  function openDocFolderAdmin(phone, folderId) {
+    const sheet = phone.querySelector('[data-doca-sheet]');
+    const backdrop = phone.querySelector('[data-doca-backdrop]');
+    const folder = cachedDocFolders.find(f => f.id === folderId);
+    if (!sheet || !backdrop || !folder) return;
+    closeAllPhoneSheets(phone, '[data-doca-sheet]');
+    sheet.dataset.folderId = folderId;
+    sheet.dataset.stack = 'main';
+    showSheetView(sheet, 'main');
+    sheet.querySelector('[data-doca-heading]').textContent = folder.name;
+    sheet.querySelector('[data-doca-name-input]').value = folder.name;
+    sheet.querySelector('[data-doca-error]').textContent = '';
+    renderDocaSubfolders(sheet, folderId);
+    sheet.classList.add('open');
+    backdrop.classList.add('open');
+  }
+  function closeDocFolderAdmin(phone) {
+    phone.querySelector('[data-doca-sheet]')?.classList.remove('open');
+    phone.querySelector('[data-doca-backdrop]')?.classList.remove('open');
+    renderDrawerDocFolders();
+  }
+  function renderDocaSubfolders(sheet, folderId) {
+    const list = sheet.querySelector('[data-doca-subfolders-list]');
+    if (!list) return;
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = subs.map((f, i) => `
+      <div class="pa-page-row" data-subfolder-id="${f.id}">
+        <input type="text" class="pa-page-title-input" value="${escapeHtml(f.name)}" data-doca-subfolder-title>
+        <button type="button" data-doca-subfolder-up ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button type="button" data-doca-subfolder-down ${i === subs.length - 1 ? 'disabled' : ''}>↓</button>
+        <button type="button" data-doca-subfolder-delete>✕</button>
+      </div>`).join('') || '<div class="empty-state">Aucun sous-dossier</div>';
+
+    list.querySelectorAll('[data-doca-subfolder-title]').forEach(input => {
+      input.addEventListener('blur', async (e) => {
+        const subId = e.target.closest('.pa-page-row').dataset.subfolderId;
+        const name = e.target.value.trim();
+        if (!name) return;
+        await sb.from('doc_folders').update({ name }).eq('id', subId);
+        const f = cachedDocFolders.find(x => x.id === subId);
+        if (f) f.name = name;
+      });
+    });
+    list.querySelectorAll('[data-doca-subfolder-delete]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const subId = btn.closest('.pa-page-row').dataset.subfolderId;
+        await archiveDocFolderCascade(subId);
+        renderDocaSubfolders(sheet, folderId);
+      });
+    });
+    list.querySelectorAll('[data-doca-subfolder-up]').forEach(btn => {
+      btn.addEventListener('click', () => swapSubfolderPosition(sheet, folderId, btn.closest('.pa-page-row').dataset.subfolderId, -1));
+    });
+    list.querySelectorAll('[data-doca-subfolder-down]').forEach(btn => {
+      btn.addEventListener('click', () => swapSubfolderPosition(sheet, folderId, btn.closest('.pa-page-row').dataset.subfolderId, 1));
+    });
+  }
+  async function swapSubfolderPosition(sheet, folderId, subId, dir) {
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    const idx = subs.findIndex(f => f.id === subId);
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= subs.length) return;
+    const a = subs[idx], b = subs[swapIdx];
+    const posA = a.position || 0, posB = b.position || 0;
+    await Promise.all([
+      sb.from('doc_folders').update({ position: posB }).eq('id', a.id),
+      sb.from('doc_folders').update({ position: posA }).eq('id', b.id),
+    ]);
+    a.position = posB; b.position = posA;
+    renderDocaSubfolders(sheet, folderId);
+  }
+  async function archiveDocFolderCascade(folderId) {
+    const now = new Date().toISOString();
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId);
+    const idsToArchive = [folderId, ...subs.map(f => f.id)];
+    await sb.from('doc_folders').update({ is_archived: true, archived_at: now }).in('id', idsToArchive);
+    idsToArchive.forEach(id => {
+      const f = cachedDocFolders.find(x => x.id === id);
+      if (f) f.is_archived = true;
+    });
+    const docsInFolders = cachedPages.filter(p => idsToArchive.includes(p.doc_folder_id));
+    if (docsInFolders.length) {
+      await sb.from('pages').update({ is_archived: true, archived_at: now }).in('id', docsInFolders.map(p => p.id));
+      docsInFolders.forEach(p => { p.is_archived = true; });
+    }
+  }
+  document.querySelectorAll('[data-doca-sheet]').forEach(sheet => {
+    sheet.addEventListener('click', (e) => {
+      const back = e.target.closest('[data-back]');
+      if (back) { popView(sheet); return; }
+      const gotoDelete = e.target.closest('[data-doca-goto-delete]');
+      if (gotoDelete) {
+        const folder = cachedDocFolders.find(f => f.id === sheet.dataset.folderId);
+        sheet.querySelector('[data-doca-delete-name]').textContent = folder?.name || '';
+        pushView(sheet, 'delete');
+        return;
+      }
+    });
+    sheet.querySelector('[data-doca-close]')?.addEventListener('click', () => closeDocFolderAdmin(sheet.closest('.phone')));
+    sheet.querySelector('[data-doca-name-input]')?.addEventListener('blur', async (e) => {
+      const folderId = sheet.dataset.folderId;
+      const name = e.target.value.trim();
+      if (!name) return;
+      await sb.from('doc_folders').update({ name }).eq('id', folderId);
+      const f = cachedDocFolders.find(x => x.id === folderId);
+      if (f) f.name = name;
+      sheet.querySelector('[data-doca-heading]').textContent = name;
+    });
+    sheet.querySelector('[data-doca-add-subfolder-row]')?.addEventListener('click', () => {
+      const input = sheet.querySelector('[data-doca-add-subfolder-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-doca-add-subfolder-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') e.target.blur();
+    });
+    sheet.querySelector('[data-doca-add-subfolder-input]')?.addEventListener('blur', async (e) => {
+      const name = e.target.value.trim();
+      e.target.style.display = 'none';
+      if (!name) return;
+      const folderId = sheet.dataset.folderId;
+      const position = cachedDocFolders.filter(f => f.parent_folder_id === folderId).length + 1;
+      const { data: newSub, error } = await sb.from('doc_folders').insert({ name, parent_folder_id: folderId, position }).select().single();
+      if (error) { console.error(error); return; }
+      cachedDocFolders.push(newSub);
+      renderDocaSubfolders(sheet, folderId);
+    });
+    sheet.querySelector('[data-doca-confirm-delete]')?.addEventListener('click', async () => {
+      const folderId = sheet.dataset.folderId;
+      await archiveDocFolderCascade(folderId);
+      closeDocFolderAdmin(sheet.closest('.phone'));
+    });
+  });
+  document.querySelectorAll('[data-doca-backdrop]').forEach(bd => {
+    bd.addEventListener('click', () => closeDocFolderAdmin(bd.closest('.phone')));
   });
 
   document.querySelectorAll('[data-pa-sheet]').forEach(sheet => {
@@ -4491,6 +4708,14 @@
     setDocsEditMode(editor, !!startInEdit);
     renderDocsMedia(editor, page);
     buildDocsToc(editor);
+    updateDocsBreadcrumb(editor, page);
+  }
+  function updateDocsBreadcrumb(editor, page) {
+    const el = editor.querySelector('[data-docs-breadcrumb-text]');
+    if (!el) return;
+    const sub = cachedDocFolders.find(f => f.id === page.doc_folder_id);
+    const top = sub ? cachedDocFolders.find(f => f.id === sub.parent_folder_id) : null;
+    el.textContent = top ? `${top.name} / ${sub.name}` : (sub ? sub.name : 'Choisir un dossier');
   }
   function renderDocsMedia(editor, page) {
     const section = editor.querySelector('[data-docs-media-section]');
@@ -4740,7 +4965,50 @@
     // sommaire
     editor.querySelector('[data-docs-toc-tab]')?.addEventListener('click', () => openDocsToc(editor));
     editor.querySelector('[data-docs-toc-backdrop]')?.addEventListener('click', () => closeDocsToc(editor));
+
+    // déplacer le document vers un autre dossier
+    editor.querySelector('[data-docs-breadcrumb]')?.addEventListener('click', () => openDocsMovePanel(editor));
+    editor.querySelector('[data-docs-move-backdrop]')?.addEventListener('click', () => closeDocsMovePanel(editor));
+    editor.querySelector('[data-docs-move-back]')?.addEventListener('click', () => renderDocsMoveTopFolders(editor));
   });
+
+  function openDocsMovePanel(editor) {
+    editor.querySelector('[data-docs-move-panel]').classList.add('open');
+    editor.querySelector('[data-docs-move-backdrop]').classList.add('open');
+    renderDocsMoveTopFolders(editor);
+  }
+  function closeDocsMovePanel(editor) {
+    editor.querySelector('[data-docs-move-panel]').classList.remove('open');
+    editor.querySelector('[data-docs-move-backdrop]').classList.remove('open');
+  }
+  function renderDocsMoveTopFolders(editor) {
+    editor.querySelector('[data-docs-move-title]').textContent = 'Déplacer vers…';
+    editor.querySelector('[data-docs-move-back]').style.display = 'none';
+    const list = editor.querySelector('[data-docs-move-list]');
+    const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = top.map(f => `<button type="button" class="docs-toc-item lvl1" data-move-folder-id="${f.id}" data-move-folder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</button>`).join('') || '<div class="empty-state">Aucun dossier</div>';
+    list.querySelectorAll('[data-move-folder-id]').forEach(btn => {
+      btn.addEventListener('click', () => renderDocsMoveSubfolders(editor, btn.dataset.moveFolderId, btn.dataset.moveFolderName));
+    });
+  }
+  function renderDocsMoveSubfolders(editor, folderId, folderName) {
+    editor.querySelector('[data-docs-move-title]').textContent = folderName;
+    editor.querySelector('[data-docs-move-back]').style.display = 'inline';
+    const list = editor.querySelector('[data-docs-move-list]');
+    const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = subs.map(f => `<button type="button" class="docs-toc-item lvl2" data-move-subfolder-id="${f.id}">${escapeHtml(f.name)}</button>`).join('') || '<div class="empty-state">Aucun sous-dossier</div>';
+    list.querySelectorAll('[data-move-subfolder-id]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const pageId = editor.dataset.pageId;
+        const newFolderId = btn.dataset.moveSubfolderId;
+        await sb.from('pages').update({ doc_folder_id: newFolderId }).eq('id', pageId);
+        const page = cachedPages.find(p => p.id === pageId);
+        if (page) page.doc_folder_id = newFolderId;
+        updateDocsBreadcrumb(editor, page);
+        closeDocsMovePanel(editor);
+      });
+    });
+  }
 
 
 
