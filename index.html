@@ -607,6 +607,13 @@
   .drawer-project .dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
   .drawer-project.edit-affordance::after { content: '✎'; margin-left: 8px; color: var(--faint); font-size: 11px; }
   .drawer-page-count { margin-left: auto; color: var(--faint); font-size: 11px; font-weight: 700; flex-shrink: 0; }
+  .drawer-project-reorder { display: none; gap: 2px; flex-shrink: 0; }
+  .drawer.edit-mode .drawer-project-reorder { display: flex; }
+  .drawer-project-reorder button {
+    border: none; background: var(--bg); color: var(--muted); width: 20px; height: 20px; border-radius: 6px;
+    font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .drawer-project-reorder button:disabled { opacity: 0.3; cursor: default; }
   .drawer-project.expanded { background: var(--bg); }
   .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
   .drawer-docfolders { display: flex; flex-direction: column; padding: 0 0 8px; }
@@ -2293,6 +2300,28 @@
     });
   });
 
+  // balayage depuis le bord gauche de l'écran pour ouvrir le tiroir, comme sur Twitter
+  document.querySelectorAll('.phone').forEach(phone => {
+    let edgeTouchStartX = null, edgeTouchStartY = null, trackingEdgeSwipe = false;
+    phone.addEventListener('touchstart', (e) => {
+      const drawer = phone.querySelector('.drawer');
+      if (drawer?.classList.contains('open')) { trackingEdgeSwipe = false; return; }
+      const x = e.touches[0].clientX;
+      trackingEdgeSwipe = x <= 24;
+      edgeTouchStartX = x;
+      edgeTouchStartY = e.touches[0].clientY;
+    }, { passive: true });
+    phone.addEventListener('touchend', (e) => {
+      if (!trackingEdgeSwipe) return;
+      trackingEdgeSwipe = false;
+      const dx = e.changedTouches[0].clientX - edgeTouchStartX;
+      const dy = e.changedTouches[0].clientY - edgeTouchStartY;
+      if (dx < 60 || Math.abs(dy) > Math.abs(dx)) return; // mostly-vertical or too short = not the gesture
+      phone.querySelector('.drawer')?.classList.add('open');
+      phone.querySelector('[data-drawer-backdrop]')?.classList.add('open');
+    }, { passive: true });
+  });
+
   // global predictive search
   function buildSearchIndex() {
     const results = [];
@@ -3304,7 +3333,7 @@
     scope.addEventListener('touchstart', (e) => {
       touchX = e.touches[0].clientX;
       touchY = e.touches[0].clientY;
-      touchOnTabs = !!e.target.closest('.date-tabs');
+      touchOnTabs = !!e.target.closest('.date-tabs, .project-strip, .venture-list, .project-block, .venture-card');
     }, { passive: true });
     scope.addEventListener('touchend', (e) => {
       if (touchOnTabs) return; // let the tab strip's own horizontal scroll handle that gesture
@@ -3854,19 +3883,46 @@
   function renderDrawerProjects(projects) {
     const list = document.querySelector('[data-drawer-projects]');
     if (!list) return;
-    list.innerHTML = projects.map(p => {
+    const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
+    list.innerHTML = sorted.map((p, i) => {
       const pageCount = cachedPages.filter(pg => pg.project_id === p.id && !pg.is_archived).length;
       return `
       <div class="drawer-project" data-project-id="${p.id}">
         <span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}
         <span class="drawer-page-count">${pageCount}</span>
+        <span class="drawer-project-reorder">
+          <button type="button" data-proj-up ${i === 0 ? 'disabled' : ''}>↑</button>
+          <button type="button" data-proj-down ${i === sorted.length - 1 ? 'disabled' : ''}>↓</button>
+        </span>
       </div>`;
     }).join('');
     wireDrawerProjectRows();
   }
+  async function swapDrawerProjectPosition(projectId, dir) {
+    const sorted = [...cachedProjects].sort((a, b) => (a.position || 0) - (b.position || 0));
+    const idx = sorted.findIndex(p => p.id === projectId);
+    const swapIdx = idx + dir;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+    const a = sorted[idx], b = sorted[swapIdx];
+    const posA = a.position || 0, posB = b.position || 0;
+    await Promise.all([
+      sb.from('projects').update({ position: posB }).eq('id', a.id),
+      sb.from('projects').update({ position: posA }).eq('id', b.id),
+    ]);
+    a.position = posB; b.position = posA;
+    renderDrawerProjects(cachedProjects);
+  }
   function wireDrawerProjectRows() {
     document.querySelectorAll('.drawer-project').forEach(row => {
       row.classList.remove('edit-affordance');
+      row.querySelector('[data-proj-up]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        swapDrawerProjectPosition(row.dataset.projectId, -1);
+      });
+      row.querySelector('[data-proj-down]')?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        swapDrawerProjectPosition(row.dataset.projectId, 1);
+      });
       row.addEventListener('click', () => {
         const drawer = row.closest('.drawer');
         if (drawer && drawer.classList.contains('edit-mode')) {
