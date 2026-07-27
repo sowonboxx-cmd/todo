@@ -600,6 +600,14 @@
   .drawer-project.expanded { background: var(--bg); }
   .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
   .drawer-docfolders { display: flex; flex-direction: column; padding: 4px 0 8px; }
+  .drawer-favorites { display: flex; flex-direction: column; padding: 4px 0 8px; }
+  .drawer-fav-row {
+    display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
+    font-size: 12.5px; font-weight: 600; cursor: pointer; color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .drawer-fav-row:hover { background: var(--bg); color: var(--ink); }
+  .drawer-fav-row .fav-star { color: #D9A400; flex-shrink: 0; }
   .drawer-folder-row {
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
     font-size: 13px; font-weight: 600; cursor: pointer;
@@ -1301,11 +1309,13 @@
             <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
             <nav class="drawer-nav">
               <a class="active" data-drawer-toggle-docs><span class="dot"></span>Documents</a>
+              <a data-drawer-toggle-favorites><span class="dot"></span>Favoris</a>
             </nav>
             <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
             <div class="drawer-add-project" data-drawer-add-docfolder>
               <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
             </div>
+            <div class="drawer-favorites" data-drawer-favorites style="display:none;"></div>
             <div class="drawer-sep"></div>
             <div class="drawer-projects" data-drawer-projects></div>
             <div class="drawer-add-project" data-drawer-add-project>
@@ -2443,7 +2453,7 @@
   const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
   const DOC_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>';
-  const TASK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12l3 3 5-6"/></svg>';
+  const TASK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>';
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
@@ -3885,6 +3895,32 @@
       if (!showing) renderDrawerDocFolders();
     });
   });
+  document.querySelectorAll('[data-drawer-toggle-favorites]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const drawer = a.closest('.drawer');
+      const container = drawer?.querySelector('[data-drawer-favorites]');
+      if (!container) return;
+      const showing = container.style.display !== 'none';
+      container.style.display = showing ? 'none' : 'block';
+      if (!showing) renderDrawerFavorites();
+    });
+  });
+  function renderDrawerFavorites() {
+    const container = document.querySelector('[data-drawer-favorites]');
+    if (!container) return;
+    const favs = cachedTodos.filter(t => t.is_favorite && !t.is_done);
+    container.innerHTML = favs.map(t => `
+      <div class="drawer-fav-row" data-fav-todo-id="${t.id}"><span class="fav-star">★</span>${escapeHtml(t.title)}</div>
+    `).join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
+    container.querySelectorAll('[data-fav-todo-id]').forEach(row => {
+      row.addEventListener('click', () => {
+        const phone = row.closest('.phone');
+        closeAllPhoneSheets(phone, null);
+        openTaskSheet(phone, row.dataset.favTodoId);
+      });
+    });
+  }
 
   function openDocFolderBrowser(phone, folderId, folderName) {
     const sheet = phone.querySelector('[data-df-sheet]');
