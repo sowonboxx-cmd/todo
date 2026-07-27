@@ -660,6 +660,15 @@
     background: var(--bg); color: var(--muted); font-size: 11px; font-weight: 700;
     border-radius: 999px; padding: 2px 8px; flex-shrink: 0;
   }
+  .pb-page-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .pb-page-star { border: none; background: transparent; color: var(--line); font-size: 15px; cursor: pointer; padding: 2px; line-height: 1; }
+  .pb-page-star.active { color: #D9A400; }
+  .dashboard-toast {
+    position: fixed; left: 50%; bottom: 100px; transform: translateX(-50%) translateY(10px);
+    background: var(--ink); color: var(--bg); font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px; z-index: 700; opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+  }
+  .dashboard-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .pb-project-progress {
     display: flex; align-items: center; gap: 6px; font-family: 'Inter', sans-serif;
     font-size: 11px; font-weight: 700; color: var(--muted); flex-shrink: 0; white-space: nowrap;
@@ -764,6 +773,10 @@
     font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink); padding: 10px 12px; outline: none;
   }
   .td-source-input::placeholder { font-size: 12.5px; font-weight: 400; color: var(--faint); }
+  .td-source-confirm-btn {
+    flex-shrink: 0; border: none; background: var(--accent-due); color: #fff; border-radius: 10px;
+    font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; padding: 0 14px; cursor: pointer;
+  }
   .td-link {
     min-height: 20px; color: var(--ink); font-size: 13px; line-height: 1.6; white-space: pre-wrap;
     word-break: break-word; cursor: text; border-radius: 8px; padding: 6px; margin: -6px;
@@ -901,7 +914,7 @@
     border-bottom: 1px solid var(--line-soft); cursor: pointer;
   }
   .opt-row:last-child { border-bottom: none; }
-  .df-doc-row { justify-content: flex-end; text-align: right; }
+  .df-doc-row { justify-content: flex-start; text-align: left; }
   .opt-row.selected { color: var(--accent-due); }
   .opt-row .opt-hint { color: var(--faint); font-weight: 500; margin-right: auto; margin-left: 6px; }
   .opt-row .check { color: var(--accent-due); font-weight: 700; }
@@ -1027,22 +1040,25 @@
   }
   .docs-header.scrolled { border-bottom-color: var(--line-soft); }
   .docs-back { border: none; background: transparent; color: var(--ink); font-size: 20px; cursor: pointer; padding: 2px 6px; flex-shrink: 0; }
+  .docs-header-titlearea { position: relative; flex: 1; min-width: 0; height: 20px; }
+  .docs-header-crumb, .docs-header-title {
+    position: absolute; inset: 0; display: flex; align-items: center;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity .15s ease;
+  }
+  .docs-header-crumb { opacity: 1; }
+  .docs-header-crumb span {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--muted); cursor: pointer;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .docs-header-crumb span:hover { color: var(--ink); }
   .docs-header-title {
-    flex: 1; font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: var(--ink);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity .15s ease;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 14px; color: var(--ink); opacity: 0;
   }
+  .docs-header.scrolled .docs-header-crumb { opacity: 0; }
   .docs-header.scrolled .docs-header-title { opacity: 1; }
-  .docs-header-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .docs-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
   .docs-header-actions button { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; }
-  .docs-breadcrumb {
-    padding: 0; margin: 0 0 10px; text-align: left;
-  }
-  .docs-breadcrumb span {
-    display: inline-block; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600;
-    color: var(--muted); cursor: pointer;
-  }
-  .docs-breadcrumb span:hover { color: var(--ink); }
-  .docs-breadcrumb-sep { border: none; border-top: 1px solid var(--line); margin: 0 0 18px; }
+  .docs-header-actions .docs-upload-btn, .docs-header-actions .docs-edit-toggle { color: var(--ink); }
   .docs-header-actions svg { width: 18px; height: 18px; }
   .docs-scroll { flex: 1; overflow-y: auto; padding: 8px 20px 100px; }
   .docs-hero-title {
@@ -1081,22 +1097,19 @@
   }
 
   .docs-toolbar {
-    display: flex; align-items: center; position: fixed; left: 0; right: 0; bottom: 13px; z-index: 401;
+    display: none; align-items: center; position: fixed; left: 0; right: 0; bottom: 13px; z-index: 401;
     background: var(--card); border-top: 1px solid var(--line);
     padding: 8px calc(10px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));
     gap: 4px; overflow-x: auto; transition: bottom .1s ease;
   }
+  .docs-toolbar.open { display: flex; }
   .docs-toolbar button {
     flex-shrink: 0; width: 36px; height: 36px; border: none; background: transparent;
     color: var(--ink); font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer;
   }
   .docs-toolbar button:active { background: var(--bg); }
   .docs-toolbar button svg { width: 17px; height: 17px; }
-  .docs-upload-btn { margin-left: auto; order: 2; }
-  .docs-edit-toggle { color: var(--accent-due) !important; order: 3; }
-  .docs-toolbar-edit-only { order: 1; }
-  .docs-toolbar-edit-only { display: none; align-items: center; gap: 4px; border-left: 1px solid var(--line-soft); padding-left: 6px; margin-left: 2px; }
-  .docs-toolbar-edit-only.open { display: flex; }
+  .docs-toolbar-edit-only { display: flex; align-items: center; gap: 4px; }
   .docs-block-popup, .docs-color-popup {
     display: none; position: fixed; left: 10px; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 402; background: var(--card);
     border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; min-width: 180px;
@@ -1304,17 +1317,20 @@
   </div>
 
   <div id="app-mobile" class="phone app-loading">
+          <div class="dashboard-toast" data-dashboard-toast></div>
           <div class="drawer-backdrop" data-drawer-backdrop></div>
           <div class="drawer">
             <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
             <nav class="drawer-nav">
-              <a class="active" data-drawer-toggle-docs><span class="dot"></span>Documents</a>
-              <a data-drawer-toggle-favorites><span class="dot"></span>Favoris</a>
+              <a data-drawer-toggle-docs><span class="dot"></span>Documents</a>
             </nav>
             <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
             <div class="drawer-add-project" data-drawer-add-docfolder>
               <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
             </div>
+            <nav class="drawer-nav" style="margin-top:2px;">
+              <a data-drawer-toggle-favorites><span class="dot"></span>Favoris</a>
+            </nav>
             <div class="drawer-favorites" data-drawer-favorites style="display:none;"></div>
             <div class="drawer-sep"></div>
             <div class="drawer-projects" data-drawer-projects></div>
@@ -1421,18 +1437,23 @@
           <div class="docs-editor" data-docs-editor>
             <div class="docs-header" data-docs-header>
               <button type="button" class="docs-back" data-docs-back>‹</button>
-              <div class="docs-header-title" data-docs-title-sticky></div>
+              <div class="docs-header-titlearea">
+                <div class="docs-header-crumb" data-docs-breadcrumb><span data-docs-breadcrumb-text></span></div>
+                <div class="docs-header-title" data-docs-title-sticky></div>
+              </div>
               <div class="docs-header-actions">
+                <button type="button" class="docs-upload-btn" data-docs-upload-btn title="Ajouter une image (lien)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+                </button>
+                <button type="button" class="docs-edit-toggle" data-docs-edit-fab title="Modifier">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+                </button>
                 <button type="button" data-docs-undo title="Annuler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
                 <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
               </div>
             </div>
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
-              <div class="docs-breadcrumb" data-docs-breadcrumb>
-                <span data-docs-breadcrumb-text></span>
-              </div>
-              <hr class="docs-breadcrumb-sep">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
 
               <div class="docs-media-section" data-docs-media-section id="docs-media-anchor" style="display:none;">
@@ -1462,12 +1483,6 @@
             </div>
 
             <div class="docs-toolbar" data-docs-toolbar>
-              <button type="button" class="docs-upload-btn" data-docs-upload-btn title="Ajouter une image (lien)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
-              </button>
-              <button type="button" class="docs-edit-toggle" data-docs-edit-fab title="Modifier">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-              </button>
               <div class="docs-toolbar-edit-only" data-docs-toolbar-edit-only>
                 <button type="button" data-docs-block-menu title="Titres"><b>H+</b></button>
                 <button type="button" data-docs-cmd="bold"><b>B</b></button>
@@ -1580,6 +1595,7 @@
               <div class="td-source-add-row" data-td-source-add-row style="display:none;">
                 <input type="text" class="td-source-input" placeholder="Titre" data-td-source-title-input>
                 <input type="text" class="td-source-input" placeholder="URL" data-td-source-url-input>
+                <button type="button" class="td-source-confirm-btn" data-td-source-confirm>OK</button>
               </div>
               <div class="add-subtask-row" data-td-add-source-row>
                 <span class="add-subtask-plus">+</span>
@@ -3044,11 +3060,7 @@
     sheet.querySelector('[data-td-source-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); commitSource(sheet); }
     });
-    sheet.querySelector('[data-td-source-url-input]')?.addEventListener('blur', () => {
-      setTimeout(() => {
-        if (sheet.querySelector('[data-td-source-add-row]').style.display !== 'none') commitSource(sheet);
-      }, 150);
-    });
+    sheet.querySelector('[data-td-source-confirm]')?.addEventListener('click', () => commitSource(sheet));
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
@@ -3424,6 +3436,15 @@
   function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
+  let toastTimer = null;
+  function showDashboardToast(message) {
+    const toast = document.querySelector('[data-dashboard-toast]');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  }
 
   // ---------------- rendering ----------------
   function projectStats(project, pages, todos) {
@@ -3584,9 +3605,24 @@
       const count = isDoc ? '' : cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
       return `<div class="opt-row pb-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}">
         <span>${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}</span>
-        ${isDoc ? '' : `<span class="pb-count">${count}</span>`}
+        <span class="pb-page-right">
+          ${isDoc ? '' : `<span class="pb-count">${count}</span>`}
+          ${isDoc ? '' : `<button type="button" class="pb-page-star${p.is_favorite ? ' active' : ''}" data-page-fav="${p.id}" title="Favori">★</button>`}
+        </span>
       </div>`;
     }).join('') || '<div class="empty-state">Aucune page</div>';
+    list.querySelectorAll('[data-page-fav]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const pageId = btn.dataset.pageFav;
+        const page = cachedPages.find(p => p.id === pageId);
+        const nowFav = !btn.classList.contains('active');
+        btn.classList.toggle('active', nowFav);
+        await sb.from('pages').update({ is_favorite: nowFav }).eq('id', pageId);
+        if (page) page.is_favorite = nowFav;
+        showDashboardToast(nowFav ? 'Ajouté aux favoris' : 'Retiré des favoris');
+      });
+    });
     list.querySelectorAll('.pb-page-row').forEach(row => {
       row.addEventListener('click', () => {
         if (row.dataset.pageType === 'doc') {
@@ -4871,7 +4907,7 @@
     const titleInput = editor.querySelector('[data-docs-hero-title]');
     content.setAttribute('contenteditable', editing ? 'true' : 'false');
     titleInput.readOnly = !editing;
-    editor.querySelector('[data-docs-toolbar-edit-only]').classList.toggle('open', editing);
+    editor.querySelector('[data-docs-toolbar]').classList.toggle('open', editing);
     editor.querySelector('[data-docs-block-popup]').classList.remove('open');
     editor.querySelector('[data-docs-color-popup]').classList.remove('open');
     editor.querySelector('[data-docs-edit-fab]').innerHTML = editing
