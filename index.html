@@ -572,10 +572,20 @@
     position: absolute; top: 0; bottom: 0; left: -82%; width: 78%;
     background: var(--card); border-right: 1px solid var(--line);
     padding: 24px 18px; z-index: 90; transition: left .25s ease;
-    display: flex; flex-direction: column; gap: 20px;
+    display: flex; flex-direction: column; gap: 4px;
   }
   .drawer.open { left: 0; }
-  .drawer-header { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; }
+  .drawer-header { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
+  .drawer-title-input {
+    display: block; width: 100%; border: none; background: var(--bg); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; color: var(--ink);
+    padding: 6px 8px; outline: none; margin-bottom: 4px;
+  }
+  .drawer-subtitle-input {
+    display: block; width: 100%; border: none; background: var(--bg); border-radius: 8px;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 9.5px; color: var(--faint);
+    letter-spacing: 0.06em; padding: 5px 8px; outline: none;
+  }
   .drawer-header small {
     display: block; font-weight: 700; font-size: 9.5px; color: var(--faint);
     letter-spacing: 0.06em; margin-top: 2px;
@@ -583,12 +593,12 @@
   .drawer-nav { display: flex; flex-direction: column; gap: 2px; }
   .drawer-nav a {
     display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px;
-    color: var(--muted); text-decoration: none; font-size: 13.5px; font-weight: 500;
+    color: var(--ink); text-decoration: none; font-size: 13.5px; font-weight: 500;
   }
   .drawer-nav a .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
   .drawer-nav a.active { background: var(--bg); color: var(--ink); }
   .drawer-nav a.active .dot { background: var(--accent-rosalina); }
-  .drawer-sep { height: 1px; background: var(--line-soft); }
+  .drawer-sep { height: 1px; background: var(--line-soft); margin: 12px 0; }
   .drawer-projects { display: flex; flex-direction: column; gap: 2px; }
   .drawer-project {
     display: flex; align-items: center; gap: 10px; padding: 9px 8px; border-radius: 10px;
@@ -610,10 +620,10 @@
   .drawer-fav-row .fav-star { color: #D9A400; flex-shrink: 0; }
   .drawer-folder-row {
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted);
   }
-  .drawer-folder-row:hover { background: var(--bg); }
-  .drawer-folder-row.expanded { background: var(--bg); }
+  .drawer-folder-row:hover { background: var(--bg); color: var(--ink); }
+  .drawer-folder-row.expanded { background: var(--bg); color: var(--ink); }
   .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
   .drawer-page-row {
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
@@ -767,6 +777,12 @@
     font-size: 12px; padding: 2px 4px; flex-shrink: 0;
   }
   .td-source-edit:hover { color: var(--ink); }
+  .td-source-row .td-img-remove {
+    position: static; width: auto; height: auto; background: transparent; color: var(--faint);
+    font-size: 12px; padding: 2px 4px; border-radius: 0;
+  }
+  .td-source-row .td-img-remove:hover { color: var(--danger); }
+  .td-source-row .td-img-remove.confirming { color: #fff; }
   .td-source-add-row { display: flex; gap: 8px; margin-bottom: 4px; }
   .td-source-input {
     flex: 1; min-width: 0; border: none; background: var(--bg); border-radius: 10px;
@@ -841,6 +857,11 @@
   .td-subtask-row:last-child { border-bottom: none; }
   .td-subtask-title { flex: 1; font-size: 13px; }
   .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
+  .td-subtasks-done-toggle {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--muted);
+    cursor: pointer; padding: 8px 0 4px;
+  }
+  .td-subtasks-done-toggle:hover { color: var(--ink); }
   .td-subtask-row.done .td-subtask-title { text-decoration: line-through; color: var(--faint); }
 
   /* date/duration picker view */
@@ -1057,6 +1078,7 @@
   .docs-header.scrolled .docs-header-crumb { opacity: 0; }
   .docs-header.scrolled .docs-header-title { opacity: 1; }
   .docs-header-actions { display: flex; gap: 4px; flex-shrink: 0; }
+  .docs-header-actions-gap { width: 8px; }
   .docs-header-actions button { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; }
   .docs-header-actions .docs-upload-btn, .docs-header-actions .docs-edit-toggle { color: var(--ink); }
   .docs-header-actions svg { width: 18px; height: 18px; }
@@ -1320,7 +1342,12 @@
           <div class="dashboard-toast" data-dashboard-toast></div>
           <div class="drawer-backdrop" data-drawer-backdrop></div>
           <div class="drawer">
-            <div class="drawer-header">控制盤<small>PERSONAL OS</small></div>
+            <div class="drawer-header">
+              <span data-app-title-text>控制盤</span>
+              <input type="text" class="drawer-title-input" data-app-title-input value="控制盤" style="display:none;">
+              <small data-app-subtitle-text>PERSONAL OS</small>
+              <input type="text" class="drawer-subtitle-input" data-app-subtitle-input value="PERSONAL OS" style="display:none;">
+            </div>
             <nav class="drawer-nav">
               <a data-drawer-toggle-docs><span class="dot"></span>Documents</a>
             </nav>
@@ -1442,14 +1469,15 @@
                 <div class="docs-header-title" data-docs-title-sticky></div>
               </div>
               <div class="docs-header-actions">
+                <button type="button" data-docs-undo title="Annuler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+                <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+                <span class="docs-header-actions-gap"></span>
                 <button type="button" class="docs-upload-btn" data-docs-upload-btn title="Ajouter une image (lien)">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
                 </button>
                 <button type="button" class="docs-edit-toggle" data-docs-edit-fab title="Modifier">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
                 </button>
-                <button type="button" data-docs-undo title="Annuler"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
-                <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
               </div>
             </div>
             <div class="docs-scroll" data-docs-scroll>
@@ -2597,19 +2625,28 @@
   function renderTdSubtasks(sheet, todoId) {
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
-    const subs = [...cachedSubtasks.filter(s => s.todo_id === todoId)]
-      .sort((a, b) => {
-        if (a.is_done !== b.is_done) return a.is_done ? 1 : -1;
-        const ad = a.due_date || '9999-99-99';
-        const bd = b.due_date || '9999-99-99';
-        return ad.localeCompare(bd);
-      });
-    list.innerHTML = subs.map(s => `
+    const all = cachedSubtasks.filter(s => s.todo_id === todoId);
+    const byDate = (a, b) => (a.due_date || '9999-99-99').localeCompare(b.due_date || '9999-99-99');
+    const incomplete = all.filter(s => !s.is_done).sort(byDate);
+    const done = all.filter(s => s.is_done).sort(byDate);
+
+    const rowHtml = (s) => `
       <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
         <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
         ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
-      </div>`).join('');
+      </div>`;
+
+    let html = incomplete.map(rowHtml).join('');
+    if (done.length) {
+      html += `<div class="td-subtasks-done-toggle" data-td-subtasks-done-toggle>${done.length} sous-tâche${done.length > 1 ? 's' : ''} terminée${done.length > 1 ? 's' : ''}</div>`;
+      html += `<div class="td-subtasks-done-list" data-td-subtasks-done-list style="display:none;">${done.map(rowHtml).join('')}</div>`;
+    }
+    list.innerHTML = html;
+    list.querySelector('[data-td-subtasks-done-toggle]')?.addEventListener('click', () => {
+      const doneList = list.querySelector('[data-td-subtasks-done-list]');
+      doneList.style.display = doneList.style.display === 'none' ? 'block' : 'none';
+    });
     list.querySelectorAll('[data-subtask-checkbox]').forEach(cb => {
       cb.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -3383,8 +3420,16 @@
 
   async function checkAuth() {
     const { data: { session } } = await sb.auth.getSession();
-    if (session) { hideAuthGate(); loadData(); }
+    if (session) { hideAuthGate(); loadData(); loadAppSettings(); }
     else { showAuthGate(); }
+  }
+  async function loadAppSettings() {
+    const { data, error } = await sb.from('app_settings').select('*').eq('id', 1).maybeSingle();
+    if (error || !data) return;
+    document.querySelectorAll('[data-app-title-text]').forEach(el => el.textContent = data.title);
+    document.querySelectorAll('[data-app-title-input]').forEach(el => el.value = data.title);
+    document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = data.subtitle);
+    document.querySelectorAll('[data-app-subtitle-input]').forEach(el => el.value = data.subtitle);
   }
 
   // ---------------- date helpers ----------------
@@ -3945,15 +3990,24 @@
   function renderDrawerFavorites() {
     const container = document.querySelector('[data-drawer-favorites]');
     if (!container) return;
-    const favs = cachedTodos.filter(t => t.is_favorite && !t.is_done);
-    container.innerHTML = favs.map(t => `
-      <div class="drawer-fav-row" data-fav-todo-id="${t.id}"><span class="fav-star">★</span>${escapeHtml(t.title)}</div>
-    `).join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
+    const favTodos = cachedTodos.filter(t => t.is_favorite && !t.is_done);
+    const favPages = cachedPages.filter(p => p.is_favorite && !p.is_archived && p.page_type !== 'doc');
+    const rows = [
+      ...favTodos.map(t => `<div class="drawer-fav-row" data-fav-todo-id="${t.id}"><span class="fav-star">★</span>${escapeHtml(t.title)}</div>`),
+      ...favPages.map(p => `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}"><span class="fav-star">★</span>${escapeHtml(p.title)}</div>`),
+    ];
+    container.innerHTML = rows.join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
     container.querySelectorAll('[data-fav-todo-id]').forEach(row => {
       row.addEventListener('click', () => {
         const phone = row.closest('.phone');
         closeAllPhoneSheets(phone, null);
         openTaskSheet(phone, row.dataset.favTodoId);
+      });
+    });
+    container.querySelectorAll('[data-fav-page-id]').forEach(row => {
+      row.addEventListener('click', () => {
+        const phone = row.closest('.phone');
+        openPbPageTasksDirect(phone, row.dataset.favPageId, row.dataset.favPageTitle);
       });
     });
   }
@@ -4035,6 +4089,24 @@
       drawer.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
       const docContainer = drawer.querySelector('[data-drawer-docfolders]');
       if (docContainer && docContainer.style.display !== 'none') renderDrawerDocFolders();
+      drawer.querySelector('[data-app-title-text]').style.display = active ? 'none' : 'block';
+      drawer.querySelector('[data-app-title-input]').style.display = active ? 'block' : 'none';
+      drawer.querySelector('[data-app-subtitle-text]').style.display = active ? 'none' : 'block';
+      drawer.querySelector('[data-app-subtitle-input]').style.display = active ? 'block' : 'none';
+    });
+  });
+  document.querySelectorAll('[data-app-title-input]').forEach(input => {
+    input.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim() || '控制盤';
+      await sb.from('app_settings').update({ title }).eq('id', 1);
+      document.querySelectorAll('[data-app-title-text]').forEach(el => el.textContent = title);
+    });
+  });
+  document.querySelectorAll('[data-app-subtitle-input]').forEach(input => {
+    input.addEventListener('blur', async (e) => {
+      const subtitle = e.target.value.trim() || 'PERSONAL OS';
+      await sb.from('app_settings').update({ subtitle }).eq('id', 1);
+      document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = subtitle);
     });
   });
 
