@@ -2404,7 +2404,7 @@
     `).join('');
     list.querySelectorAll('.search-result').forEach(el => {
       el.addEventListener('click', () => {
-        const phone = overlay.closest('.phone');
+        const phone = getActiveContainer();
         if (!phone) return;
         overlay.classList.remove('open');
         if (el.dataset.searchKind === 'doc') {
@@ -2416,7 +2416,7 @@
           openPbPageTasksDirect(phone, el.dataset.searchId, page?.title || '');
           return;
         }
-        const sheet = phone.querySelector('[data-task-sheet]');
+        const sheet = document.querySelector('[data-task-sheet]');
         if (!sheet) return;
         if (el.dataset.searchKind === 'todo') {
           openTaskSheet(phone, el.dataset.searchId);
