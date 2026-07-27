@@ -553,6 +553,7 @@
     width: 28px; height: 28px; border-radius: 8px; background: var(--bg);
     display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
   }
+  .search-result .sicon svg { width: 14px; height: 14px; }
   .search-result .sinfo { flex: 1; min-width: 0; }
   .search-result .stitle { font-weight: 600; font-size: 13px; }
   .search-result .spath { font-size: 10.5px; color: var(--faint); margin-top: 2px; }
@@ -669,6 +670,11 @@
   .pa-page-row button:hover { color: var(--ink); }
   .pa-page-row button:disabled { opacity: 0.3; cursor: default; }
   .pa-delete-confirm-text { font-size: 13px; color: var(--ink); line-height: 1.6; margin-bottom: 18px; }
+  .td-danger-row { display: flex; justify-content: space-between; align-items: center; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line-soft); }
+  .td-favorite-btn, .td-delete-btn { border: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; padding: 6px 4px; }
+  .td-favorite-btn { color: #D9A400; }
+  .td-favorite-btn.active { color: #D9A400; }
+  .td-delete-btn { color: var(--danger); }
 
   .mobile-wrap { display: flex; justify-content: center; }
 
@@ -792,6 +798,7 @@
     background: rgba(0,0,0,0.6); color: #fff; border: none; font-size: 10px; line-height: 1; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
+  .td-source-row .td-img-remove.confirming { background: var(--danger); position: static; width: auto; height: auto; padding: 3px 8px; border-radius: 6px; font-weight: 700; }
   .img-lightbox {
     position: fixed; inset: 0; z-index: 600; background: rgba(10,10,10,0.88);
     display: none; align-items: center; justify-content: center; padding: 24px;
@@ -867,7 +874,7 @@
   .add-subtask-plus { font-size: 16px; line-height: 1; }
   .add-subtask-input {
     width: 100%; box-sizing: border-box; border: none; background: var(--bg);
-    border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink);
+    border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
     padding: 10px 12px; outline: none; margin-top: 4px;
   }
   .add-subtask-input::placeholder { font-size: 12.5px; font-weight: 400; color: var(--faint); }
@@ -886,6 +893,7 @@
     border-bottom: 1px solid var(--line-soft); cursor: pointer;
   }
   .opt-row:last-child { border-bottom: none; }
+  .df-doc-row { justify-content: flex-end; text-align: right; }
   .opt-row.selected { color: var(--accent-due); }
   .opt-row .opt-hint { color: var(--faint); font-weight: 500; margin-right: auto; margin-left: 6px; }
   .opt-row .check { color: var(--accent-due); font-weight: 700; }
@@ -978,10 +986,10 @@
     display: flex; flex-direction: column;
   }
   #app-mobile .m-tasks.is-active {
-    max-height: 375px; overflow-y: auto;
+    max-height: calc(100dvh - 320px); overflow-y: auto;
   }
   #app-mobile .tabbar {
-    position: fixed; left: 50%; right: auto; bottom: 20px;
+    position: fixed; left: 50%; right: auto; bottom: 33px;
     transform: translateX(-50%);
     width: min(calc(100% - 40px), 520px);
   }
@@ -1019,13 +1027,14 @@
   .docs-header-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .docs-header-actions button { border: none; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; }
   .docs-breadcrumb {
-    flex-shrink: 0; padding: 0 16px 10px; margin-top: -6px;
+    padding: 0; margin: 0 0 10px; text-align: left;
   }
   .docs-breadcrumb span {
     display: inline-block; font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600;
     color: var(--muted); cursor: pointer;
   }
   .docs-breadcrumb span:hover { color: var(--ink); }
+  .docs-breadcrumb-sep { border: none; border-top: 1px solid var(--line); margin: 0 0 18px; }
   .docs-header-actions svg { width: 18px; height: 18px; }
   .docs-scroll { flex: 1; overflow-y: auto; padding: 8px 20px 100px; }
   .docs-hero-title {
@@ -1064,10 +1073,10 @@
   }
 
   .docs-toolbar {
-    display: flex; align-items: center; position: fixed; left: 0; right: 0; bottom: 0; z-index: 401;
+    display: flex; align-items: center; position: fixed; left: 0; right: 0; bottom: 13px; z-index: 401;
     background: var(--card); border-top: 1px solid var(--line);
     padding: 8px calc(10px + env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom));
-    gap: 4px; overflow-x: auto;
+    gap: 4px; overflow-x: auto; transition: bottom .1s ease;
   }
   .docs-toolbar button {
     flex-shrink: 0; width: 36px; height: 36px; border: none; background: transparent;
@@ -1408,11 +1417,12 @@
                 <button type="button" data-docs-redo title="Rétablir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
               </div>
             </div>
-            <div class="docs-breadcrumb" data-docs-breadcrumb>
-              <span data-docs-breadcrumb-text></span>
-            </div>
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
+              <div class="docs-breadcrumb" data-docs-breadcrumb>
+                <span data-docs-breadcrumb-text></span>
+              </div>
+              <hr class="docs-breadcrumb-sep">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
 
               <div class="docs-media-section" data-docs-media-section id="docs-media-anchor" style="display:none;">
@@ -1549,6 +1559,10 @@
 
               <div class="pa-section-head" data-td-subtasks-head style="display:none;">Sous-tâches</div>
               <div class="td-subtasks-list" data-td-subtasks-list></div>
+              <div class="add-subtask-row" data-td-add-subtask-row>
+                <span class="add-subtask-plus">+</span>
+                <span>Ajouter</span>
+              </div>
               <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
 
               <div class="pa-section-head">Sources</div>
@@ -1563,6 +1577,22 @@
               </div>
 
               <div class="td-images" data-td-images></div>
+
+              <div class="td-danger-row">
+                <button type="button" class="td-favorite-btn" data-td-favorite-btn>Ajouter en favoris</button>
+                <button type="button" class="td-delete-btn" data-td-goto-delete-task>Supprimer</button>
+              </div>
+            </div>
+
+            <!-- VIEW: confirmer suppression tâche -->
+            <div class="sheet-view" data-view="delete-task">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Confirmer</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="pa-delete-confirm-text">Supprimer cette tâche ? Cette action est définitive.</div>
+              <button type="button" class="dd-clear" data-td-confirm-delete-task>Oui, supprimer la tâche</button>
             </div>
 
             <!-- VIEW: importance -->
@@ -2229,6 +2259,10 @@
       const path = topFolder ? `${topFolder.name} / ${subfolder.name}` : (subfolder?.name || '');
       results.push({ title: p.title, type: 'Document', project: path, page: null, kind: 'doc', id: p.id });
     });
+    cachedPages.filter(p => p.page_type !== 'doc' && !p.is_archived).forEach(p => {
+      const project = cachedProjects.find(pr => pr.id === p.project_id);
+      results.push({ title: p.title, type: 'Page', project: project?.name || '', page: null, kind: 'page', id: p.id, projectId: p.project_id });
+    });
     return results;
   }
   function renderSearch(overlay, query) {
@@ -2239,7 +2273,7 @@
     if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
     list.innerHTML = matches.slice(0, 8).map(m => `
       <div class="search-result" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
-        <div class="sicon">${m.kind === 'subtask' ? '↳' : m.kind === 'doc' ? DOC_ICON_SVG : '☐'}</div>
+        <div class="sicon">${m.kind === 'subtask' ? '↳' : m.kind === 'doc' ? DOC_ICON_SVG : m.kind === 'page' ? DOC_ICON_SVG : TASK_ICON_SVG}</div>
         <div class="sinfo">
           <div class="stitle">${escapeHtml(m.title)}</div>
           <div class="spath">${escapeHtml(m.project)}${m.page ? ' › ' + escapeHtml(m.page) : ''}</div>
@@ -2254,6 +2288,11 @@
         overlay.classList.remove('open');
         if (el.dataset.searchKind === 'doc') {
           openDocsEditor(phone, el.dataset.searchId, false);
+          return;
+        }
+        if (el.dataset.searchKind === 'page') {
+          const page = cachedPages.find(p => p.id === el.dataset.searchId);
+          openPbPageTasksDirect(phone, el.dataset.searchId, page?.title || '');
           return;
         }
         const sheet = phone.querySelector('[data-task-sheet]');
@@ -2362,6 +2401,12 @@
     list.querySelectorAll('[data-source-remove]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
+        if (!btn.classList.contains('confirming')) {
+          btn.classList.add('confirming');
+          btn.textContent = '?';
+          setTimeout(() => { btn.classList.remove('confirming'); btn.textContent = '✕'; }, 2500);
+          return;
+        }
         const idx = parseInt(btn.dataset.sourceRemove, 10);
         const next = sources.filter((_, i) => i !== idx);
         await saveRecordField(sheet, { sources: next });
@@ -2398,6 +2443,7 @@
   const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
   const DOC_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>';
+  const TASK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8 12l3 3 5-6"/></svg>';
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
@@ -2740,6 +2786,16 @@
     renderTdSources(sheet, record);
 
     const isSubtask = kind === 'subtask';
+    const dangerRow = sheet.querySelector('[data-td-favorite-btn]')?.closest('.td-danger-row');
+    if (dangerRow) {
+      dangerRow.style.display = isSubtask ? 'none' : 'flex';
+      if (!isSubtask) {
+        const favBtn = sheet.querySelector('[data-td-favorite-btn]');
+        const isFav = !!record.is_favorite;
+        favBtn.textContent = isFav ? 'Retirer des favoris' : 'Ajouter en favoris';
+        favBtn.classList.toggle('active', isFav);
+      }
+    }
     // le projet n'a de sens que pour une tâche (une sous-tâche vit dans sa tâche parente)
     sheet.querySelector('[data-td-project-btn]')?.classList.toggle('hidden-nest', isSubtask);
     const gotoBtn = sheet.querySelector('[data-td-project-goto]');
@@ -2846,6 +2902,24 @@
       const phone = sheet.closest('.phone');
       closeTaskSheet(phone);
       openPbPageTasksDirect(phone, pageId, pageTitle);
+    });
+
+    sheet.querySelector('[data-td-favorite-btn]')?.addEventListener('click', async () => {
+      const btn = sheet.querySelector('[data-td-favorite-btn]');
+      const nowFav = !btn.classList.contains('active');
+      btn.classList.toggle('active', nowFav);
+      btn.textContent = nowFav ? 'Retirer des favoris' : 'Ajouter en favoris';
+      await saveRecordField(sheet, { is_favorite: nowFav });
+    });
+    sheet.querySelector('[data-td-goto-delete-task]')?.addEventListener('click', () => {
+      pushView(sheet, 'delete-task');
+    });
+    sheet.querySelector('[data-td-confirm-delete-task]')?.addEventListener('click', async () => {
+      const todoId = sheet.dataset.recordId;
+      const phone = sheet.closest('.phone');
+      await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', todoId);
+      cachedTodos = cachedTodos.filter(t => t.id !== todoId);
+      closeTaskSheet(phone);
     });
 
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
@@ -2968,6 +3042,12 @@
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
+      const input = sheet.querySelector('[data-add-subtask-input]');
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+    sheet.querySelector('[data-td-add-subtask-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
       input.style.display = 'block';
       input.value = '';
@@ -3146,7 +3226,7 @@
   });
 
   document.querySelectorAll('[data-tabgroup]').forEach(group => {
-    const scope = group.parentElement;
+    const scope = group.closest('.m-content') || group.parentElement;
     group.querySelectorAll('.dt').forEach(dt => {
       dt.addEventListener('click', () => {
         group.querySelectorAll('.dt').forEach(x => x.classList.remove('active'));
@@ -3821,7 +3901,7 @@
     const list = sheet.querySelector('[data-df-docs-list]');
     if (!list) return;
     const docs = cachedPages.filter(p => p.doc_folder_id === folderId && !p.is_archived && p.page_type === 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
-    list.innerHTML = docs.map(d => `<div class="opt-row" data-doc-id="${d.id}">${DOC_ICON_SVG}${escapeHtml(d.title)}</div>`).join('') || '<div class="empty-state">Aucun document</div>';
+    list.innerHTML = docs.map(d => `<div class="opt-row df-doc-row" data-doc-id="${d.id}">${DOC_ICON_SVG}${escapeHtml(d.title)}</div>`).join('') || '<div class="empty-state">Aucun document</div>';
     list.querySelectorAll('[data-doc-id]').forEach(row => {
       row.addEventListener('click', () => {
         const phone = sheet.closest('.phone');
@@ -4783,6 +4863,8 @@
     if (editor.dataset.editing === '1') saveDocsContent(editor);
     editor.classList.remove('open');
     loadData();
+    phone.querySelector('.drawer')?.classList.add('open');
+    phone.querySelector('[data-drawer-backdrop]')?.classList.add('open');
   }
 
   // ---- sommaire (TOC) : liste des H1/H2 du document, clic = défilement ----
@@ -4975,6 +5057,23 @@
     editor.querySelector('[data-docs-move-backdrop]')?.addEventListener('click', () => closeDocsMovePanel(editor));
     editor.querySelector('[data-docs-move-back]')?.addEventListener('click', () => renderDocsMoveTopFolders(editor));
   });
+
+  // le clavier mobile masque la barre d'outils fixe en bas — on la repositionne
+  // juste au-dessus du clavier grâce à visualViewport (le clavier réduit sa hauteur).
+  function adjustDocsToolbarForKeyboard() {
+    if (!window.visualViewport) return;
+    document.querySelectorAll('[data-docs-editor].open').forEach(editor => {
+      const toolbar = editor.querySelector('[data-docs-toolbar]');
+      if (!toolbar) return;
+      const vv = window.visualViewport;
+      const keyboardGap = window.innerHeight - vv.height - vv.offsetTop;
+      toolbar.style.bottom = keyboardGap > 60 ? `${keyboardGap}px` : '';
+    });
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', adjustDocsToolbarForKeyboard);
+    window.visualViewport.addEventListener('scroll', adjustDocsToolbarForKeyboard);
+  }
 
   function openDocsMovePanel(editor) {
     editor.querySelector('[data-docs-move-panel]').classList.add('open');
