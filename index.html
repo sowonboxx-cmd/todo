@@ -735,20 +735,23 @@
     padding: 10px 18px 22px;
     transform: translateY(105%); transition: transform .28s ease;
   }
-  /* la fiche tâche est désormais un élément global (partagé mobile/desktop),
-     donc positionnée par rapport au viewport plutôt qu'à un .phone ancêtre */
-  [data-sheet-backdrop] { position: fixed; }
-  [data-task-sheet] { position: fixed; }
+  /* la fiche tâche et le navigateur de pages sont des éléments globaux (partagés
+     mobile/desktop), donc positionnés par rapport au viewport plutôt qu'à un .phone ancêtre */
+  [data-sheet-backdrop], [data-pb-backdrop] { position: fixed; }
+  [data-task-sheet], [data-pb-sheet] { position: fixed; }
   .task-sheet.open { transform: translateY(0); }
+  @media (max-width: 899px) {
+    [data-task-sheet], [data-pb-sheet] { max-width: 560px; margin: 0 auto; }
+  }
   @media (min-width: 900px) {
-    [data-task-sheet] {
+    [data-task-sheet], [data-pb-sheet] {
       left: 50%; right: auto; bottom: auto; top: 50%;
       width: 480px; max-width: 90vw; max-height: 82vh;
       border-radius: 20px;
       transform: translate(-50%, -48%) scale(0.97); opacity: 0; pointer-events: none;
       transition: transform .2s ease, opacity .2s ease;
     }
-    [data-task-sheet].open {
+    [data-task-sheet].open, [data-pb-sheet].open {
       transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto;
     }
   }
@@ -1073,9 +1076,6 @@
     transition: left .25s ease;
   }
   #app-mobile .drawer.open { left: 0; }
-  @media (max-width: 899px) {
-    [data-task-sheet] { max-width: 560px; margin: 0 auto; }
-  }
   #app-desktop .search-overlay { position: fixed; inset: 0; }
   /* ================= auth gate ================= */
   /* ================= docs editor ================= */
@@ -2200,6 +2200,10 @@
     const backdrop = document.querySelector('[data-sheet-backdrop]');
     if (sheet) document.body.appendChild(sheet);
     if (backdrop) document.body.appendChild(backdrop);
+    const pbSheet = document.querySelector('[data-pb-sheet]');
+    const pbBackdrop = document.querySelector('[data-pb-backdrop]');
+    if (pbSheet) document.body.appendChild(pbSheet);
+    if (pbBackdrop) document.body.appendChild(pbBackdrop);
   })();
 
   const MOON_PATH = 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z';
@@ -2460,15 +2464,22 @@
   let cachedSubtasks = [];
   let cachedDocFolders = [];
 
+  function getActiveContainer() {
+    return window.innerWidth >= 900
+      ? document.querySelector('#app-desktop')
+      : document.querySelector('#app-mobile');
+  }
   function closeAllPhoneSheets(phone, exceptSelector) {
     if (exceptSelector !== '[data-task-sheet]') document.querySelector('[data-task-sheet]')?.classList.remove('open');
     if (exceptSelector !== '[data-task-sheet]') document.querySelector('[data-sheet-backdrop]')?.classList.remove('open');
-    const selectors = ['[data-addtask-sheet]', '[data-pa-sheet]', '[data-pb-sheet]'];
+    if (exceptSelector !== '[data-pb-sheet]') document.querySelector('[data-pb-sheet]')?.classList.remove('open');
+    if (exceptSelector !== '[data-pb-sheet]') document.querySelector('[data-pb-backdrop]')?.classList.remove('open');
+    const selectors = ['[data-addtask-sheet]', '[data-pa-sheet]'];
     selectors.forEach(sel => {
       if (sel === exceptSelector) return;
       phone.querySelector(sel)?.classList.remove('open');
     });
-    const backdropSelectors = ['[data-addtask-backdrop]', '[data-pa-backdrop]', '[data-pb-backdrop]'];
+    const backdropSelectors = ['[data-addtask-backdrop]', '[data-pa-backdrop]'];
     backdropSelectors.forEach(sel => phone.querySelector(sel)?.classList.remove('open'));
     phone.querySelector('[data-docs-editor]')?.classList.remove('open');
     phone.querySelector('.search-overlay')?.classList.remove('open');
@@ -2654,7 +2665,7 @@
     wrap.querySelectorAll('.td-img-thumb').forEach(thumb => {
       thumb.addEventListener('click', (e) => {
         if (e.target.closest('[data-img-remove]')) return;
-        openLightbox(sheet.closest('.phone'), images, parseInt(thumb.dataset.imgIndex, 10));
+        openLightbox(getActiveContainer(), images, parseInt(thumb.dataset.imgIndex, 10));
       });
     });
     wrap.querySelectorAll('[data-img-remove]').forEach(btn => {
@@ -3029,7 +3040,7 @@
       const pageId = btn.dataset.linkPageId;
       const pageTitle = btn.dataset.linkPageTitle;
       if (!pageId) return;
-      const phone = sheet.closest('.phone');
+      const phone = getActiveContainer();
       closeTaskSheet(phone);
       openPbPageTasksDirect(phone, pageId, pageTitle);
     });
@@ -3046,7 +3057,7 @@
     });
     sheet.querySelector('[data-td-confirm-delete-task]')?.addEventListener('click', async () => {
       const todoId = sheet.dataset.recordId;
-      const phone = sheet.closest('.phone');
+      const phone = getActiveContainer();
       await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', todoId);
       cachedTodos = cachedTodos.filter(t => t.id !== todoId);
       closeTaskSheet(phone);
@@ -3576,7 +3587,7 @@
     const circumference = 97;
     const offset = Math.round(circumference * (1 - stats.pct / 100));
     return `
-      <div class="venture-card">
+      <div class="venture-card" data-project-real-id="${project.id}" style="cursor:pointer;">
         <div class="tab" style="background:${project.color}">${escapeHtml(project.kanji)}</div>
         <div class="vinfo">
           <div class="vname">${escapeHtml(project.name)}</div>
@@ -3692,15 +3703,15 @@
 
   function wireProjectBlock(block) {
     block.addEventListener('click', () => {
-      const phone = block.closest('.phone');
-      if (!phone) return;
-      openPagesBrowser(phone, block.dataset.projectRealId);
+      const container = block.closest('.phone') || block.closest('.desktop-frame');
+      if (!container) return;
+      openPagesBrowser(container, block.dataset.projectRealId);
     });
   }
 
   function openPagesBrowser(phone, projectId) {
-    const sheet = phone.querySelector('[data-pb-sheet]');
-    const backdrop = phone.querySelector('[data-pb-backdrop]');
+    const sheet = document.querySelector('[data-pb-sheet]');
+    const backdrop = document.querySelector('[data-pb-backdrop]');
     const project = cachedProjects.find(p => p.id === projectId);
     if (!sheet || !backdrop || !project) return;
     closeAllPhoneSheets(phone, '[data-pb-sheet]');
@@ -3742,7 +3753,7 @@
     list.querySelectorAll('.pb-page-row').forEach(row => {
       row.addEventListener('click', () => {
         if (row.dataset.pageType === 'doc') {
-          const phone = sheet.closest('.phone');
+          const phone = getActiveContainer();
           closePagesBrowser(phone);
           openDocsEditor(phone, row.dataset.pageId, false);
         } else {
@@ -3775,7 +3786,7 @@
     // clic direct : on ferme d'abord la fiche "pages" pour éviter l'empilement/rognage visuel des deux fiches
     list.querySelectorAll('.task-row').forEach(row => {
       row.addEventListener('click', () => {
-        const phone = sheet.closest('.phone');
+        const phone = getActiveContainer();
         closePagesBrowser(phone);
         openTaskSheet(phone, row.dataset.todoId);
       });
@@ -3808,8 +3819,8 @@
     renderPbTasksList(sheet, pageId);
   }
   function openPbPageTasksDirect(phone, pageId, pageTitle) {
-    const sheet = phone.querySelector('[data-pb-sheet]');
-    const backdrop = phone.querySelector('[data-pb-backdrop]');
+    const sheet = document.querySelector('[data-pb-sheet]');
+    const backdrop = document.querySelector('[data-pb-backdrop]');
     if (!sheet || !backdrop) return;
     closeAllPhoneSheets(phone, '[data-pb-sheet]');
     const page = cachedPages.find(p => p.id === pageId);
@@ -3828,8 +3839,8 @@
     backdrop.classList.add('open');
   }
   function closePagesBrowser(phone) {
-    phone.querySelector('[data-pb-sheet]')?.classList.remove('open');
-    phone.querySelector('[data-pb-backdrop]')?.classList.remove('open');
+    document.querySelector('[data-pb-sheet]')?.classList.remove('open');
+    document.querySelector('[data-pb-backdrop]')?.classList.remove('open');
   }
   document.querySelectorAll('[data-pb-close]').forEach(btn => {
     btn.addEventListener('click', () => closePagesBrowser(btn.closest('.phone')));
@@ -3843,13 +3854,13 @@
       if (back) { popView(sheet); return; }
     });
     sheet.querySelector('[data-pb-add-task-from-pages]')?.addEventListener('click', () => {
-      const phone = sheet.closest('.phone');
+      const phone = getActiveContainer();
       const projectId = sheet.dataset.projectId;
       closePagesBrowser(phone);
       openAddTaskSheet(phone, projectId);
     });
     sheet.querySelector('[data-pb-add-task-from-page]')?.addEventListener('click', () => {
-      const phone = sheet.closest('.phone');
+      const phone = getActiveContainer();
       const projectId = sheet.dataset.projectId;
       const pageId = sheet.dataset.currentPageId;
       closePagesBrowser(phone);
@@ -3861,7 +3872,10 @@
     const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
     const deskEl = document.getElementById('venture-list-desktop');
     const mobEl = document.querySelector('.project-strip');
-    if (deskEl) deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
+    if (deskEl) {
+      deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
+      deskEl.querySelectorAll('.venture-card').forEach(wireProjectBlock);
+    }
     if (mobEl) {
       mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
       mobEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
