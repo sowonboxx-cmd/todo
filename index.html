@@ -1036,7 +1036,7 @@
     display: flex; flex-direction: column;
   }
   #app-mobile .m-tasks.is-active {
-    max-height: calc(100dvh - 320px); overflow-y: auto;
+    max-height: calc(100dvh - 335px); overflow-y: auto;
   }
   #app-mobile .tabbar {
     position: fixed; left: 50%; right: auto; bottom: 33px;
@@ -2514,7 +2514,9 @@
   const MONTHS_FULL_LOWER_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   function formatDateFull(dateStr, timeStr) {
     const d = new Date(dateStr + 'T00:00:00');
-    let out = `${d.getDate()} ${MONTHS_FULL_LOWER_FR[d.getMonth()]} ${d.getFullYear()}`;
+    const diff = daysFromToday(dateStr);
+    const RELATIVE_LABELS = { '-2': 'Avant-hier', '-1': 'Hier', '0': "Aujourd'hui", '1': 'Demain', '2': 'Après-demain' };
+    let out = RELATIVE_LABELS[String(diff)] || `${d.getDate()} ${MONTHS_FULL_LOWER_FR[d.getMonth()]} ${d.getFullYear()}`;
     if (timeStr) {
       const [h, m] = timeStr.split(':');
       out += ` - ${parseInt(h, 10)}h${m}`;
@@ -3774,12 +3776,17 @@
     const backdrop = phone.querySelector('[data-pb-backdrop]');
     if (!sheet || !backdrop) return;
     closeAllPhoneSheets(phone, '[data-pb-sheet]');
-    sheet.dataset.stack = 'page-tasks';
+    const page = cachedPages.find(p => p.id === pageId);
+    const project = page ? cachedProjects.find(pr => pr.id === page.project_id) : null;
+    sheet.dataset.projectId = page ? page.project_id : '';
+    if (project) {
+      sheet.querySelector('[data-pb-project-name]').textContent = project.name;
+      renderPbPages(sheet, project.id);
+    }
+    sheet.dataset.stack = 'pages,page-tasks';
     showSheetView(sheet, 'page-tasks');
     sheet.querySelector('[data-pb-page-name]').textContent = pageTitle;
     sheet.dataset.currentPageId = pageId;
-    const page = cachedPages.find(p => p.id === pageId);
-    sheet.dataset.projectId = page ? page.project_id : '';
     renderPbTasksList(sheet, pageId);
     sheet.classList.add('open');
     backdrop.classList.add('open');
@@ -3815,11 +3822,12 @@
   });
 
   function renderProjects(projects, pages, todos) {
+    const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
     const deskEl = document.getElementById('venture-list-desktop');
     const mobEl = document.querySelector('.project-strip');
-    if (deskEl) deskEl.innerHTML = projects.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
+    if (deskEl) deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
     if (mobEl) {
-      mobEl.innerHTML = projects.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
+      mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
       mobEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
     }
     const kpiProjD = document.getElementById('kpi-projects-desktop');
@@ -3910,7 +3918,7 @@
       sb.from('projects').update({ position: posA }).eq('id', b.id),
     ]);
     a.position = posB; b.position = posA;
-    renderDrawerProjects(cachedProjects);
+    renderProjects(cachedProjects, cachedPages, cachedTodos);
   }
   function wireDrawerProjectRows() {
     document.querySelectorAll('.drawer-project').forEach(row => {
@@ -4970,7 +4978,9 @@
         }
 
         closeAddTaskSheet(phone);
-        loadData();
+        await loadData();
+        const page = cachedPages.find(p => p.id === pageId);
+        openPbPageTasksDirect(phone, pageId, page?.title || '');
       } catch (err) {
         errorEl.textContent = err.message || 'Erreur, réessaie.';
       } finally {
