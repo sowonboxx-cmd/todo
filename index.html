@@ -532,12 +532,13 @@
   .search-overlay {
     display: none; position: absolute; inset: 0; z-index: 100;
     background: rgba(15,17,15,0.4); backdrop-filter: blur(2px);
-    align-items: center; justify-content: center;
+    align-items: flex-start; justify-content: center;
+    padding-top: calc(60px + env(safe-area-inset-top));
   }
   .search-overlay.open { display: flex; }
   .search-box {
     width: 480px; max-width: 90%; background: var(--card);
-    border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+    border: 1px solid var(--line); border-radius: 28px; box-shadow: var(--shadow);
     overflow: hidden;
   }
   .search-input-row {
