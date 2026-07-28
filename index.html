@@ -896,6 +896,21 @@
   }
   .img-lightbox.open { display: flex; }
   .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+  .lightbox-arrow {
+    position: fixed; top: 50%; transform: translateY(-50%); z-index: 601;
+    width: 48px; height: 48px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 24px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lightbox-arrow:hover { background: rgba(255,255,255,0.22); }
+  .lightbox-prev { left: 24px; }
+  .lightbox-next { right: 24px; }
+  .lightbox-close {
+    position: fixed; top: 20px; right: 20px; z-index: 601;
+    width: 38px; height: 38px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.12); color: #fff; font-size: 15px; cursor: pointer;
+  }
+  .lightbox-close:hover { background: rgba(255,255,255,0.22); }
 
   /* sous-tâches */
   .td-subtasks-head {
@@ -1155,6 +1170,11 @@
   .docs-content ul, .docs-content ol { padding-left: 22px; margin: 0 0 10px; }
   .docs-content hr { border: none; border-top: 1px solid var(--line); margin: 20px 0; }
   .docs-content a { color: #3E72A6; text-decoration: none; }
+  .doc-inline-img {
+    display: inline-block; vertical-align: top; width: 76px; height: 76px;
+    margin: 3px; border-radius: 8px; overflow: hidden; cursor: zoom-in;
+  }
+  .doc-inline-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .docs-media-section { margin-top: 24px; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
@@ -1179,6 +1199,12 @@
     gap: 4px; overflow-x: auto; transition: bottom .1s ease;
   }
   .docs-toolbar.open { display: flex; }
+  @media (min-width: 900px) {
+    .docs-toolbar {
+      left: 260px; right: 0; max-width: 980px; margin: 0 auto; justify-content: center;
+      border-left: 1px solid var(--line); border-right: 1px solid var(--line); border-radius: 14px 14px 0 0;
+    }
+  }
   .docs-toolbar button {
     flex-shrink: 0; width: 36px; height: 36px; border: none; background: transparent;
     color: var(--ink); font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer;
@@ -1218,8 +1244,8 @@
     .docs-content { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.8; }
     .docs-media-section { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
     .docs-media-section hr { display: none; }
-    .docs-media-grid { flex-direction: column; }
-    .docs-media-thumb { width: 100%; height: 130px; }
+    .docs-media-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .docs-media-thumb { width: 100%; height: 90px; }
     [data-docs-image-url-input] { grid-column: 1; }
     /* le tab+panel mobile est remplacé par les traits au survol ci-dessous */
     .docs-toc-tab, .docs-toc-backdrop, .docs-toc-panel { display: none !important; }
@@ -1227,23 +1253,24 @@
   .docs-desktop-outline { display: none; }
   @media (min-width: 900px) {
     .docs-desktop-outline {
-      display: flex; flex-direction: column; gap: 12px;
+      display: flex; flex-direction: column; gap: 10px;
       position: fixed; left: 280px; top: 50%; transform: translateY(-50%); z-index: 50;
     }
-    .docs-outline-tick { position: relative; cursor: pointer; }
-    .docs-outline-tick .tick-mark {
-      display: block; width: 14px; height: 2px; border-radius: 2px; background: var(--line);
-      transition: background .12s ease, width .12s ease;
+    .docs-outline-tick { position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    .docs-outline-tick .outline-h-tag {
+      display: block; font-family: 'Inter', sans-serif; font-size: 9.5px; font-weight: 800;
+      color: var(--faint); letter-spacing: 0.02em; transition: color .12s ease;
     }
-    .docs-outline-tick.lvl2 .tick-mark { width: 9px; margin-left: 5px; }
-    .docs-outline-tick:hover .tick-mark { background: var(--ink); width: 18px; margin-left: 0; }
+    .docs-outline-tick.lvl2 .outline-h-tag { margin-left: 8px; }
+    .docs-outline-tick.lvl3 .outline-h-tag { margin-left: 16px; }
+    .docs-outline-tick:hover .outline-h-tag { color: var(--ink); }
     .docs-outline-label {
-      display: none; position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
-      white-space: nowrap; background: var(--card); border: 1px solid var(--line); border-radius: 6px;
-      padding: 5px 10px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
-      color: var(--ink); box-shadow: var(--shadow);
+      display: none; white-space: nowrap;
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted);
+      overflow: hidden; text-overflow: ellipsis; max-width: 180px;
     }
-    .docs-outline-tick:hover .docs-outline-label { display: block; }
+    .docs-outline-tick:hover .docs-outline-label { color: var(--ink); }
+    .docs-desktop-outline:hover .docs-outline-label { display: block; }
   }
 
   /* sommaire (TOC) */
@@ -1924,7 +1951,10 @@
           </div>
 
           <div class="img-lightbox" data-img-lightbox>
+            <button type="button" class="lightbox-close" data-lightbox-close title="Fermer">✕</button>
+            <button type="button" class="lightbox-arrow lightbox-prev" data-lightbox-prev title="Précédent">‹</button>
             <img data-img-lightbox-img alt="">
+            <button type="button" class="lightbox-arrow lightbox-next" data-lightbox-next title="Suivant">›</button>
           </div>
 
           <div class="sheet-backdrop" data-pa-backdrop></div>
@@ -2293,6 +2323,8 @@
     if (pbBackdrop) document.body.appendChild(pbBackdrop);
     const docsEditor = document.querySelector('[data-docs-editor]');
     if (docsEditor) document.body.appendChild(docsEditor);
+    const lightbox = document.querySelector('[data-img-lightbox]');
+    if (lightbox) document.body.appendChild(lightbox);
   })();
 
   const MOON_PATH = 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z';
@@ -2768,7 +2800,7 @@
     });
   }
   function openLightbox(phone, images, index) {
-    const lb = phone?.querySelector('[data-img-lightbox]');
+    const lb = document.querySelector('[data-img-lightbox]');
     if (!lb) return;
     lb.dataset.images = JSON.stringify(images || []);
     lb.dataset.index = String(index || 0);
@@ -3416,9 +3448,12 @@
 
   document.querySelectorAll('[data-img-lightbox]').forEach(lb => {
     lb.addEventListener('click', (e) => {
-      if (e.target.closest('[data-img-lightbox-img]')) return; // le swipe gère l'image, pas la fermeture
+      if (e.target.closest('[data-img-lightbox-img], [data-lightbox-prev], [data-lightbox-next], [data-lightbox-close]')) return;
       lb.classList.remove('open');
     });
+    lb.querySelector('[data-lightbox-close]')?.addEventListener('click', () => lb.classList.remove('open'));
+    lb.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => lightboxNav(lb, -1));
+    lb.querySelector('[data-lightbox-next]')?.addEventListener('click', () => lightboxNav(lb, 1));
     let touchX = 0;
     lb.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
     lb.addEventListener('touchend', (e) => {
@@ -5174,7 +5209,7 @@
     editor.querySelector('[data-docs-scroll]').scrollTop = 0;
     editor.querySelector('[data-docs-header]').classList.remove('scrolled');
     editor.classList.add('open');
-    setDocsEditMode(editor, !!startInEdit);
+    setDocsEditMode(editor, startInEdit || window.innerWidth >= 900);
     renderDocsMedia(editor, page);
     buildDocsToc(editor);
     updateDocsBreadcrumb(editor, page);
@@ -5259,7 +5294,7 @@
     const content = editor.querySelector('[data-docs-content]');
     const list = editor.querySelector('[data-docs-toc-list]');
     const tab = editor.querySelector('[data-docs-toc-tab]');
-    const headings = [...content.querySelectorAll('h1, h2')];
+    const headings = [...content.querySelectorAll('h1, h2, h3')];
     const mediaSection = editor.querySelector('[data-docs-media-section]');
     const hasMedia = mediaSection && mediaSection.style.display !== 'none';
     if (!headings.length && !hasMedia) {
@@ -5271,7 +5306,7 @@
     let html = headings.map((h, i) => {
       const id = 'docs-h-' + i;
       h.id = id;
-      const level = h.tagName === 'H1' ? 'lvl1' : 'lvl2';
+      const level = h.tagName === 'H1' ? 'lvl1' : h.tagName === 'H2' ? 'lvl2' : 'lvl3';
       return `<button type="button" class="docs-toc-item ${level}" data-toc-target="${id}">${escapeHtml(h.textContent || '(sans titre)')}</button>`;
     }).join('');
     if (hasMedia) {
@@ -5292,9 +5327,9 @@
     const outline = editor.querySelector('[data-docs-desktop-outline]');
     if (!outline) return;
     outline.innerHTML = headings.map((h, i) => {
-      const level = h.tagName === 'H1' ? 'lvl1' : 'lvl2';
+      const level = h.tagName === 'H1' ? 'lvl1' : h.tagName === 'H2' ? 'lvl2' : 'lvl3';
       return `<div class="docs-outline-tick ${level}" data-outline-target="docs-h-${i}">
-        <span class="tick-mark"></span>
+        <span class="outline-h-tag">${h.tagName}</span>
         <span class="docs-outline-label">${escapeHtml(h.textContent || '(sans titre)')}</span>
       </div>`;
     }).join('');
@@ -5446,11 +5481,21 @@
     content.addEventListener('paste', (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
-      if (/^https?:\/\/\S+$/i.test(text)) {
+      if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(text)) {
+        document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(text)}" alt=""></span>&nbsp;`);
+      } else if (/^https?:\/\/\S+$/i.test(text)) {
         document.execCommand('insertHTML', false, `<a href="${escapeHtml(text)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(text))}</a>&nbsp;`);
       } else {
         document.execCommand('insertText', false, text);
       }
+    });
+    content.addEventListener('click', (e) => {
+      const thumb = e.target.closest('[data-inline-img]');
+      if (!thumb) return;
+      const all = [...content.querySelectorAll('[data-inline-img] img')];
+      const urls = all.map(img => img.src);
+      const index = all.indexOf(thumb.querySelector('img'));
+      openLightbox(getActiveContainer(), urls, index);
     });
 
     // sommaire
