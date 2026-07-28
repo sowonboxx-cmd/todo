@@ -895,7 +895,7 @@
     display: none; align-items: center; justify-content: center; padding: 24px;
   }
   .img-lightbox.open { display: flex; }
-  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; cursor: pointer; }
   .lightbox-arrow {
     position: fixed; top: 50%; transform: translateY(-50%); z-index: 601;
     width: 48px; height: 48px; border-radius: 50%; border: none;
@@ -1201,8 +1201,9 @@
   .docs-toolbar.open { display: flex; }
   @media (min-width: 900px) {
     .docs-toolbar {
-      left: 260px; right: 0; max-width: 980px; margin: 0 auto; justify-content: center;
-      border-left: 1px solid var(--line); border-right: 1px solid var(--line); border-radius: 14px 14px 0 0;
+      left: 260px; right: 0; width: fit-content; margin: 0 auto; justify-content: center;
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; bottom: 24px;
+      background: #22242A; box-shadow: var(--shadow);
     }
   }
   .docs-toolbar button {
@@ -1238,7 +1239,7 @@
     .docs-scroll {
       display: grid; grid-template-columns: minmax(0, 700px) 200px;
       justify-content: center; gap: 48px; align-items: start;
-      max-width: 980px; margin: 0 auto; padding: 48px 24px 120px;
+      max-width: 980px; margin: 0 auto; padding: 48px 24px 260px;
     }
     .docs-hero-title { grid-column: 1; grid-row: 1; font-size: 34px; }
     .docs-content { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.8; }
@@ -1249,6 +1250,8 @@
     [data-docs-image-url-input] { grid-column: 1; }
     /* le tab+panel mobile est remplacé par les traits au survol ci-dessous */
     .docs-toc-tab, .docs-toc-backdrop, .docs-toc-panel { display: none !important; }
+    .docs-toolbar button { color: #fff; }
+    .docs-toolbar button:active, .docs-toolbar button:hover { background: rgba(255,255,255,0.1); }
   }
   .docs-desktop-outline { display: none; }
   @media (min-width: 900px) {
@@ -1257,19 +1260,18 @@
       position: fixed; left: 280px; top: 50%; transform: translateY(-50%); z-index: 50;
     }
     .docs-outline-tick { position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .docs-outline-tick .outline-h-tag {
-      display: block; font-family: 'Inter', sans-serif; font-size: 9.5px; font-weight: 800;
-      color: var(--faint); letter-spacing: 0.02em; transition: color .12s ease;
+    .docs-outline-tick .tick-mark {
+      display: block; width: 16px; height: 2px; border-radius: 2px; background: var(--line);
+      transition: background .12s ease, width .12s ease;
     }
-    .docs-outline-tick.lvl2 .outline-h-tag { margin-left: 8px; }
-    .docs-outline-tick.lvl3 .outline-h-tag { margin-left: 16px; }
-    .docs-outline-tick:hover .outline-h-tag { color: var(--ink); }
+    .docs-outline-tick.lvl2 .tick-mark { width: 11px; margin-left: 5px; }
+    .docs-outline-tick.lvl3 .tick-mark { width: 7px; margin-left: 9px; }
+    .docs-outline-tick:hover .tick-mark { background: var(--ink); }
     .docs-outline-label {
       display: none; white-space: nowrap;
-      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--muted);
+      font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--ink);
       overflow: hidden; text-overflow: ellipsis; max-width: 180px;
     }
-    .docs-outline-tick:hover .docs-outline-label { color: var(--ink); }
     .docs-desktop-outline:hover .docs-outline-label { display: block; }
   }
 
@@ -2585,6 +2587,14 @@
   let cachedSubtasks = [];
   let cachedDocFolders = [];
 
+  function positionDocsPopupAbove(popup, anchorBtn) {
+    const btnRect = anchorBtn.getBoundingClientRect();
+    const popupRect = popup.getBoundingClientRect();
+    let left = btnRect.left + btnRect.width / 2 - popupRect.width / 2;
+    left = Math.max(10, Math.min(left, window.innerWidth - popupRect.width - 10));
+    popup.style.left = left + 'px';
+    popup.style.bottom = (window.innerHeight - btnRect.top + 8) + 'px';
+  }
   function getActiveContainer() {
     return window.innerWidth >= 900
       ? document.querySelector('#app-desktop')
@@ -3448,7 +3458,14 @@
 
   document.querySelectorAll('[data-img-lightbox]').forEach(lb => {
     lb.addEventListener('click', (e) => {
-      if (e.target.closest('[data-img-lightbox-img], [data-lightbox-prev], [data-lightbox-next], [data-lightbox-close]')) return;
+      if (e.target.closest('[data-lightbox-prev], [data-lightbox-next], [data-lightbox-close]')) return;
+      if (e.target.closest('[data-img-lightbox-img]')) {
+        const img = e.target.closest('[data-img-lightbox-img]');
+        const rect = img.getBoundingClientRect();
+        const clickedLeftHalf = (e.clientX - rect.left) < rect.width / 2;
+        lightboxNav(lb, clickedLeftHalf ? -1 : 1);
+        return;
+      }
       lb.classList.remove('open');
     });
     lb.querySelector('[data-lightbox-close]')?.addEventListener('click', () => lb.classList.remove('open'));
@@ -5329,7 +5346,7 @@
     outline.innerHTML = headings.map((h, i) => {
       const level = h.tagName === 'H1' ? 'lvl1' : h.tagName === 'H2' ? 'lvl2' : 'lvl3';
       return `<div class="docs-outline-tick ${level}" data-outline-target="docs-h-${i}">
-        <span class="outline-h-tag">${h.tagName}</span>
+        <span class="tick-mark"></span>
         <span class="docs-outline-label">${escapeHtml(h.textContent || '(sans titre)')}</span>
       </div>`;
     }).join('');
@@ -5446,9 +5463,12 @@
       document.execCommand('insertHorizontalRule');
       saveDocsSelection(editor);
     });
-    editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', () => {
+    editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
+      const popup = editor.querySelector('[data-docs-block-popup]');
       editor.querySelector('[data-docs-color-popup]').classList.remove('open');
-      editor.querySelector('[data-docs-block-popup]').classList.toggle('open');
+      const opening = !popup.classList.contains('open');
+      popup.classList.toggle('open');
+      if (opening) positionDocsPopupAbove(popup, e.currentTarget);
     });
     editor.querySelectorAll('[data-docs-block]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -5461,9 +5481,12 @@
         buildDocsToc(editor);
       });
     });
-    editor.querySelector('[data-docs-color-menu]')?.addEventListener('click', () => {
+    editor.querySelector('[data-docs-color-menu]')?.addEventListener('click', (e) => {
       editor.querySelector('[data-docs-block-popup]').classList.remove('open');
-      editor.querySelector('[data-docs-color-popup]').classList.toggle('open');
+      const popup = editor.querySelector('[data-docs-color-popup]');
+      const opening = !popup.classList.contains('open');
+      popup.classList.toggle('open');
+      if (opening) positionDocsPopupAbove(popup, e.currentTarget);
     });
     editor.querySelectorAll('[data-docs-color]').forEach(btn => {
       btn.addEventListener('click', () => {
