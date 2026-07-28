@@ -1044,7 +1044,7 @@
   body { margin: 0; }
   #app-desktop, #app-mobile { display: none; }
   @media (min-width: 900px) { #app-desktop { display: flex; } }
-  @media (max-width: 899px) { #app-mobile { display: block; } }
+  @media (max-width: 899px) { #app-mobile { display: flex; } }
 
   #app-desktop.desktop-frame {
     border: none; border-radius: 0; box-shadow: none; min-height: 100vh; width: 100%;
@@ -1053,7 +1053,7 @@
     position: relative; width: 100%; max-width: 560px; margin: 0 auto;
     border: none; border-radius: 0; box-shadow: none;
     height: 100vh; height: 100dvh; background: var(--bg);
-    display: flex; flex-direction: column; overflow: hidden;
+    flex-direction: column; overflow: hidden;
   }
   #app-mobile .m-content {
     flex: 1; display: flex; flex-direction: column; min-height: 0;
