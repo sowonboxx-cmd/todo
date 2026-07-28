@@ -580,6 +580,11 @@
     display: flex; flex-direction: column; gap: 4px;
   }
   .drawer.open { left: 0; }
+  .d-rail.drawer {
+    position: sticky; top: 0; left: auto; bottom: auto; width: 216px; flex-shrink: 0;
+    transition: none; z-index: auto; align-self: flex-start; height: 100vh; overflow-y: auto;
+  }
+  .d-rail-theme-link { margin-top: auto; }
   .drawer-header { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
   .drawer-title-input {
     display: block; width: 100%; border: none; background: var(--bg); border-radius: 8px;
@@ -1184,6 +1189,46 @@
   }
   .docs-color-default { color: var(--ink) !important; }
 
+  /* ================= docs editor : mise en page desktop façon Dropbox Paper ================= */
+  @media (min-width: 900px) {
+    .docs-editor { left: 216px; }
+    .docs-scroll {
+      display: grid; grid-template-columns: minmax(0, 700px) 200px;
+      justify-content: center; gap: 48px; align-items: start;
+      max-width: 980px; margin: 0 auto; padding: 48px 24px 120px;
+    }
+    .docs-hero-title { grid-column: 1; grid-row: 1; font-size: 34px; }
+    .docs-content { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.8; }
+    .docs-media-section { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
+    .docs-media-section hr { display: none; }
+    .docs-media-grid { flex-direction: column; }
+    .docs-media-thumb { width: 100%; height: 130px; }
+    [data-docs-image-url-input] { grid-column: 1; }
+    /* le tab+panel mobile est remplacé par les traits au survol ci-dessous */
+    .docs-toc-tab, .docs-toc-backdrop, .docs-toc-panel { display: none !important; }
+  }
+  .docs-desktop-outline { display: none; }
+  @media (min-width: 900px) {
+    .docs-desktop-outline {
+      display: flex; flex-direction: column; gap: 12px;
+      position: fixed; left: 236px; top: 50%; transform: translateY(-50%); z-index: 50;
+    }
+    .docs-outline-tick { position: relative; cursor: pointer; }
+    .docs-outline-tick .tick-mark {
+      display: block; width: 14px; height: 2px; border-radius: 2px; background: var(--line);
+      transition: background .12s ease, width .12s ease;
+    }
+    .docs-outline-tick.lvl2 .tick-mark { width: 9px; margin-left: 5px; }
+    .docs-outline-tick:hover .tick-mark { background: var(--ink); width: 18px; margin-left: 0; }
+    .docs-outline-label {
+      display: none; position: absolute; left: 24px; top: 50%; transform: translateY(-50%);
+      white-space: nowrap; background: var(--card); border: 1px solid var(--line); border-radius: 6px;
+      padding: 5px 10px; font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600;
+      color: var(--ink); box-shadow: var(--shadow);
+    }
+    .docs-outline-tick:hover .docs-outline-label { display: block; }
+  }
+
   /* sommaire (TOC) */
   .docs-toc-tab {
     position: fixed; right: 0; top: 50%; transform: translateY(-50%); z-index: 399;
@@ -1263,13 +1308,34 @@
   </div>
 
   <div id="app-desktop" class="desktop-frame app-loading">
-        <div class="d-rail">
-          <div class="brand">控制盤<small>PERSONAL OS</small></div>
-          <nav class="d-nav">
-            <a class="active"><span class="dot"></span>Documents</a>
-            <a data-theme-toggle><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
+        <div class="d-rail drawer">
+          <div class="drawer-header">
+            <span data-app-title-text>控制盤</span>
+            <input type="text" class="drawer-title-input" data-app-title-input value="控制盤" style="display:none;">
+            <small data-app-subtitle-text>PERSONAL OS</small>
+            <input type="text" class="drawer-subtitle-input" data-app-subtitle-input value="PERSONAL OS" style="display:none;">
+          </div>
+          <nav class="drawer-nav">
+            <a data-drawer-toggle-docs><span class="dot"></span>Documents</a>
           </nav>
-          <div class="d-rail-foot">SYNC · CLOUDFLARE WORKER<br>DERNIÈRE MAJ IL Y A 4MIN</div>
+          <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
+          <div class="drawer-add-project" data-drawer-add-docfolder>
+            <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
+          </div>
+          <nav class="drawer-nav" style="margin-top:0;">
+            <a data-drawer-toggle-favorites><span class="dot"></span>Favoris</a>
+          </nav>
+          <div class="drawer-favorites" data-drawer-favorites style="display:none;"></div>
+          <div class="drawer-sep"></div>
+          <div class="drawer-projects" data-drawer-projects></div>
+          <div class="drawer-add-project" data-drawer-add-project>
+            <span style="font-size:15px;line-height:1;">+</span><span>Ajouter</span>
+          </div>
+          <div class="drawer-admin-toggle" data-drawer-admin-toggle>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+            <span>Admin</span>
+          </div>
+          <a data-theme-toggle class="d-rail-theme-link"><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
         </div>
 
         <div class="d-main">
@@ -1532,6 +1598,7 @@
               <div class="docs-toc-head">Sommaire</div>
               <div class="docs-toc-list" data-docs-toc-list></div>
             </div>
+            <div class="docs-desktop-outline" data-docs-desktop-outline></div>
 
             <div class="docs-toc-backdrop" data-docs-move-backdrop></div>
             <div class="docs-toc-panel" data-docs-move-panel>
@@ -2204,6 +2271,8 @@
     const pbBackdrop = document.querySelector('[data-pb-backdrop]');
     if (pbSheet) document.body.appendChild(pbSheet);
     if (pbBackdrop) document.body.appendChild(pbBackdrop);
+    const docsEditor = document.querySelector('[data-docs-editor]');
+    if (docsEditor) document.body.appendChild(docsEditor);
   })();
 
   const MOON_PATH = 'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z';
@@ -2481,7 +2550,7 @@
     });
     const backdropSelectors = ['[data-addtask-backdrop]', '[data-pa-backdrop]'];
     backdropSelectors.forEach(sel => phone.querySelector(sel)?.classList.remove('open'));
-    phone.querySelector('[data-docs-editor]')?.classList.remove('open');
+    document.querySelector('[data-docs-editor]')?.classList.remove('open');
     phone.querySelector('.search-overlay')?.classList.remove('open');
     phone.querySelector('.drawer')?.classList.remove('open');
     phone.querySelector('[data-drawer-backdrop]')?.classList.remove('open');
@@ -3939,10 +4008,10 @@
   }
 
   function renderDrawerProjects(projects) {
-    const list = document.querySelector('[data-drawer-projects]');
-    if (!list) return;
+    const lists = document.querySelectorAll('[data-drawer-projects]');
+    if (!lists.length) return;
     const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
-    list.innerHTML = sorted.map((p, i) => {
+    const html = sorted.map((p, i) => {
       const pageCount = cachedPages.filter(pg => pg.project_id === p.id && !pg.is_archived).length;
       return `
       <div class="drawer-project" data-project-id="${p.id}">
@@ -3954,6 +4023,7 @@
         </span>
       </div>`;
     }).join('');
+    lists.forEach(list => { list.innerHTML = html; });
     wireDrawerProjectRows();
   }
   async function swapDrawerProjectPosition(projectId, dir) {
@@ -3984,7 +4054,7 @@
       row.addEventListener('click', () => {
         const drawer = row.closest('.drawer');
         if (drawer && drawer.classList.contains('edit-mode')) {
-          openProjectAdmin(row.closest('.phone'), row.dataset.projectId);
+          openProjectAdmin(getActiveContainer(), row.dataset.projectId);
           return;
         }
         toggleDrawerProjectPages(row);
@@ -4013,7 +4083,7 @@
     wrap.querySelectorAll('.drawer-page-row[data-page-id]').forEach(pageRow => {
       pageRow.addEventListener('click', (e) => {
         e.stopPropagation();
-        const phone = row.closest('.phone');
+        const phone = getActiveContainer();
         if (pageRow.dataset.pageType === 'doc') {
           openDocsEditor(phone, pageRow.dataset.pageId, false);
         } else {
@@ -4028,22 +4098,23 @@
   // ================================================================
   // Documents — arborescence indépendante (dossier principal > sous-dossier)
   // ================================================================
-  function renderDrawerDocFolders() {
-    const container = document.querySelector('[data-drawer-docfolders]');
-    if (!container) return;
-    const editMode = container.closest('.drawer')?.classList.contains('edit-mode');
-    const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
-    container.innerHTML = top.map(f => `
-      <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}"><svg class="drawer-folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>${escapeHtml(f.name)}</div>
-    `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
-    container.querySelectorAll('.drawer-folder-row').forEach(row => {
-      row.addEventListener('click', () => {
-        const drawer = row.closest('.drawer');
-        if (drawer?.classList.contains('edit-mode')) {
-          openDocFolderAdmin(row.closest('.phone'), row.dataset.folderId);
-          return;
-        }
-        toggleDrawerSubfolders(row);
+  function renderDrawerDocFolders(onlyContainer) {
+    const containers = onlyContainer ? [onlyContainer] : document.querySelectorAll('[data-drawer-docfolders]');
+    containers.forEach(container => {
+      const editMode = container.closest('.drawer')?.classList.contains('edit-mode');
+      const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
+      container.innerHTML = top.map(f => `
+        <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}"><svg class="drawer-folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>${escapeHtml(f.name)}</div>
+      `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
+      container.querySelectorAll('.drawer-folder-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const drawer = row.closest('.drawer');
+          if (drawer?.classList.contains('edit-mode')) {
+            openDocFolderAdmin(getActiveContainer(), row.dataset.folderId);
+            return;
+          }
+          toggleDrawerSubfolders(row);
+        });
       });
     });
   }
@@ -4074,12 +4145,12 @@
   }
   document.querySelectorAll('[data-drawer-add-docfolder]').forEach(btn => {
     btn.addEventListener('click', async () => {
-      const phone = btn.closest('.phone');
+      const phone = getActiveContainer();
       const position = cachedDocFolders.filter(f => !f.parent_folder_id).length + 1;
       const { data: newFolder, error } = await sb.from('doc_folders').insert({ name: 'Nouveau dossier', position }).select().single();
       if (error) { console.error(error); return; }
       cachedDocFolders.push(newFolder);
-      renderDrawerDocFolders();
+      renderDrawerDocFolders(btn.closest('.drawer')?.querySelector('[data-drawer-docfolders]'));
       openDocFolderAdmin(phone, newFolder.id);
     });
   });
@@ -4092,7 +4163,7 @@
       const showing = container.style.display !== 'none';
       container.style.display = showing ? 'none' : 'block';
       a.classList.toggle('active', !showing);
-      if (!showing) renderDrawerDocFolders();
+      if (!showing) renderDrawerDocFolders(container);
     });
   });
   document.querySelectorAll('[data-drawer-toggle-favorites]').forEach(a => {
@@ -4104,30 +4175,31 @@
       const showing = container.style.display !== 'none';
       container.style.display = showing ? 'none' : 'block';
       a.classList.toggle('active', !showing);
-      if (!showing) renderDrawerFavorites();
+      if (!showing) renderDrawerFavorites(container);
     });
   });
-  function renderDrawerFavorites() {
-    const container = document.querySelector('[data-drawer-favorites]');
-    if (!container) return;
+  function renderDrawerFavorites(onlyContainer) {
+    const containers = onlyContainer ? [onlyContainer] : document.querySelectorAll('[data-drawer-favorites]');
     const favTodos = cachedTodos.filter(t => t.is_favorite && !t.is_done);
     const favPages = cachedPages.filter(p => p.is_favorite && !p.is_archived && p.page_type !== 'doc');
     const rows = [
       ...favTodos.map(t => `<div class="drawer-fav-row" data-fav-todo-id="${t.id}"><span class="fav-star">★</span>${escapeHtml(t.title)}</div>`),
       ...favPages.map(p => `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}"><span class="fav-star">★</span>${escapeHtml(p.title)}</div>`),
     ];
-    container.innerHTML = rows.join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
-    container.querySelectorAll('[data-fav-todo-id]').forEach(row => {
-      row.addEventListener('click', () => {
-        const phone = row.closest('.phone');
-        closeAllPhoneSheets(phone, null);
-        openTaskSheet(phone, row.dataset.favTodoId);
+    const html = rows.join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
+    containers.forEach(container => {
+      container.innerHTML = html;
+      container.querySelectorAll('[data-fav-todo-id]').forEach(row => {
+        row.addEventListener('click', () => {
+          const phone = getActiveContainer();
+          closeAllPhoneSheets(phone, null);
+          openTaskSheet(phone, row.dataset.favTodoId);
+        });
       });
-    });
-    container.querySelectorAll('[data-fav-page-id]').forEach(row => {
-      row.addEventListener('click', () => {
-        const phone = row.closest('.phone');
-        openPbPageTasksDirect(phone, row.dataset.favPageId, row.dataset.favPageTitle);
+      container.querySelectorAll('[data-fav-page-id]').forEach(row => {
+        row.addEventListener('click', () => {
+          openPbPageTasksDirect(getActiveContainer(), row.dataset.favPageId, row.dataset.favPageTitle);
+        });
       });
     });
   }
@@ -4208,7 +4280,7 @@
       drawer.querySelectorAll('.drawer-pages-collapse').forEach(el => el.remove());
       drawer.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
       const docContainer = drawer.querySelector('[data-drawer-docfolders]');
-      if (docContainer && docContainer.style.display !== 'none') renderDrawerDocFolders();
+      if (docContainer && docContainer.style.display !== 'none') renderDrawerDocFolders(docContainer);
       drawer.querySelector('[data-app-title-text]').style.display = active ? 'none' : 'block';
       drawer.querySelector('[data-app-title-input]').style.display = active ? 'block' : 'none';
       drawer.querySelector('[data-app-subtitle-text]').style.display = active ? 'none' : 'block';
@@ -4321,7 +4393,7 @@
   }
 
   document.querySelectorAll('[data-drawer-add-project]').forEach(btn => {
-    btn.addEventListener('click', () => openProjectAdminNew(btn.closest('.phone')));
+    btn.addEventListener('click', () => openProjectAdminNew(getActiveContainer()));
   });
 
   // ---- Admin des dossiers de Documents ----
@@ -5043,7 +5115,7 @@
   // Docs — éditeur de texte simple pour les pages "doc"
   // ================================================================
   function openDocsEditor(phone, pageId, startInEdit) {
-    const editor = phone.querySelector('[data-docs-editor]');
+    const editor = document.querySelector('[data-docs-editor]');
     const page = cachedPages.find(p => p.id === pageId);
     if (!editor || !page) return;
     closeAllPhoneSheets(phone, null);
@@ -5079,7 +5151,7 @@
     grid.querySelectorAll('.docs-media-thumb').forEach(thumb => {
       thumb.addEventListener('click', (e) => {
         if (e.target.closest('[data-docs-media-remove]')) return;
-        openLightbox(editor.closest('.phone'), images, parseInt(thumb.dataset.imgIndex, 10));
+        openLightbox(getActiveContainer(), images, parseInt(thumb.dataset.imgIndex, 10));
       });
     });
     grid.querySelectorAll('[data-docs-media-remove]').forEach(btn => {
@@ -5124,13 +5196,15 @@
     buildDocsToc(editor);
   }
   function closeDocsEditor(phone) {
-    const editor = phone.querySelector('[data-docs-editor]');
+    const editor = document.querySelector('[data-docs-editor]');
     if (!editor) return;
     if (editor.dataset.editing === '1') saveDocsContent(editor);
     editor.classList.remove('open');
     loadData();
-    phone.querySelector('.drawer')?.classList.add('open');
-    phone.querySelector('[data-drawer-backdrop]')?.classList.add('open');
+    if (window.innerWidth < 900) {
+      phone.querySelector('.drawer')?.classList.add('open');
+      phone.querySelector('[data-drawer-backdrop]')?.classList.add('open');
+    }
   }
 
   // ---- sommaire (TOC) : liste des H1/H2 du document, clic = défilement ----
@@ -5163,6 +5237,24 @@
         const target = targetId === 'docs-media-anchor' ? mediaSection : content.querySelector('#' + targetId);
         target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         closeDocsToc(editor);
+      });
+    });
+    buildDesktopDocOutline(editor, headings);
+  }
+  function buildDesktopDocOutline(editor, headings) {
+    const outline = editor.querySelector('[data-docs-desktop-outline]');
+    if (!outline) return;
+    outline.innerHTML = headings.map((h, i) => {
+      const level = h.tagName === 'H1' ? 'lvl1' : 'lvl2';
+      return `<div class="docs-outline-tick ${level}" data-outline-target="docs-h-${i}">
+        <span class="tick-mark"></span>
+        <span class="docs-outline-label">${escapeHtml(h.textContent || '(sans titre)')}</span>
+      </div>`;
+    }).join('');
+    const content = editor.querySelector('[data-docs-content]');
+    outline.querySelectorAll('[data-outline-target]').forEach(tick => {
+      tick.addEventListener('click', () => {
+        content.querySelector('#' + tick.dataset.outlineTarget)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
   }
@@ -5207,7 +5299,7 @@
   }
 
   document.querySelectorAll('[data-docs-editor]').forEach(editor => {
-    const phone = editor.closest('.phone');
+    const phone = getActiveContainer();
     const content = editor.querySelector('[data-docs-content]');
 
     document.addEventListener('selectionchange', () => {
