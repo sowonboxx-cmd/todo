@@ -181,7 +181,7 @@
     min-height: 720px;
   }
   .d-rail {
-    width: 216px;
+    width: 260px;
     flex-shrink: 0;
     background: var(--card);
     border-right: 1px solid var(--line-soft);
@@ -581,10 +581,17 @@
   }
   .drawer.open { left: 0; }
   .d-rail.drawer {
-    position: sticky; top: 0; left: auto; bottom: auto; width: 216px; flex-shrink: 0;
+    position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
     transition: none; z-index: auto; align-self: flex-start; height: 100vh; overflow-y: auto;
   }
-  .d-rail-theme-link { margin-top: auto; }
+  .d-rail-bottom-row { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+  .d-rail-icon-btn {
+    display: flex; align-items: center; justify-content: center; width: 34px; height: 34px;
+    border-radius: 10px; color: var(--muted); cursor: pointer; flex-shrink: 0;
+  }
+  .d-rail-icon-btn:hover { background: var(--bg); color: var(--ink); }
+  .d-rail-icon-btn svg { width: 17px; height: 17px; }
+  .d-rail-icon-btn span.icon-badge { display: flex; }
   .drawer-header { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 12px; }
   .drawer-title-input {
     display: block; width: 100%; border: none; background: var(--bg); border-radius: 8px;
@@ -643,6 +650,12 @@
   .drawer-folder-row.expanded { background: var(--bg); color: var(--ink); }
   .drawer-folder-icon { width: 14px; height: 14px; flex-shrink: 0; color: #3E72A6; }
   .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
+  .drawer-docs-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
+  .drawer-doc-row {
+    display: flex; align-items: center; padding: 7px 8px; font-size: 12px; color: var(--muted);
+    border-radius: 8px; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .drawer-doc-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-page-row {
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 8px; cursor: pointer;
@@ -658,6 +671,10 @@
   }
   .drawer-admin-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
   .drawer-admin-toggle.active { background: var(--bg); color: var(--ink); }
+  .d-rail-icon-btn.drawer-admin-toggle {
+    margin-top: 0; padding: 0; width: 34px; height: 34px; gap: 0;
+  }
+  .d-rail-icon-btn.drawer-admin-toggle svg { width: 17px; height: 17px; }
   .drawer-add-project {
     display: none; align-items: center; gap: 8px; padding: 9px 8px; border-radius: 10px;
     color: var(--accent-due); font-size: 13px; font-weight: 700; cursor: pointer;
@@ -1191,7 +1208,7 @@
 
   /* ================= docs editor : mise en page desktop façon Dropbox Paper ================= */
   @media (min-width: 900px) {
-    .docs-editor { left: 216px; }
+    .docs-editor { left: 260px; }
     .docs-scroll {
       display: grid; grid-template-columns: minmax(0, 700px) 200px;
       justify-content: center; gap: 48px; align-items: start;
@@ -1211,7 +1228,7 @@
   @media (min-width: 900px) {
     .docs-desktop-outline {
       display: flex; flex-direction: column; gap: 12px;
-      position: fixed; left: 236px; top: 50%; transform: translateY(-50%); z-index: 50;
+      position: fixed; left: 280px; top: 50%; transform: translateY(-50%); z-index: 50;
     }
     .docs-outline-tick { position: relative; cursor: pointer; }
     .docs-outline-tick .tick-mark {
@@ -1331,11 +1348,14 @@
           <div class="drawer-add-project" data-drawer-add-project>
             <span style="font-size:15px;line-height:1;">+</span><span>Ajouter</span>
           </div>
-          <div class="drawer-admin-toggle" data-drawer-admin-toggle>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
-            <span>Admin</span>
+          <div class="d-rail-bottom-row">
+            <a data-theme-toggle class="d-rail-icon-btn" title="Changer de thème">
+              <span class="icon-badge" data-theme-icon><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg></span>
+            </a>
+            <div class="drawer-admin-toggle d-rail-icon-btn" data-drawer-admin-toggle title="Admin">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5H7M21 5H11M3 12H15M21 12H19M3 19H5M21 19H9"/><circle cx="9" cy="5" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="7" cy="19" r="2"/></svg>
+            </div>
           </div>
-          <a data-theme-toggle class="d-rail-theme-link"><span class="dot"></span><span data-theme-label>Mode sombre</span></a>
         </div>
 
         <div class="d-main">
@@ -1463,7 +1483,7 @@
               <span style="font-size:15px;line-height:1;">+</span><span>Ajouter</span>
             </div>
             <div class="drawer-admin-toggle" data-drawer-admin-toggle>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5H7M21 5H11M3 12H15M21 12H19M3 19H5M21 19H9"/><circle cx="9" cy="5" r="2"/><circle cx="17" cy="12" r="2"/><circle cx="7" cy="19" r="2"/></svg>
               <span>Admin</span>
             </div>
           </div>
@@ -4136,12 +4156,39 @@
     wrap.querySelectorAll('[data-subfolder-id]').forEach(subRow => {
       subRow.addEventListener('click', (e) => {
         e.stopPropagation();
-        const phone = row.closest('.phone');
-        openDocFolderBrowser(phone, subRow.dataset.subfolderId, subRow.dataset.subfolderName);
+        if (window.innerWidth >= 900) {
+          toggleDrawerSubfolderDocs(subRow);
+          return;
+        }
+        openDocFolderBrowser(getActiveContainer(), subRow.dataset.subfolderId, subRow.dataset.subfolderName);
       });
     });
     row.classList.add('expanded');
     row.after(wrap);
+  }
+  function toggleDrawerSubfolderDocs(subRow) {
+    const existing = subRow.nextElementSibling;
+    if (existing && existing.classList.contains('drawer-docs-collapse')) {
+      existing.remove();
+      subRow.classList.remove('expanded');
+      return;
+    }
+    document.querySelectorAll('.drawer-docs-collapse').forEach(el => el.remove());
+    document.querySelectorAll('.drawer-page-row.expanded').forEach(el => el.classList.remove('expanded'));
+
+    const folderId = subRow.dataset.subfolderId;
+    const docs = cachedPages.filter(p => p.doc_folder_id === folderId && !p.is_archived && p.page_type === 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
+    const wrap = document.createElement('div');
+    wrap.className = 'drawer-docs-collapse';
+    wrap.innerHTML = docs.map(d => `<div class="drawer-doc-row" data-doc-id="${d.id}">${DOC_ICON_SVG}${escapeHtml(d.title)}</div>`).join('') || '<div class="drawer-page-row empty">Aucun document</div>';
+    wrap.querySelectorAll('[data-doc-id]').forEach(docRow => {
+      docRow.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDocsEditor(getActiveContainer(), docRow.dataset.docId, false);
+      });
+    });
+    subRow.classList.add('expanded');
+    subRow.after(wrap);
   }
   document.querySelectorAll('[data-drawer-add-docfolder]').forEach(btn => {
     btn.addEventListener('click', async () => {
