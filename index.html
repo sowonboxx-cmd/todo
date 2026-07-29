@@ -510,7 +510,7 @@
   .m-venture .vdesc { color: var(--muted); font-size: 11px; margin-top: 7px; }
 
   .task-list, .m-tasks { overflow-y: auto; padding-right: 10px; padding-left: 8px; margin-left: -8px; }
-  #app-desktop .task-list { max-height: calc(100vh - 300px); }
+  #app-desktop .task-list { max-height: calc((100vh - 300px) / 1.05); }
   .task-list::-webkit-scrollbar, .m-tasks::-webkit-scrollbar { width: 5px; }
   .task-list::-webkit-scrollbar-thumb, .m-tasks::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
   .task-list:hover::-webkit-scrollbar-thumb, .m-tasks:hover::-webkit-scrollbar-thumb,
@@ -599,7 +599,7 @@
   .drawer.open { left: 0; }
   .d-rail.drawer {
     position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
-    transition: none; z-index: auto; align-self: flex-start; height: 100vh; overflow-y: auto;
+    transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.05); overflow-y: auto;
   }
   .d-rail-bottom-row { display: flex; align-items: center; gap: 8px; margin-top: auto; }
   .d-rail-icon-btn {
@@ -1419,12 +1419,7 @@
             </button>
           </div>
 
-          <div class="kpi-row">
-            <div class="kpi"><div class="label">Projets</div><div class="value mono"><span id="kpi-projects-desktop">05</span></div></div>
-            <div class="kpi"><div class="label">Tâches à faire</div><div class="value mono"><span id="kpi-done-desktop">23</span></div></div>
-            <div class="kpi"><div class="label">Complétion moyenne</div><div class="value mono">54<small>%</small></div></div>
-            <div class="kpi"><div class="label">Pages</div><div class="value mono">27</div></div>
-          </div>
+          <div class="project-strip" id="project-strip-desktop"></div>
 
           <div class="board">
             <div class="panel">
@@ -4112,10 +4107,15 @@
   function renderProjects(projects, pages, todos) {
     const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
     const deskEl = document.getElementById('venture-list-desktop');
-    const mobEl = document.querySelector('.project-strip');
+    const deskStripEl = document.getElementById('project-strip-desktop');
+    const mobEl = document.querySelector('#app-mobile .project-strip');
     if (deskEl) {
       deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
       deskEl.querySelectorAll('.venture-card').forEach(wireProjectBlock);
+    }
+    if (deskStripEl) {
+      deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
+      deskStripEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
     }
     if (mobEl) {
       mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
