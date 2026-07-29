@@ -277,7 +277,7 @@
   }
   .kanban-back-icon:hover { background: var(--bg); }
   .kanban-project-badge {
-    background: var(--ink); color: #fff; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--line); color: var(--ink); border-radius: 14px;
     padding: 8px 18px; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 800;
   }
   .kanban-columns { display: flex; gap: 16px; overflow-x: auto; flex: 1; align-items: flex-start; padding-bottom: 8px; }
@@ -293,7 +293,7 @@
   .kanban-column-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
   .kanban-column-bar { margin-bottom: 12px; }
   .kanban-column-tasks { overflow-y: auto; flex: 1; }
-  .kanban-column-tasks .task-row { margin: 0; padding-left: 3px; padding-right: 3px; }
+  .kanban-column-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
 
   .panel {
     background: var(--card); border: 1px solid var(--line-soft);
@@ -679,7 +679,7 @@
   .drawer-project-reorder button:disabled { opacity: 0.3; cursor: default; }
   .drawer-project.expanded { background: var(--bg); }
   .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
-  .drawer-docfolders { display: flex; flex-direction: column; padding: 0 0 8px; }
+  .drawer-docfolders { display: flex; flex-direction: column; padding: 2px 0 8px 14px; margin-left: 9px; border-left: 1.5px solid #3E72A6; }
   .drawer-favorites { display: flex; flex-direction: column; padding: 4px 0 8px; }
   .drawer-fav-row {
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
@@ -689,12 +689,16 @@
   .drawer-fav-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-fav-row .fav-star { color: #D9A400; flex-shrink: 0; }
   .drawer-folder-row {
+    position: relative;
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
     font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted);
   }
+  .drawer-folder-row::before {
+    content: ''; position: absolute; left: -14px; top: 50%; width: 10px; height: 1.5px;
+    background: #3E72A6;
+  }
   .drawer-folder-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-folder-row.expanded { background: var(--bg); color: var(--ink); }
-  .drawer-folder-icon { width: 14px; height: 14px; flex-shrink: 0; color: #3E72A6; }
   .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
   .drawer-docs-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
   .drawer-doc-row {
@@ -4375,7 +4379,7 @@
       const editMode = container.closest('.drawer')?.classList.contains('edit-mode');
       const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
       container.innerHTML = top.map(f => `
-        <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}"><svg class="drawer-folder-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>${escapeHtml(f.name)}</div>
+        <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
       `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
       container.querySelectorAll('.drawer-folder-row').forEach(row => {
         row.addEventListener('click', () => {
