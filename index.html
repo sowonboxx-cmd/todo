@@ -266,9 +266,31 @@
   .kpi .value { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
   .kpi .value small { font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 500; }
 
-  .board { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
+  .board { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+  .board > div { min-width: 0; }
 
   .kanban-view { display: none; flex-direction: column; height: 100%; }
+
+  .home-kanban-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; }
+  .home-kanban-col {
+    flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 190px; max-width: 300px;
+    display: flex; flex-direction: column;
+  }
+  .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 2px 10px; flex-shrink: 0; }
+  .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
+  .home-kanban-title.overdue { color: var(--danger); }
+  .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
+  .home-kanban-add {
+    margin-left: auto; width: 22px; height: 22px; border-radius: 7px; border: none;
+    background: transparent; color: var(--faint); font-size: 15px; cursor: pointer; flex-shrink: 0;
+  }
+  .home-kanban-add:hover { background: var(--bg); color: var(--ink); }
+  .home-kanban-col .task-list[data-tab] { display: block !important; }
+  .home-kanban-col .task-list {
+    display: block; max-height: none !important; overflow-y: auto; flex: 1;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 6px 10px;
+  }
+  .home-kanban-col .task-list .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
   .kanban-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-shrink: 0; }
   .kanban-back-icon {
     width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--line); background: var(--card);
@@ -293,7 +315,7 @@
   .kanban-column-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
   .kanban-column-bar { margin-bottom: 12px; }
   .kanban-column-tasks { overflow-y: auto; flex: 1; }
-  .kanban-column-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
+  .kanban-column-tasks .task-row { margin: 0; padding-left: 9px; padding-right: 9px; }
 
   .panel {
     background: var(--card); border: 1px solid var(--line-soft);
@@ -691,7 +713,7 @@
   .drawer-folder-row {
     position: relative;
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
-    font-size: 13px; font-weight: 600; cursor: pointer; color: var(--muted);
+    font-size: 12.5px; font-weight: 500; cursor: pointer; color: var(--muted);
   }
   .drawer-folder-row::before {
     content: ''; position: absolute; left: -14px; top: 50%; width: 10px; height: 1.5px;
@@ -1477,40 +1499,86 @@
                     </div>
                   </span>
                 </h3>
-                <div class="date-tabs" data-tabgroup>
-                  <div class="dt overdue" data-tab="overdue">Overdue</div>
-                  <div class="dt active" data-tab="today">Today</div>
-                  <div class="dt" data-tab="tomorrow">Demain</div>
-                  <div class="dt" data-tab="d2" data-day-offset="2"></div>
-                  <div class="dt" data-tab="d3" data-day-offset="3"></div>
-                  <div class="dt" data-tab="d4" data-day-offset="4"></div>
-                  <div class="dt" data-tab="d5" data-day-offset="5"></div>
-                  <div class="dt" data-tab="d6" data-day-offset="6"></div>
-                  <div class="dt" data-tab="later">Plus tard</div>
-                  <div class="dt" data-tab="nodate">No date</div>
-                  <div class="dt" data-tab="all">All</div>
+                <div class="home-kanban-row" data-home-kanban-row>
+                  <div class="home-kanban-col" data-home-col="overdue">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title overdue">Overdue</span>
+                      <span class="home-kanban-count" data-home-count="overdue">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="overdue" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="overdue"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="today">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title">Today</span>
+                      <span class="home-kanban-count" data-home-count="today">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="today" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list is-active" data-tab="today"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="tomorrow">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title">Demain</span>
+                      <span class="home-kanban-count" data-home-count="tomorrow">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="tomorrow" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="tomorrow"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="d2">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title" data-home-day-offset="2"></span>
+                      <span class="home-kanban-count" data-home-count="d2">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="d2" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="d2"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="d3">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title" data-home-day-offset="3"></span>
+                      <span class="home-kanban-count" data-home-count="d3">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="d3" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="d3"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="d4">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title" data-home-day-offset="4"></span>
+                      <span class="home-kanban-count" data-home-count="d4">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="d4" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="d4"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="d5">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title" data-home-day-offset="5"></span>
+                      <span class="home-kanban-count" data-home-count="d5">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="d5" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="d5"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="d6">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title" data-home-day-offset="6"></span>
+                      <span class="home-kanban-count" data-home-count="d6">0</span>
+                      <button type="button" class="home-kanban-add" data-home-add="d6" title="Ajouter une tâche">+</button>
+                    </div>
+                    <div class="task-list" data-tab="d6"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="nodate">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title">No date</span>
+                      <span class="home-kanban-count" data-home-count="nodate">0</span>
+                    </div>
+                    <div class="task-list" data-tab="nodate"></div>
+                  </div>
+                  <div class="home-kanban-col" data-home-col="all">
+                    <div class="home-kanban-head">
+                      <span class="home-kanban-title">All</span>
+                      <span class="home-kanban-count" data-home-count="all">0</span>
+                    </div>
+                    <div class="task-list" data-tab="all"></div>
+                  </div>
                 </div>
-
-                <div class="task-list" data-tab="overdue"></div>
-
-                <div class="task-list is-active" data-tab="today"></div>
-
-                <div class="task-list" data-tab="tomorrow"></div>
-
-                <div class="task-list" data-tab="d2"></div>
-
-                <div class="task-list" data-tab="d3"></div>
-
-                <div class="task-list" data-tab="d4"></div>
-
-                <div class="task-list" data-tab="d5"></div>
-
-                <div class="task-list" data-tab="d6"></div>
-
-                <div class="task-list" data-tab="later"></div>
-
-                <div class="task-list" data-tab="nodate"></div>
-                <div class="task-list" data-tab="all"></div>
               </div>
             </div>
           </div>
@@ -3814,6 +3882,10 @@
       const offset = parseInt(el.dataset.dayOffset, 10);
       el.textContent = formatDateShort(isoPlusDays(offset));
     });
+    document.querySelectorAll('[data-home-day-offset]').forEach(el => {
+      const offset = parseInt(el.dataset.homeDayOffset, 10);
+      el.textContent = formatDateShort(isoPlusDays(offset));
+    });
   }
   function whenLabel(todo, tabKey, includeDate) {
     if (todo.due_time) {
@@ -4261,6 +4333,11 @@
     document.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(container => {
       const rows = buckets[container.dataset.tab] || [];
       container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
+    });
+
+    document.querySelectorAll('[data-home-count]').forEach(el => {
+      const key = el.dataset.homeCount;
+      el.textContent = String((buckets[key] || []).length);
     });
 
     document.querySelectorAll('.checkbox').forEach(wireCheckbox);
@@ -4936,7 +5013,7 @@
   // Quick add — bouton "+" de la nav du bas
   // ================================================================
 
-  function openAddTaskSheet(phone, presetProjectId, presetPageId) {
+  function openAddTaskSheet(phone, presetProjectId, presetPageId, presetDueDate) {
     const sheet = document.querySelector('[data-addtask-sheet]');
     const backdrop = document.querySelector('[data-addtask-backdrop]');
     if (!sheet || !backdrop) return;
@@ -4963,6 +5040,10 @@
     sheet.dataset.pendingDueTime = '';
     sheet.querySelector('[data-at-date-label]').textContent = 'Date';
     sheet.querySelector('[data-goto="date"]').classList.remove('set');
+    if (presetDueDate) {
+      sheet.dataset.pendingDueDate = presetDueDate;
+      updateDueLabelFromCache(sheet);
+    }
     sheet.querySelector('[data-goto="flag"]').classList.remove('set');
     sheet.querySelector('[data-at-flag-label]').textContent = 'Importance';
     sheet.querySelector('[data-at-project-label]').textContent = 'Projet';
@@ -5128,6 +5209,17 @@
     });
   }
 
+  document.querySelectorAll('[data-home-add]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.homeAdd;
+      let dueDate = null;
+      if (key === 'overdue') dueDate = isoPlusDays(-1);
+      else if (key === 'today') dueDate = todayISO();
+      else if (key === 'tomorrow') dueDate = isoPlusDays(1);
+      else if (/^d(\d)$/.test(key)) dueDate = isoPlusDays(parseInt(key.slice(1), 10));
+      openAddTaskSheet(getActiveContainer(), null, null, dueDate);
+    });
+  });
   document.querySelectorAll('[data-open-addtask]').forEach(btn => {
     btn.addEventListener('click', () => {
       const phone = btn.closest('.phone');
