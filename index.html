@@ -274,7 +274,7 @@
   .home-kanban-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; }
   .home-kanban-col {
     flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 220px; max-width: 320px;
-    display: flex; flex-direction: column;
+    display: flex; flex-direction: column; max-height: calc((100vh - 260px) / 1.05);
     background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 14px 14px 10px;
   }
@@ -291,15 +291,9 @@
   .home-kanban-add:hover { background: var(--bg); color: var(--ink); }
   .home-kanban-col .task-list[data-tab] { display: block !important; }
   .home-kanban-col .task-list {
-    display: block; max-height: none !important; overflow-y: auto; flex: 1; padding: 0;
+    display: block; max-height: none !important; overflow-y: auto; flex: 1; min-height: 0; padding: 0;
   }
   .home-kanban-col .task-list .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
-  .task-list-more {
-    display: block; width: 100%; margin-top: 6px; padding: 9px; border: none;
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 10px;
-    color: var(--ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer;
-  }
-  .task-list-more:hover { background: var(--bg); }
   .kanban-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-shrink: 0; }
   .kanban-back-icon {
     width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--line); background: var(--card);
@@ -341,11 +335,6 @@
     font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 6px;
   }
   .dots-btn:hover { background: var(--bg); }
-  .h3-add-btn {
-    border: none; background: transparent; color: var(--ink); cursor: pointer;
-    font-size: 17px; line-height: 1; padding: 2px 6px; border-radius: 6px; font-weight: 600;
-  }
-  .h3-add-btn:hover { background: var(--bg); }
   .panel h3 .dots-btn, .m-section-title .dots-btn { color: var(--ink); }
   .dots-menu {
     display: none; position: absolute; top: 26px; right: 0; z-index: 5;
@@ -485,6 +474,13 @@
     width: 240px;
   }
   .d-search-bar:hover { color: var(--ink); border-color: var(--faint); }
+  .d-topbar-actions { display: flex; align-items: center; gap: 8px; position: relative; }
+  .d-topbar-icon-btn {
+    width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--line); background: var(--card); border-radius: 12px;
+    color: var(--ink); font-size: 16px; font-weight: 600; cursor: pointer;
+  }
+  .d-topbar-icon-btn:hover { background: var(--bg); border-color: var(--faint); }
   .d-search-bar svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* ================================================================
@@ -1486,24 +1482,19 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               <span>Rechercher…</span>
             </button>
+            <div class="d-topbar-actions">
+              <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
+              <button type="button" class="d-topbar-icon-btn" data-menu-toggle title="Options">⋯</button>
+              <div class="dots-menu">
+                <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
+              </div>
+            </div>
           </div>
 
           <div class="project-strip" id="project-strip-desktop"></div>
 
           <div class="board">
             <div>
-              <div class="panel" style="margin-bottom:16px;">
-                <h3>Tâches
-                  <span class="h3-right">
-                    <a href="#">TickTick sync</a>
-                    <button type="button" class="h3-add-btn" data-desktop-capture-bar title="Ajouter">+</button>
-                    <button class="dots-btn" data-menu-toggle>⋯</button>
-                    <div class="dots-menu">
-                      <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
-                    </div>
-                  </span>
-                </h3>
-              </div>
                 <div class="home-kanban-row" data-home-kanban-row>
                   <div class="home-kanban-col" data-home-col="overdue">
                     <div class="home-kanban-head">
@@ -4356,23 +4347,7 @@
 
     document.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(container => {
       const rows = buckets[container.dataset.tab] || [];
-      const isHomeKanban = container.closest('.home-kanban-col');
-      if (isHomeKanban && rows.length > 25) {
-        const shown = Math.min(rows.length, parseInt(container.dataset.showCount, 10) || 25);
-        const remaining = rows.length - shown;
-        container.innerHTML = rows.slice(0, shown).join('') +
-          (remaining > 0 ? `<button type="button" class="task-list-more" data-show-more>Voir 25 de plus (${remaining} restantes)</button>` : '');
-        container.dataset.showCount = String(shown);
-      } else {
-        container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
-      }
-    });
-    document.querySelectorAll('[data-show-more]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const container = btn.closest('.task-list');
-        container.dataset.showCount = String((parseInt(container.dataset.showCount, 10) || 25) + 25);
-        renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
-      });
+      container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
     });
 
     document.querySelectorAll('[data-home-count]').forEach(el => {
