@@ -275,7 +275,7 @@
   .home-kanban-col {
     flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 220px; max-width: 320px;
     display: flex; flex-direction: column;
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    background: var(--bg); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 14px 14px 10px;
   }
   .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
@@ -294,6 +294,12 @@
     display: block; max-height: none !important; overflow-y: auto; flex: 1; padding: 0;
   }
   .home-kanban-col .task-list .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
+  .task-list-more {
+    display: block; width: 100%; margin-top: 6px; padding: 9px; border: none;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 10px;
+    color: var(--ink); font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .task-list-more:hover { background: var(--bg); }
   .kanban-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-shrink: 0; }
   .kanban-back-icon {
     width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--line); background: var(--card);
@@ -308,7 +314,7 @@
   .kanban-columns { display: flex; gap: 16px; overflow-x: auto; flex: 1; align-items: flex-start; padding-bottom: 8px; }
   .kanban-column {
     flex: 0 0 calc((100% - 32px) / 3); min-width: 260px;
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    background: var(--bg); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 12px 16px 16px; max-height: 100%; display: flex; flex-direction: column;
   }
   .kanban-column-headrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
@@ -335,6 +341,11 @@
     font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 6px;
   }
   .dots-btn:hover { background: var(--bg); }
+  .h3-add-btn {
+    border: none; background: transparent; color: var(--ink); cursor: pointer;
+    font-size: 17px; line-height: 1; padding: 2px 6px; border-radius: 6px; font-weight: 600;
+  }
+  .h3-add-btn:hover { background: var(--bg); }
   .panel h3 .dots-btn, .m-section-title .dots-btn { color: var(--ink); }
   .dots-menu {
     display: none; position: absolute; top: 26px; right: 0; z-index: 5;
@@ -1481,12 +1492,11 @@
 
           <div class="board">
             <div>
-              <div class="capture-bar" data-desktop-capture-bar style="margin-bottom:16px;">+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
-
               <div class="panel" style="margin-bottom:16px;">
                 <h3>Tâches
                   <span class="h3-right">
                     <a href="#">TickTick sync</a>
+                    <button type="button" class="h3-add-btn" data-desktop-capture-bar title="Ajouter">+</button>
                     <button class="dots-btn" data-menu-toggle>⋯</button>
                     <div class="dots-menu">
                       <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
@@ -4346,7 +4356,23 @@
 
     document.querySelectorAll('.task-list[data-tab], .m-tasks[data-tab]').forEach(container => {
       const rows = buckets[container.dataset.tab] || [];
-      container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
+      const isHomeKanban = container.closest('.home-kanban-col');
+      if (isHomeKanban && rows.length > 25) {
+        const shown = Math.min(rows.length, parseInt(container.dataset.showCount, 10) || 25);
+        const remaining = rows.length - shown;
+        container.innerHTML = rows.slice(0, shown).join('') +
+          (remaining > 0 ? `<button type="button" class="task-list-more" data-show-more>Voir 25 de plus (${remaining} restantes)</button>` : '');
+        container.dataset.showCount = String(shown);
+      } else {
+        container.innerHTML = rows.length ? rows.join('') : '<div class="empty-state">Aucune tâche</div>';
+      }
+    });
+    document.querySelectorAll('[data-show-more]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const container = btn.closest('.task-list');
+        container.dataset.showCount = String((parseInt(container.dataset.showCount, 10) || 25) + 25);
+        renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
+      });
     });
 
     document.querySelectorAll('[data-home-count]').forEach(el => {
