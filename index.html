@@ -368,6 +368,15 @@
     border-radius: 8px; background: transparent; z-index: 0;
     transition: background .12s ease; pointer-events: none;
   }
+  .task-row.pinned-daily::before {
+    background: linear-gradient(90deg, rgba(255,125,1,0.10), rgba(255,125,1,0.02) 75%);
+    border-left: 2px solid var(--accent-due);
+  }
+  .pin-badge {
+    position: absolute; top: 9px; right: 8px; width: 15px; height: 15px;
+    color: var(--accent-due); opacity: 0.8; z-index: 1;
+  }
+  .pin-badge svg { width: 100%; height: 100%; }
   .task-row:hover::before { background: var(--bg); }
   .task-row.opening::before { background: var(--line-soft); }
   .task-row > * { position: relative; z-index: 1; }
@@ -895,7 +904,7 @@
     display: none; align-items: center; justify-content: center; padding: 24px;
   }
   .img-lightbox.open { display: flex; }
-  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; cursor: pointer; }
+  .img-lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; cursor: pointer; touch-action: none; transition: transform .05s ease-out; }
   .lightbox-arrow {
     position: fixed; top: 50%; transform: translateY(-50%); z-index: 601;
     width: 48px; height: 48px; border-radius: 50%; border: none;
@@ -2370,7 +2379,8 @@
   }
   function sortIncomplete(list) {
     const rows = [...list.querySelectorAll('.task-row')];
-    const incomplete = rows.filter(r => !r.classList.contains('is-done'));
+    const pinned = rows.filter(r => r.classList.contains('pinned-daily') && !r.classList.contains('is-done'));
+    const incomplete = rows.filter(r => !r.classList.contains('is-done') && !r.classList.contains('pinned-daily'));
     const done = rows.filter(r => r.classList.contains('is-done'));
     incomplete.sort((a, b) => {
       const ta = timeOf(a), tb = timeOf(b);
@@ -2379,7 +2389,7 @@
       if (tb !== null) return 1;
       return priorityRank(a) - priorityRank(b);
     });
-    [...incomplete, ...done].forEach(r => list.appendChild(r));
+    [...pinned, ...incomplete, ...done].forEach(r => list.appendChild(r));
   }
   function sortByDueDate(list) {
     const rows = [...list.querySelectorAll('.task-row')];
@@ -2832,7 +2842,9 @@
   function showLightboxImage(lb) {
     const images = JSON.parse(lb.dataset.images || '[]');
     const index = parseInt(lb.dataset.index, 10) || 0;
-    if (images[index]) lb.querySelector('[data-img-lightbox-img]').src = images[index];
+    const img = lb.querySelector('[data-img-lightbox-img]');
+    if (images[index]) img.src = images[index];
+    img.style.transform = '';
   }
   function lightboxNav(lb, dir) {
     const images = JSON.parse(lb.dataset.images || '[]');
@@ -3491,12 +3503,46 @@
     lb.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => lightboxNav(lb, -1));
     lb.querySelector('[data-lightbox-next]')?.addEventListener('click', () => lightboxNav(lb, 1));
     let touchX = 0;
-    lb.addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+    let pinchStartDist = 0, pinchStartScale = 1, currentScale = 1, isPinching = false;
+    const imgEl = lb.querySelector('[data-img-lightbox-img]');
+    function touchDist(touches) {
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.hypot(dx, dy);
+    }
+    lb.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        pinchStartDist = touchDist(e.touches);
+        pinchStartScale = currentScale;
+      } else if (e.touches.length === 1) {
+        touchX = e.touches[0].clientX;
+      }
+    }, { passive: true });
+    lb.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        isPinching = true;
+        const dist = touchDist(e.touches);
+        currentScale = Math.max(1, Math.min(4, pinchStartScale * (dist / pinchStartDist)));
+        imgEl.style.transform = `scale(${currentScale})`;
+      }
+    }, { passive: true });
     lb.addEventListener('touchend', (e) => {
+      if (e.touches.length > 0) return; // encore un doigt posé, on attend la fin complète du geste
+      if (isPinching) {
+        isPinching = false;
+        if (currentScale <= 1.05) { currentScale = 1; imgEl.style.transform = ''; }
+        return;
+      }
+      if (currentScale > 1) return; // zoomé : le swipe sert à regarder l'image, pas à naviguer
       const dx = e.changedTouches[0].clientX - touchX;
       if (Math.abs(dx) < 40) return;
       lightboxNav(lb, dx < 0 ? 1 : -1);
     }, { passive: true });
+    imgEl.addEventListener('dblclick', () => {
+      currentScale = 1;
+      imgEl.style.transform = '';
+    });
   });
 
 
@@ -3708,8 +3754,15 @@
       el.textContent = formatDateShort(isoPlusDays(offset));
     });
   }
-  function whenLabel(todo, tabKey) {
-    if (todo.due_time) return todo.due_time.slice(0, 5);
+  function whenLabel(todo, tabKey, includeDate) {
+    if (todo.due_time) {
+      const time = todo.due_time.slice(0, 5);
+      if (!includeDate || !todo.due_date) return time;
+      const diff = daysFromToday(todo.due_date);
+      const RELATIVE_LABELS = { '-2': 'Avant-hier', '-1': 'Hier', '0': "Aujourd'hui", '1': 'Demain', '2': 'Après-demain' };
+      const dateLabel = RELATIVE_LABELS[String(diff)] || formatDateShort(todo.due_date);
+      return `${dateLabel} - ${time}`;
+    }
     if (!todo.due_date) return '';
     const diff = daysFromToday(todo.due_date);
     if (diff === -1) return 'Hier';
@@ -3769,16 +3822,20 @@
       </div>`;
   }
 
-  function taskRowHtml(todo, project, page, subStats) {
+  function isDailyRepeat(todo) {
+    return todo.repeat_rule === 'Every day';
+  }
+  function taskRowHtml(todo, project, page, subStats, includeDate, pinned) {
     const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : 'p-low';
     const tabKey = classifyDue(todo.due_date);
-    const label = whenLabel(todo, tabKey);
+    const label = whenLabel(todo, tabKey, includeDate);
     const whenStyle = tabKey === 'overdue' ? ' style="color:var(--danger)"' : '';
     const subsHtml = (subStats && subStats.total > 0)
       ? `<div class="subs-pill">${subStats.done}/${subStats.total} · ${Math.round((subStats.done / subStats.total) * 100)}%</div>`
       : '';
     return `
-      <div class="task-row${todo.is_done ? ' is-done' : ''}" data-todo-id="${todo.id}" data-project="${escapeHtml(project ? project.slug : '')}">
+      <div class="task-row${todo.is_done ? ' is-done' : ''}${pinned ? ' pinned-daily' : ''}" data-todo-id="${todo.id}" data-project="${escapeHtml(project ? project.slug : '')}">
+        ${pinned ? '<div class="pin-badge" title="Tous les jours"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a5 5 0 0 0-5 5c0 3 2 5 2 8H8v2h8v-2h-1c0-3 2-5 2-8a5 5 0 0 0-5-5z"/><path d="M12 17v5"/></svg></div>' : ''}
         <div class="checkbox ${pClass}${todo.is_done ? ' done' : ''}"></div>
         <div class="tinfo">
           <div class="tname">${escapeHtml(todo.title)}</div>
@@ -3941,7 +3998,7 @@
     });
     const page = pageById[pageId];
     const project = page ? projectById[page.project_id] : null;
-    list.innerHTML = sortedTodos.map(t => taskRowHtml(t, project, page, subsByTodo[t.id])).join('') || '<div class="empty-state">Aucune tâche</div>';
+    list.innerHTML = sortedTodos.map(t => taskRowHtml(t, project, page, subsByTodo[t.id], true)).join('') || '<div class="empty-state">Aucune tâche</div>';
     list.querySelectorAll('.checkbox').forEach(wireCheckbox);
     // clic direct : on ferme d'abord la fiche "pages" pour éviter l'empilement/rognage visuel des deux fiches
     list.querySelectorAll('.task-row').forEach(row => {
@@ -4065,8 +4122,9 @@
     topLevelTodos.forEach(todo => {
       const page = pageById[todo.page_id];
       const project = page ? projectById[page.project_id] : null;
-      const tabKey = classifyDue(todo.due_date);
-      const html = taskRowHtml(todo, project, page, subsByTodo[todo.id]);
+      const daily = isDailyRepeat(todo);
+      const tabKey = daily ? 'today' : classifyDue(todo.due_date);
+      const html = taskRowHtml(todo, project, page, subsByTodo[todo.id], false, daily);
       (buckets[tabKey] || buckets.later).push(html);
     });
 
