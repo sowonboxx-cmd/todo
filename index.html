@@ -268,6 +268,24 @@
 
   .board { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; }
 
+  .kanban-view { display: none; flex-direction: column; height: 100%; }
+  .kanban-head { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; flex-shrink: 0; }
+  .kanban-back {
+    border: 1px solid var(--line); background: var(--card); border-radius: 999px;
+    padding: 7px 14px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700;
+    color: var(--ink); cursor: pointer;
+  }
+  .kanban-back:hover { background: var(--bg); }
+  .kanban-columns { display: flex; gap: 16px; overflow-x: auto; flex: 1; align-items: flex-start; padding-bottom: 8px; }
+  .kanban-column {
+    flex: 0 0 calc((100% - 32px) / 3); min-width: 260px;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    padding: 16px; max-height: 100%; display: flex; flex-direction: column;
+  }
+  .kanban-column-head { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14px; margin-bottom: 4px; }
+  .kanban-column-count { font-size: 11.5px; color: var(--faint); font-weight: 600; margin-bottom: 12px; }
+  .kanban-column-tasks { overflow-y: auto; flex: 1; }
+
   .panel {
     background: var(--card); border: 1px solid var(--line-soft);
     border-radius: 14px; padding: 18px 18px 8px;
@@ -480,6 +498,7 @@
   }
   .project-block:last-child { border-right: none; }
   .project-block { cursor: pointer; transition: background .12s ease; }
+  #app-desktop .project-block { flex: 0 0 12.5%; }
   .project-block.active-filter { background: var(--bg); }
   .task-row.filtered-out { display: none; }
   .pk-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
@@ -1480,6 +1499,14 @@
                 <div class="task-list" data-tab="all"></div>
               </div>
             </div>
+          </div>
+
+          <div class="kanban-view" data-kanban-view style="display:none;">
+            <div class="kanban-head">
+              <button type="button" class="kanban-back" data-kanban-back>‹ Retour</button>
+              <h2 class="display" data-kanban-project-name>Projet</h2>
+            </div>
+            <div class="kanban-columns" data-kanban-columns></div>
           </div>
         </div>
 
@@ -3907,6 +3934,12 @@
         else if (list.dataset.sortMode === 'date') sortByDueDate(list);
         else sortIncomplete(list);
       }
+      const kanbanCol = row?.closest('.kanban-column');
+      if (kanbanCol) {
+        const kanbanView = kanbanCol.closest('[data-kanban-view]');
+        const projectId = cachedProjects.find(p => p.name === kanbanView?.querySelector('[data-kanban-project-name]')?.textContent)?.id;
+        if (projectId) setTimeout(() => renderKanbanColumns(projectId), 250);
+      }
 
       if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
 
@@ -3941,9 +3974,53 @@
     block.addEventListener('click', () => {
       const container = block.closest('.phone') || block.closest('.desktop-frame');
       if (!container) return;
+      const isDesktop = container.classList.contains('desktop-frame');
+      if (isDesktop && block.classList.contains('project-block')) {
+        openDesktopKanban(block.dataset.projectRealId);
+        return;
+      }
       openPagesBrowser(container, block.dataset.projectRealId);
     });
   }
+
+  function openDesktopKanban(projectId) {
+    const project = cachedProjects.find(p => p.id === projectId);
+    const board = document.querySelector('#app-desktop .board');
+    const kanban = document.querySelector('#app-desktop [data-kanban-view]');
+    if (!project || !board || !kanban) return;
+    board.style.display = 'none';
+    kanban.style.display = 'flex';
+    kanban.querySelector('[data-kanban-project-name]').textContent = project.name;
+    renderKanbanColumns(projectId);
+  }
+  function closeDesktopKanban() {
+    document.querySelector('#app-desktop [data-kanban-view]').style.display = 'none';
+    document.querySelector('#app-desktop .board').style.display = 'grid';
+  }
+  function renderKanbanColumns(projectId) {
+    const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
+    if (!columnsEl) return;
+    const project = cachedProjects.find(p => p.id === projectId);
+    const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
+    columnsEl.innerHTML = pages.map(page => {
+      const tasks = [...cachedTodos.filter(t => t.page_id === page.id && !t.parent_todo_id)].sort((a, b) => {
+        if (a.is_done !== b.is_done) return a.is_done ? 1 : -1;
+        const ad = a.due_date || '9999-99-99', bd = b.due_date || '9999-99-99';
+        return ad.localeCompare(bd);
+      });
+      const done = tasks.filter(t => t.is_done).length;
+      return `<div class="kanban-column" data-page-id="${page.id}">
+        <div class="kanban-column-head">${escapeHtml(page.title)}</div>
+        <div class="kanban-column-count">${done}/${tasks.length}</div>
+        <div class="kanban-column-tasks">${tasks.map(t => taskRowHtml(t, project, page, null, true)).join('') || '<div class="empty-state">Aucune tâche</div>'}</div>
+      </div>`;
+    }).join('') || '<div class="empty-state">Aucune page</div>';
+    columnsEl.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    columnsEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+  }
+  document.querySelectorAll('[data-kanban-back]').forEach(btn => {
+    btn.addEventListener('click', closeDesktopKanban);
+  });
 
   function openPagesBrowser(phone, projectId) {
     const sheet = document.querySelector('[data-pb-sheet]');
