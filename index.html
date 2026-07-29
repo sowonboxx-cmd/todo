@@ -401,11 +401,25 @@
   .wiki-row .wmeta { color: var(--faint); font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px; }
 
   .capture-bar {
-    margin-top: 14px; display: flex; align-items: center; gap: 10px;
-    background: var(--bg); border: 1px dashed var(--line);
+    margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
+    background: var(--bg); border: 1px dashed var(--line); cursor: pointer;
     border-radius: 12px; padding: 12px 16px; color: var(--faint); font-size: 12.5px;
   }
   .capture-bar .k { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 10px; border: 1px solid var(--line); border-radius: 4px; padding: 1px 6px; margin-left: auto; }
+  .capture-bar-input {
+    width: 100%; box-sizing: border-box; margin-bottom: 14px;
+    background: var(--card); border: 1px solid var(--accent-due);
+    border-radius: 12px; padding: 12px 16px; color: var(--ink); font-size: 12.5px;
+    font-family: 'Inter', sans-serif; outline: none;
+  }
+  .d-search-bar {
+    display: flex; align-items: center; gap: 8px; border: none; cursor: pointer;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 9px 16px; color: var(--faint); font-family: 'Inter', sans-serif; font-size: 12.5px;
+    width: 240px;
+  }
+  .d-search-bar:hover { color: var(--ink); border-color: var(--faint); }
+  .d-search-bar svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* ================================================================
      MOBILE MOCKUP
@@ -1392,10 +1406,13 @@
         <div class="d-main">
           <div class="d-topbar">
             <div>
-              <h2 class="display">Bonjour, Will</h2>
-              <div class="sub">Vendredi 24 juillet — 5 projets actifs</div>
+              <h2 class="display">Will</h2>
+              <div class="sub" data-desktop-date-sub></div>
             </div>
-            <div class="crumb-path">Foodmaster <span>›</span> Website <span>›</span> Accueil <span>›</span> Header <span>›</span> <b>Hero image</b></div>
+            <button type="button" class="d-search-bar" data-open-search>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <span>Rechercher…</span>
+            </button>
           </div>
 
           <div class="kpi-row">
@@ -1409,12 +1426,13 @@
             <div class="panel">
               <h3>Projets</h3>
 
+              <div class="capture-bar" data-desktop-capture-bar>+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
+              <input type="text" class="capture-bar-input" data-desktop-capture-input placeholder="Nom de la tâche…" style="display:none;">
+
               <div class="venture-list" id="venture-list-desktop">
 
 
               </div>
-
-              <div class="capture-bar">+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
             </div>
 
             <div>
@@ -1462,14 +1480,6 @@
 
                 <div class="task-list" data-tab="nodate"></div>
                 <div class="task-list" data-tab="all"></div>
-              </div>
-
-              <div class="panel">
-                <h3>Docs récents <a href="#">ouvrir →</a></h3>
-                <div class="wiki-row"><div class="wdot" style="background:var(--accent-rosalina)"></div><div class="wname">Rosalina — pitfalls & règles SQL</div><div class="wmeta">2j</div></div>
-                <div class="wiki-row"><div class="wdot" style="background:var(--accent-food)"></div><div class="wname">Foodmaster — workflow publication</div><div class="wmeta">4j</div></div>
-                <div class="wiki-row"><div class="wdot" style="background:var(--accent-manga)"></div><div class="wname">Manga Squad — schéma Supabase</div><div class="wmeta">1sem</div></div>
-                <div class="wiki-row"><div class="wdot" style="background:var(--accent-vault)"></div><div class="wname">天才 — notes oEmbed proxy</div><div class="wmeta">2sem</div></div>
               </div>
             </div>
           </div>
@@ -2703,6 +2713,14 @@
   }
 
   const MONTHS_FULL_LOWER_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
+  const DAYS_FULL_FR = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  function updateDesktopDateSub(projectCount) {
+    const el = document.querySelector('[data-desktop-date-sub]');
+    if (!el) return;
+    const now = new Date();
+    const dateStr = `${DAYS_FULL_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FULL_LOWER_FR[now.getMonth()]}`;
+    el.textContent = `${dateStr} — ${projectCount} projet${projectCount > 1 ? 's' : ''} actif${projectCount > 1 ? 's' : ''}`;
+  }
   function formatDateFull(dateStr, timeStr) {
     const d = new Date(dateStr + 'T00:00:00');
     const diff = daysFromToday(dateStr);
@@ -3674,6 +3692,13 @@
   function revealApp() {
     appDesktopEl.classList.remove('app-loading');
     appMobileEl.classList.remove('app-loading');
+    const favContainer = appDesktopEl.querySelector('[data-drawer-favorites]');
+    const favToggle = appDesktopEl.querySelector('[data-drawer-toggle-favorites]');
+    if (favContainer && favContainer.style.display === 'none') {
+      favContainer.style.display = 'block';
+      favToggle?.classList.add('active');
+      renderDrawerFavorites(favContainer);
+    }
   }
 
   document.getElementById('auth-submit').addEventListener('click', async (e) => {
@@ -3819,7 +3844,7 @@
   function taskRowHtml(todo, project, page, subStats, includeDate, pinned) {
     const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : 'p-low';
     const tabKey = classifyDue(todo.due_date);
-    const label = pinned ? 'Everyday' : whenLabel(todo, tabKey, includeDate);
+    const label = pinned ? '毎日' : whenLabel(todo, tabKey, includeDate);
     const whenStyle = tabKey === 'overdue' ? ' style="color:var(--danger)"' : '';
     const subsHtml = (subStats && subStats.total > 0)
       ? `<div class="subs-pill">${subStats.done}/${subStats.total} · ${Math.round((subStats.done / subStats.total) * 100)}%</div>`
@@ -4091,6 +4116,7 @@
     const kpiProjM = document.getElementById('kpi-projects-mobile');
     if (kpiProjD) kpiProjD.textContent = String(projects.length).padStart(2, '0');
     if (kpiProjM) kpiProjM.textContent = String(projects.length);
+    updateDesktopDateSub(projects.length);
     renderDrawerProjects(projects);
   }
 
@@ -4996,6 +5022,36 @@
     btn.addEventListener('click', () => {
       const phone = btn.closest('.phone');
       if (phone) openAddTaskSheet(phone);
+    });
+  });
+  document.querySelectorAll('[data-desktop-capture-bar]').forEach(bar => {
+    bar.addEventListener('click', () => {
+      const input = bar.parentElement.querySelector('[data-desktop-capture-input]');
+      bar.style.display = 'none';
+      input.style.display = 'block';
+      input.value = '';
+      input.focus();
+    });
+  });
+  document.querySelectorAll('[data-desktop-capture-input]').forEach(input => {
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.target.blur(); });
+    input.addEventListener('blur', async (e) => {
+      const title = e.target.value.trim();
+      e.target.style.display = 'none';
+      e.target.parentElement.querySelector('[data-desktop-capture-bar]').style.display = 'flex';
+      if (!title) return;
+      try {
+        const inboxProject = cachedProjects.find(p => p.name.trim().toLowerCase() === 'inbox');
+        if (!inboxProject) throw new Error('Aucun projet "Inbox" trouvé.');
+        const inboxPages = cachedPages.filter(p => p.project_id === inboxProject.id && !p.is_archived && p.page_type !== 'doc');
+        const bordelPage = inboxPages.find(p => p.title.trim().toLowerCase() === 'bordel') || inboxPages[0];
+        if (!bordelPage) throw new Error('Aucune page dans "Inbox".');
+        const { error } = await sb.from('todos').insert({ page_id: bordelPage.id, title, priority: 'low' });
+        if (error) throw error;
+        loadData();
+      } catch (err) {
+        console.error('Erreur ajout rapide :', err.message);
+      }
     });
   });
   document.querySelectorAll('[data-addtask-backdrop]').forEach(bd => {
