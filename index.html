@@ -266,20 +266,24 @@
   .kpi .value { font-family: 'Inter', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
   .kpi .value small { font-size: 13px; color: var(--muted); font-family: 'Inter', sans-serif; font-weight: 500; }
 
-  .board { display: grid; grid-template-columns: 280px 1fr; gap: 16px; }
+  .board { display: block; }
   .board > div { min-width: 0; }
 
   .kanban-view { display: none; flex-direction: column; height: 100%; }
 
   .home-kanban-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; }
   .home-kanban-col {
-    flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 190px; max-width: 300px;
+    flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 220px; max-width: 320px;
     display: flex; flex-direction: column;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    padding: 14px 14px 10px;
   }
-  .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 2px 10px; flex-shrink: 0; }
+  .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
   .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
+  .home-kanban-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
+  .home-kanban-bar { margin-bottom: 12px; }
   .home-kanban-add {
     margin-left: auto; width: 22px; height: 22px; border-radius: 7px; border: none;
     background: transparent; color: var(--faint); font-size: 15px; cursor: pointer; flex-shrink: 0;
@@ -287,8 +291,7 @@
   .home-kanban-add:hover { background: var(--bg); color: var(--ink); }
   .home-kanban-col .task-list[data-tab] { display: block !important; }
   .home-kanban-col .task-list {
-    display: block; max-height: none !important; overflow-y: auto; flex: 1;
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px; padding: 6px 10px;
+    display: block; max-height: none !important; overflow-y: auto; flex: 1; padding: 0;
   }
   .home-kanban-col .task-list .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
   .kanban-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-shrink: 0; }
@@ -1477,18 +1480,9 @@
           <div class="project-strip" id="project-strip-desktop"></div>
 
           <div class="board">
-            <div class="panel">
-              <h3>Projets</h3>
-
-              <div class="capture-bar" data-desktop-capture-bar>+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
-
-              <div class="venture-list" id="venture-list-desktop">
-
-
-              </div>
-            </div>
-
             <div>
+              <div class="capture-bar" data-desktop-capture-bar style="margin-bottom:16px;">+ Ajouter une tâche ou une note rapide… <span class="k">⌘K</span></div>
+
               <div class="panel" style="margin-bottom:16px;">
                 <h3>Tâches
                   <span class="h3-right">
@@ -1504,78 +1498,98 @@
                     <div class="home-kanban-head">
                       <span class="home-kanban-title overdue">Overdue</span>
                       <span class="home-kanban-count" data-home-count="overdue">0</span>
+                      <span class="home-kanban-pct" data-home-pct="overdue">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="overdue" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="overdue"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="overdue"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="today">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">Today</span>
                       <span class="home-kanban-count" data-home-count="today">0</span>
+                      <span class="home-kanban-pct" data-home-pct="today">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="today" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="today"><span style="width:0%"></span></div>
                     <div class="task-list is-active" data-tab="today"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="tomorrow">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">Demain</span>
                       <span class="home-kanban-count" data-home-count="tomorrow">0</span>
+                      <span class="home-kanban-pct" data-home-pct="tomorrow">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="tomorrow" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="tomorrow"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="tomorrow"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="d2">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="2"></span>
                       <span class="home-kanban-count" data-home-count="d2">0</span>
+                      <span class="home-kanban-pct" data-home-pct="d2">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d2" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="d2"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="d2"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="d3">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="3"></span>
                       <span class="home-kanban-count" data-home-count="d3">0</span>
+                      <span class="home-kanban-pct" data-home-pct="d3">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d3" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="d3"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="d3"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="d4">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="4"></span>
                       <span class="home-kanban-count" data-home-count="d4">0</span>
+                      <span class="home-kanban-pct" data-home-pct="d4">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d4" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="d4"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="d4"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="d5">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="5"></span>
                       <span class="home-kanban-count" data-home-count="d5">0</span>
+                      <span class="home-kanban-pct" data-home-pct="d5">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d5" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="d5"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="d5"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="d6">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="6"></span>
                       <span class="home-kanban-count" data-home-count="d6">0</span>
+                      <span class="home-kanban-pct" data-home-pct="d6">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d6" title="Ajouter une tâche">+</button>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="d6"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="d6"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="nodate">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">No date</span>
                       <span class="home-kanban-count" data-home-count="nodate">0</span>
+                    <span class="home-kanban-pct" data-home-pct="nodate">0%</span>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="nodate"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="nodate"></div>
                   </div>
                   <div class="home-kanban-col" data-home-col="all">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">All</span>
                       <span class="home-kanban-count" data-home-count="all">0</span>
+                    <span class="home-kanban-pct" data-home-pct="all">0%</span>
                     </div>
+                    <div class="bar home-kanban-bar" data-home-bar="all"><span style="width:0%"></span></div>
                     <div class="task-list" data-tab="all"></div>
                   </div>
                 </div>
@@ -4337,7 +4351,19 @@
 
     document.querySelectorAll('[data-home-count]').forEach(el => {
       const key = el.dataset.homeCount;
-      el.textContent = String((buckets[key] || []).length);
+      const bucketTodos = key === 'all' ? topLevelTodos : topLevelTodos.filter(t => {
+        const daily = isDailyRepeat(t);
+        const tk = daily ? 'today' : classifyDue(t.due_date);
+        return tk === key;
+      });
+      const total = bucketTodos.length;
+      const done = bucketTodos.filter(t => t.is_done).length;
+      const pct = total ? Math.round((done / total) * 10000) / 100 : 0;
+      el.textContent = `${done}/${total}`;
+      const pctEl = document.querySelector(`[data-home-pct="${key}"]`);
+      if (pctEl) pctEl.textContent = pct + '%';
+      const barEl = document.querySelector(`[data-home-bar="${key}"] span`);
+      if (barEl) barEl.style.width = pct + '%';
     });
 
     document.querySelectorAll('.checkbox').forEach(wireCheckbox);
