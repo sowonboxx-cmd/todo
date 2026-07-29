@@ -3823,7 +3823,7 @@
   }
 
   function isDailyRepeat(todo) {
-    return todo.repeat_rule === 'Every day';
+    return todo.repeat_rule === 'Every day' || todo.repeat_rule === 'Daily';
   }
   function taskRowHtml(todo, project, page, subStats, includeDate, pinned) {
     const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : 'p-low';
