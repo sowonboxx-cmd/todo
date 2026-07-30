@@ -696,6 +696,11 @@
     display: block; font-weight: 700; font-size: 9.5px; color: var(--faint);
     letter-spacing: 0.06em; margin-top: 2px;
   }
+  .drawer-section-label {
+    font-weight: 700; font-size: 9.5px; color: var(--faint);
+    letter-spacing: 0.06em; text-transform: uppercase; text-align: left;
+    padding: 0 8px; margin: 2px 0 4px;
+  }
   .drawer-nav { display: flex; flex-direction: column; gap: 2px; }
   .drawer-nav-with-add { flex-direction: row; align-items: center; }
   .drawer-nav-with-add a { flex: 1; }
@@ -720,7 +725,11 @@
     font-size: 13px; font-weight: 500;
   }
   .drawer-project .dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
-  .drawer-project.edit-affordance::after { content: '✎'; margin-left: 8px; color: var(--faint); font-size: 11px; }
+  .drawer-rename-pencil {
+    flex-shrink: 0; border: none; background: transparent; color: var(--faint);
+    font-size: 11px; cursor: pointer; border-radius: 5px; width: 18px; height: 18px;
+  }
+  .drawer-rename-pencil:hover { background: var(--card); color: var(--ink); }
   .drawer-page-count { margin-left: auto; color: var(--faint); font-size: 11px; font-weight: 700; flex-shrink: 0; }
   .drawer-project-reorder { display: none; gap: 2px; flex-shrink: 0; }
   .drawer.edit-mode .drawer-project-reorder { display: flex; }
@@ -759,6 +768,11 @@
     color: var(--faint); font-size: 14px; line-height: 1; border-radius: 5px; cursor: pointer;
   }
   .drawer-inline-add:hover { background: var(--card); color: var(--ink); }
+  .drawer-inline-delete {
+    flex-shrink: 0; width: 18px; height: 18px; border: none; background: transparent;
+    color: var(--faint); font-size: 15px; line-height: 1; border-radius: 5px; cursor: pointer;
+  }
+  .drawer-inline-delete:hover { background: var(--card); color: var(--danger); }
   .drawer-folder-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-folder-row.expanded { background: var(--bg); color: var(--ink); }
   .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
@@ -1491,6 +1505,7 @@
           </nav>
           <div class="drawer-favorites" data-drawer-favorites style="display:none;"></div>
           <div class="drawer-sep"></div>
+          <div class="drawer-section-label">Projets</div>
           <div class="drawer-projects" data-drawer-projects></div>
           <div class="drawer-add-project" data-drawer-add-project>
             <span style="font-size:15px;line-height:1;">+</span><span>Ajouter</span>
@@ -1671,6 +1686,7 @@
             </nav>
             <div class="drawer-favorites" data-drawer-favorites style="display:none;"></div>
             <div class="drawer-sep"></div>
+            <div class="drawer-section-label">Projets</div>
             <div class="drawer-projects" data-drawer-projects></div>
             <div class="drawer-add-project" data-drawer-add-project>
               <span style="font-size:15px;line-height:1;">+</span><span>Ajouter</span>
@@ -4569,11 +4585,8 @@
         return `
         <div class="drawer-project${editModeNow ? ' edit-affordance' : ''}" data-project-id="${p.id}" data-reorder-id="${p.id}">
           <span class="dot" style="background:${p.color}"></span><span class="editable-name" data-rename-name>${escapeHtml(p.name)}</span>
+          ${editModeNow ? '<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button>' : ''}
           <span class="drawer-page-count">${pageCount}</span>
-          <span class="drawer-project-reorder">
-            <button type="button" data-proj-up ${i === 0 ? 'disabled' : ''}>↑</button>
-            <button type="button" data-proj-down ${i === sorted.length - 1 ? 'disabled' : ''}>↓</button>
-          </span>
         </div>`;
       }).join('');
     }
@@ -4614,28 +4627,20 @@
   }
   function wireDrawerProjectRows() {
     document.querySelectorAll('.drawer-project').forEach(row => {
-      row.querySelector('[data-proj-up]')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        swapDrawerProjectPosition(row.dataset.projectId, -1);
-      });
-      row.querySelector('[data-proj-down]')?.addEventListener('click', (e) => {
-        e.stopPropagation();
-        swapDrawerProjectPosition(row.dataset.projectId, 1);
-      });
-      row.addEventListener('click', () => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('[data-rename-pencil]')) return;
         const drawer = row.closest('.drawer');
         const isDesktop = getActiveContainer()?.id === 'app-desktop';
-        if (drawer && drawer.classList.contains('edit-mode') && !isDesktop) {
+        const editMode = drawer && drawer.classList.contains('edit-mode');
+        if (editMode && !isDesktop) {
           openProjectAdmin(getActiveContainer(), row.dataset.projectId);
           return;
         }
         toggleDrawerProjectPages(row);
       });
-      row.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
-        const drawer = row.closest('.drawer');
-        if (!drawer || !drawer.classList.contains('edit-mode')) return;
+      row.querySelector('[data-rename-pencil]')?.addEventListener('click', (e) => {
         e.stopPropagation();
-        startInlineRename(e.target, 'projects', row.dataset.projectId, 'name', (val) => {
+        startInlineRename(row.querySelector('[data-rename-name]'), 'projects', row.dataset.projectId, 'name', (val) => {
           const p = cachedProjects.find(x => x.id === row.dataset.projectId);
           if (p) p.name = val;
           renderProjects(cachedProjects, cachedPages, cachedTodos);
@@ -4666,22 +4671,21 @@
     }).join('') || '<div class="drawer-page-row empty">Aucune page</div>';
     wrap.querySelectorAll('.drawer-page-row[data-page-id]').forEach(pageRow => {
       pageRow.addEventListener('click', (e) => {
-        if (e.target.closest('[data-rename-name]')) return;
         e.stopPropagation();
+        const editMode = pageRow.closest('.drawer')?.classList.contains('edit-mode');
+        if (editMode && e.target.closest('[data-rename-name]')) {
+          startInlineRename(e.target, 'pages', pageRow.dataset.pageId, 'title', (val) => {
+            const pg = cachedPages.find(x => x.id === pageRow.dataset.pageId);
+            if (pg) pg.title = val;
+          });
+          return;
+        }
         const phone = getActiveContainer();
         if (pageRow.dataset.pageType === 'doc') {
           openDocsEditor(phone, pageRow.dataset.pageId, false);
         } else {
           openPbPageTasksDirect(phone, pageRow.dataset.pageId, pageRow.dataset.pageTitle);
         }
-      });
-      pageRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
-        if (!pageRow.closest('.drawer')?.classList.contains('edit-mode')) return;
-        e.stopPropagation();
-        startInlineRename(e.target, 'pages', pageRow.dataset.pageId, 'title', (val) => {
-          const pg = cachedPages.find(x => x.id === pageRow.dataset.pageId);
-          if (pg) pg.title = val;
-        });
       });
     });
     row.classList.add('expanded');
@@ -4699,7 +4703,7 @@
       container.innerHTML = top.map(f => `
         <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}" data-reorder-id="${f.id}">
           <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
-          ${editMode ? `<button type="button" class="drawer-inline-add" data-add-subfolder="${f.id}" title="Ajouter un sous-dossier">+</button>` : ''}
+          ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button><button type="button" class="drawer-inline-add" data-add-subfolder="${f.id}" title="Ajouter un sous-dossier">+</button><button type="button" class="drawer-inline-delete" data-delete-folder="${f.id}" title="Supprimer">×</button>` : ''}
         </div>
       `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
       if (editMode) {
@@ -4716,21 +4720,19 @@
       }
       container.querySelectorAll('.drawer-folder-row').forEach(row => {
         row.addEventListener('click', (e) => {
-          if (e.target.closest('[data-add-subfolder]')) return;
+          if (e.target.closest('[data-add-subfolder], [data-delete-folder], [data-rename-pencil]')) return;
           const drawer = row.closest('.drawer');
           const isDesktop = getActiveContainer()?.id === 'app-desktop';
-          if (drawer?.classList.contains('edit-mode') && !isDesktop) {
-            if (e.target.closest('[data-rename-name]')) return;
+          const editMode = drawer?.classList.contains('edit-mode');
+          if (editMode && !isDesktop) {
             openDocFolderAdmin(getActiveContainer(), row.dataset.folderId);
             return;
           }
           toggleDrawerSubfolders(row);
         });
-        row.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
-          const drawer = row.closest('.drawer');
-          if (!drawer || !drawer.classList.contains('edit-mode')) return;
+        row.querySelector('[data-rename-pencil]')?.addEventListener('click', (e) => {
           e.stopPropagation();
-          startInlineRename(e.target, 'doc_folders', row.dataset.folderId, 'name', (val) => {
+          startInlineRename(row.querySelector('[data-rename-name]'), 'doc_folders', row.dataset.folderId, 'name', (val) => {
             const f2 = cachedDocFolders.find(x => x.id === row.dataset.folderId);
             if (f2) f2.name = val;
           });
@@ -4746,6 +4748,14 @@
           if (existing && existing.classList.contains('drawer-subfolders-collapse')) existing.remove();
           row.classList.remove('expanded');
           toggleDrawerSubfolders(row);
+        });
+        row.querySelector('[data-delete-folder]')?.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (!confirm(`Supprimer le dossier "${row.dataset.folderName}" et tout son contenu ?`)) return;
+          const folderId = e.currentTarget.dataset.deleteFolder;
+          await sb.from('doc_folders').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', folderId);
+          cachedDocFolders = cachedDocFolders.map(f => f.id === folderId ? { ...f, is_archived: true } : f);
+          renderDrawerDocFolders(container);
         });
       });
     });
@@ -4767,18 +4777,17 @@
     wrap.className = 'drawer-subfolders-collapse';
     wrap.innerHTML = subs.map(f => `<div class="drawer-page-row" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">
       <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
-      ${editMode ? `<button type="button" class="drawer-inline-add" data-add-doc="${f.id}" title="Ajouter un document">+</button>` : ''}
+      ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button><button type="button" class="drawer-inline-add" data-add-doc="${f.id}" title="Ajouter un document">+</button><button type="button" class="drawer-inline-delete" data-delete-subfolder="${f.id}" title="Supprimer">×</button>` : ''}
     </div>`).join('') || '<div class="drawer-page-row empty">Aucun sous-dossier</div>';
     wrap.querySelectorAll('[data-subfolder-id]').forEach(subRow => {
       subRow.addEventListener('click', (e) => {
-        if (e.target.closest('[data-add-doc], [data-rename-name]')) { e.stopPropagation(); return; }
+        if (e.target.closest('[data-add-doc], [data-delete-subfolder], [data-rename-pencil]')) return;
         e.stopPropagation();
         toggleDrawerSubfolderDocs(subRow);
       });
-      subRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
-        if (!subRow.closest('.drawer')?.classList.contains('edit-mode')) return;
+      subRow.querySelector('[data-rename-pencil]')?.addEventListener('click', (e) => {
         e.stopPropagation();
-        startInlineRename(e.target, 'doc_folders', subRow.dataset.subfolderId, 'name', (val) => {
+        startInlineRename(subRow.querySelector('[data-rename-name]'), 'doc_folders', subRow.dataset.subfolderId, 'name', (val) => {
           const f2 = cachedDocFolders.find(x => x.id === subRow.dataset.subfolderId);
           if (f2) f2.name = val;
         });
@@ -4795,6 +4804,17 @@
         subRow.classList.remove('expanded');
         toggleDrawerSubfolderDocs(subRow);
       });
+      subRow.querySelector('[data-delete-subfolder]')?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!confirm(`Supprimer le sous-dossier "${subRow.dataset.subfolderName}" et tout son contenu ?`)) return;
+        const subId = e.currentTarget.dataset.deleteSubfolder;
+        await sb.from('doc_folders').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', subId);
+        cachedDocFolders = cachedDocFolders.map(f => f.id === subId ? { ...f, is_archived: true } : f);
+        const existingSubs = row.nextElementSibling;
+        if (existingSubs && existingSubs.classList.contains('drawer-subfolders-collapse')) existingSubs.remove();
+        row.classList.remove('expanded');
+        toggleDrawerSubfolders(row);
+      });
     });
     row.classList.add('expanded');
     row.after(wrap);
@@ -4810,23 +4830,35 @@
     document.querySelectorAll('.drawer-page-row.expanded').forEach(el => el.classList.remove('expanded'));
 
     const folderId = subRow.dataset.subfolderId;
+    const editMode = subRow.closest('.drawer')?.classList.contains('edit-mode');
     const docs = cachedPages.filter(p => p.doc_folder_id === folderId && !p.is_archived && p.page_type === 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
     const wrap = document.createElement('div');
     wrap.className = 'drawer-docs-collapse';
-    wrap.innerHTML = docs.map(d => `<div class="drawer-doc-row" data-doc-id="${d.id}">${DOC_ICON_SVG}<span class="editable-name" data-rename-name>${escapeHtml(d.title)}</span></div>`).join('') || '<div class="drawer-page-row empty">Aucun document</div>';
+    wrap.innerHTML = docs.map(d => `<div class="drawer-doc-row" data-doc-id="${d.id}" data-doc-title="${escapeHtml(d.title)}">${DOC_ICON_SVG}<span class="editable-name" data-rename-name>${escapeHtml(d.title)}</span>${editMode ? `<button type="button" class="drawer-inline-delete" data-delete-doc="${d.id}" title="Supprimer">×</button>` : ''}</div>`).join('') || '<div class="drawer-page-row empty">Aucun document</div>';
     wrap.querySelectorAll('[data-doc-id]').forEach(docRow => {
       docRow.addEventListener('click', (e) => {
-        if (e.target.closest('[data-rename-name]')) return;
+        if (e.target.closest('[data-delete-doc]')) return;
         e.stopPropagation();
+        const editMode = docRow.closest('.drawer')?.classList.contains('edit-mode');
+        if (editMode && e.target.closest('[data-rename-name]')) {
+          startInlineRename(e.target, 'pages', docRow.dataset.docId, 'title', (val) => {
+            const pg = cachedPages.find(x => x.id === docRow.dataset.docId);
+            if (pg) pg.title = val;
+          });
+          return;
+        }
         openDocsEditor(getActiveContainer(), docRow.dataset.docId, false);
       });
-      docRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
-        if (!docRow.closest('.drawer')?.classList.contains('edit-mode')) return;
+      docRow.querySelector('[data-delete-doc]')?.addEventListener('click', async (e) => {
         e.stopPropagation();
-        startInlineRename(e.target, 'pages', docRow.dataset.docId, 'title', (val) => {
-          const pg = cachedPages.find(x => x.id === docRow.dataset.docId);
-          if (pg) pg.title = val;
-        });
+        if (!confirm(`Supprimer le document "${docRow.dataset.docTitle}" ?`)) return;
+        const docId = e.currentTarget.dataset.deleteDoc;
+        await sb.from('pages').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', docId);
+        cachedPages = cachedPages.map(p => p.id === docId ? { ...p, is_archived: true } : p);
+        const existingDocs = subRow.nextElementSibling;
+        if (existingDocs && existingDocs.classList.contains('drawer-docs-collapse')) existingDocs.remove();
+        subRow.classList.remove('expanded');
+        toggleDrawerSubfolderDocs(subRow);
       });
     });
     subRow.classList.add('expanded');
