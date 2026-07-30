@@ -424,6 +424,10 @@
     transition: background .12s ease; pointer-events: none;
   }
   .task-row:hover::before { background: var(--bg); }
+  .task-row.dragging { opacity: 0.4; }
+  .home-kanban-col .task-list.drag-over, .kanban-column-tasks.drag-over {
+    background: var(--card); outline: 2px dashed var(--accent-due); outline-offset: -2px; border-radius: 10px;
+  }
   .task-row.opening::before { background: var(--line-soft); }
   .task-row > * { position: relative; z-index: 1; }
   .task-row:last-child { border-bottom: none; }
@@ -481,6 +485,7 @@
     color: var(--ink); font-size: 16px; font-weight: 600; cursor: pointer;
   }
   .d-topbar-icon-btn:hover { background: var(--bg); border-color: var(--faint); }
+  .d-topbar-icon-btn svg { width: 16px; height: 16px; }
   .d-search-bar svg { width: 15px; height: 15px; flex-shrink: 0; }
 
   /* ================================================================
@@ -1478,11 +1483,10 @@
               <h2 class="display">Will</h2>
               <div class="sub" data-desktop-date-sub></div>
             </div>
-            <button type="button" class="d-search-bar" data-open-search>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-              <span>Rechercher…</span>
-            </button>
             <div class="d-topbar-actions">
+              <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
               <button type="button" class="d-topbar-icon-btn" data-menu-toggle title="Options">⋯</button>
               <div class="dots-menu">
@@ -3394,6 +3398,14 @@
       renderTdNotes(sheet, val);
       saveRecordField(sheet, { notes: val || null });
     });
+    let notesAutoSaveTimer = null;
+    sheet.querySelector('[data-td-notes-edit]')?.addEventListener('input', (e) => {
+      clearTimeout(notesAutoSaveTimer);
+      const val = e.target.value.trim();
+      notesAutoSaveTimer = setTimeout(() => {
+        saveRecordField(sheet, { notes: val || null });
+      }, 700);
+    });
 
     sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(row => {
       row.addEventListener('click', async () => {
@@ -4062,6 +4074,55 @@
     });
   }
 
+  function wireKanbanDragDrop(scope) {
+    scope.querySelectorAll('.task-row').forEach(row => {
+      row.draggable = true;
+      row.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('text/plain', row.dataset.todoId);
+        e.dataTransfer.effectAllowed = 'move';
+        row.classList.add('dragging');
+      });
+      row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    });
+    scope.querySelectorAll('.home-kanban-col .task-list, .kanban-column-tasks').forEach(container => {
+      container.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        container.classList.add('drag-over');
+      });
+      container.addEventListener('dragleave', (e) => {
+        if (!container.contains(e.relatedTarget)) container.classList.remove('drag-over');
+      });
+      container.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        container.classList.remove('drag-over');
+        const todoId = e.dataTransfer.getData('text/plain');
+        const todo = cachedTodos.find(t => t.id === todoId);
+        if (!todo) return;
+        const homeCol = container.closest('.home-kanban-col');
+        const kanbanCol = container.closest('.kanban-column');
+        if (homeCol) {
+          const key = homeCol.dataset.homeCol;
+          let newDate;
+          if (key === 'overdue') newDate = isoPlusDays(-1);
+          else if (key === 'today') newDate = todayISO();
+          else if (key === 'tomorrow') newDate = isoPlusDays(1);
+          else if (/^d(\d)$/.test(key)) newDate = isoPlusDays(parseInt(key.slice(1), 10));
+          else if (key === 'nodate') newDate = null;
+          else return; // "All" n'est pas une cible valide pour changer la date
+          todo.due_date = newDate;
+          await sb.from('todos').update({ due_date: newDate }).eq('id', todoId);
+          renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
+        } else if (kanbanCol) {
+          const newPageId = kanbanCol.dataset.pageId;
+          if (newPageId === todo.page_id) return;
+          todo.page_id = newPageId;
+          await sb.from('todos').update({ page_id: newPageId }).eq('id', todoId);
+          renderKanbanColumns(cachedProjects.find(p => p.id === (cachedPages.find(pg => pg.id === newPageId)?.project_id))?.id);
+        }
+      });
+    });
+  }
   function wireTaskRowClick(row) {
     row.addEventListener('click', () => {
       const container = row.closest('.phone') || row.closest('.desktop-frame');
@@ -4120,7 +4181,7 @@
       return `<div class="kanban-column" data-page-id="${page.id}">
         <div class="kanban-column-headrow">
           <div class="kanban-column-head">${escapeHtml(page.title)}</div>
-          <div class="kanban-column-stats"><span class="kanban-column-fraction">${done}/${tasks.length}</span><span class="kanban-column-pct">${pct}%</span></div>
+          <div class="kanban-column-stats"><span class="kanban-column-fraction">${done}/${tasks.length}</span><span class="kanban-column-pct">${pct}%</span><button type="button" class="home-kanban-add" data-kanban-col-add="${page.id}" title="Ajouter une tâche">+</button></div>
         </div>
         <div class="bar kanban-column-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
         <div class="kanban-column-tasks">${tasks.map(t => taskRowHtml(t, project, page, subsByTodo[t.id], true)).join('') || '<div class="empty-state">Aucune tâche</div>'}</div>
@@ -4128,6 +4189,13 @@
     }).join('') || '<div class="empty-state">Aucune page</div>';
     columnsEl.querySelectorAll('.checkbox').forEach(wireCheckbox);
     columnsEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+    wireKanbanDragDrop(columnsEl);
+    columnsEl.querySelectorAll('[data-kanban-col-add]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openAddTaskSheet(getActiveContainer(), projectId, btn.dataset.kanbanColAdd);
+      });
+    });
   }
   document.querySelectorAll('[data-kanban-back]').forEach(btn => {
     btn.addEventListener('click', closeDesktopKanban);
@@ -4369,6 +4437,8 @@
 
     document.querySelectorAll('.checkbox').forEach(wireCheckbox);
     document.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+    const appDesktopScope = document.getElementById('app-desktop');
+    if (appDesktopScope) wireKanbanDragDrop(appDesktopScope);
     document.querySelectorAll('.task-list, .m-tasks').forEach(list => {
       if (list.dataset.tab !== 'all') sortIncomplete(list); // "All" garde l'ordre de création, pas le tri heure/priorité
     });
