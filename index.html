@@ -819,6 +819,12 @@
     border: none; border-radius: 10px; padding: 0; background: none; cursor: pointer; flex-shrink: 0;
   }
   .pa-color-input::-webkit-color-swatch-wrapper { padding: 0; }
+  .pa-kanji-preview {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 16px; overflow: hidden;
+  }
+  .pa-kanji-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .pa-color-input::-webkit-color-swatch { border: none; border-radius: 10px; }
   .pa-color-input::-moz-color-swatch { border: none; border-radius: 10px; }
   .pa-kanji-input {
@@ -1367,7 +1373,8 @@
 
   /* ================= docs editor : mise en page desktop façon Dropbox Paper ================= */
   @media (min-width: 900px) {
-    .docs-editor { left: 260px; background: #fff; }
+    .docs-editor { left: 260px; }
+    [data-theme="light"] .docs-editor { background: #fff; }
     .docs-scroll {
       display: grid; grid-template-columns: minmax(0, 700px) 200px;
       justify-content: center; gap: 48px; align-items: start;
@@ -2152,6 +2159,7 @@
 
               <div class="pa-color-row">
                 <input type="color" class="pa-color-input" data-pa-color-input value="#2F6F5E">
+                <div class="pa-kanji-preview" data-pa-kanji-preview></div>
                 <input type="text" class="pa-kanji-input" maxlength="2" placeholder="字" data-pa-kanji-input>
                 <input type="text" class="pa-title-input" placeholder="Nom du projet" data-pa-title-input>
               </div>
@@ -5073,6 +5081,15 @@
     renderPaPagesList(sheet, projectId);
   }
 
+  function updatePaKanjiPreview(sheet) {
+    const preview = sheet.querySelector('[data-pa-kanji-preview]');
+    if (!preview) return;
+    const color = sheet.querySelector('[data-pa-color-input]').value;
+    const kanji = sheet.querySelector('[data-pa-kanji-input]').value;
+    const imageUrl = sheet.querySelector('[data-pa-image-input]').value.trim();
+    preview.style.background = color;
+    preview.innerHTML = imageUrl ? `<img src="${escapeHtml(imageUrl)}" alt="">` : escapeHtml(kanji);
+  }
   function openProjectAdmin(phone, projectId) {
     const sheet = document.querySelector('[data-pa-sheet]');
     const backdrop = document.querySelector('[data-pa-backdrop]');
@@ -5088,6 +5105,7 @@
     sheet.querySelector('[data-pa-kanji-input]').value = project.kanji;
     sheet.querySelector('[data-pa-title-input]').value = project.name;
     sheet.querySelector('[data-pa-image-input]').value = project.kanji_image_url || '';
+    updatePaKanjiPreview(sheet);
     sheet.querySelector('[data-pa-error]').textContent = '';
     renderPaPagesList(sheet, projectId);
     sheet.classList.add('open');
@@ -5270,10 +5288,13 @@
 
     sheet.querySelector('[data-pa-color-input]')?.addEventListener('input', async (e) => {
       const projectId = sheet.dataset.projectId;
+      updatePaKanjiPreview(sheet);
       await sb.from('projects').update({ color: e.target.value }).eq('id', projectId);
       const p = cachedProjects.find(x => x.id === projectId);
       if (p) p.color = e.target.value;
+      renderProjects(cachedProjects, cachedPages, cachedTodos);
     });
+    sheet.querySelector('[data-pa-kanji-input]')?.addEventListener('input', () => updatePaKanjiPreview(sheet));
     sheet.querySelector('[data-pa-kanji-input]')?.addEventListener('blur', async (e) => {
       const projectId = sheet.dataset.projectId;
       const kanji = e.target.value.trim();
@@ -5281,6 +5302,7 @@
       await sb.from('projects').update({ kanji }).eq('id', projectId);
       const p = cachedProjects.find(x => x.id === projectId);
       if (p) p.kanji = kanji;
+      renderProjects(cachedProjects, cachedPages, cachedTodos);
     });
     sheet.querySelector('[data-pa-title-input]')?.addEventListener('blur', async (e) => {
       const projectId = sheet.dataset.projectId;
@@ -5290,12 +5312,18 @@
       const p = cachedProjects.find(x => x.id === projectId);
       if (p) { p.name = name; sheet.querySelector('[data-pa-heading]').textContent = name; }
     });
-    sheet.querySelector('[data-pa-image-input]')?.addEventListener('blur', async (e) => {
+    let paImageSaveTimer = null;
+    sheet.querySelector('[data-pa-image-input]')?.addEventListener('input', (e) => {
+      updatePaKanjiPreview(sheet);
+      clearTimeout(paImageSaveTimer);
       const projectId = sheet.dataset.projectId;
       const url = e.target.value.trim();
-      await sb.from('projects').update({ kanji_image_url: url || null }).eq('id', projectId);
-      const p = cachedProjects.find(x => x.id === projectId);
-      if (p) p.kanji_image_url = url || null;
+      paImageSaveTimer = setTimeout(async () => {
+        await sb.from('projects').update({ kanji_image_url: url || null }).eq('id', projectId);
+        const p = cachedProjects.find(x => x.id === projectId);
+        if (p) p.kanji_image_url = url || null;
+        renderProjects(cachedProjects, cachedPages, cachedTodos);
+      }, 500);
     });
 
     sheet.querySelector('[data-pa-add-page-row]')?.addEventListener('click', () => {
