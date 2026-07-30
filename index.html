@@ -278,6 +278,9 @@
     background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 14px 14px 10px;
   }
+  @media (min-width: 900px) and (max-width: 1400px) and (hover: none) and (pointer: coarse) {
+    .home-kanban-col { flex: 0 0 calc((100% - 2 * 14px) / 3); }
+  }
   .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
@@ -294,17 +297,7 @@
     display: block; max-height: none !important; overflow-y: auto; flex: 1; min-height: 0; padding: 0;
   }
   .home-kanban-col .task-list .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
-  .kanban-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-shrink: 0; }
-  .kanban-back-icon {
-    width: 34px; height: 34px; flex-shrink: 0; border: 1px solid var(--line); background: var(--card);
-    border-radius: 14px; font-size: 18px; color: var(--ink); cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .kanban-back-icon:hover { background: var(--bg); }
-  .kanban-project-badge {
-    background: var(--card); border: 1px solid var(--line); color: var(--ink); border-radius: 14px;
-    padding: 8px 18px; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 800;
-  }
+  .d-topbar-project-badge { width: auto; padding: 0 14px; font-size: 13px; font-weight: 700; }
   .kanban-columns { display: flex; gap: 16px; overflow-x: auto; flex: 1; align-items: flex-start; padding-bottom: 8px; }
   .kanban-column {
     flex: 0 0 calc((100% - 32px) / 3); min-width: 260px;
@@ -1529,11 +1522,12 @@
 
         <div class="d-main">
           <div class="d-topbar">
-            <div>
+            <div class="d-topbar-home" data-go-home style="cursor:pointer;">
               <h2 class="display">Will</h2>
               <div class="sub" data-desktop-date-sub></div>
             </div>
             <div class="d-topbar-actions">
+              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name style="display:none;"></div>
               <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
@@ -1653,10 +1647,6 @@
           </div>
 
           <div class="kanban-view" data-kanban-view style="display:none;">
-            <div class="kanban-head">
-              <button type="button" class="kanban-back-icon" data-kanban-back title="Retour">‹</button>
-              <div class="kanban-project-badge" data-kanban-project-name>Projet</div>
-            </div>
             <div class="kanban-columns" data-kanban-columns></div>
           </div>
         </div>
@@ -3821,7 +3811,7 @@
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       hidden = !hidden;
-      const scope = btn.closest('.panel') || btn.closest('.m-content');
+      const scope = getActiveContainer() || document;
       scope.querySelectorAll('.task-list, .m-tasks').forEach(l => l.classList.toggle('hide-completed', hidden));
       btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
       btn.closest('.dots-menu')?.classList.remove('open');
@@ -4205,12 +4195,15 @@
     if (!project || !board || !kanban) return;
     board.style.display = 'none';
     kanban.style.display = 'flex';
-    kanban.querySelector('[data-kanban-project-name]').textContent = project.name;
+    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
+    if (badge) { badge.textContent = project.name; badge.style.display = 'flex'; }
     renderKanbanColumns(projectId);
   }
   function closeDesktopKanban() {
     document.querySelector('#app-desktop [data-kanban-view]').style.display = 'none';
-    document.querySelector('#app-desktop .board').style.display = 'grid';
+    document.querySelector('#app-desktop .board').style.display = 'block';
+    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
+    if (badge) badge.style.display = 'none';
   }
   function renderKanbanColumns(projectId) {
     const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
@@ -4265,8 +4258,13 @@
     await sb.from('projects').update({ kanji_image_url: trimmed || null }).eq('id', projectId);
     renderProjects(cachedProjects, cachedPages, cachedTodos);
   });
-  document.querySelectorAll('[data-kanban-back]').forEach(btn => {
-    btn.addEventListener('click', closeDesktopKanban);
+  document.querySelectorAll('[data-go-home]').forEach(el => {
+    el.addEventListener('click', () => {
+      const kanban = document.querySelector('#app-desktop [data-kanban-view]');
+      if (kanban && kanban.style.display !== 'none') closeDesktopKanban();
+      const docsEditor = document.querySelector('[data-docs-editor]');
+      if (docsEditor && docsEditor.classList.contains('open')) closeDocsEditor(getActiveContainer());
+    });
   });
 
   function openPagesBrowser(phone, projectId) {
