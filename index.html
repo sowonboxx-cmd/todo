@@ -425,6 +425,8 @@
   }
   .task-row:hover::before { background: var(--bg); }
   .task-row.dragging { opacity: 0.4; }
+  .dragging-reorder { opacity: 0.4; }
+  .drawer-project[draggable="true"], .drawer-folder-row[draggable="true"] { cursor: grab; }
   .home-kanban-col .task-list.drag-over, .kanban-column-tasks.drag-over {
     background: var(--card); outline: 2px dashed var(--accent-due); outline-offset: -2px; border-radius: 10px;
   }
@@ -553,7 +555,12 @@
     display: flex; align-items: center; justify-content: center;
     font-size: 12px; font-weight: 700; flex-shrink: 0;
     filter: saturate(0.85) brightness(1.12);
+    overflow: hidden; cursor: default;
   }
+  .pk-kanji.has-image { filter: none; }
+  .pk-kanji img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .pk-kanji.editable { cursor: pointer; }
+  .pk-kanji.editable:hover { outline: 2px solid var(--accent-due); outline-offset: 2px; }
   .pk-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--ink); opacity: 0.88; letter-spacing: -0.01em; }
   .pk-count { font-size: 10px; font-weight: 700; color: var(--faint); margin-top: 5px; }
   .m-section-title {
@@ -690,6 +697,14 @@
     letter-spacing: 0.06em; margin-top: 2px;
   }
   .drawer-nav { display: flex; flex-direction: column; gap: 2px; }
+  .drawer-nav-with-add { flex-direction: row; align-items: center; }
+  .drawer-nav-with-add a { flex: 1; }
+  .drawer-nav-add {
+    display: none; flex-shrink: 0; width: 22px; height: 22px; border: none; background: transparent;
+    color: var(--faint); font-size: 15px; border-radius: 6px; cursor: pointer;
+  }
+  .drawer-nav-add:hover { background: var(--card); color: var(--ink); }
+  .drawer.edit-mode .drawer-nav-add { display: block; }
   .drawer-nav a {
     display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 10px;
     color: var(--ink); text-decoration: none; font-size: 12.5px; font-weight: 500;
@@ -715,7 +730,7 @@
   }
   .drawer-project-reorder button:disabled { opacity: 0.3; cursor: default; }
   .drawer-project.expanded { background: var(--bg); }
-  .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 26px; }
+  .drawer-pages-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 14px; margin-left: 21px; border-left: 1.5px solid var(--bracket-color, #3E72A6); }
   .drawer-docfolders { display: flex; flex-direction: column; padding: 2px 0 8px 14px; margin-left: 9px; border-left: 1.5px solid #3E72A6; }
   .drawer-favorites { display: flex; flex-direction: column; padding: 4px 0 8px; }
   .drawer-fav-row {
@@ -734,6 +749,16 @@
     content: ''; position: absolute; left: -14px; top: 50%; width: 10px; height: 1.5px;
     background: #3E72A6;
   }
+  .editable-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inline-rename-input {
+    width: 100%; border: 1px solid var(--accent-due); border-radius: 6px; background: var(--card);
+    color: var(--ink); font: inherit; padding: 2px 5px; outline: none;
+  }
+  .drawer-inline-add {
+    margin-left: auto; flex-shrink: 0; width: 18px; height: 18px; border: none; background: transparent;
+    color: var(--faint); font-size: 14px; line-height: 1; border-radius: 5px; cursor: pointer;
+  }
+  .drawer-inline-add:hover { background: var(--card); color: var(--ink); }
   .drawer-folder-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-folder-row.expanded { background: var(--bg); color: var(--ink); }
   .drawer-subfolders-collapse { display: flex; flex-direction: column; padding: 2px 0 4px 18px; }
@@ -744,8 +769,13 @@
   }
   .drawer-doc-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-page-row {
+    position: relative;
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     padding: 6px 8px; font-size: 12px; color: var(--muted); border-radius: 8px; cursor: pointer;
+  }
+  .drawer-pages-collapse .drawer-page-row::before {
+    content: ''; position: absolute; left: -14px; top: 50%; width: 10px; height: 1.5px;
+    background: var(--bracket-color, #3E72A6);
   }
   .drawer-page-label { display: flex; align-items: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .drawer-page-row:hover { background: var(--card); color: var(--ink); }
@@ -1451,13 +1481,11 @@
             <small data-app-subtitle-text>PERSONAL OS</small>
             <input type="text" class="drawer-subtitle-input" data-app-subtitle-input value="PERSONAL OS" style="display:none;">
           </div>
-          <nav class="drawer-nav">
+          <nav class="drawer-nav drawer-nav-with-add">
             <a data-drawer-toggle-docs><svg class="drawer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3E72A6;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>Documents</a>
+            <button type="button" class="drawer-nav-add" data-drawer-add-docfolder title="Ajouter un dossier">+</button>
           </nav>
           <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
-          <div class="drawer-add-project" data-drawer-add-docfolder>
-            <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
-          </div>
           <nav class="drawer-nav" style="margin-top:0;">
             <a data-drawer-toggle-favorites><svg class="drawer-nav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="color:#e0453c;"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.7 6.6 4.8 5.2c2.3-1 4.6-.1 5.9 1.7L12 8.3l1.3-1.4c1.3-1.8 3.6-2.7 5.9-1.7 3.1 1.4 3.8 5 2.1 7.7C18.7 16.65 12 21 12 21z"/></svg>Favoris</a>
           </nav>
@@ -1633,13 +1661,11 @@
               <small data-app-subtitle-text>PERSONAL OS</small>
               <input type="text" class="drawer-subtitle-input" data-app-subtitle-input value="PERSONAL OS" style="display:none;">
             </div>
-            <nav class="drawer-nav">
+            <nav class="drawer-nav drawer-nav-with-add">
               <a data-drawer-toggle-docs><svg class="drawer-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3E72A6;"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>Documents</a>
+              <button type="button" class="drawer-nav-add" data-drawer-add-docfolder title="Ajouter un dossier">+</button>
             </nav>
             <div class="drawer-docfolders" data-drawer-docfolders style="display:none;"></div>
-            <div class="drawer-add-project" data-drawer-add-docfolder>
-              <span style="font-size:15px;line-height:1;">+</span><span>Ajouter un dossier</span>
-            </div>
             <nav class="drawer-nav" style="margin-top:0;">
               <a data-drawer-toggle-favorites><svg class="drawer-nav-icon" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="color:#e0453c;"><path d="M12 21s-6.7-4.35-9.3-8.1C1 10.2 1.7 6.6 4.8 5.2c2.3-1 4.6-.1 5.9 1.7L12 8.3l1.3-1.4c1.3-1.8 3.6-2.7 5.9-1.7 3.1 1.4 3.8 5 2.1 7.7C18.7 16.65 12 21 12 21z"/></svg>Favoris</a>
             </nav>
@@ -3974,9 +4000,12 @@
   }
 
   function projectBlockHtml(project, stats) {
+    const kanjiInner = project.kanji_image_url
+      ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
+      : escapeHtml(project.kanji);
     return `
       <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}">
-        <div class="pk-top"><span class="pk-kanji" style="background:${project.color}">${escapeHtml(project.kanji)}</span><span class="pk-pct">${stats.pct}%</span></div>
+        <div class="pk-top"><span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span><span class="pk-pct">${stats.pct}%</span></div>
         <div class="bar"><span style="width:${stats.pct}%;background:${project.color}"></span></div>
         <div class="pk-count">${stats.done}/${stats.total}</div>
       </div>`;
@@ -4197,6 +4226,21 @@
       });
     });
   }
+  document.addEventListener('click', async (e) => {
+    const kanjiEl = e.target.closest('.pk-kanji.editable');
+    if (!kanjiEl) return;
+    e.stopPropagation();
+    const block = kanjiEl.closest('.project-block');
+    const projectId = block?.dataset.projectRealId;
+    if (!projectId) return;
+    const proj = cachedProjects.find(p => p.id === projectId);
+    const url = prompt('Lien de l\'image (format 1:1) :', proj?.kanji_image_url || '');
+    if (url === null) return;
+    const trimmed = url.trim();
+    if (proj) proj.kanji_image_url = trimmed || null;
+    await sb.from('projects').update({ kanji_image_url: trimmed || null }).eq('id', projectId);
+    renderProjects(cachedProjects, cachedPages, cachedTodos);
+  });
   document.querySelectorAll('[data-kanban-back]').forEach(btn => {
     btn.addEventListener('click', closeDesktopKanban);
   });
@@ -4372,6 +4416,13 @@
     if (deskStripEl) {
       deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
       deskStripEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
+      const desktopDrawerEditMode = document.querySelector('#app-desktop .drawer')?.classList.contains('edit-mode');
+      if (desktopDrawerEditMode) {
+        deskStripEl.querySelectorAll('.pk-kanji').forEach(kanjiEl => {
+          kanjiEl.classList.add('editable');
+          kanjiEl.title = 'Cliquer pour coller le lien de l\'image (1:1)';
+        });
+      }
     }
     if (mobEl) {
       mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
@@ -4456,24 +4507,96 @@
       .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || 'projet';
   }
 
+  function wireDragReorder(rows, onReorder) {
+    let draggedEl = null;
+    rows.forEach(row => {
+      row.addEventListener('dragstart', (e) => {
+        draggedEl = row;
+        e.dataTransfer.effectAllowed = 'move';
+        e.stopPropagation();
+        row.classList.add('dragging-reorder');
+      });
+      row.addEventListener('dragend', (e) => {
+        row.classList.remove('dragging-reorder');
+        if (draggedEl === row && row.parentElement) {
+          const orderedIds = [...row.parentElement.children].map(r => r.dataset.reorderId).filter(Boolean);
+          onReorder(orderedIds);
+        }
+        draggedEl = null;
+      });
+      row.addEventListener('dragover', (e) => {
+        if (!draggedEl || draggedEl === row) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const rect = row.getBoundingClientRect();
+        const before = (e.clientY - rect.top) < rect.height / 2;
+        row.parentElement.insertBefore(draggedEl, before ? row : row.nextSibling);
+      });
+      row.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+  }
+  function startInlineRename(nameEl, table, id, field, onSaved) {
+    if (nameEl.querySelector('input')) return;
+    const current = nameEl.textContent;
+    const input = document.createElement('input');
+    input.type = 'text'; input.value = current; input.className = 'inline-rename-input';
+    nameEl.textContent = '';
+    nameEl.appendChild(input);
+    input.focus(); input.select();
+    let done = false;
+    const commit = async () => {
+      if (done) return;
+      done = true;
+      const val = input.value.trim() || current;
+      nameEl.textContent = val;
+      await sb.from(table).update({ [field]: val }).eq('id', id);
+      if (onSaved) onSaved(val);
+    };
+    input.addEventListener('blur', commit);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
+    input.addEventListener('click', (e) => e.stopPropagation());
+  }
   function renderDrawerProjects(projects) {
     const lists = document.querySelectorAll('[data-drawer-projects]');
     if (!lists.length) return;
     const sorted = [...projects].sort((a, b) => (a.position || 0) - (b.position || 0));
-    const html = sorted.map((p, i) => {
-      const pageCount = cachedPages.filter(pg => pg.project_id === p.id && !pg.is_archived).length;
-      return `
-      <div class="drawer-project" data-project-id="${p.id}">
-        <span class="dot" style="background:${p.color}"></span>${escapeHtml(p.name)}
-        <span class="drawer-page-count">${pageCount}</span>
-        <span class="drawer-project-reorder">
-          <button type="button" data-proj-up ${i === 0 ? 'disabled' : ''}>↑</button>
-          <button type="button" data-proj-down ${i === sorted.length - 1 ? 'disabled' : ''}>↓</button>
-        </span>
-      </div>`;
-    }).join('');
-    lists.forEach(list => { list.innerHTML = html; });
+    function buildHtml(editModeNow) {
+      return sorted.map((p, i) => {
+        const pageCount = cachedPages.filter(pg => pg.project_id === p.id && !pg.is_archived).length;
+        return `
+        <div class="drawer-project${editModeNow ? ' edit-affordance' : ''}" data-project-id="${p.id}" data-reorder-id="${p.id}">
+          <span class="dot" style="background:${p.color}"></span><span class="editable-name" data-rename-name>${escapeHtml(p.name)}</span>
+          <span class="drawer-page-count">${pageCount}</span>
+          <span class="drawer-project-reorder">
+            <button type="button" data-proj-up ${i === 0 ? 'disabled' : ''}>↑</button>
+            <button type="button" data-proj-down ${i === sorted.length - 1 ? 'disabled' : ''}>↓</button>
+          </span>
+        </div>`;
+      }).join('');
+    }
+    lists.forEach(list => {
+      const editMode = list.closest('.drawer')?.classList.contains('edit-mode');
+      list.innerHTML = buildHtml(editMode);
+    });
     wireDrawerProjectRows();
+    lists.forEach(list => {
+      const editMode = list.closest('.drawer')?.classList.contains('edit-mode');
+      const rows = [...list.querySelectorAll('.drawer-project')];
+      rows.forEach(row => { row.draggable = !!editMode; });
+      if (editMode) {
+        wireDragReorder(rows, async (orderedIds) => {
+          for (let i = 0; i < orderedIds.length; i++) {
+            const proj = cachedProjects.find(p => p.id === orderedIds[i]);
+            if (proj) proj.position = i + 1;
+            await sb.from('projects').update({ position: i + 1 }).eq('id', orderedIds[i]);
+          }
+          renderProjects(cachedProjects, cachedPages, cachedTodos);
+        });
+      }
+    });
   }
   async function swapDrawerProjectPosition(projectId, dir) {
     const sorted = [...cachedProjects].sort((a, b) => (a.position || 0) - (b.position || 0));
@@ -4491,7 +4614,6 @@
   }
   function wireDrawerProjectRows() {
     document.querySelectorAll('.drawer-project').forEach(row => {
-      row.classList.remove('edit-affordance');
       row.querySelector('[data-proj-up]')?.addEventListener('click', (e) => {
         e.stopPropagation();
         swapDrawerProjectPosition(row.dataset.projectId, -1);
@@ -4502,11 +4624,22 @@
       });
       row.addEventListener('click', () => {
         const drawer = row.closest('.drawer');
-        if (drawer && drawer.classList.contains('edit-mode')) {
+        const isDesktop = getActiveContainer()?.id === 'app-desktop';
+        if (drawer && drawer.classList.contains('edit-mode') && !isDesktop) {
           openProjectAdmin(getActiveContainer(), row.dataset.projectId);
           return;
         }
         toggleDrawerProjectPages(row);
+      });
+      row.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
+        const drawer = row.closest('.drawer');
+        if (!drawer || !drawer.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        startInlineRename(e.target, 'projects', row.dataset.projectId, 'name', (val) => {
+          const p = cachedProjects.find(x => x.id === row.dataset.projectId);
+          if (p) p.name = val;
+          renderProjects(cachedProjects, cachedPages, cachedTodos);
+        });
       });
     });
   }
@@ -4521,16 +4654,19 @@
     document.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
 
     const projectId = row.dataset.projectId;
+    const project = cachedProjects.find(x => x.id === projectId);
     const pages = cachedPages.filter(p => p.project_id === projectId && !p.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
     const wrap = document.createElement('div');
     wrap.className = 'drawer-pages-collapse';
+    wrap.style.setProperty('--bracket-color', project?.color || '#3E72A6');
     wrap.innerHTML = pages.map(p => {
       const isDoc = p.page_type === 'doc';
       const count = isDoc ? '' : cachedTodos.filter(t => t.page_id === p.id && !t.parent_todo_id).length;
-      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}"><span class="drawer-page-label">${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}</span>${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
+      return `<div class="drawer-page-row" data-page-id="${p.id}" data-page-title="${escapeHtml(p.title)}" data-page-type="${p.page_type || 'tasks'}"><span class="drawer-page-label">${isDoc ? DOC_ICON_SVG : ''}<span class="editable-name" data-rename-name>${escapeHtml(p.title)}</span></span>${isDoc ? '' : `<span class="pb-count">${count}</span>`}</div>`;
     }).join('') || '<div class="drawer-page-row empty">Aucune page</div>';
     wrap.querySelectorAll('.drawer-page-row[data-page-id]').forEach(pageRow => {
       pageRow.addEventListener('click', (e) => {
+        if (e.target.closest('[data-rename-name]')) return;
         e.stopPropagation();
         const phone = getActiveContainer();
         if (pageRow.dataset.pageType === 'doc') {
@@ -4538,6 +4674,14 @@
         } else {
           openPbPageTasksDirect(phone, pageRow.dataset.pageId, pageRow.dataset.pageTitle);
         }
+      });
+      pageRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
+        if (!pageRow.closest('.drawer')?.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        startInlineRename(e.target, 'pages', pageRow.dataset.pageId, 'title', (val) => {
+          const pg = cachedPages.find(x => x.id === pageRow.dataset.pageId);
+          if (pg) pg.title = val;
+        });
       });
     });
     row.classList.add('expanded');
@@ -4553,15 +4697,54 @@
       const editMode = container.closest('.drawer')?.classList.contains('edit-mode');
       const top = cachedDocFolders.filter(f => !f.parent_folder_id && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
       container.innerHTML = top.map(f => `
-        <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+        <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}" data-reorder-id="${f.id}">
+          <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
+          ${editMode ? `<button type="button" class="drawer-inline-add" data-add-subfolder="${f.id}" title="Ajouter un sous-dossier">+</button>` : ''}
+        </div>
       `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
+      if (editMode) {
+        const rows = [...container.querySelectorAll('.drawer-folder-row')];
+        rows.forEach(row => { row.draggable = true; });
+        wireDragReorder(rows, async (orderedIds) => {
+          for (let i = 0; i < orderedIds.length; i++) {
+            const f2 = cachedDocFolders.find(x => x.id === orderedIds[i]);
+            if (f2) f2.position = i + 1;
+            await sb.from('doc_folders').update({ position: i + 1 }).eq('id', orderedIds[i]);
+          }
+          renderDrawerDocFolders(container);
+        });
+      }
       container.querySelectorAll('.drawer-folder-row').forEach(row => {
-        row.addEventListener('click', () => {
+        row.addEventListener('click', (e) => {
+          if (e.target.closest('[data-add-subfolder]')) return;
           const drawer = row.closest('.drawer');
-          if (drawer?.classList.contains('edit-mode')) {
+          const isDesktop = getActiveContainer()?.id === 'app-desktop';
+          if (drawer?.classList.contains('edit-mode') && !isDesktop) {
+            if (e.target.closest('[data-rename-name]')) return;
             openDocFolderAdmin(getActiveContainer(), row.dataset.folderId);
             return;
           }
+          toggleDrawerSubfolders(row);
+        });
+        row.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
+          const drawer = row.closest('.drawer');
+          if (!drawer || !drawer.classList.contains('edit-mode')) return;
+          e.stopPropagation();
+          startInlineRename(e.target, 'doc_folders', row.dataset.folderId, 'name', (val) => {
+            const f2 = cachedDocFolders.find(x => x.id === row.dataset.folderId);
+            if (f2) f2.name = val;
+          });
+        });
+        row.querySelector('[data-add-subfolder]')?.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const parentId = row.dataset.folderId;
+          const position = cachedDocFolders.filter(x => x.parent_folder_id === parentId).length + 1;
+          const { data: newSub, error } = await sb.from('doc_folders').insert({ name: 'Nouveau sous-dossier', parent_folder_id: parentId, position }).select().single();
+          if (error) { console.error(error); return; }
+          cachedDocFolders.push(newSub);
+          const existing = row.nextElementSibling;
+          if (existing && existing.classList.contains('drawer-subfolders-collapse')) existing.remove();
+          row.classList.remove('expanded');
           toggleDrawerSubfolders(row);
         });
       });
@@ -4578,13 +4761,38 @@
     document.querySelectorAll('.drawer-folder-row.expanded').forEach(el => el.classList.remove('expanded'));
 
     const folderId = row.dataset.folderId;
+    const editMode = row.closest('.drawer')?.classList.contains('edit-mode');
     const subs = cachedDocFolders.filter(f => f.parent_folder_id === folderId && !f.is_archived).sort((a, b) => (a.position || 0) - (b.position || 0));
     const wrap = document.createElement('div');
     wrap.className = 'drawer-subfolders-collapse';
-    wrap.innerHTML = subs.map(f => `<div class="drawer-page-row" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>`).join('') || '<div class="drawer-page-row empty">Aucun sous-dossier</div>';
+    wrap.innerHTML = subs.map(f => `<div class="drawer-page-row" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">
+      <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
+      ${editMode ? `<button type="button" class="drawer-inline-add" data-add-doc="${f.id}" title="Ajouter un document">+</button>` : ''}
+    </div>`).join('') || '<div class="drawer-page-row empty">Aucun sous-dossier</div>';
     wrap.querySelectorAll('[data-subfolder-id]').forEach(subRow => {
       subRow.addEventListener('click', (e) => {
+        if (e.target.closest('[data-add-doc], [data-rename-name]')) { e.stopPropagation(); return; }
         e.stopPropagation();
+        toggleDrawerSubfolderDocs(subRow);
+      });
+      subRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
+        if (!subRow.closest('.drawer')?.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        startInlineRename(e.target, 'doc_folders', subRow.dataset.subfolderId, 'name', (val) => {
+          const f2 = cachedDocFolders.find(x => x.id === subRow.dataset.subfolderId);
+          if (f2) f2.name = val;
+        });
+      });
+      subRow.querySelector('[data-add-doc]')?.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const folderId2 = subRow.dataset.subfolderId;
+        const position = cachedPages.filter(x => x.doc_folder_id === folderId2).length + 1;
+        const { data: newDoc, error } = await sb.from('pages').insert({ title: 'Nouveau document', doc_folder_id: folderId2, project_id: null, page_type: 'doc', content: '', position }).select().single();
+        if (error) { console.error(error); return; }
+        cachedPages.push(newDoc);
+        const existingDocs = subRow.nextElementSibling;
+        if (existingDocs && existingDocs.classList.contains('drawer-docs-collapse')) existingDocs.remove();
+        subRow.classList.remove('expanded');
         toggleDrawerSubfolderDocs(subRow);
       });
     });
@@ -4605,11 +4813,20 @@
     const docs = cachedPages.filter(p => p.doc_folder_id === folderId && !p.is_archived && p.page_type === 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
     const wrap = document.createElement('div');
     wrap.className = 'drawer-docs-collapse';
-    wrap.innerHTML = docs.map(d => `<div class="drawer-doc-row" data-doc-id="${d.id}">${DOC_ICON_SVG}${escapeHtml(d.title)}</div>`).join('') || '<div class="drawer-page-row empty">Aucun document</div>';
+    wrap.innerHTML = docs.map(d => `<div class="drawer-doc-row" data-doc-id="${d.id}">${DOC_ICON_SVG}<span class="editable-name" data-rename-name>${escapeHtml(d.title)}</span></div>`).join('') || '<div class="drawer-page-row empty">Aucun document</div>';
     wrap.querySelectorAll('[data-doc-id]').forEach(docRow => {
       docRow.addEventListener('click', (e) => {
+        if (e.target.closest('[data-rename-name]')) return;
         e.stopPropagation();
         openDocsEditor(getActiveContainer(), docRow.dataset.docId, false);
+      });
+      docRow.querySelector('[data-rename-name]')?.addEventListener('dblclick', (e) => {
+        if (!docRow.closest('.drawer')?.classList.contains('edit-mode')) return;
+        e.stopPropagation();
+        startInlineRename(e.target, 'pages', docRow.dataset.docId, 'title', (val) => {
+          const pg = cachedPages.find(x => x.id === docRow.dataset.docId);
+          if (pg) pg.title = val;
+        });
       });
     });
     subRow.classList.add('expanded');
@@ -4748,9 +4965,10 @@
       const drawer = btn.closest('.drawer');
       const active = drawer.classList.toggle('edit-mode');
       btn.classList.toggle('active', active);
-      drawer.querySelectorAll('.drawer-project').forEach(row => row.classList.toggle('edit-affordance', active));
       drawer.querySelectorAll('.drawer-pages-collapse').forEach(el => el.remove());
       drawer.querySelectorAll('.drawer-project.expanded').forEach(el => el.classList.remove('expanded'));
+      renderDrawerProjects(cachedProjects);
+      renderProjects(cachedProjects, cachedPages, cachedTodos);
       const docContainer = drawer.querySelector('[data-drawer-docfolders]');
       if (docContainer && docContainer.style.display !== 'none') renderDrawerDocFolders(docContainer);
       drawer.querySelector('[data-app-title-text]').style.display = active ? 'none' : 'block';
