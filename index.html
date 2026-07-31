@@ -2532,9 +2532,6 @@
       applyTheme(next);
     });
   });
-  if (window.innerWidth >= 900 && document.documentElement.getAttribute('data-theme') === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'light');
-  }
   applyTheme(document.documentElement.getAttribute('data-theme'));
 
   const kpiDoneDesktop = document.getElementById('kpi-done-desktop');
@@ -3402,15 +3399,15 @@
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
       e.stopPropagation();
       const cb = e.currentTarget;
-      const willBeDone = !cb.classList.contains('done');
       const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
+      const willBeDone = record ? !record.is_done : !cb.classList.contains('done');
 
       if (record && record.repeat_rule && willBeDone) {
         const nextDate = computeNextOccurrence(record.repeat_rule, record.due_date);
         if (nextDate) {
           await saveRecordField(sheet, { due_date: nextDate, is_done: false, completed_at: null });
           updateDueLabelFromCache(sheet);
-          if (sheet.dataset.recordKind !== 'subtask') { updateGlobalRemainingCount(); refreshProjectBlocks(); }
+          if (sheet.dataset.recordKind !== 'subtask') { updateGlobalRemainingCount(); refreshProjectBlocks(); loadData(); }
           return;
         }
       }
@@ -3970,7 +3967,7 @@
     if (diff === 2) return 'Après-demain';
     if (tabKey === 'today') return 'Today';
     if (tabKey === 'tomorrow') return 'Demain';
-    if (tabKey === 'later') return 'Plus tard';
+    if (tabKey === 'later' && !includeDate) return 'Plus tard';
     return formatDateShort(todo.due_date);
   }
   function escapeHtml(s) {
@@ -4233,7 +4230,7 @@
         <div class="kanban-column-tasks">${tasks.map(t => taskRowHtml(t, project, page, subsByTodo[t.id], true)).join('') || '<div class="empty-state">Aucune tâche</div>'}</div>
       </div>`;
     }).join('') || '<div class="empty-state">Aucune page</div>';
-    columnsEl.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    columnsEl.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
     columnsEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
     wireKanbanDragDrop(columnsEl);
     columnsEl.querySelectorAll('[data-kanban-col-add]').forEach(btn => {
@@ -4340,7 +4337,7 @@
     const page = pageById[pageId];
     const project = page ? projectById[page.project_id] : null;
     list.innerHTML = sortedTodos.map(t => taskRowHtml(t, project, page, subsByTodo[t.id], true)).join('') || '<div class="empty-state">Aucune tâche</div>';
-    list.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    list.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
     // clic direct : on ferme d'abord la fiche "pages" pour éviter l'empilement/rognage visuel des deux fiches
     list.querySelectorAll('.task-row').forEach(row => {
       row.addEventListener('click', () => {
@@ -4508,7 +4505,7 @@
       if (barEl) barEl.style.width = pct + '%';
     });
 
-    document.querySelectorAll('.checkbox').forEach(wireCheckbox);
+    document.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
     document.querySelectorAll('.task-row').forEach(wireTaskRowClick);
     const appDesktopScope = document.getElementById('app-desktop');
     if (appDesktopScope) wireKanbanDragDrop(appDesktopScope);
