@@ -989,7 +989,7 @@
   .td-notes-edit {
     display: block; width: 100%; box-sizing: border-box; border: none; background: var(--bg);
     border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
-    padding: 10px 12px; resize: vertical; outline: none;
+    padding: 10px 12px; resize: vertical; outline: none; min-height: 220px; line-height: 1.5;
   }
 
   /* task detail header: projet à gauche, flag/upload/sous-tâche à droite */
@@ -1930,7 +1930,7 @@
 
               <div class="td-notes-wrap">
                 <div class="td-link" data-td-notes-view></div>
-                <textarea class="td-notes-edit" rows="3" data-td-notes-edit placeholder="Description…" style="display:none;"></textarea>
+                <textarea class="td-notes-edit" rows="10" data-td-notes-edit placeholder="Description…" style="display:none;"></textarea>
               </div>
 
               <div class="pa-section-head" data-td-subtasks-head style="display:none;">Sous-tâches</div>
@@ -3872,13 +3872,15 @@
   function revealApp() {
     appDesktopEl.classList.remove('app-loading');
     appMobileEl.classList.remove('app-loading');
-    const favContainer = appDesktopEl.querySelector('[data-drawer-favorites]');
-    const favToggle = appDesktopEl.querySelector('[data-drawer-toggle-favorites]');
-    if (favContainer && favContainer.style.display === 'none') {
-      favContainer.style.display = 'block';
-      favToggle?.classList.add('active');
-      renderDrawerFavorites(favContainer);
-    }
+    [appDesktopEl, appMobileEl].forEach(appEl => {
+      const favContainer = appEl.querySelector('[data-drawer-favorites]');
+      const favToggle = appEl.querySelector('[data-drawer-toggle-favorites]');
+      if (favContainer && favContainer.style.display === 'none') {
+        favContainer.style.display = 'block';
+        favToggle?.classList.add('active');
+        renderDrawerFavorites(favContainer);
+      }
+    });
   }
 
   document.getElementById('auth-submit').addEventListener('click', async (e) => {
