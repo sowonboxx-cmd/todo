@@ -1374,8 +1374,8 @@
     [data-theme="light"] .docs-editor { background: #fff; }
     .docs-scroll {
       display: grid; grid-template-columns: minmax(0, 700px) 200px;
-      justify-content: center; gap: 48px; align-items: start;
-      max-width: 980px; margin: 0 auto; padding: 48px 24px 0;
+      justify-content: center; align-items: start; align-content: start;
+      max-width: 980px; margin: 0 auto; padding: 48px 24px 0; gap: 48px;
     }
     .docs-hero-title { grid-column: 1; grid-row: 1; font-size: 34px; }
     .docs-content { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.8; padding-bottom: 250px; }
@@ -1438,6 +1438,22 @@
   }
   .docs-toc-item:hover { background: var(--bg); color: var(--ink); }
   .docs-toc-item.lvl2 { padding-left: 20px; font-size: 11.5px; }
+
+  .docs-move-backdrop { display: none; position: fixed; inset: 0; z-index: 402; background: rgba(0,0,0,0.15); }
+  .docs-move-backdrop.open { display: block; }
+  .docs-move-panel {
+    position: fixed; right: -240px; top: 0; bottom: 0; width: 220px; z-index: 403;
+    background: var(--card); border-left: 1px solid var(--line); box-shadow: var(--shadow);
+    padding: 60px 14px 14px; transition: right .2s ease; overflow-y: auto;
+  }
+  .docs-move-panel.open { right: 0; }
+  @media (min-width: 900px) {
+    .docs-move-panel {
+      left: -240px; right: auto; border-left: none; border-right: 1px solid var(--line);
+      transition: left .2s ease; padding-top: 20px;
+    }
+    .docs-move-panel.open { left: 0; right: auto; }
+  }
 
   /* ajout : sélecteur type tâche / doc */
   .at-type-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--bg); border-radius: 999px; padding: 3px; }
@@ -1830,8 +1846,8 @@
             </div>
             <div class="docs-desktop-outline" data-docs-desktop-outline></div>
 
-            <div class="docs-toc-backdrop" data-docs-move-backdrop></div>
-            <div class="docs-toc-panel" data-docs-move-panel>
+            <div class="docs-move-backdrop" data-docs-move-backdrop></div>
+            <div class="docs-move-panel" data-docs-move-panel>
               <div class="docs-toc-head" style="display:flex; align-items:center; gap:8px;">
                 <button type="button" class="link" data-docs-move-back style="display:none; padding:0; font-size:12px;">‹</button>
                 <span data-docs-move-title>Déplacer vers…</span>
