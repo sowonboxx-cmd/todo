@@ -342,8 +342,10 @@
   .dots-item:hover { background: var(--bg); }
 
   .task-row.is-done { opacity: 0.55; }
-  .task-list.hide-completed .task-row.is-done,
-  .m-tasks.hide-completed .task-row.is-done { display: none; }
+  .task-list .task-row.is-done,
+  .m-tasks .task-row.is-done { display: none; }
+  .task-list.show-completed .task-row.is-done,
+  .m-tasks.show-completed .task-row.is-done { display: flex; }
 
   .task-list[data-tab], .m-tasks[data-tab] { display: none; }
   .task-list[data-tab].is-active, .m-tasks[data-tab].is-active { display: block; }
@@ -2591,7 +2593,7 @@
   }
   document.querySelectorAll('.phone').forEach(phone => updateTasksSummary(phone));
 
-  document.querySelectorAll('.checkbox').forEach(cb => {
+  document.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(cb => {
     cb.addEventListener('click', (e) => {
       e.stopPropagation();
       cb.classList.toggle('done');
@@ -3802,14 +3804,15 @@
     document.querySelectorAll('.dots-menu.open').forEach(m => m.classList.remove('open'));
   });
 
-  // show / hide completed tasks
+  // show / hide completed tasks — hidden by default
   document.querySelectorAll('[data-toggle-completed]').forEach(btn => {
-    let hidden = false;
+    let hidden = true;
+    btn.textContent = 'Voir les tâches terminées';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       hidden = !hidden;
       const scope = getActiveContainer() || document;
-      scope.querySelectorAll('.task-list, .m-tasks').forEach(l => l.classList.toggle('hide-completed', hidden));
+      scope.querySelectorAll('.task-list, .m-tasks').forEach(l => l.classList.toggle('show-completed', !hidden));
       btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
       btn.closest('.dots-menu')?.classList.remove('open');
     });
@@ -5380,6 +5383,12 @@
 
     renderProjects(cachedProjects, cachedPages, cachedTodos);
     renderTodos(cachedTodos, cachedPages, cachedProjects, cachedSubtasks);
+    const kanbanView = document.querySelector('#app-desktop [data-kanban-view]');
+    if (kanbanView && getComputedStyle(kanbanView).display !== 'none') {
+      const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
+      const openProject = cachedProjects.find(p => p.name === badge?.textContent);
+      if (openProject) renderKanbanColumns(openProject.id);
+    }
     revealApp();
   }
 
@@ -5870,8 +5879,12 @@
 
         closeAddTaskSheet(phone);
         await loadData();
-        const page = cachedPages.find(p => p.id === pageId);
-        openPbPageTasksDirect(phone, pageId, page?.title || '');
+        const kanbanView = document.querySelector('#app-desktop [data-kanban-view]');
+        const stayInKanban = kanbanView && getComputedStyle(kanbanView).display !== 'none';
+        if (!stayInKanban) {
+          const page = cachedPages.find(p => p.id === pageId);
+          openPbPageTasksDirect(phone, pageId, page?.title || '');
+        }
       } catch (err) {
         errorEl.textContent = err.message || 'Erreur, réessaie.';
       } finally {
