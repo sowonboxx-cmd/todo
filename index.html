@@ -343,9 +343,11 @@
 
   .task-row.is-done { opacity: 0.55; }
   .task-list .task-row.is-done,
-  .m-tasks .task-row.is-done { display: none; }
+  .m-tasks .task-row.is-done,
+  .kanban-column-tasks .task-row.is-done { display: none; }
   .task-list.show-completed .task-row.is-done,
-  .m-tasks.show-completed .task-row.is-done { display: flex; }
+  .m-tasks.show-completed .task-row.is-done,
+  .kanban-column-tasks.show-completed .task-row.is-done { display: flex; }
 
   .task-list[data-tab], .m-tasks[data-tab] { display: none; }
   .task-list[data-tab].is-active, .m-tasks[data-tab].is-active { display: block; }
@@ -3812,7 +3814,7 @@
       e.stopPropagation();
       hidden = !hidden;
       const scope = getActiveContainer() || document;
-      scope.querySelectorAll('.task-list, .m-tasks').forEach(l => l.classList.toggle('show-completed', !hidden));
+      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', !hidden));
       btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
       btn.closest('.dots-menu')?.classList.remove('open');
     });
