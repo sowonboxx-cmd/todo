@@ -1311,20 +1311,6 @@
   }
   .doc-inline-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .docs-media-section { margin-top: 24px; }
-
-  .social-mention {
-    display: inline-flex; align-items: center; gap: 7px; text-decoration: none;
-    color: var(--ink); font-family: 'Inter', sans-serif; font-size: 15px; vertical-align: middle;
-    max-width: 100%;
-  }
-  .sm-icon { display: flex; flex-shrink: 0; width: 18px; height: 18px; }
-  .sm-icon svg { width: 100%; height: 100%; }
-  .sm-platform { color: var(--muted); font-weight: 500; flex-shrink: 0; }
-  .sm-detail {
-    font-weight: 700; text-decoration: underline; text-underline-offset: 2px;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .social-mention:hover .sm-detail { color: #3E72A6; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
@@ -2864,58 +2850,6 @@
   function siteNameFromUrl(url) {
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
-  }
-  function detectSocialLink(url) {
-    let u;
-    try { u = new URL(url); } catch { return null; }
-    const host = u.hostname.toLowerCase();
-    const parts = u.pathname.split('/').filter(Boolean);
-    const isX = /(^|\.)twitter\.com$/.test(host) || /(^|\.)x\.com$/.test(host);
-    const isInstagram = /(^|\.)instagram\.com$/.test(host);
-    const isThreads = /(^|\.)threads\.(net|com)$/.test(host);
-    if (!isX && !isInstagram && !isThreads) return null;
-    if (parts.length === 0) return null; // lien vers la page d'accueil seule, rien à montrer
-
-    if (isX) {
-      const statusIdx = parts.indexOf('status');
-      const username = parts[0] && parts[0] !== 'i' && parts[0] !== 'home' ? parts[0] : null;
-      const postId = statusIdx >= 0 ? parts[statusIdx + 1] : null;
-      return { platform: 'x', label: 'X (Twitter)', username, postId };
-    }
-    if (isInstagram) {
-      const typeIdx = parts.findIndex(p => p === 'p' || p === 'reel' || p === 'tv' || p === 'stories');
-      const username = typeIdx !== 0 ? parts[0] : null;
-      const postId = typeIdx >= 0 ? parts[typeIdx + 1] : null;
-      return { platform: 'instagram', label: 'Instagram', username, postId, postPath: typeIdx >= 0 ? parts[typeIdx] : null };
-    }
-    // Threads : /@username/post/POSTID, ou lien court /t/CODE, ou toute autre variante
-    const atIdx = parts.findIndex(p => p.startsWith('@'));
-    const postIdx = parts.indexOf('post');
-    const username = atIdx >= 0 ? parts[atIdx].slice(1) : null;
-    const postId = postIdx >= 0 ? parts[postIdx + 1] : parts[parts.length - 1];
-    return { platform: 'threads', label: 'Threads', username, postId };
-  }
-  const SOCIAL_ICONS = {
-    x: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23.3 22h-7l-5.5-7.2L4.5 22H1.4l8.1-9.3L1 2h7.2l5 6.6L18.9 2zm-1.2 18h1.7L7.4 3.9H5.6L17.7 20z"/></svg>',
-    instagram: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>',
-    threads: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10"/><path d="M12 8a4 4 0 1 0 0 8c3 0 4-2 4-4.5S15 7 12 8z"/></svg>',
-  };
-  const SOCIAL_ICON_COLOR = { x: '#000', instagram: '#d6249f', threads: '#000' };
-  function postTypeLabel(social) {
-    if (social.platform === 'x') return 'post';
-    if (social.platform === 'threads') return 'post';
-    if (social.postPath === 'reel') return 'reel';
-    if (social.postPath === 'tv') return 'IGTV';
-    return 'post';
-  }
-  function insertSocialMention(url, social) {
-    const detail = social.username ? `@${escapeHtml(social.username)} · ${postTypeLabel(social)}` : postTypeLabel(social);
-    const html = `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" class="social-mention" contenteditable="false" data-social-mention="${social.platform}">` +
-      `<span class="sm-icon" style="color:${SOCIAL_ICON_COLOR[social.platform]}">${SOCIAL_ICONS[social.platform]}</span>` +
-      `<span class="sm-platform">${escapeHtml(social.label)}</span>` +
-      `<span class="sm-detail">${detail}</span>` +
-      `</a>&nbsp;`;
-    document.execCommand('insertHTML', false, html);
   }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
@@ -6136,44 +6070,6 @@
   }
 
   // ---- préserve la sélection/curseur entre les clics sur la barre d'outils (hors zone éditable) ----
-  function findDocsBlockAncestor(content, node) {
-    while (node && node !== content) {
-      if (node.nodeType === 1 && /^(P|H1|H2|H3|H4|H5|H6|LI|BLOCKQUOTE)$/.test(node.tagName)) return node;
-      node = node.parentNode;
-    }
-    return null;
-  }
-  function setDocsBlockFormat(content, tag) {
-    const sel = window.getSelection();
-    if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
-    const range = sel.getRangeAt(0);
-    let startBlock = findDocsBlockAncestor(content, range.startContainer);
-    let endBlock = findDocsBlockAncestor(content, range.endContainer);
-    if (!startBlock && !endBlock) return;
-    if (!startBlock) startBlock = endBlock;
-    if (!endBlock) endBlock = startBlock;
-
-    const blocks = [];
-    if (startBlock === endBlock) {
-      blocks.push(startBlock);
-    } else {
-      let node = startBlock;
-      let safety = 0;
-      while (node && safety++ < 1000) {
-        blocks.push(node);
-        if (node === endBlock) break;
-        node = node.nextElementSibling;
-      }
-    }
-
-    blocks.forEach(block => {
-      if (!block || block.tagName === tag) return;
-      const newEl = document.createElement(tag);
-      while (block.firstChild) newEl.appendChild(block.firstChild);
-      if (!newEl.firstChild) newEl.appendChild(document.createElement('br'));
-      block.parentNode.replaceChild(newEl, block);
-    });
-  }
   function saveDocsSelection(editor) {
     const content = editor.querySelector('[data-docs-content]');
     const sel = window.getSelection();
@@ -6282,7 +6178,7 @@
         content.focus();
         restoreDocsSelection(editor);
         const tag = { h1: 'H1', h2: 'H2', h3: 'H3', p: 'P' }[btn.dataset.docsBlock] || 'P';
-        setDocsBlockFormat(content, tag);
+        document.execCommand('formatBlock', false, tag);
         editor.querySelector('[data-docs-block-popup]').classList.remove('open');
         saveDocsSelection(editor);
         buildDocsToc(editor);
@@ -6307,53 +6203,10 @@
       });
     });
 
-    // Entrée dans un titre (H1-H3) : la nouvelle ligne repasse en texte normal, comme dans
-    // la plupart des éditeurs — sans ça, le navigateur duplique par défaut le même tag de titre.
-    content.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
-      const sel = window.getSelection();
-      if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
-      const range = sel.getRangeAt(0);
-      if (!range.collapsed) return; // une vraie sélection à remplacer : laisser le comportement par défaut
-      let block = range.startContainer;
-      while (block && block !== content && !(block.nodeType === 1 && /^H[1-3]$/.test(block.tagName))) {
-        block = block.parentNode;
-      }
-      if (!block || block === content) return; // pas dans un titre : comportement normal
-
-      e.preventDefault();
-      const splitRange = document.createRange();
-      splitRange.selectNodeContents(block);
-      splitRange.setStart(range.startContainer, range.startOffset);
-      const extracted = splitRange.extractContents();
-
-      const newP = document.createElement('p');
-      if (extracted.textContent.trim() === '' && !extracted.querySelector('img, br')) {
-        newP.appendChild(document.createElement('br'));
-      } else {
-        newP.appendChild(extracted);
-      }
-      block.parentNode.insertBefore(newP, block.nextSibling);
-      if (!block.firstChild) block.appendChild(document.createElement('br'));
-
-      const newRange = document.createRange();
-      newRange.setStart(newP, 0);
-      newRange.collapse(true);
-      sel.removeAllRanges();
-      sel.addRange(newRange);
-      saveDocsSelection(editor);
-      buildDocsToc(editor);
-    });
-
     // colle en texte brut : uniformise toujours la police (Inter), quelle que soit la source
     content.addEventListener('paste', (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
-      const social = detectSocialLink(text);
-      if (social) {
-        insertSocialMention(text, social);
-        return;
-      }
       if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(text)) {
         document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(text)}" alt=""></span>&nbsp;`);
       } else if (/^https?:\/\/\S+$/i.test(text)) {
