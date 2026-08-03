@@ -1311,6 +1311,38 @@
   }
   .doc-inline-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .docs-media-section { margin-top: 24px; }
+
+  .social-paste-popup {
+    position: fixed; z-index: 500; width: 260px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 8px;
+  }
+  .spp-head {
+    font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; color: var(--faint);
+    text-transform: uppercase; letter-spacing: 0.02em; padding: 6px 8px 8px;
+  }
+  .spp-choice {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%;
+    text-align: left; border: none; background: transparent; border-radius: 10px;
+    padding: 8px 10px; cursor: pointer;
+  }
+  .spp-choice:hover { background: var(--bg); }
+  .spp-title { font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 700; color: var(--ink); }
+  .spp-sub { font-family: 'Inter', sans-serif; font-size: 11.5px; color: var(--muted); }
+
+  .social-embed-wrap {
+    display: inline-block; vertical-align: top; width: calc(25% - 9px); min-width: 150px; max-width: 260px;
+    height: 300px; margin: 4px; border: 1px solid var(--line-soft); border-radius: 12px;
+    overflow-y: auto; overflow-x: hidden; background: var(--card); position: relative; padding: 2px;
+  }
+  .social-embed-wrap .twitter-tweet, .social-embed-wrap .instagram-media { margin: 0 !important; width: 100% !important; }
+  .social-embed-fallback {
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 6px;
+    height: 100%; padding: 14px; font-family: 'Inter', sans-serif;
+  }
+  .sef-platform { font-weight: 800; font-size: 14px; color: var(--ink); }
+  .sef-user { font-size: 12.5px; color: var(--muted); }
+  .sef-link { font-size: 12.5px; color: #3E72A6; text-decoration: none; margin-top: 6px; }
+  .sef-link:hover { text-decoration: underline; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
@@ -2850,6 +2882,127 @@
   function siteNameFromUrl(url) {
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
+  }
+  function detectSocialLink(url) {
+    let u;
+    try { u = new URL(url); } catch { return null; }
+    const host = u.hostname.replace(/^www\./, '');
+    const parts = u.pathname.split('/').filter(Boolean);
+    if (host === 'twitter.com' || host === 'x.com') {
+      // /username/status/12345
+      if (parts.length >= 3 && parts[1] === 'status') {
+        return { platform: 'x', label: 'X (Twitter)', username: parts[0], postId: parts[2] };
+      }
+      return null;
+    }
+    if (host === 'instagram.com') {
+      // /username/p/POSTID/ or /reel/POSTID/ (no username in reel path)
+      if (parts[0] === 'p' || parts[0] === 'reel') {
+        return { platform: 'instagram', label: 'Instagram', username: null, postId: parts[1] };
+      }
+      if (parts.length >= 3 && (parts[1] === 'p' || parts[1] === 'reel')) {
+        return { platform: 'instagram', label: 'Instagram', username: parts[0], postId: parts[2] };
+      }
+      return null;
+    }
+    if (host === 'threads.net' || host === 'threads.com') {
+      // /@username/post/POSTID
+      if (parts.length >= 3 && parts[0].startsWith('@') && parts[1] === 'post') {
+        return { platform: 'threads', label: 'Threads', username: parts[0].slice(1), postId: parts[2] };
+      }
+      return null;
+    }
+    return null;
+  }
+  function showSocialPastePopup(editor, url, social) {
+    document.querySelector('.social-paste-popup')?.remove();
+    const popup = document.createElement('div');
+    popup.className = 'social-paste-popup';
+    const usernameLabel = social.username ? `${social.label} · @${escapeHtml(social.username)}` : social.label;
+    popup.innerHTML = `
+      <div class="spp-head">Afficher ce lien ${escapeHtml(social.label)} comment ?</div>
+      <button type="button" class="spp-choice" data-social-choice="embed">
+        <span class="spp-title">Intégré</span>
+        <span class="spp-sub">Voir le post directement dans la page</span>
+      </button>
+      <button type="button" class="spp-choice" data-social-choice="inline">
+        <span class="spp-title">En ligne</span>
+        <span class="spp-sub">${usernameLabel}</span>
+      </button>
+    `;
+    document.body.appendChild(popup);
+
+    let rect = { left: window.innerWidth / 2 - 130, top: window.innerHeight / 2 - 40, bottom: window.innerHeight / 2 };
+    try {
+      if (editor._savedRange) rect = editor._savedRange.getBoundingClientRect();
+    } catch {}
+    const popupWidth = 260;
+    popup.style.left = Math.max(10, Math.min(rect.left, window.innerWidth - popupWidth - 10)) + 'px';
+    popup.style.top = Math.min(rect.bottom + 8, window.innerHeight - 140) + 'px';
+
+    const cleanup = () => {
+      popup.remove();
+      document.removeEventListener('mousedown', onOutside, true);
+    };
+    const onOutside = (e) => { if (!popup.contains(e.target)) cleanup(); };
+    setTimeout(() => document.addEventListener('mousedown', onOutside, true), 0);
+
+    popup.querySelector('[data-social-choice="embed"]').addEventListener('click', () => {
+      cleanup();
+      restoreDocsSelection(editor);
+      insertSocialEmbed(url, social);
+    });
+    popup.querySelector('[data-social-choice="inline"]').addEventListener('click', () => {
+      cleanup();
+      restoreDocsSelection(editor);
+      insertSocialInlineLink(url, social);
+    });
+  }
+  function insertSocialInlineLink(url, social) {
+    const label = social.username ? `${social.label} · @${social.username}` : social.label;
+    document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(label)}</a>&nbsp;`);
+  }
+  function insertSocialEmbed(url, social) {
+    let inner = '';
+    if (social.platform === 'x') {
+      inner = `<blockquote class="twitter-tweet" data-dnt="true"><a href="${escapeHtml(url)}"></a></blockquote>`;
+    } else if (social.platform === 'instagram') {
+      inner = `<blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="${escapeHtml(url)}"><a href="${escapeHtml(url)}"></a></blockquote>`;
+    } else {
+      // Threads n'a pas encore de widget d'intégration public sans authentification —
+      // on affiche une carte homogène avec le format des autres plutôt qu'un intégré cassé.
+      inner = `<div class="social-embed-fallback">
+        <div class="sef-platform">Threads</div>
+        <div class="sef-user">${social.username ? '@' + escapeHtml(social.username) : ''}</div>
+        <a class="sef-link" href="${escapeHtml(url)}" target="_blank" rel="noopener">Voir le post →</a>
+      </div>`;
+    }
+    const html = `<span class="social-embed-wrap" contenteditable="false" data-social-embed="${social.platform}">${inner}</span>&nbsp;`;
+    document.execCommand('insertHTML', false, html);
+    loadSocialEmbedScript(social.platform, processSocialEmbeds);
+  }
+  function loadSocialEmbedScript(platform, cb) {
+    if (platform === 'x') {
+      if (window.twttr && window.twttr.widgets) { cb(); return; }
+      if (document.getElementById('twitter-wjs')) { setTimeout(cb, 600); return; }
+      const s = document.createElement('script');
+      s.id = 'twitter-wjs'; s.src = 'https://platform.twitter.com/widgets.js'; s.async = true;
+      s.onload = cb;
+      document.body.appendChild(s);
+    } else if (platform === 'instagram') {
+      if (window.instgrm) { cb(); return; }
+      if (document.getElementById('instagram-embed-js')) { setTimeout(cb, 600); return; }
+      const s = document.createElement('script');
+      s.id = 'instagram-embed-js'; s.src = 'https://www.instagram.com/embed.js'; s.async = true;
+      s.onload = cb;
+      document.body.appendChild(s);
+    } else {
+      cb();
+    }
+  }
+  function processSocialEmbeds() {
+    if (window.twttr && window.twttr.widgets) window.twttr.widgets.load();
+    if (window.instgrm && window.instgrm.Embeds) window.instgrm.Embeds.process();
   }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
@@ -6207,6 +6360,12 @@
     content.addEventListener('paste', (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
+      const social = detectSocialLink(text);
+      if (social) {
+        saveDocsSelection(editor);
+        showSocialPastePopup(editor, text, social);
+        return;
+      }
       if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(text)) {
         document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(text)}" alt=""></span>&nbsp;`);
       } else if (/^https?:\/\/\S+$/i.test(text)) {
