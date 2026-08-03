@@ -1375,9 +1375,9 @@
     .docs-scroll {
       display: grid; grid-template-columns: minmax(0, 700px) 200px;
       justify-content: center; align-items: start; align-content: start;
-      max-width: 980px; margin: 0 auto; padding: 48px 24px 0; gap: 48px;
+      max-width: 980px; margin: 0 auto; padding: 48px 24px 0; column-gap: 48px; row-gap: 10px;
     }
-    .docs-hero-title { grid-column: 1; grid-row: 1; font-size: 34px; }
+    .docs-hero-title { grid-column: 1; grid-row: 1; font-size: 34px; padding: 10px 0 0; margin-bottom: 0; }
     .docs-content { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.8; padding-bottom: 250px; }
     .docs-media-section { grid-column: 2; grid-row: 1 / span 2; margin-top: 0; }
     .docs-media-section hr { display: none; }
@@ -5992,6 +5992,7 @@
     const title = titleInput.value.trim() || 'Sans titre';
     const html = content.innerHTML;
     await sb.from('pages').update({ title, content: html }).eq('id', pageId);
+    editor._docsUnsaved = false;
     const page = cachedPages.find(p => p.id === pageId);
     if (page) { page.title = title; page.content = html; }
     editor.querySelector('[data-docs-title-sticky]').textContent = title;
@@ -6070,6 +6071,12 @@
   }
 
   // ---- préserve la sélection/curseur entre les clics sur la barre d'outils (hors zone éditable) ----
+  function insertDocsInlineImage(url) {
+    document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(url)}" alt=""></span>&nbsp;`);
+  }
+  function insertDocsPlainLink(url) {
+    document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(url))}</a>&nbsp;`);
+  }
   function saveDocsSelection(editor) {
     const content = editor.querySelector('[data-docs-content]');
     const sel = window.getSelection();
@@ -6103,6 +6110,23 @@
   document.querySelectorAll('[data-docs-editor]').forEach(editor => {
     const phone = getActiveContainer();
     const content = editor.querySelector('[data-docs-content]');
+
+    // enregistrement automatique — ne dépend plus du bouton "Terminé", qui ne fait
+    // plus que basculer en lecture seule (en sauvegardant aussi, par sécurité).
+    let docsAutoSaveTimer = null;
+    const scheduleDocsAutoSave = () => {
+      if (editor.dataset.editing !== '1') return;
+      editor._docsUnsaved = true;
+      clearTimeout(docsAutoSaveTimer);
+      docsAutoSaveTimer = setTimeout(() => saveDocsContent(editor), 900);
+    };
+    content.addEventListener('input', scheduleDocsAutoSave);
+    editor.querySelector('[data-docs-hero-title]')?.addEventListener('input', scheduleDocsAutoSave);
+    window.addEventListener('beforeunload', (e) => {
+      if (!editor._docsUnsaved) return;
+      e.preventDefault();
+      e.returnValue = '';
+    });
 
     document.addEventListener('selectionchange', () => {
       if (editor.dataset.editing !== '1') return;
@@ -6207,10 +6231,28 @@
     content.addEventListener('paste', (e) => {
       e.preventDefault();
       const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
-      if (/^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif)(\?\S*)?$/i.test(text)) {
-        document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(text)}" alt=""></span>&nbsp;`);
-      } else if (/^https?:\/\/\S+$/i.test(text)) {
-        document.execCommand('insertHTML', false, `<a href="${escapeHtml(text)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(text))}</a>&nbsp;`);
+      const looksLikeImageExt = /^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif|bmp|heic|heif)(\?\S*)?$/i.test(text);
+      const isPlainUrl = /^https?:\/\/\S+$/i.test(text);
+      if (looksLikeImageExt) {
+        insertDocsInlineImage(text);
+      } else if (isPlainUrl) {
+        // beaucoup d'URLs d'images modernes (Unsplash, Google Photos, Imgur, CDN…) n'ont pas
+        // d'extension de fichier explicite — on vérifie donc si l'URL charge réellement comme
+        // une image avant de choisir entre miniature et lien classique.
+        saveDocsSelection(editor);
+        const probe = new Image();
+        let settled = false;
+        const finish = (isImage) => {
+          if (settled) return;
+          settled = true;
+          restoreDocsSelection(editor);
+          if (isImage) insertDocsInlineImage(text);
+          else insertDocsPlainLink(text);
+        };
+        probe.onload = () => finish(true);
+        probe.onerror = () => finish(false);
+        probe.src = text;
+        setTimeout(() => finish(false), 4000);
       } else {
         document.execCommand('insertText', false, text);
       }
