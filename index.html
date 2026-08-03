@@ -1380,18 +1380,20 @@
   .docs-toolbar button:active { background: var(--bg); }
   .docs-toolbar button svg { width: 17px; height: 17px; }
   .docs-toolbar-edit-only { display: flex; align-items: center; gap: 4px; }
-  .docs-block-popup, .docs-color-popup {
+  .docs-block-popup, .docs-color-popup, .docs-slash-menu {
     display: none; position: fixed; left: 10px; bottom: calc(60px + env(safe-area-inset-bottom)); z-index: 402; background: var(--card);
     border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; min-width: 180px;
   }
-  .docs-block-popup.open, .docs-color-popup.open { display: block; }
-  .docs-block-popup button {
+  .docs-block-popup.open, .docs-color-popup.open, .docs-slash-menu.open { display: block; }
+  .docs-block-popup button, .docs-slash-menu button {
     display: flex; align-items: center; gap: 10px; width: 100%; border: none; background: transparent;
     text-align: left; padding: 9px 10px; border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
     font-size: 13.5px; font-weight: 600; color: var(--ink);
   }
-  .docs-block-popup button:hover { background: var(--bg); }
-  .docs-block-popup .bp-tag { color: var(--faint); font-size: 11px; font-weight: 700; width: 20px; flex-shrink: 0; }
+  .docs-block-popup button:hover, .docs-slash-menu button:hover { background: var(--bg); }
+  .docs-block-popup .bp-tag, .docs-slash-menu .bp-tag { color: var(--faint); font-size: 11px; font-weight: 700; width: 20px; flex-shrink: 0; }
+  .docs-slash-menu button.sm-hidden { display: none; }
+  .docs-slash-menu button.sm-active { background: var(--bg); }
   .docs-color-popup { display: none; min-width: unset; padding: 8px; }
   .docs-color-popup.open { display: flex; gap: 6px; }
   .docs-color-popup button {
@@ -1924,6 +1926,17 @@
               <button type="button" data-docs-block="h2"><span class="bp-tag">H2</span>Heading 2</button>
               <button type="button" data-docs-block="h3"><span class="bp-tag">H3</span>Heading 3</button>
               <button type="button" data-docs-block="p"><span class="bp-tag">T</span>Text</button>
+            </div>
+            <div class="docs-slash-menu" data-docs-slash-menu>
+              <button type="button" data-slash-cmd="h1"><span class="bp-tag">H1</span>Titre 1</button>
+              <button type="button" data-slash-cmd="h2"><span class="bp-tag">H2</span>Titre 2</button>
+              <button type="button" data-slash-cmd="h3"><span class="bp-tag">H3</span>Titre 3</button>
+              <button type="button" data-slash-cmd="p"><span class="bp-tag">T</span>Texte</button>
+              <button type="button" data-slash-cmd="todo"><span class="bp-tag">☑</span>Liste à cocher</button>
+              <button type="button" data-slash-cmd="toggle"><span class="bp-tag">▶</span>Menu dépliant</button>
+              <button type="button" data-slash-cmd="ul"><span class="bp-tag">•</span>Liste à puces</button>
+              <button type="button" data-slash-cmd="ol"><span class="bp-tag">1.</span>Liste numérotée</button>
+              <button type="button" data-slash-cmd="hr"><span class="bp-tag">—</span>Séparateur</button>
             </div>
           </div>
 
@@ -6154,6 +6167,135 @@
       block.parentNode.replaceChild(newEl, block);
     });
   }
+  function insertDocTodo(editor, content) {
+    content.focus();
+    restoreDocsSelection(editor);
+    document.execCommand('insertHTML', false,
+      '<div class="doc-todo" data-doc-todo><input type="checkbox" class="dt-checkbox" data-dt-checkbox><span class="dt-text">\u200b</span></div>');
+    saveDocsSelection(editor);
+  }
+  function checkSlashTrigger(editor, content) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || !content.contains(sel.anchorNode)) { closeSlashMenu(editor); return; }
+    const range = sel.getRangeAt(0);
+    if (!range.collapsed) { closeSlashMenu(editor); return; }
+    const node = range.startContainer;
+    if (node.nodeType !== 3) { closeSlashMenu(editor); return; }
+    const textBefore = node.textContent.slice(0, range.startOffset);
+    const match = textBefore.match(/(^|\s)\/(\w*)$/);
+    if (!match) { closeSlashMenu(editor); return; }
+    const filter = match[2].toLowerCase();
+    const slashStart = range.startOffset - match[2].length - 1;
+    editor._slashState = { node, slashStart, cursorOffset: range.startOffset };
+    openSlashMenu(editor, content, filter, range);
+  }
+  function openSlashMenu(editor, content, filter, range) {
+    const menu = editor.querySelector('[data-docs-slash-menu]');
+    if (!menu) return;
+    const buttons = [...menu.querySelectorAll('button')];
+    let anyVisible = false;
+    buttons.forEach(btn => {
+      const label = btn.textContent.toLowerCase();
+      const cmd = btn.dataset.slashCmd;
+      const matches = !filter || label.includes(filter) || cmd.includes(filter);
+      btn.classList.toggle('sm-hidden', !matches);
+      btn.classList.remove('sm-active');
+      if (matches && !anyVisible) { btn.classList.add('sm-active'); anyVisible = true; }
+    });
+    if (!anyVisible) { closeSlashMenu(editor); return; }
+    const rect = range.getBoundingClientRect();
+    menu.classList.add('open');
+    menu.style.left = Math.max(10, Math.min(rect.left, window.innerWidth - 200)) + 'px';
+    menu.style.bottom = 'auto';
+    menu.style.top = Math.min(rect.bottom + 6, window.innerHeight - 260) + 'px';
+  }
+  function closeSlashMenu(editor) {
+    editor.querySelector('[data-docs-slash-menu]')?.classList.remove('open');
+    editor._slashState = null;
+  }
+  function executeSlashCommand(editor, content, cmd) {
+    const state = editor._slashState;
+    closeSlashMenu(editor);
+    if (!state) return;
+    const { node, slashStart, cursorOffset } = state;
+    if (node.isConnected) {
+      const fullText = node.textContent;
+      node.textContent = fullText.slice(0, slashStart) + fullText.slice(cursorOffset);
+      const sel = window.getSelection();
+      const r = document.createRange();
+      r.setStart(node, slashStart);
+      r.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+    content.focus();
+    if (['h1', 'h2', 'h3', 'p'].includes(cmd)) {
+      setDocsBlockFormat(content, { h1: 'H1', h2: 'H2', h3: 'H3', p: 'P' }[cmd]);
+    } else if (cmd === 'todo') {
+      insertDocTodo(editor, content);
+    } else if (cmd === 'toggle') {
+      insertDocToggle(editor, content);
+    } else if (cmd === 'ul') {
+      document.execCommand('insertUnorderedList');
+    } else if (cmd === 'ol') {
+      document.execCommand('insertOrderedList');
+    } else if (cmd === 'hr') {
+      document.execCommand('insertHorizontalRule');
+    }
+    saveDocsSelection(editor);
+    buildDocsToc(editor);
+  }
+  function insertDocToggle(editor, content) {
+    content.focus();
+    restoreDocsSelection(editor);
+
+    const toggle = document.createElement('div');
+    toggle.className = 'doc-toggle open';
+    toggle.setAttribute('data-doc-toggle', '');
+    const head = document.createElement('div');
+    head.className = 'dg-head';
+    const arrow = document.createElement('span');
+    arrow.className = 'dg-arrow';
+    arrow.setAttribute('contenteditable', 'false');
+    arrow.setAttribute('data-dg-arrow', '');
+    arrow.textContent = '▶';
+    const title = document.createElement('p');
+    title.className = 'dg-title';
+    title.setAttribute('data-dg-title', '');
+    title.textContent = 'Menu';
+    head.appendChild(arrow);
+    head.appendChild(title);
+    const body = document.createElement('div');
+    body.className = 'dg-body';
+    body.setAttribute('data-dg-body', '');
+    const bodyP = document.createElement('p');
+    bodyP.appendChild(document.createTextNode('\u200b'));
+    body.appendChild(bodyP);
+    toggle.appendChild(head);
+    toggle.appendChild(body);
+
+    const sel = window.getSelection();
+    if (sel.rangeCount && content.contains(sel.anchorNode)) {
+      const range = sel.getRangeAt(0);
+      range.deleteContents();
+      let block = findDocsBlockAncestor(content, range.startContainer) || content;
+      if (block === content) {
+        range.insertNode(toggle);
+      } else {
+        block.parentNode.insertBefore(toggle, block.nextSibling);
+      }
+    } else {
+      content.appendChild(toggle);
+    }
+
+    const titleRange = document.createRange();
+    titleRange.selectNodeContents(title);
+    sel.removeAllRanges();
+    sel.addRange(titleRange);
+
+    saveDocsSelection(editor);
+    buildDocsToc(editor);
+  }
   function saveDocsSelection(editor) {
     const content = editor.querySelector('[data-docs-content]');
     const sel = window.getSelection();
@@ -6197,12 +6339,49 @@
       clearTimeout(docsAutoSaveTimer);
       docsAutoSaveTimer = setTimeout(() => saveDocsContent(editor), 900);
     };
-    content.addEventListener('input', scheduleDocsAutoSave);
+    content.addEventListener('keydown', (e) => {
+      const menu = editor.querySelector('[data-docs-slash-menu]');
+      if (!menu.classList.contains('open')) return;
+      const visible = [...menu.querySelectorAll('button:not(.sm-hidden)')];
+      if (!visible.length) return;
+      const activeIdx = visible.findIndex(b => b.classList.contains('sm-active'));
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        visible.forEach(b => b.classList.remove('sm-active'));
+        visible[(activeIdx + 1) % visible.length].classList.add('sm-active');
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        visible.forEach(b => b.classList.remove('sm-active'));
+        visible[(activeIdx - 1 + visible.length) % visible.length].classList.add('sm-active');
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const target = visible[activeIdx] || visible[0];
+        executeSlashCommand(editor, content, target.dataset.slashCmd);
+        scheduleDocsAutoSave();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeSlashMenu(editor);
+      }
+    });
+    content.addEventListener('input', () => { scheduleDocsAutoSave(); checkSlashTrigger(editor, content); });
     editor.querySelector('[data-docs-hero-title]')?.addEventListener('input', scheduleDocsAutoSave);
     window.addEventListener('beforeunload', (e) => {
       if (!editor._docsUnsaved) return;
       e.preventDefault();
       e.returnValue = '';
+    });
+
+    document.addEventListener('click', (e) => {
+      const menu = editor.querySelector('[data-docs-slash-menu]');
+      if (menu.classList.contains('open') && !menu.contains(e.target) && !content.contains(e.target)) {
+        closeSlashMenu(editor);
+      }
+    });
+
+    editor.addEventListener('mousedown', (e) => {
+      if (e.target.closest('[data-docs-toolbar], [data-docs-color-popup], [data-docs-block-popup], [data-docs-slash-menu]')) {
+        e.preventDefault();
+      }
     });
 
     document.addEventListener('selectionchange', () => {
@@ -6267,64 +6446,18 @@
       document.execCommand('insertHorizontalRule');
       saveDocsSelection(editor);
     });
+    editor.querySelectorAll('[data-docs-slash-menu] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        executeSlashCommand(editor, content, btn.dataset.slashCmd);
+        scheduleDocsAutoSave();
+      });
+    });
     editor.querySelector('[data-docs-todo]')?.addEventListener('click', () => {
-      content.focus();
-      restoreDocsSelection(editor);
-      document.execCommand('insertHTML', false,
-        '<div class="doc-todo" data-doc-todo><input type="checkbox" class="dt-checkbox" data-dt-checkbox><span class="dt-text">\u200b</span></div>');
-      saveDocsSelection(editor);
+      insertDocTodo(editor, content);
+      scheduleDocsAutoSave();
     });
     editor.querySelector('[data-docs-toggle-insert]')?.addEventListener('click', () => {
-      content.focus();
-      restoreDocsSelection(editor);
-
-      const toggle = document.createElement('div');
-      toggle.className = 'doc-toggle open';
-      toggle.setAttribute('data-doc-toggle', '');
-      const head = document.createElement('div');
-      head.className = 'dg-head';
-      const arrow = document.createElement('span');
-      arrow.className = 'dg-arrow';
-      arrow.setAttribute('contenteditable', 'false');
-      arrow.setAttribute('data-dg-arrow', '');
-      arrow.textContent = '▶';
-      const title = document.createElement('p');
-      title.className = 'dg-title';
-      title.setAttribute('data-dg-title', '');
-      title.textContent = 'Menu';
-      head.appendChild(arrow);
-      head.appendChild(title);
-      const body = document.createElement('div');
-      body.className = 'dg-body';
-      body.setAttribute('data-dg-body', '');
-      const bodyP = document.createElement('p');
-      bodyP.appendChild(document.createTextNode('\u200b'));
-      body.appendChild(bodyP);
-      toggle.appendChild(head);
-      toggle.appendChild(body);
-
-      const sel = window.getSelection();
-      if (sel.rangeCount && content.contains(sel.anchorNode)) {
-        const range = sel.getRangeAt(0);
-        range.deleteContents();
-        let block = findDocsBlockAncestor(content, range.startContainer) || content;
-        if (block === content) {
-          range.insertNode(toggle);
-        } else {
-          block.parentNode.insertBefore(toggle, block.nextSibling);
-        }
-      } else {
-        content.appendChild(toggle);
-      }
-
-      // sélectionne le titre pour que l'utilisateur puisse taper son propre texte immédiatement
-      const titleRange = document.createRange();
-      titleRange.selectNodeContents(title);
-      sel.removeAllRanges();
-      sel.addRange(titleRange);
-
-      saveDocsSelection(editor);
-      buildDocsToc(editor);
+      insertDocToggle(editor, content);
       scheduleDocsAutoSave();
     });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
