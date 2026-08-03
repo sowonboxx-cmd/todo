@@ -1311,18 +1311,37 @@
   }
   .doc-inline-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  .doc-todo { display: flex; align-items: flex-start; gap: 9px; margin: 5px 0; }
+  .doc-todo { display: flex; align-items: center; gap: 9px; margin: 5px 0; }
   .dt-checkbox {
-    width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;
+    appearance: none; -webkit-appearance: none; -moz-appearance: none;
+    display: block; width: 17px; height: 17px; flex-shrink: 0; cursor: pointer; margin: 0; padding: 0;
     background: transparent; border: 1.5px solid var(--ink); border-radius: 5px;
     position: relative; box-sizing: border-box;
   }
-  .doc-todo.done .dt-checkbox::after {
-    content: ''; position: absolute; left: 5px; top: 1px; width: 4px; height: 8px;
+  .dt-checkbox:checked::after {
+    content: ''; position: absolute; left: 4.5px; top: 0.5px; width: 4px; height: 8px;
     border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg);
   }
   .dt-text { flex: 1; outline: none; min-width: 0; }
   .doc-todo.done .dt-text { text-decoration: line-through; opacity: 0.55; }
+
+  .doc-toggle { margin: 6px 0; }
+  .dg-head { display: flex; align-items: center; gap: 6px; }
+  .dg-arrow {
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 20px; height: 20px; cursor: pointer; color: var(--muted); border-radius: 5px;
+    transition: transform .15s ease; user-select: none;
+  }
+  .dg-arrow:hover { background: var(--bg); color: var(--ink); }
+  .doc-toggle.open > .dg-head .dg-arrow { transform: rotate(90deg); }
+  .dg-title { flex: 1; outline: none; min-width: 0; margin: 0 !important; }
+  .dg-body {
+    display: none; margin: 4px 0 4px 26px; padding-left: 10px;
+    border-left: 2px solid var(--line-soft);
+  }
+  .doc-toggle.open > .dg-body { display: block; }
+  .dg-body > *:first-child { margin-top: 0; }
+  .dg-body > *:last-child { margin-bottom: 0; }
   .docs-media-section { margin-top: 24px; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
@@ -1881,6 +1900,9 @@
                 </button>
                 <button type="button" data-docs-todo title="Liste à cocher">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><path d="M4.5 7.5l1 1 2-2"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 7h7M14 17h7"/></svg>
+                </button>
+                <button type="button" data-docs-toggle-insert title="Menu dépliant">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/><path d="M17 5v14"/></svg>
                 </button>
                 <button type="button" data-docs-color-menu title="Couleur">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-.5-1.5-.5-2.5S14 16 15 16h2a4 4 0 004-4c0-5-4.5-9-9-9z" fill="currentColor" stroke="none" opacity=".18"/></svg>
@@ -6126,6 +6148,7 @@
     blocks.forEach(block => {
       if (!block || block.tagName === tag) return;
       const newEl = document.createElement(tag);
+      for (const attr of block.attributes) newEl.setAttribute(attr.name, attr.value);
       while (block.firstChild) newEl.appendChild(block.firstChild);
       if (!newEl.firstChild) newEl.appendChild(document.createElement('br'));
       block.parentNode.replaceChild(newEl, block);
@@ -6248,8 +6271,61 @@
       content.focus();
       restoreDocsSelection(editor);
       document.execCommand('insertHTML', false,
-        '<div class="doc-todo" data-doc-todo><span class="dt-checkbox" contenteditable="false" data-dt-checkbox></span><span class="dt-text">\u200b</span></div>');
+        '<div class="doc-todo" data-doc-todo><input type="checkbox" class="dt-checkbox" data-dt-checkbox><span class="dt-text">\u200b</span></div>');
       saveDocsSelection(editor);
+    });
+    editor.querySelector('[data-docs-toggle-insert]')?.addEventListener('click', () => {
+      content.focus();
+      restoreDocsSelection(editor);
+
+      const toggle = document.createElement('div');
+      toggle.className = 'doc-toggle open';
+      toggle.setAttribute('data-doc-toggle', '');
+      const head = document.createElement('div');
+      head.className = 'dg-head';
+      const arrow = document.createElement('span');
+      arrow.className = 'dg-arrow';
+      arrow.setAttribute('contenteditable', 'false');
+      arrow.setAttribute('data-dg-arrow', '');
+      arrow.textContent = '▶';
+      const title = document.createElement('p');
+      title.className = 'dg-title';
+      title.setAttribute('data-dg-title', '');
+      title.textContent = 'Menu';
+      head.appendChild(arrow);
+      head.appendChild(title);
+      const body = document.createElement('div');
+      body.className = 'dg-body';
+      body.setAttribute('data-dg-body', '');
+      const bodyP = document.createElement('p');
+      bodyP.appendChild(document.createTextNode('\u200b'));
+      body.appendChild(bodyP);
+      toggle.appendChild(head);
+      toggle.appendChild(body);
+
+      const sel = window.getSelection();
+      if (sel.rangeCount && content.contains(sel.anchorNode)) {
+        const range = sel.getRangeAt(0);
+        range.deleteContents();
+        let block = findDocsBlockAncestor(content, range.startContainer) || content;
+        if (block === content) {
+          range.insertNode(toggle);
+        } else {
+          block.parentNode.insertBefore(toggle, block.nextSibling);
+        }
+      } else {
+        content.appendChild(toggle);
+      }
+
+      // sélectionne le titre pour que l'utilisateur puisse taper son propre texte immédiatement
+      const titleRange = document.createRange();
+      titleRange.selectNodeContents(title);
+      sel.removeAllRanges();
+      sel.addRange(titleRange);
+
+      saveDocsSelection(editor);
+      buildDocsToc(editor);
+      scheduleDocsAutoSave();
     });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
       const popup = editor.querySelector('[data-docs-block-popup]');
@@ -6325,9 +6401,9 @@
         window.open(link.href, '_blank', 'noopener');
         return;
       }
-      const checkbox = e.target.closest('[data-dt-checkbox]');
-      if (checkbox) {
-        checkbox.closest('[data-doc-todo]')?.classList.toggle('done');
+      const arrow = e.target.closest('[data-dg-arrow]');
+      if (arrow) {
+        arrow.closest('[data-doc-toggle]')?.classList.toggle('open');
         scheduleDocsAutoSave();
         return;
       }
@@ -6337,6 +6413,13 @@
       const urls = all.map(img => img.src);
       const index = all.indexOf(thumb.querySelector('img'));
       openLightbox(getActiveContainer(), urls, index);
+    });
+    content.addEventListener('change', (e) => {
+      const checkbox = e.target.closest('[data-dt-checkbox]');
+      if (!checkbox) return;
+      checkbox.toggleAttribute('checked', checkbox.checked);
+      checkbox.closest('[data-doc-todo]')?.classList.toggle('done', checkbox.checked);
+      scheduleDocsAutoSave();
     });
 
     // sommaire
