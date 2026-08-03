@@ -6176,7 +6176,20 @@
     const range = sel.getRangeAt(0);
     let startBlock = findDocsBlockAncestor(content, range.startContainer);
     let endBlock = findDocsBlockAncestor(content, range.endContainer);
-    if (!startBlock && !endBlock) return;
+    if (!startBlock && !endBlock) {
+      // texte "orphelin" sans balise de bloc reconnue (P/H1-H3/LI/...) : on enveloppe
+      // directement la sélection dans la nouvelle balise plutôt que de ne rien faire
+      const wrapper = document.createElement(tag);
+      const extracted = range.extractContents();
+      if (!extracted.firstChild) wrapper.appendChild(document.createElement('br'));
+      else wrapper.appendChild(extracted);
+      range.insertNode(wrapper);
+      const newRange = document.createRange();
+      newRange.selectNodeContents(wrapper);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      return;
+    }
     if (!startBlock) startBlock = endBlock;
     if (!endBlock) endBlock = startBlock;
 
