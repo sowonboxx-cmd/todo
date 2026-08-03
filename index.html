@@ -6122,6 +6122,41 @@
   }
 
   // ---- préserve la sélection/curseur entre les clics sur la barre d'outils (hors zone éditable) ----
+  const DOCS_PASTE_ALLOWED_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'H1', 'H2', 'H3', 'A', 'UL', 'OL', 'LI', 'BR', 'P', 'SPAN', 'DIV', 'INPUT']);
+  function sanitizePastedHtml(html) {
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+    function clean(node) {
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === 1) {
+          clean(child);
+          if (!DOCS_PASTE_ALLOWED_TAGS.has(child.tagName)) {
+            while (child.firstChild) node.insertBefore(child.firstChild, child);
+            node.removeChild(child);
+            return;
+          }
+          const isOurs = child.hasAttribute('data-doc-todo') || child.hasAttribute('data-doc-toggle') ||
+            child.hasAttribute('data-dt-checkbox') || child.hasAttribute('data-dg-arrow') ||
+            child.hasAttribute('data-dg-title') || child.hasAttribute('data-dg-body') || child.hasAttribute('data-dt-text');
+          [...child.attributes].forEach(attr => {
+            if (isOurs) return; // on garde nos propres structures (todo/toggle) telles quelles
+            if (child.tagName === 'A' && attr.name === 'href') return;
+            if (child.tagName === 'SPAN' && attr.name === 'style' && /color\s*:/.test(attr.value) && !/font-family|font-size|background/.test(attr.value)) return;
+            child.removeAttribute(attr.name);
+          });
+          if (child.tagName === 'DIV' && !isOurs) {
+            // une div externe quelconque (mise en page Word/Google Docs) : on déballe, on garde le contenu
+            while (child.firstChild) node.insertBefore(child.firstChild, child);
+            node.removeChild(child);
+          }
+        } else if (child.nodeType !== 3) {
+          node.removeChild(child);
+        }
+      });
+    }
+    clean(temp);
+    return temp.innerHTML;
+  }
   function insertDocsInlineImage(url) {
     document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(url)}" alt=""></span>&nbsp;`);
   }
@@ -6341,27 +6376,64 @@
     };
     content.addEventListener('keydown', (e) => {
       const menu = editor.querySelector('[data-docs-slash-menu]');
-      if (!menu.classList.contains('open')) return;
-      const visible = [...menu.querySelectorAll('button:not(.sm-hidden)')];
-      if (!visible.length) return;
-      const activeIdx = visible.findIndex(b => b.classList.contains('sm-active'));
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        visible.forEach(b => b.classList.remove('sm-active'));
-        visible[(activeIdx + 1) % visible.length].classList.add('sm-active');
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        visible.forEach(b => b.classList.remove('sm-active'));
-        visible[(activeIdx - 1 + visible.length) % visible.length].classList.add('sm-active');
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        const target = visible[activeIdx] || visible[0];
-        executeSlashCommand(editor, content, target.dataset.slashCmd);
-        scheduleDocsAutoSave();
-      } else if (e.key === 'Escape') {
-        e.preventDefault();
-        closeSlashMenu(editor);
+      if (menu.classList.contains('open')) {
+        const visible = [...menu.querySelectorAll('button:not(.sm-hidden)')];
+        if (!visible.length) return;
+        const activeIdx = visible.findIndex(b => b.classList.contains('sm-active'));
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          visible.forEach(b => b.classList.remove('sm-active'));
+          visible[(activeIdx + 1) % visible.length].classList.add('sm-active');
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          visible.forEach(b => b.classList.remove('sm-active'));
+          visible[(activeIdx - 1 + visible.length) % visible.length].classList.add('sm-active');
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const target = visible[activeIdx] || visible[0];
+          executeSlashCommand(editor, content, target.dataset.slashCmd);
+          scheduleDocsAutoSave();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeSlashMenu(editor);
+        }
+        return;
       }
+
+      // Entrée ET Maj+Entrée : la nouvelle ligne redevient toujours du texte normal, jamais
+      // héritée du titre au-dessus — sans ça le navigateur duplique par défaut le même style,
+      // ou (pour Maj+Entrée) insère un simple <br> qui reste rattaché au même bloc de titre.
+      if (e.key !== 'Enter' || e.isComposing) return;
+      const sel = window.getSelection();
+      if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
+      const range = sel.getRangeAt(0);
+      if (!range.collapsed) return; // une vraie sélection à remplacer : laisser faire
+      let block = findDocsBlockAncestor(content, range.startContainer);
+      if (!block) return; // pas dans un bloc reconnu : comportement par défaut
+
+      e.preventDefault();
+      const splitRange = document.createRange();
+      splitRange.selectNodeContents(block);
+      splitRange.setStart(range.startContainer, range.startOffset);
+      const extracted = splitRange.extractContents();
+
+      const newP = document.createElement('p');
+      if (extracted.textContent.trim() === '' && !extracted.querySelector('img, br')) {
+        newP.appendChild(document.createElement('br'));
+      } else {
+        newP.appendChild(extracted);
+      }
+      block.parentNode.insertBefore(newP, block.nextSibling);
+      if (!block.firstChild) block.appendChild(document.createElement('br'));
+
+      const newRange = document.createRange();
+      newRange.setStart(newP, 0);
+      newRange.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(newRange);
+      saveDocsSelection(editor);
+      buildDocsToc(editor);
+      scheduleDocsAutoSave();
     });
     content.addEventListener('input', () => { scheduleDocsAutoSave(); checkSlashTrigger(editor, content); });
     editor.querySelector('[data-docs-hero-title]')?.addEventListener('input', scheduleDocsAutoSave);
@@ -6500,7 +6572,9 @@
     // colle en texte brut : uniformise toujours la police (Inter), quelle que soit la source
     content.addEventListener('paste', (e) => {
       e.preventDefault();
-      const text = (e.clipboardData || window.clipboardData).getData('text/plain').trim();
+      const clipboardData = e.clipboardData || window.clipboardData;
+      const text = clipboardData.getData('text/plain').trim();
+      const html = clipboardData.getData('text/html');
       const looksLikeImageExt = /^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif|bmp|heic|heif)(\?\S*)?$/i.test(text);
       const isPlainUrl = /^https?:\/\/\S+$/i.test(text);
       if (looksLikeImageExt) {
@@ -6523,6 +6597,12 @@
         probe.onerror = () => finish(false);
         probe.src = text;
         setTimeout(() => finish(false), 4000);
+      } else if (html && html.trim()) {
+        // colle en préservant la mise en forme (titres, gras, liens…) — utile pour le copier-coller
+        // à l'intérieur du document ; les styles indésirables (police, taille, fond) venant de
+        // sources externes (Word, sites web) sont retirés au passage.
+        const cleanHtml = sanitizePastedHtml(html);
+        document.execCommand('insertHTML', false, cleanHtml || text);
       } else {
         document.execCommand('insertText', false, text);
       }
