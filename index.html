@@ -6066,7 +6066,7 @@
     const content = editor.querySelector('[data-docs-content]');
     const list = editor.querySelector('[data-docs-toc-list]');
     const tab = editor.querySelector('[data-docs-toc-tab]');
-    const headings = [...content.querySelectorAll('h1, h2, h3')];
+    const headings = [...content.querySelectorAll('h1, h2, h3')].filter(h => h.textContent.trim() !== '');
     const mediaSection = editor.querySelector('[data-docs-media-section]');
     const hasMedia = mediaSection && mediaSection.style.display !== 'none';
     if (!headings.length && !hasMedia) {
@@ -6079,7 +6079,7 @@
       const id = 'docs-h-' + i;
       h.id = id;
       const level = h.tagName === 'H1' ? 'lvl1' : h.tagName === 'H2' ? 'lvl2' : 'lvl3';
-      return `<button type="button" class="docs-toc-item ${level}" data-toc-target="${id}">${escapeHtml(h.textContent || '(sans titre)')}</button>`;
+      return `<button type="button" class="docs-toc-item ${level}" data-toc-target="${id}">${escapeHtml(h.textContent)}</button>`;
     }).join('');
     if (hasMedia) {
       html += `<button type="button" class="docs-toc-item lvl1" data-toc-target="docs-media-anchor">Médias</button>`;
@@ -6410,24 +6410,41 @@
       if (!range.collapsed) return; // une vraie sélection à remplacer : laisser faire
       let block = findDocsBlockAncestor(content, range.startContainer);
       if (!block) return; // pas dans un bloc reconnu : comportement par défaut
+      if (block.tagName === 'LI') return; // laisser le navigateur gérer nativement les listes
+      // (continuation, ou sortie de liste sur un élément vide)
 
       e.preventDefault();
-      const splitRange = document.createRange();
-      splitRange.selectNodeContents(block);
-      splitRange.setStart(range.startContainer, range.startOffset);
-      const extracted = splitRange.extractContents();
+      const beforeRange = document.createRange();
+      beforeRange.selectNodeContents(block);
+      beforeRange.setEnd(range.startContainer, range.startOffset);
+      const beforeIsEmpty = beforeRange.toString().trim() === '' && !beforeRange.cloneContents().querySelector('img');
 
-      const newP = document.createElement('p');
-      if (extracted.textContent.trim() === '' && !extracted.querySelector('img, br')) {
-        newP.appendChild(document.createElement('br'));
+      let cursorTarget;
+      if (beforeIsEmpty) {
+        // le curseur était tout au début : le bloc d'origine garde tout son contenu ET son style
+        // inchangés ; on insère juste une ligne neutre vide avant lui, sans rien y extraire
+        const emptyP = document.createElement('p');
+        emptyP.appendChild(document.createElement('br'));
+        block.parentNode.insertBefore(emptyP, block);
+        cursorTarget = block;
       } else {
-        newP.appendChild(extracted);
+        const splitRange = document.createRange();
+        splitRange.selectNodeContents(block);
+        splitRange.setStart(range.startContainer, range.startOffset);
+        const extracted = splitRange.extractContents();
+        const newBlock = document.createElement('p');
+        if (extracted.textContent.trim() === '' && !extracted.querySelector('img, br')) {
+          newBlock.appendChild(document.createElement('br'));
+        } else {
+          newBlock.appendChild(extracted);
+        }
+        block.parentNode.insertBefore(newBlock, block.nextSibling);
+        if (!block.firstChild) block.appendChild(document.createElement('br'));
+        cursorTarget = newBlock;
       }
-      block.parentNode.insertBefore(newP, block.nextSibling);
-      if (!block.firstChild) block.appendChild(document.createElement('br'));
 
       const newRange = document.createRange();
-      newRange.setStart(newP, 0);
+      newRange.setStart(cursorTarget, 0);
       newRange.collapse(true);
       sel.removeAllRanges();
       sel.addRange(newRange);
