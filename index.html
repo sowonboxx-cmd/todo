@@ -1310,6 +1310,19 @@
     margin: 3px; border-radius: 8px; overflow: hidden; cursor: zoom-in;
   }
   .doc-inline-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .doc-todo { display: flex; align-items: flex-start; gap: 9px; margin: 5px 0; }
+  .dt-checkbox {
+    width: 18px; height: 18px; margin-top: 2px; flex-shrink: 0; cursor: pointer;
+    background: transparent; border: 1.5px solid var(--ink); border-radius: 5px;
+    position: relative; box-sizing: border-box;
+  }
+  .doc-todo.done .dt-checkbox::after {
+    content: ''; position: absolute; left: 5px; top: 1px; width: 4px; height: 8px;
+    border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg);
+  }
+  .dt-text { flex: 1; outline: none; min-width: 0; }
+  .doc-todo.done .dt-text { text-decoration: line-through; opacity: 0.55; }
   .docs-media-section { margin-top: 24px; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
@@ -1865,6 +1878,9 @@
                 </button>
                 <button type="button" data-docs-cmd="insertOrderedList">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><text x="1" y="8" font-size="7" fill="currentColor" stroke="none">1</text><text x="1" y="14" font-size="7" fill="currentColor" stroke="none">2</text><text x="1" y="20" font-size="7" fill="currentColor" stroke="none">3</text></svg>
+                </button>
+                <button type="button" data-docs-todo title="Liste à cocher">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="7" rx="1.5"/><path d="M4.5 7.5l1 1 2-2"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 7h7M14 17h7"/></svg>
                 </button>
                 <button type="button" data-docs-color-menu title="Couleur">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-.5-1.5-.5-2.5S14 16 15 16h2a4 4 0 004-4c0-5-4.5-9-9-9z" fill="currentColor" stroke="none" opacity=".18"/></svg>
@@ -6077,6 +6093,44 @@
   function insertDocsPlainLink(url) {
     document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(url))}</a>&nbsp;`);
   }
+  function findDocsBlockAncestor(content, node) {
+    while (node && node !== content) {
+      if (node.nodeType === 1 && /^(P|H1|H2|H3|H4|H5|H6|LI|BLOCKQUOTE)$/.test(node.tagName)) return node;
+      node = node.parentNode;
+    }
+    return null;
+  }
+  function setDocsBlockFormat(content, tag) {
+    const sel = window.getSelection();
+    if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
+    const range = sel.getRangeAt(0);
+    let startBlock = findDocsBlockAncestor(content, range.startContainer);
+    let endBlock = findDocsBlockAncestor(content, range.endContainer);
+    if (!startBlock && !endBlock) return;
+    if (!startBlock) startBlock = endBlock;
+    if (!endBlock) endBlock = startBlock;
+
+    const blocks = [];
+    if (startBlock === endBlock) {
+      blocks.push(startBlock);
+    } else {
+      let node = startBlock;
+      let safety = 0;
+      while (node && safety++ < 1000) {
+        blocks.push(node);
+        if (node === endBlock) break;
+        node = node.nextElementSibling;
+      }
+    }
+
+    blocks.forEach(block => {
+      if (!block || block.tagName === tag) return;
+      const newEl = document.createElement(tag);
+      while (block.firstChild) newEl.appendChild(block.firstChild);
+      if (!newEl.firstChild) newEl.appendChild(document.createElement('br'));
+      block.parentNode.replaceChild(newEl, block);
+    });
+  }
   function saveDocsSelection(editor) {
     const content = editor.querySelector('[data-docs-content]');
     const sel = window.getSelection();
@@ -6190,6 +6244,13 @@
       document.execCommand('insertHorizontalRule');
       saveDocsSelection(editor);
     });
+    editor.querySelector('[data-docs-todo]')?.addEventListener('click', () => {
+      content.focus();
+      restoreDocsSelection(editor);
+      document.execCommand('insertHTML', false,
+        '<div class="doc-todo" data-doc-todo><span class="dt-checkbox" contenteditable="false" data-dt-checkbox></span><span class="dt-text">\u200b</span></div>');
+      saveDocsSelection(editor);
+    });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
       const popup = editor.querySelector('[data-docs-block-popup]');
       editor.querySelector('[data-docs-color-popup]').classList.remove('open');
@@ -6202,7 +6263,7 @@
         content.focus();
         restoreDocsSelection(editor);
         const tag = { h1: 'H1', h2: 'H2', h3: 'H3', p: 'P' }[btn.dataset.docsBlock] || 'P';
-        document.execCommand('formatBlock', false, tag);
+        setDocsBlockFormat(content, tag);
         editor.querySelector('[data-docs-block-popup]').classList.remove('open');
         saveDocsSelection(editor);
         buildDocsToc(editor);
@@ -6262,6 +6323,12 @@
       if (link) {
         e.preventDefault();
         window.open(link.href, '_blank', 'noopener');
+        return;
+      }
+      const checkbox = e.target.closest('[data-dt-checkbox]');
+      if (checkbox) {
+        checkbox.closest('[data-doc-todo]')?.classList.toggle('done');
+        scheduleDocsAutoSave();
         return;
       }
       const thumb = e.target.closest('[data-inline-img]');
