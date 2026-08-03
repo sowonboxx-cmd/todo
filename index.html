@@ -1314,13 +1314,13 @@
   .doc-todo { display: flex; align-items: center; gap: 9px; margin: 5px 0; }
   .dt-checkbox {
     appearance: none; -webkit-appearance: none; -moz-appearance: none;
-    display: block; width: 17px; height: 17px; flex-shrink: 0; cursor: pointer; margin: 0; padding: 0;
-    background: transparent; border: 1.5px solid var(--ink); border-radius: 5px;
+    display: block; width: 13.5px; height: 13.5px; flex-shrink: 0; cursor: pointer; margin: 0; padding: 0;
+    background: transparent; border: 1.5px solid var(--ink); border-radius: 4px;
     position: relative; box-sizing: border-box;
   }
   .dt-checkbox:checked::after {
-    content: ''; position: absolute; left: 4.5px; top: 0.5px; width: 4px; height: 8px;
-    border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg);
+    content: ''; position: absolute; left: 3.5px; top: 0.5px; width: 3px; height: 6.5px;
+    border: solid var(--ink); border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
   }
   .dt-text { flex: 1; outline: none; min-width: 0; }
   .doc-todo.done .dt-text { text-decoration: line-through; opacity: 0.55; }
@@ -1329,7 +1329,7 @@
   .dg-head { display: flex; align-items: center; gap: 6px; }
   .dg-arrow {
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-    width: 20px; height: 20px; cursor: pointer; color: var(--muted); border-radius: 5px;
+    width: 18px; height: 18px; font-size: 14.4px; cursor: pointer; color: var(--muted); border-radius: 5px;
     transition: transform .15s ease; user-select: none;
   }
   .dg-arrow:hover { background: var(--bg); color: var(--ink); }
