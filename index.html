@@ -2886,33 +2886,31 @@
   function detectSocialLink(url) {
     let u;
     try { u = new URL(url); } catch { return null; }
-    const host = u.hostname.replace(/^www\./, '');
+    const host = u.hostname.toLowerCase();
     const parts = u.pathname.split('/').filter(Boolean);
-    if (host === 'twitter.com' || host === 'x.com') {
-      // /username/status/12345
-      if (parts.length >= 3 && parts[1] === 'status') {
-        return { platform: 'x', label: 'X (Twitter)', username: parts[0], postId: parts[2] };
-      }
-      return null;
+    const isX = /(^|\.)twitter\.com$/.test(host) || /(^|\.)x\.com$/.test(host);
+    const isInstagram = /(^|\.)instagram\.com$/.test(host);
+    const isThreads = /(^|\.)threads\.(net|com)$/.test(host);
+    if (!isX && !isInstagram && !isThreads) return null;
+
+    if (isX) {
+      const statusIdx = parts.indexOf('status');
+      if (statusIdx < 0 || !parts[statusIdx + 1]) return null;
+      const username = parts[0] && parts[0] !== 'i' ? parts[0] : null;
+      return { platform: 'x', label: 'X (Twitter)', username, postId: parts[statusIdx + 1] };
     }
-    if (host === 'instagram.com') {
-      // /username/p/POSTID/ or /reel/POSTID/ (no username in reel path)
-      if (parts[0] === 'p' || parts[0] === 'reel') {
-        return { platform: 'instagram', label: 'Instagram', username: null, postId: parts[1] };
-      }
-      if (parts.length >= 3 && (parts[1] === 'p' || parts[1] === 'reel')) {
-        return { platform: 'instagram', label: 'Instagram', username: parts[0], postId: parts[2] };
-      }
-      return null;
+    if (isInstagram) {
+      const typeIdx = parts.findIndex(p => p === 'p' || p === 'reel' || p === 'tv');
+      if (typeIdx < 0 || !parts[typeIdx + 1]) return null;
+      const username = typeIdx > 0 ? parts[0] : null;
+      return { platform: 'instagram', label: 'Instagram', username, postId: parts[typeIdx + 1] };
     }
-    if (host === 'threads.net' || host === 'threads.com') {
-      // /@username/post/POSTID
-      if (parts.length >= 3 && parts[0].startsWith('@') && parts[1] === 'post') {
-        return { platform: 'threads', label: 'Threads', username: parts[0].slice(1), postId: parts[2] };
-      }
-      return null;
-    }
-    return null;
+    // Threads : /@username/post/POSTID
+    const atIdx = parts.findIndex(p => p.startsWith('@'));
+    const postIdx = parts.indexOf('post');
+    if (postIdx < 0 || !parts[postIdx + 1]) return null;
+    const username = atIdx >= 0 ? parts[atIdx].slice(1) : null;
+    return { platform: 'threads', label: 'Threads', username, postId: parts[postIdx + 1] };
   }
   function showSocialPastePopup(editor, url, social) {
     document.querySelector('.social-paste-popup')?.remove();
