@@ -988,6 +988,9 @@
   .td-link:hover { background: var(--bg); }
   .td-link:empty::before { content: 'Ajouter une description, un lien…'; color: var(--faint); }
   .td-link a { color: var(--accent-due); text-decoration: underline; }
+  .td-notes-text { white-space: pre-wrap; word-break: break-word; }
+  .td-yt-embed { position: relative; width: 100%; padding-top: 56.25%; margin-top: 8px; border-radius: 10px; overflow: hidden; cursor: default; }
+  .td-yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
   .td-notes-edit {
     display: block; width: 100%; box-sizing: border-box; border: none; background: var(--bg);
     border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
@@ -1342,6 +1345,17 @@
   .doc-toggle.open > .dg-body { display: block; }
   .dg-body > *:first-child { margin-top: 0; }
   .dg-body > *:last-child { margin-bottom: 0; }
+
+  .doc-table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
+  .doc-table th, .doc-table td {
+    border: 1px solid var(--line); padding: 8px 10px; text-align: left; min-width: 60px;
+  }
+  .doc-table th { background: var(--bg); font-weight: 700; }
+  .doc-table td:empty::before, .doc-table th:empty::before { content: '\00a0'; }
+
+  .doc-yt-wrap { display: block; margin: 10px 0; }
+  .doc-yt-inner { position: relative; width: 100%; max-width: 480px; padding-top: 56.25%; height: 0; border-radius: 10px; overflow: hidden; }
+  .doc-yt-inner iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
   .docs-media-section { margin-top: 24px; }
   .docs-media-section hr { border: none; border-top: 1px solid var(--line); margin: 0 0 16px; }
   .docs-media-head {
@@ -1906,6 +1920,9 @@
                 <button type="button" data-docs-toggle-insert title="Menu dépliant">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/><path d="M17 5v14"/></svg>
                 </button>
+                <button type="button" data-docs-table-insert title="Tableau">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+                </button>
                 <button type="button" data-docs-color-menu title="Couleur">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-.5-1.5-.5-2.5S14 16 15 16h2a4 4 0 004-4c0-5-4.5-9-9-9z" fill="currentColor" stroke="none" opacity=".18"/></svg>
                 </button>
@@ -1934,6 +1951,7 @@
               <button type="button" data-slash-cmd="p"><span class="bp-tag">T</span>Texte</button>
               <button type="button" data-slash-cmd="todo"><span class="bp-tag">☑</span>Liste à cocher</button>
               <button type="button" data-slash-cmd="toggle"><span class="bp-tag">▶</span>Menu dépliant</button>
+              <button type="button" data-slash-cmd="table"><span class="bp-tag">▦</span>Tableau</button>
               <button type="button" data-slash-cmd="ul"><span class="bp-tag">•</span>Liste à puces</button>
               <button type="button" data-slash-cmd="ol"><span class="bp-tag">1.</span>Liste numérotée</button>
               <button type="button" data-slash-cmd="hr"><span class="bp-tag">—</span>Séparateur</button>
@@ -2902,11 +2920,22 @@
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
   }
+  function extractYouTubeId(text) {
+    const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
     const edit = sheet.querySelector('[data-td-notes-edit]');
     edit.value = notes || '';
-    view.textContent = (notes || '').trim();
+    const trimmed = (notes || '').trim();
+    const ytId = extractYouTubeId(trimmed);
+    if (ytId) {
+      view.innerHTML = `<div class="td-notes-text">${escapeHtml(trimmed)}</div>` +
+        `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+    } else {
+      view.textContent = trimmed;
+    }
     view.style.display = 'block';
     edit.style.display = 'none';
   }
@@ -6122,7 +6151,7 @@
   }
 
   // ---- préserve la sélection/curseur entre les clics sur la barre d'outils (hors zone éditable) ----
-  const DOCS_PASTE_ALLOWED_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'H1', 'H2', 'H3', 'A', 'UL', 'OL', 'LI', 'BR', 'P', 'SPAN', 'DIV', 'INPUT']);
+  const DOCS_PASTE_ALLOWED_TAGS = new Set(['B', 'STRONG', 'I', 'EM', 'H1', 'H2', 'H3', 'A', 'UL', 'OL', 'LI', 'BR', 'P', 'SPAN', 'DIV', 'INPUT', 'TABLE', 'THEAD', 'TBODY', 'TR', 'TH', 'TD', 'IFRAME', 'IMG']);
   function sanitizePastedHtml(html) {
     const temp = document.createElement('div');
     temp.innerHTML = html;
@@ -6141,6 +6170,8 @@
           [...child.attributes].forEach(attr => {
             if (isOurs) return; // on garde nos propres structures (todo/toggle) telles quelles
             if (child.tagName === 'A' && attr.name === 'href') return;
+            if (child.tagName === 'IMG' && attr.name === 'src') return;
+            if (child.tagName === 'IFRAME' && ['src', 'allow', 'allowfullscreen', 'frameborder', 'title'].includes(attr.name)) return;
             if (child.tagName === 'SPAN' && attr.name === 'style' && /color\s*:/.test(attr.value) && !/font-family|font-size|background/.test(attr.value)) return;
             child.removeAttribute(attr.name);
           });
@@ -6156,6 +6187,42 @@
     }
     clean(temp);
     return temp.innerHTML;
+  }
+  function parseMarkdownTable(text) {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length);
+    if (lines.length < 2) return null;
+    const sepLine = lines[1];
+    if (!/^\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)+\|?$/.test(sepLine)) return null;
+    function parseRow(line) {
+      let l = line;
+      if (l.startsWith('|')) l = l.slice(1);
+      if (l.endsWith('|')) l = l.slice(0, -1);
+      return l.split('|').map(c => c.trim());
+    }
+    const header = parseRow(lines[0]);
+    const rows = lines.slice(2).map(parseRow);
+    if (!header.length) return null;
+    return { header, rows };
+  }
+  function buildTableHtml(table) {
+    const headerHtml = table.header.map(c => `<th>${escapeHtml(c) || '&nbsp;'}</th>`).join('');
+    const bodyHtml = table.rows.map(row => `<tr>${row.map(c => `<td>${escapeHtml(c) || '&nbsp;'}</td>`).join('')}</tr>`).join('');
+    return `<table class="doc-table" data-doc-table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>`;
+  }
+  function insertDocEmptyTable(editor, content, rows, cols) {
+    content.focus();
+    restoreDocsSelection(editor);
+    const headerCells = Array.from({ length: cols }, () => '<th>\u200b</th>').join('');
+    const bodyRows = Array.from({ length: rows - 1 }, () =>
+      `<tr>${Array.from({ length: cols }, () => '<td>\u200b</td>').join('')}</tr>`
+    ).join('');
+    document.execCommand('insertHTML', false,
+      `<table class="doc-table" data-doc-table><thead><tr>${headerCells}</tr></thead><tbody>${bodyRows}</tbody></table><p><br></p>`);
+    saveDocsSelection(editor);
+  }
+  function insertDocsYouTubeEmbed(id) {
+    document.execCommand('insertHTML', false,
+      `<span class="doc-yt-wrap" contenteditable="false" data-doc-yt><span class="doc-yt-inner"><iframe src="https://www.youtube.com/embed/${id}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></span></span>&nbsp;`);
   }
   function insertDocsInlineImage(url) {
     document.execCommand('insertHTML', false, `<span class="doc-inline-img" contenteditable="false" data-inline-img><img src="${escapeHtml(url)}" alt=""></span>&nbsp;`);
@@ -6283,6 +6350,8 @@
       insertDocTodo(editor, content);
     } else if (cmd === 'toggle') {
       insertDocToggle(editor, content);
+    } else if (cmd === 'table') {
+      insertDocEmptyTable(editor, content, 3, 3);
     } else if (cmd === 'ul') {
       document.execCommand('insertUnorderedList');
     } else if (cmd === 'ol') {
@@ -6562,6 +6631,10 @@
       insertDocToggle(editor, content);
       scheduleDocsAutoSave();
     });
+    editor.querySelector('[data-docs-table-insert]')?.addEventListener('click', () => {
+      insertDocEmptyTable(editor, content, 3, 3);
+      scheduleDocsAutoSave();
+    });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
       const popup = editor.querySelector('[data-docs-block-popup]');
       editor.querySelector('[data-docs-color-popup]').classList.remove('open');
@@ -6605,9 +6678,21 @@
       const clipboardData = e.clipboardData || window.clipboardData;
       const text = clipboardData.getData('text/plain').trim();
       const html = clipboardData.getData('text/html');
+      const table = text.includes('\n') && text.includes('|') ? parseMarkdownTable(text) : null;
+      const ytId = extractYouTubeId(text);
       const looksLikeImageExt = /^https?:\/\/\S+\.(png|jpe?g|gif|webp|svg|avif|bmp|heic|heif)(\?\S*)?$/i.test(text);
       const isPlainUrl = /^https?:\/\/\S+$/i.test(text);
-      if (looksLikeImageExt) {
+      if (table) {
+        content.focus();
+        restoreDocsSelection(editor);
+        document.execCommand('insertHTML', false, buildTableHtml(table) + '<p><br></p>');
+        saveDocsSelection(editor);
+      } else if (ytId && isPlainUrl) {
+        content.focus();
+        restoreDocsSelection(editor);
+        insertDocsYouTubeEmbed(ytId);
+        saveDocsSelection(editor);
+      } else if (looksLikeImageExt) {
         insertDocsInlineImage(text);
       } else if (isPlainUrl) {
         // beaucoup d'URLs d'images modernes (Unsplash, Google Photos, Imgur, CDN…) n'ont pas
