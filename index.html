@@ -1347,17 +1347,6 @@
   .dg-body > *:last-child { margin-bottom: 0; }
 
   .doc-table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 14px; }
-
-  .docs-drag-handle {
-    display: none; position: absolute; align-items: center; gap: 2px; z-index: 5;
-    cursor: grab; color: var(--faint); padding: 2px; border-radius: 4px;
-  }
-  .docs-drag-handle:hover { background: var(--bg); color: var(--ink); }
-  .docs-drag-handle.visible { display: flex; }
-  .docs-drag-handle svg { width: 16px; height: 16px; }
-  .docs-drag-over-top { box-shadow: 0 -2px 0 0 #3E72A6; }
-  .docs-drag-over-bottom { box-shadow: 0 2px 0 0 #3E72A6; }
-  .docs-drag-ghost { opacity: 0.4; }
   .doc-table th, .doc-table td {
     border: 1px solid var(--line); padding: 8px 10px; text-align: left; min-width: 60px;
   }
@@ -1883,9 +1872,6 @@
             <div class="docs-scroll" data-docs-scroll>
               <input type="text" class="docs-hero-title" data-docs-hero-title placeholder="Sans titre">
               <div class="docs-content" data-docs-content contenteditable="false"></div>
-              <div class="docs-drag-handle" data-docs-drag-handle draggable="true" title="Glisser pour déplacer">
-                <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>
-              </div>
 
               <div class="docs-media-section" data-docs-media-section id="docs-media-anchor" style="display:none;">
                 <hr>
@@ -1933,12 +1919,6 @@
                 </button>
                 <button type="button" data-docs-table-insert title="Tableau">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
-                </button>
-                <button type="button" data-docs-outdent title="Diminuer le retrait">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 8l-4 4 4 4"/><path d="M5 12h9M5 5h14M5 19h14"/></svg>
-                </button>
-                <button type="button" data-docs-indent title="Augmenter le retrait">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8l4 4-4 4"/><path d="M10 12h9M5 5h14M5 19h14"/></svg>
                 </button>
                 <button type="button" data-docs-color-menu title="Couleur">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18c1.5 0 2-1 2-2s-.5-1.5-.5-2.5S14 16 15 16h2a4 4 0 004-4c0-5-4.5-9-9-9z" fill="currentColor" stroke="none" opacity=".18"/></svg>
@@ -6248,26 +6228,6 @@
   function insertDocsPlainLink(url) {
     document.execCommand('insertHTML', false, `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(url))}</a>&nbsp;`);
   }
-  function docsIndent(content) {
-    const sel = window.getSelection();
-    if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
-    const block = findDocsBlockAncestor(content, sel.getRangeAt(0).startContainer);
-    if (!block) return;
-    if (block.tagName === 'LI') { document.execCommand('indent'); return; }
-    const current = parseInt(block.style.marginLeft) || 0;
-    block.style.marginLeft = Math.min(current + 32, 32 * 6) + 'px';
-  }
-  function docsOutdent(content) {
-    const sel = window.getSelection();
-    if (!sel.rangeCount || !content.contains(sel.anchorNode)) return;
-    const block = findDocsBlockAncestor(content, sel.getRangeAt(0).startContainer);
-    if (!block) return;
-    if (block.tagName === 'LI') { document.execCommand('outdent'); return; }
-    const current = parseInt(block.style.marginLeft) || 0;
-    const next = Math.max(current - 32, 0);
-    if (next) block.style.marginLeft = next + 'px';
-    else block.style.removeProperty('margin-left');
-  }
   function findDocsBlockAncestor(content, node) {
     while (node && node !== content) {
       if (node.nodeType === 1 && /^(P|H1|H2|H3|H4|H5|H6|LI|BLOCKQUOTE)$/.test(node.tagName)) return node;
@@ -6530,8 +6490,46 @@
       if (!range.collapsed) return; // une vraie sélection à remplacer : laisser faire
       let block = findDocsBlockAncestor(content, range.startContainer);
       if (!block) return; // pas dans un bloc reconnu : comportement par défaut
-      if (block.tagName === 'LI') return; // laisser le navigateur gérer nativement les listes
-      // (continuation, ou sortie de liste sur un élément vide)
+      if (block.tagName === 'LI') {
+        const isEmpty = block.textContent.trim() === '' && !block.querySelector('img');
+        if (!isEmpty) return; // laisser le navigateur créer normalement une nouvelle puce
+        e.preventDefault();
+        const list = block.parentElement; // <ul> ou <ol>
+        const newP = document.createElement('p');
+        newP.appendChild(document.createElement('br'));
+        const isFirst = !block.previousElementSibling;
+        const isLast = !block.nextElementSibling;
+        if (isFirst && isLast) {
+          list.parentElement.insertBefore(newP, list);
+          list.remove();
+        } else if (isLast) {
+          block.remove();
+          list.parentElement.insertBefore(newP, list.nextSibling);
+        } else if (isFirst) {
+          block.remove();
+          list.parentElement.insertBefore(newP, list);
+        } else {
+          const secondList = document.createElement(list.tagName);
+          let sibling = block.nextElementSibling;
+          while (sibling) {
+            const next = sibling.nextElementSibling;
+            secondList.appendChild(sibling);
+            sibling = next;
+          }
+          block.remove();
+          list.parentElement.insertBefore(newP, list.nextSibling);
+          list.parentElement.insertBefore(secondList, newP.nextSibling);
+        }
+        const newRange = document.createRange();
+        newRange.setStart(newP, 0);
+        newRange.collapse(true);
+        sel.removeAllRanges();
+        sel.addRange(newRange);
+        saveDocsSelection(editor);
+        buildDocsToc(editor);
+        scheduleDocsAutoSave();
+        return;
+      }
 
       e.preventDefault();
       const beforeRange = document.createRange();
@@ -6673,20 +6671,6 @@
       insertDocEmptyTable(editor, content, 3, 3);
       scheduleDocsAutoSave();
     });
-    editor.querySelector('[data-docs-indent]')?.addEventListener('click', () => {
-      content.focus();
-      restoreDocsSelection(editor);
-      docsIndent(content);
-      saveDocsSelection(editor);
-      scheduleDocsAutoSave();
-    });
-    editor.querySelector('[data-docs-outdent]')?.addEventListener('click', () => {
-      content.focus();
-      restoreDocsSelection(editor);
-      docsOutdent(content);
-      saveDocsSelection(editor);
-      scheduleDocsAutoSave();
-    });
     editor.querySelector('[data-docs-block-menu]')?.addEventListener('click', (e) => {
       const popup = editor.querySelector('[data-docs-block-popup]');
       editor.querySelector('[data-docs-color-popup]').classList.remove('open');
@@ -6725,89 +6709,6 @@
     });
 
     // colle en texte brut : uniformise toujours la police (Inter), quelle que soit la source
-    (function wireDocsDragReorder() {
-      const dragHandle = editor.querySelector('[data-docs-drag-handle]');
-      if (!dragHandle) return;
-      let hoveredUnit = null;
-      let draggedUnit = null;
-
-      function findDraggableUnit(y) {
-        const lis = [...content.querySelectorAll(':scope > ul > li, :scope > ol > li')];
-        for (const li of lis) {
-          const rect = li.getBoundingClientRect();
-          if (y >= rect.top && y <= rect.bottom) return li;
-        }
-        for (const child of content.children) {
-          const rect = child.getBoundingClientRect();
-          if (y >= rect.top && y <= rect.bottom) return child;
-        }
-        return null;
-      }
-      function clearDropMarkers() {
-        content.querySelectorAll('.docs-drag-over-top, .docs-drag-over-bottom').forEach(el => el.classList.remove('docs-drag-over-top', 'docs-drag-over-bottom'));
-      }
-
-      content.addEventListener('mousemove', (e) => {
-        if (draggedUnit) return;
-        const unit = findDraggableUnit(e.clientY);
-        if (!unit) { dragHandle.classList.remove('visible'); hoveredUnit = null; return; }
-        hoveredUnit = unit;
-        const contentRect = content.getBoundingClientRect();
-        const unitRect = unit.getBoundingClientRect();
-        dragHandle.classList.add('visible');
-        dragHandle.style.left = (contentRect.left - 24) + 'px';
-        dragHandle.style.top = (unitRect.top + unitRect.height / 2 - 10) + 'px';
-      });
-      content.addEventListener('mouseleave', () => {
-        if (!draggedUnit) dragHandle.classList.remove('visible');
-      });
-
-      dragHandle.addEventListener('dragstart', (e) => {
-        if (!hoveredUnit) { e.preventDefault(); return; }
-        draggedUnit = hoveredUnit;
-        draggedUnit.classList.add('docs-drag-ghost');
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', '');
-      });
-      dragHandle.addEventListener('dragend', () => {
-        draggedUnit?.classList.remove('docs-drag-ghost');
-        draggedUnit = null;
-        dragHandle.classList.remove('visible');
-        clearDropMarkers();
-      });
-
-      content.addEventListener('dragover', (e) => {
-        if (!draggedUnit) return;
-        e.preventDefault();
-        clearDropMarkers();
-        const unit = findDraggableUnit(e.clientY);
-        if (!unit || unit === draggedUnit) return;
-        // n'autoriser le dépôt qu'entre unités de même nature (LI avec LI, bloc avec bloc)
-        const sameKind = (unit.tagName === 'LI') === (draggedUnit.tagName === 'LI');
-        if (!sameKind) return;
-        if (unit.tagName === 'LI' && unit.parentElement !== draggedUnit.parentElement) return;
-        const rect = unit.getBoundingClientRect();
-        const before = e.clientY < rect.top + rect.height / 2;
-        unit.classList.add(before ? 'docs-drag-over-top' : 'docs-drag-over-bottom');
-      });
-
-      content.addEventListener('drop', (e) => {
-        if (!draggedUnit) return;
-        e.preventDefault();
-        const unit = findDraggableUnit(e.clientY);
-        clearDropMarkers();
-        if (!unit || unit === draggedUnit) return;
-        const sameKind = (unit.tagName === 'LI') === (draggedUnit.tagName === 'LI');
-        if (!sameKind) return;
-        if (unit.tagName === 'LI' && unit.parentElement !== draggedUnit.parentElement) return;
-        const rect = unit.getBoundingClientRect();
-        const before = e.clientY < rect.top + rect.height / 2;
-        unit.parentElement.insertBefore(draggedUnit, before ? unit : unit.nextSibling);
-        saveDocsSelection(editor);
-        buildDocsToc(editor);
-        scheduleDocsAutoSave();
-      });
-    })();
 
     content.addEventListener('paste', (e) => {
       e.preventDefault();
