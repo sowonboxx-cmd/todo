@@ -910,6 +910,12 @@
     [data-task-sheet].open, [data-pb-sheet].open, [data-addtask-sheet].open, [data-pa-sheet].open {
       transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto;
     }
+    /* fiches tâche (détail + création) : +20% de large, description +15% de texte */
+    [data-task-sheet], [data-addtask-sheet] { width: 576px; }
+    [data-task-sheet] .td-link, [data-task-sheet] .td-notes-text, [data-task-sheet] .td-notes-edit,
+    [data-addtask-sheet] .at-desc {
+      font-size: 15px;
+    }
   }
   .sheet-handle { display: none; }
   .sheet-view { display: none; }
@@ -1058,11 +1064,25 @@
   .td-subtasks-head span[data-td-subtasks-summary] { color: var(--accent-rosalina); text-transform: none; letter-spacing: 0; }
   .td-subtasks { display: flex; flex-direction: column; }
   .td-subtask-row {
-    display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line-soft);
   }
   .td-subtask-row:last-child { border-bottom: none; }
+  .td-subtask-row.dragging-reorder { opacity: 0.4; }
+  .td-subtask-drag {
+    flex-shrink: 0; width: 14px; text-align: center; color: var(--faint); font-size: 13px;
+    line-height: 1; cursor: grab; user-select: none;
+  }
   .td-subtask-title { flex: 1; font-size: 13px; }
   .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
+  .td-subtask-row .td-img-remove {
+    position: static; width: auto; height: auto; background: transparent; color: var(--faint);
+    font-size: 12px; padding: 2px 4px; border-radius: 0; flex-shrink: 0;
+  }
+  .td-subtask-row .td-img-remove:hover { color: var(--danger); }
+  .td-subtask-row .td-img-remove.confirming {
+    color: #fff; background: var(--danger); position: static; width: auto; height: auto;
+    padding: 3px 8px; border-radius: 6px; font-weight: 700;
+  }
   .td-subtasks-done-toggle {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--muted);
     cursor: pointer; padding: 8px 0 4px;
@@ -2390,6 +2410,9 @@
                   <img class="icon-light-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
                   <img class="icon-dark-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list-white.png" alt="Sous-tâche">
                 </button>
+                <button type="button" class="ic-flat-btn" data-at-add-source-btn title="Source">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                </button>
               </div>
 
               <input type="text" class="add-subtask-input at-task-only" data-at-image-url-input placeholder="Lien de l'image…" style="display:none;">
@@ -2397,6 +2420,13 @@
 
               <input type="text" class="add-subtask-input at-task-only" data-at-subtask-input placeholder="Sous-tâche…" style="display:none;">
               <div class="td-subtasks-list at-task-only" data-at-subtasks-list></div>
+
+              <div class="td-sources-list at-task-only" data-at-sources-list></div>
+              <div class="td-source-add-row at-task-only" data-at-source-add-row style="display:none;">
+                <input type="text" class="td-source-input" placeholder="Titre" data-at-source-title-input>
+                <input type="text" class="td-source-input" placeholder="URL" data-at-source-url-input>
+                <button type="button" class="td-source-confirm-btn" data-at-source-confirm>OK</button>
+              </div>
 
               <div class="at-error" data-at-error></div>
             </div>
@@ -2917,6 +2947,39 @@
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
   }
+  // libellé très court pour un lien dans la description : "site.com/abcd" plutôt que l'URL entière
+  function shortUrlLabel(url) {
+    try {
+      const u = new URL(url);
+      const host = u.hostname.replace(/^www\./, '');
+      const path = (u.pathname + u.search + u.hash).replace(/^\/+/, '');
+      if (!path) return host;
+      const snippet = path.slice(0, 4).replace(/\/+$/, '');
+      return snippet ? `${host}/${snippet}` : host;
+    } catch { return url; }
+  }
+  // transforme le texte brut d'une description en HTML échappé où les URL deviennent des liens cliquables raccourcis
+  function linkifyNotesHtml(text) {
+    const urlRegex = /https?:\/\/[^\s<>"']+/g;
+    let result = '';
+    let lastIndex = 0;
+    let match;
+    while ((match = urlRegex.exec(text)) !== null) {
+      let url = match[0];
+      let trailing = '';
+      const trailMatch = url.match(/[).,!?;:'"]+$/);
+      if (trailMatch) {
+        trailing = trailMatch[0];
+        url = url.slice(0, url.length - trailing.length);
+      }
+      result += escapeHtml(text.slice(lastIndex, match.index));
+      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener">${escapeHtml(shortUrlLabel(url))}</a>`;
+      result += escapeHtml(trailing);
+      lastIndex = match.index + match[0].length;
+    }
+    result += escapeHtml(text.slice(lastIndex));
+    return result;
+  }
   function extractYouTubeId(text) {
     const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return m ? m[1] : null;
@@ -2927,11 +2990,13 @@
     edit.value = notes || '';
     const trimmed = (notes || '').trim();
     const ytId = extractYouTubeId(trimmed);
-    if (ytId) {
-      view.innerHTML = `<div class="td-notes-text">${escapeHtml(trimmed)}</div>` +
+    if (!trimmed) {
+      view.textContent = '';
+    } else if (ytId) {
+      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>` +
         `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
     } else {
-      view.textContent = trimmed;
+      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>`;
     }
     view.style.display = 'block';
     edit.style.display = 'none';
@@ -3134,15 +3199,25 @@
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
     const all = cachedSubtasks.filter(s => s.todo_id === todoId);
-    const byDate = (a, b) => (a.due_date || '9999-99-99').localeCompare(b.due_date || '9999-99-99');
-    const incomplete = all.filter(s => !s.is_done).sort(byDate);
-    const done = all.filter(s => s.is_done).sort(byDate);
+    // tri manuel (drag & drop) prioritaire ; à défaut, tri par date d'échéance
+    const bySort = (a, b) => {
+      const pa = a.position ?? null;
+      const pb = b.position ?? null;
+      if (pa !== null && pb !== null) return pa - pb;
+      if (pa !== null) return -1;
+      if (pb !== null) return 1;
+      return (a.due_date || '9999-99-99').localeCompare(b.due_date || '9999-99-99');
+    };
+    const incomplete = all.filter(s => !s.is_done).sort(bySort);
+    const done = all.filter(s => s.is_done).sort(bySort);
 
     const rowHtml = (s) => `
-      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
+      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}" data-reorder-id="${s.id}" draggable="true">
+        <span class="td-subtask-drag" title="Réorganiser">⠿</span>
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
         <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
         ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
+        <button type="button" class="td-img-remove" data-subtask-remove="${s.id}" title="Supprimer">✕</button>
       </div>`;
 
     let html = incomplete.map(rowHtml).join('');
@@ -3185,6 +3260,32 @@
         const subtaskId = el.closest('.td-subtask-row').dataset.subtaskId;
         openSubtaskDetail(sheet, subtaskId);
       });
+    });
+    // suppression : premier clic = demande de confirmation, second clic = suppression réelle
+    list.querySelectorAll('[data-subtask-remove]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (!btn.classList.contains('confirming')) {
+          btn.classList.add('confirming');
+          btn.textContent = '?';
+          setTimeout(() => { btn.classList.remove('confirming'); btn.textContent = '✕'; }, 2500);
+          return;
+        }
+        const subtaskId = btn.dataset.subtaskRemove;
+        const { error } = await sb.from('subtasks').update({ is_archived: true }).eq('id', subtaskId);
+        if (error) { console.error('Erreur de suppression de la sous-tâche :', error); return; }
+        cachedSubtasks = cachedSubtasks.filter(x => x.id !== subtaskId);
+        renderTdSubtasks(sheet, todoId);
+      });
+    });
+    // réorganisation par glisser-déposer (sous-tâches non terminées uniquement)
+    const incompleteRows = [...list.querySelectorAll('.td-subtask-row:not(.done)')];
+    wireDragReorder(incompleteRows, async (orderedIds) => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        const sub = cachedSubtasks.find(x => x.id === orderedIds[i]);
+        if (sub) sub.position = i + 1;
+        await sb.from('subtasks').update({ position: i + 1 }).eq('id', orderedIds[i]);
+      }
     });
   }
 
@@ -3486,11 +3587,18 @@
       pushView(sheet, 'delete-task');
     });
     sheet.querySelector('[data-td-confirm-delete-task]')?.addEventListener('click', async () => {
-      const todoId = sheet.dataset.recordId;
+      const kind = sheet.dataset.recordKind || 'todo';
+      const id = sheet.dataset.recordId;
       const phone = getActiveContainer();
-      await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', todoId);
-      cachedTodos = cachedTodos.filter(t => t.id !== todoId);
-      closeTaskSheet(phone);
+      if (kind === 'subtask') {
+        await sb.from('subtasks').update({ is_archived: true }).eq('id', id);
+        cachedSubtasks = cachedSubtasks.filter(s => s.id !== id);
+        backToParentTask(sheet);
+      } else {
+        await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', id);
+        cachedTodos = cachedTodos.filter(t => t.id !== id);
+        closeTaskSheet(phone);
+      }
     });
 
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
@@ -3618,12 +3726,16 @@
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
+      const row = sheet.querySelector('[data-td-add-subtask-row]');
+      if (row) row.style.display = 'none';
       input.style.display = 'block';
       input.value = '';
       input.focus();
     });
     sheet.querySelector('[data-td-add-subtask-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
+      const row = sheet.querySelector('[data-td-add-subtask-row]');
+      if (row) row.style.display = 'none';
       input.style.display = 'block';
       input.value = '';
       input.focus();
@@ -3634,6 +3746,8 @@
     sheet.querySelector('[data-add-subtask-input]')?.addEventListener('blur', async (e) => {
       const title = e.target.value.trim();
       e.target.style.display = 'none';
+      const row = sheet.querySelector('[data-td-add-subtask-row]');
+      if (row) row.style.display = 'flex';
       if (!title) return;
       const todoId = sheet.dataset.recordId;
       const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title }).select().single();
@@ -5533,6 +5647,9 @@
     sheet.querySelector('[data-at-flag-options] .opt-row[data-val="low"]')?.classList.add('selected');
     sheet.dataset.stagedImages = '[]';
     sheet.dataset.stagedSubtasks = '[]';
+    sheet.dataset.stagedSources = '[]';
+    const atSourceAddRow = sheet.querySelector('[data-at-source-add-row]');
+    if (atSourceAddRow) atSourceAddRow.style.display = 'none';
     sheet.dataset.pendingReminder = '';
     sheet.dataset.pendingRepeatRule = '';
     updateRepeatDisplay(sheet, null);
@@ -5541,6 +5658,7 @@
     sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
     renderAtImages(sheet);
     renderAtSubtasks(sheet);
+    renderAtSources(sheet);
 
     renderAddTaskProjectOptions(sheet);
 
@@ -5603,6 +5721,26 @@
         const next = subs.filter((_, i) => i !== idx);
         sheet.dataset.stagedSubtasks = JSON.stringify(next);
         renderAtSubtasks(sheet);
+      });
+    });
+  }
+  function renderAtSources(sheet) {
+    const list = sheet.querySelector('[data-at-sources-list]');
+    if (!list) return;
+    const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
+    list.innerHTML = sources.map((s, i) => `
+      <div class="td-source-row" data-idx="${i}">
+        <span class="td-source-bullet">•</span>
+        <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)} :</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
+        <button type="button" class="td-img-remove" data-staged-source-remove="${i}" title="Retirer">✕</button>
+      </div>`).join('');
+    list.querySelectorAll('[data-staged-source-remove]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(btn.dataset.stagedSourceRemove, 10);
+        const next = sources.filter((_, i) => i !== idx);
+        sheet.dataset.stagedSources = JSON.stringify(next);
+        renderAtSources(sheet);
       });
     });
   }
@@ -5873,6 +6011,32 @@
       renderAtSubtasks(sheet);
     });
 
+    sheet.querySelector('[data-at-add-source-btn]')?.addEventListener('click', () => {
+      const row = sheet.querySelector('[data-at-source-add-row]');
+      row.style.display = 'flex';
+      sheet.querySelector('[data-at-source-title-input]').value = '';
+      sheet.querySelector('[data-at-source-url-input]').value = '';
+      sheet.querySelector('[data-at-source-title-input]').focus();
+    });
+    function commitAtSource(sheet) {
+      const titleInput = sheet.querySelector('[data-at-source-title-input]');
+      const urlInput = sheet.querySelector('[data-at-source-url-input]');
+      const title = titleInput.value.trim();
+      const url = urlInput.value.trim();
+      if (!url) { sheet.querySelector('[data-at-source-add-row]').style.display = 'none'; return; }
+      const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
+      sheet.dataset.stagedSources = JSON.stringify([...sources, { title, url }]);
+      renderAtSources(sheet);
+      sheet.querySelector('[data-at-source-add-row]').style.display = 'none';
+    }
+    sheet.querySelector('[data-at-source-title-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sheet.querySelector('[data-at-source-url-input]').focus();
+    });
+    sheet.querySelector('[data-at-source-url-input]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); commitAtSource(sheet); }
+    });
+    sheet.querySelector('[data-at-source-confirm]')?.addEventListener('click', () => commitAtSource(sheet));
+
     sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
       let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
       if (m < 0) { m = 11; y--; }
@@ -5954,6 +6118,7 @@
           pageId = bordelPage.id;
         }
         const images = JSON.parse(sheet.dataset.stagedImages || '[]');
+        const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
         const { data: newTodo, error: insertErr } = await sb.from('todos').insert({
           page_id: pageId,
           title,
@@ -5962,6 +6127,7 @@
           due_time: timeVal,
           priority,
           images,
+          sources,
           reminder: sheet.dataset.pendingReminder || null,
           repeat_rule: sheet.dataset.pendingRepeatRule || null,
         }).select().single();
