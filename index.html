@@ -30,6 +30,7 @@
     --accent-vault: #3A3D3F;
     --danger: #B4442E;
     --accent-due: #ff7d01;
+    --accent-gold: #B8912F;
     --tabbar-bg: rgba(255,255,255,0.82);
     --tabbar-shadow: 0 10px 30px rgba(20,23,20,0.16), inset 0 1px 0 rgba(255,255,255,0.5);
     --tabbar-icon: rgba(20,23,20,0.48);
@@ -55,6 +56,7 @@
     --accent-vault: #9A9EA3;
     --danger: #E0705A;
     --accent-due: #ff7d01;
+    --accent-gold: #D4B24C;
     --tabbar-bg: rgba(8,9,8,0.92);
     --tabbar-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
     --tabbar-icon: rgba(255,255,255,0.5);
@@ -245,6 +247,7 @@
     align-items: center;
     margin-bottom: 22px;
   }
+  .d-topbar-home { display: flex; align-items: center; gap: 12px; }
   .d-topbar h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0; }
   .d-topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
   .d-search {
@@ -284,6 +287,11 @@
   .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
+  .home-kanban-col[data-home-col="today"] {
+    background: linear-gradient(rgba(212, 178, 76, 0.06), rgba(212, 178, 76, 0.06)), var(--card);
+    border-color: rgba(212, 178, 76, 0.4);
+  }
+  .home-kanban-col[data-home-col="today"] .home-kanban-title { color: var(--accent-gold); }
   .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
   .home-kanban-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
   .home-kanban-bar { margin-bottom: 12px; }
@@ -1609,10 +1617,9 @@
           <div class="d-topbar">
             <div class="d-topbar-home" data-go-home style="cursor:pointer;">
               <h2 class="display">Will</h2>
-              <div class="sub" data-desktop-date-sub></div>
+              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name>Dashboard</div>
             </div>
             <div class="d-topbar-actions">
-              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name style="display:none;"></div>
               <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
@@ -3045,13 +3052,15 @@
 
   const MONTHS_FULL_LOWER_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const DAYS_FULL_FR = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-  function updateDesktopDateSub(projectCount) {
-    const el = document.querySelector('[data-desktop-date-sub]');
-    if (!el) return;
+  // affiche la date du jour (ex. "Mercredi 26 août 2026") à la place du sous-titre de la sidebar
+  function computeSidebarDateLabel() {
     const now = new Date();
-    const dateStr = `${DAYS_FULL_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FULL_LOWER_FR[now.getMonth()]}`;
-    el.textContent = `${dateStr} — ${projectCount} projet${projectCount > 1 ? 's' : ''} actif${projectCount > 1 ? 's' : ''}`;
+    return `${DAYS_FULL_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FULL_LOWER_FR[now.getMonth()]} ${now.getFullYear()}`;
   }
+  function updateSidebarDateSubtitle() {
+    document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = computeSidebarDateLabel());
+  }
+  updateSidebarDateSubtitle();
   function formatDateFull(dateStr, timeStr) {
     const d = new Date(dateStr + 'T00:00:00');
     const diff = daysFromToday(dateStr);
@@ -4119,7 +4128,7 @@
     if (error || !data) return;
     document.querySelectorAll('[data-app-title-text]').forEach(el => el.textContent = data.title);
     document.querySelectorAll('[data-app-title-input]').forEach(el => el.value = data.title);
-    document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = data.subtitle);
+    updateSidebarDateSubtitle();
     document.querySelectorAll('[data-app-subtitle-input]').forEach(el => el.value = data.subtitle);
   }
 
@@ -4304,7 +4313,8 @@
       const kanbanCol = row?.closest('.kanban-column');
       if (kanbanCol) {
         const kanbanView = kanbanCol.closest('[data-kanban-view]');
-        const projectId = cachedProjects.find(p => p.name === kanbanView?.querySelector('[data-kanban-project-name]')?.textContent)?.id;
+        const badgeText = document.querySelector('#app-desktop [data-kanban-project-name]')?.textContent;
+        const projectId = kanbanView ? cachedProjects.find(p => p.name === badgeText)?.id : null;
         if (projectId) setTimeout(() => renderKanbanColumns(projectId), 250);
       }
 
@@ -4414,7 +4424,7 @@
     document.querySelector('#app-desktop [data-kanban-view]').style.display = 'none';
     document.querySelector('#app-desktop .board').style.display = 'block';
     const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
-    if (badge) badge.style.display = 'none';
+    if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
   }
   function renderKanbanColumns(projectId) {
     const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
@@ -4665,7 +4675,6 @@
     const kpiProjM = document.getElementById('kpi-projects-mobile');
     if (kpiProjD) kpiProjD.textContent = String(projects.length).padStart(2, '0');
     if (kpiProjM) kpiProjM.textContent = String(projects.length);
-    updateDesktopDateSub(projects.length);
     renderDrawerProjects(projects);
   }
 
@@ -5233,7 +5242,7 @@
     input.addEventListener('blur', async (e) => {
       const subtitle = e.target.value.trim() || 'PERSONAL OS';
       await sb.from('app_settings').update({ subtitle }).eq('id', 1);
-      document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = subtitle);
+      updateSidebarDateSubtitle();
     });
   });
 
