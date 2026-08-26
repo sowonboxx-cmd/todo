@@ -677,7 +677,11 @@
     position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
     transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.05); overflow-y: auto;
   }
-  .d-rail-bottom-row { display: flex; align-items: center; gap: 8px; margin-top: auto; }
+  .d-rail-bottom-row {
+    display: flex; align-items: center; gap: 8px; margin-top: auto;
+    position: sticky; bottom: -22px; margin-left: -18px; margin-right: -18px; margin-bottom: -22px;
+    padding: 10px 18px 22px; background: var(--card); border-top: 1px solid var(--line-soft); z-index: 2;
+  }
   .d-rail-icon-btn {
     display: flex; align-items: center; justify-content: center; width: 34px; height: 34px;
     border-radius: 10px; color: var(--muted); cursor: pointer; flex-shrink: 0;
@@ -2004,8 +2008,8 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                     <span data-td-project-label>Projet</span>
                   </button>
-                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Aller à la liste des tâches" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Retourner à la liste des tâches" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
                   </button>
                 </div>
                 <div class="td-header-actions">
