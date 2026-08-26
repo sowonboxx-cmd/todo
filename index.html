@@ -288,8 +288,7 @@
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
   .home-kanban-col[data-home-col="today"] {
-    background: linear-gradient(rgba(212, 178, 76, 0.06), rgba(212, 178, 76, 0.06)), var(--card);
-    border-color: rgba(212, 178, 76, 0.4);
+    border-color: rgb(212 178 76 / 20%);
   }
   .home-kanban-col[data-home-col="today"] .home-kanban-title { color: var(--accent-gold); }
   .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
@@ -1616,7 +1615,7 @@
         <div class="d-main">
           <div class="d-topbar">
             <div class="d-topbar-home" data-go-home style="cursor:pointer;">
-              <h2 class="display">Will</h2>
+              <div class="d-topbar-icon-btn d-topbar-project-badge">Will</div>
               <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name>Dashboard</div>
             </div>
             <div class="d-topbar-actions">
