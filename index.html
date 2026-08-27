@@ -332,7 +332,9 @@
   .dots-btn {
     border: none; background: transparent; color: var(--faint); cursor: pointer;
     font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
   }
+  .dots-btn svg { width: 18px; height: 18px; }
   .dots-btn:hover { background: var(--bg); }
   .panel h3 .dots-btn, .m-section-title .dots-btn { color: var(--ink); }
   .dots-menu {
@@ -1628,10 +1630,10 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
-              <button type="button" class="d-topbar-icon-btn" data-menu-toggle title="Options">⋯</button>
-              <div class="dots-menu">
-                <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
-              </div>
+              <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
+                <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
             </div>
           </div>
 
@@ -1811,12 +1813,10 @@
                 </div>
               </div>
               <div class="h3-right">
-                <button class="dots-btn" data-menu-toggle>•••</button>
-                <div class="dots-menu">
-                  <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
-                  <button class="dots-item">Activité</button>
-                  <button class="dots-item">Historique</button>
-                </div>
+                <button class="dots-btn" data-toggle-completed title="Afficher les tâches terminées">
+                  <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                  <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
               </div>
             </div>
 
@@ -4002,31 +4002,17 @@
     }, { passive: true });
   });
 
-  // "..." menu — open/close
-  document.querySelectorAll('[data-menu-toggle]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const menu = btn.parentElement.querySelector('.dots-menu');
-      if (!menu) return;
-      document.querySelectorAll('.dots-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
-      menu.classList.toggle('open');
-    });
-  });
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dots-menu.open').forEach(m => m.classList.remove('open'));
-  });
-
-  // show / hide completed tasks — hidden by default
+  // œil ouvert/fermé — affiche/masque les tâches terminées, fermé (masqué) par défaut
   document.querySelectorAll('[data-toggle-completed]').forEach(btn => {
-    let hidden = true;
-    btn.textContent = 'Voir les tâches terminées';
+    let visible = false;
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      hidden = !hidden;
+      visible = !visible;
       const scope = getActiveContainer() || document;
-      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', !hidden));
-      btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
-      btn.closest('.dots-menu')?.classList.remove('open');
+      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', visible));
+      btn.querySelector('.eye-closed').style.display = visible ? 'none' : '';
+      btn.querySelector('.eye-open').style.display = visible ? '' : 'none';
+      btn.title = visible ? 'Masquer les tâches terminées' : 'Afficher les tâches terminées';
     });
   });
   // scrollbar only shows while actively scrolling (or hovered, via CSS)
