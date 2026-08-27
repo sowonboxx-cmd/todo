@@ -2959,18 +2959,7 @@
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
   }
-  // libellé très court pour un lien dans la description : "site.com/abcd" plutôt que l'URL entière
-  function shortUrlLabel(url) {
-    try {
-      const u = new URL(url);
-      const host = u.hostname.replace(/^www\./, '');
-      const path = (u.pathname + u.search + u.hash).replace(/^\/+/, '');
-      if (!path) return host;
-      const snippet = path.slice(0, 4).replace(/\/+$/, '');
-      return snippet ? `${host}/${snippet}` : host;
-    } catch { return url; }
-  }
-  // transforme le texte brut d'une description en HTML échappé où les URL deviennent des liens cliquables raccourcis
+  // transforme le texte brut d'une description en HTML échappé où les URL deviennent des liens cliquables (juste le nom du site)
   function linkifyNotesHtml(text) {
     const urlRegex = /https?:\/\/[^\s<>"']+/g;
     let result = '';
@@ -2985,35 +2974,12 @@
         url = url.slice(0, url.length - trailing.length);
       }
       result += escapeHtml(text.slice(lastIndex, match.index));
-      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" data-notes-link="${escapeHtml(url)}" title="${escapeHtml(url)}">${escapeHtml(shortUrlLabel(url))}</a>`;
+      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" title="${escapeHtml(url)}">${escapeHtml(siteNameFromUrl(url))}</a>`;
       result += escapeHtml(trailing);
       lastIndex = match.index + match[0].length;
     }
     result += escapeHtml(text.slice(lastIndex));
     return result;
-  }
-  // cache mémoire (le temps de la session) pour éviter de re-demander 10x le titre du même lien
-  const linkTitleCache = new Map();
-  async function fetchLinkTitle(url) {
-    if (linkTitleCache.has(url)) return linkTitleCache.get(url);
-    try {
-      const resp = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}&meta=false`);
-      const json = await resp.json();
-      const title = json?.status === 'success' && json.data?.title ? json.data.title.trim() : null;
-      linkTitleCache.set(url, title);
-      return title;
-    } catch {
-      linkTitleCache.set(url, null);
-      return null;
-    }
-  }
-  // remplace le libellé court "site.com/xxxx" par le vrai titre de la page une fois récupéré
-  function hydrateNotesLinkTitles(view) {
-    view.querySelectorAll('a[data-notes-link]').forEach(async (a) => {
-      const url = a.dataset.notesLink;
-      const title = await fetchLinkTitle(url);
-      if (title && a.isConnected) a.textContent = title;
-    });
   }
   function extractYouTubeId(text) {
     const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
@@ -3035,7 +3001,6 @@
     }
     view.style.display = 'block';
     edit.style.display = 'none';
-    if (trimmed) hydrateNotesLinkTitles(view);
   }
 
   function renderTdSources(sheet, record) {
