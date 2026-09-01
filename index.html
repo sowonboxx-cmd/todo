@@ -30,7 +30,6 @@
     --accent-vault: #3A3D3F;
     --danger: #B4442E;
     --accent-due: #ff7d01;
-    --accent-gold: #B8912F;
     --tabbar-bg: rgba(255,255,255,0.82);
     --tabbar-shadow: 0 10px 30px rgba(20,23,20,0.16), inset 0 1px 0 rgba(255,255,255,0.5);
     --tabbar-icon: rgba(20,23,20,0.48);
@@ -56,7 +55,6 @@
     --accent-vault: #9A9EA3;
     --danger: #E0705A;
     --accent-due: #ff7d01;
-    --accent-gold: #D4B24C;
     --tabbar-bg: rgba(8,9,8,0.92);
     --tabbar-shadow: 0 10px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
     --tabbar-icon: rgba(255,255,255,0.5);
@@ -247,7 +245,6 @@
     align-items: center;
     margin-bottom: 22px;
   }
-  .d-topbar-home { display: flex; align-items: center; gap: 12px; }
   .d-topbar h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0; }
   .d-topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
   .d-search {
@@ -287,10 +284,6 @@
   .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
-  .home-kanban-col[data-home-col="today"] {
-    border-color: rgb(212 178 76 / 20%);
-  }
-  .home-kanban-col[data-home-col="today"] .home-kanban-title { color: var(--accent-gold); }
   .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
   .home-kanban-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
   .home-kanban-bar { margin-bottom: 12px; }
@@ -332,9 +325,7 @@
   .dots-btn {
     border: none; background: transparent; color: var(--faint); cursor: pointer;
     font-size: 15px; line-height: 1; padding: 2px 4px; border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
   }
-  .dots-btn svg { width: 18px; height: 18px; }
   .dots-btn:hover { background: var(--bg); }
   .panel h3 .dots-btn, .m-section-title .dots-btn { color: var(--ink); }
   .dots-menu {
@@ -453,7 +444,12 @@
   .task-row .tname { font-weight: 600; }
   .task-row.is-done .tname { text-decoration: line-through; color: var(--faint); }
   .task-row .tmeta { flex-shrink: 0; text-align: right; font-family: 'Inter', sans-serif; }
-  .task-row .tmeta .when { font-size: 11.5px; font-weight: 700; color: var(--accent-due); }
+  .task-row .tmeta .when { font-size: 11.5px; font-weight: 700; color: var(--accent-due); cursor: pointer; }
+  .when-time-edit {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--accent-due);
+    background: var(--bg); border: 1px solid var(--line-soft); border-radius: 6px;
+    padding: 2px 4px; width: 84px; text-align: right;
+  }
   .subs-pill {
     display: inline-block;
     margin-top: 5px; padding: 2px 7px; border-radius: 6px;
@@ -679,11 +675,7 @@
     position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
     transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.05); overflow-y: auto;
   }
-  .d-rail-bottom-row {
-    display: flex; align-items: center; gap: 8px; margin-top: auto;
-    position: sticky; bottom: -22px; margin-left: -18px; margin-right: -18px; margin-bottom: -22px;
-    padding: 10px 18px 22px; background: var(--card); border-top: 1px solid var(--line-soft); z-index: 2;
-  }
+  .d-rail-bottom-row { display: flex; align-items: center; gap: 8px; margin-top: auto; }
   .d-rail-icon-btn {
     display: flex; align-items: center; justify-content: center; width: 34px; height: 34px;
     border-radius: 10px; color: var(--muted); cursor: pointer; flex-shrink: 0;
@@ -759,8 +751,6 @@
   }
   .drawer-fav-row:hover { background: var(--bg); color: var(--ink); }
   .drawer-fav-row .fav-star { color: #D9A400; flex-shrink: 0; }
-  .drawer-fav-row .fav-drag { flex-shrink: 0; color: var(--faint); font-size: 12px; line-height: 1; cursor: grab; }
-  .drawer-fav-row.dragging-reorder { opacity: 0.4; }
   .drawer-folder-row {
     position: relative;
     display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 10px;
@@ -925,12 +915,6 @@
     [data-task-sheet].open, [data-pb-sheet].open, [data-addtask-sheet].open, [data-pa-sheet].open {
       transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto;
     }
-    /* fiches tâche (détail + création) : +20% de large, description +15% de texte */
-    [data-task-sheet], [data-addtask-sheet] { width: 576px; }
-    [data-task-sheet] .td-link, [data-task-sheet] .td-notes-text, [data-task-sheet] .td-notes-edit,
-    [data-addtask-sheet] .at-desc {
-      font-size: 15px;
-    }
   }
   .sheet-handle { display: none; }
   .sheet-view { display: none; }
@@ -1079,25 +1063,11 @@
   .td-subtasks-head span[data-td-subtasks-summary] { color: var(--accent-rosalina); text-transform: none; letter-spacing: 0; }
   .td-subtasks { display: flex; flex-direction: column; }
   .td-subtask-row {
-    display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line-soft);
+    display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line-soft);
   }
   .td-subtask-row:last-child { border-bottom: none; }
-  .td-subtask-row.dragging-reorder { opacity: 0.4; }
-  .td-subtask-drag {
-    flex-shrink: 0; width: 14px; text-align: center; color: var(--faint); font-size: 13px;
-    line-height: 1; cursor: grab; user-select: none;
-  }
   .td-subtask-title { flex: 1; font-size: 13px; }
   .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
-  .td-subtask-row .td-img-remove {
-    position: static; width: auto; height: auto; background: transparent; color: var(--faint);
-    font-size: 12px; padding: 2px 4px; border-radius: 0; flex-shrink: 0;
-  }
-  .td-subtask-row .td-img-remove:hover { color: var(--danger); }
-  .td-subtask-row .td-img-remove.confirming {
-    color: #fff; background: var(--danger); position: static; width: auto; height: auto;
-    padding: 3px 8px; border-radius: 6px; font-weight: 700;
-  }
   .td-subtasks-done-toggle {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--muted);
     cursor: pointer; padding: 8px 0 4px;
@@ -1623,17 +1593,19 @@
         <div class="d-main">
           <div class="d-topbar">
             <div class="d-topbar-home" data-go-home style="cursor:pointer;">
-              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name>Dashboard</div>
+              <h2 class="display">Will</h2>
+              <div class="sub" data-desktop-date-sub></div>
             </div>
             <div class="d-topbar-actions">
+              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name style="display:none;"></div>
               <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
-              <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
-                <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </button>
+              <button type="button" class="d-topbar-icon-btn" data-menu-toggle title="Options">⋯</button>
+              <div class="dots-menu">
+                <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
+              </div>
             </div>
           </div>
 
@@ -1813,10 +1785,12 @@
                 </div>
               </div>
               <div class="h3-right">
-                <button class="dots-btn" data-toggle-completed title="Afficher les tâches terminées">
-                  <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                  <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </button>
+                <button class="dots-btn" data-menu-toggle>•••</button>
+                <div class="dots-menu">
+                  <button class="dots-item" data-toggle-completed>Masquer les tâches terminées</button>
+                  <button class="dots-item">Activité</button>
+                  <button class="dots-item">Historique</button>
+                </div>
               </div>
             </div>
 
@@ -2009,8 +1983,8 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                     <span data-td-project-label>Projet</span>
                   </button>
-                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Retourner à la liste des tâches" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Aller à la liste des tâches" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
                   </button>
                 </div>
                 <div class="td-header-actions">
@@ -2421,9 +2395,6 @@
                   <img class="icon-light-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
                   <img class="icon-dark-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list-white.png" alt="Sous-tâche">
                 </button>
-                <button type="button" class="ic-flat-btn" data-at-add-source-btn title="Source">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                </button>
               </div>
 
               <input type="text" class="add-subtask-input at-task-only" data-at-image-url-input placeholder="Lien de l'image…" style="display:none;">
@@ -2431,13 +2402,6 @@
 
               <input type="text" class="add-subtask-input at-task-only" data-at-subtask-input placeholder="Sous-tâche…" style="display:none;">
               <div class="td-subtasks-list at-task-only" data-at-subtasks-list></div>
-
-              <div class="td-sources-list at-task-only" data-at-sources-list></div>
-              <div class="td-source-add-row at-task-only" data-at-source-add-row style="display:none;">
-                <input type="text" class="td-source-input" placeholder="Titre" data-at-source-title-input>
-                <input type="text" class="td-source-input" placeholder="URL" data-at-source-url-input>
-                <button type="button" class="td-source-confirm-btn" data-at-source-confirm>OK</button>
-              </div>
 
               <div class="at-error" data-at-error></div>
             </div>
@@ -2908,7 +2872,6 @@
   let cachedProjects = [];
   let cachedSubtasks = [];
   let cachedDocFolders = [];
-  let favoritesOrder = []; // ordre manuel des favoris (mix tâches + pages), ex. ["todo:uuid", "page:uuid"]
 
   function positionDocsPopupAbove(popup, anchorBtn) {
     const btnRect = anchorBtn.getBoundingClientRect();
@@ -2959,28 +2922,6 @@
     try { return new URL(url).hostname.replace(/^www\./, ''); }
     catch { return url; }
   }
-  // transforme le texte brut d'une description en HTML échappé où les URL deviennent des liens cliquables (juste le nom du site)
-  function linkifyNotesHtml(text) {
-    const urlRegex = /https?:\/\/[^\s<>"']+/g;
-    let result = '';
-    let lastIndex = 0;
-    let match;
-    while ((match = urlRegex.exec(text)) !== null) {
-      let url = match[0];
-      let trailing = '';
-      const trailMatch = url.match(/[).,!?;:'"]+$/);
-      if (trailMatch) {
-        trailing = trailMatch[0];
-        url = url.slice(0, url.length - trailing.length);
-      }
-      result += escapeHtml(text.slice(lastIndex, match.index));
-      result += `<a href="${escapeHtml(url)}" target="_blank" rel="noopener" title="${escapeHtml(url)}">${escapeHtml(siteNameFromUrl(url))}</a>`;
-      result += escapeHtml(trailing);
-      lastIndex = match.index + match[0].length;
-    }
-    result += escapeHtml(text.slice(lastIndex));
-    return result;
-  }
   function extractYouTubeId(text) {
     const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return m ? m[1] : null;
@@ -2991,13 +2932,11 @@
     edit.value = notes || '';
     const trimmed = (notes || '').trim();
     const ytId = extractYouTubeId(trimmed);
-    if (!trimmed) {
-      view.textContent = '';
-    } else if (ytId) {
-      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>` +
+    if (ytId) {
+      view.innerHTML = `<div class="td-notes-text">${escapeHtml(trimmed)}</div>` +
         `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
     } else {
-      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>`;
+      view.textContent = trimmed;
     }
     view.style.display = 'block';
     edit.style.display = 'none';
@@ -3046,15 +2985,13 @@
 
   const MONTHS_FULL_LOWER_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
   const DAYS_FULL_FR = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-  // affiche la date du jour (ex. "Mercredi 26 août 2026") à la place du sous-titre de la sidebar
-  function computeSidebarDateLabel() {
+  function updateDesktopDateSub(projectCount) {
+    const el = document.querySelector('[data-desktop-date-sub]');
+    if (!el) return;
     const now = new Date();
-    return `${DAYS_FULL_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FULL_LOWER_FR[now.getMonth()]} ${now.getFullYear()}`;
+    const dateStr = `${DAYS_FULL_FR[now.getDay()]} ${now.getDate()} ${MONTHS_FULL_LOWER_FR[now.getMonth()]}`;
+    el.textContent = `${dateStr} — ${projectCount} projet${projectCount > 1 ? 's' : ''} actif${projectCount > 1 ? 's' : ''}`;
   }
-  function updateSidebarDateSubtitle() {
-    document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = computeSidebarDateLabel());
-  }
-  updateSidebarDateSubtitle();
   function formatDateFull(dateStr, timeStr) {
     const d = new Date(dateStr + 'T00:00:00');
     const diff = daysFromToday(dateStr);
@@ -3202,25 +3139,15 @@
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
     const all = cachedSubtasks.filter(s => s.todo_id === todoId);
-    // tri manuel (drag & drop) prioritaire ; à défaut, tri par date d'échéance
-    const bySort = (a, b) => {
-      const pa = a.position ?? null;
-      const pb = b.position ?? null;
-      if (pa !== null && pb !== null) return pa - pb;
-      if (pa !== null) return -1;
-      if (pb !== null) return 1;
-      return (a.due_date || '9999-99-99').localeCompare(b.due_date || '9999-99-99');
-    };
-    const incomplete = all.filter(s => !s.is_done).sort(bySort);
-    const done = all.filter(s => s.is_done).sort(bySort);
+    const byDate = (a, b) => (a.due_date || '9999-99-99').localeCompare(b.due_date || '9999-99-99');
+    const incomplete = all.filter(s => !s.is_done).sort(byDate);
+    const done = all.filter(s => s.is_done).sort(byDate);
 
     const rowHtml = (s) => `
-      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}" data-reorder-id="${s.id}" draggable="true">
-        <span class="td-subtask-drag" title="Réorganiser">⠿</span>
+      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}">
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
         <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
         ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
-        <button type="button" class="td-img-remove" data-subtask-remove="${s.id}" title="Supprimer">✕</button>
       </div>`;
 
     let html = incomplete.map(rowHtml).join('');
@@ -3263,32 +3190,6 @@
         const subtaskId = el.closest('.td-subtask-row').dataset.subtaskId;
         openSubtaskDetail(sheet, subtaskId);
       });
-    });
-    // suppression : premier clic = demande de confirmation, second clic = suppression réelle
-    list.querySelectorAll('[data-subtask-remove]').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (!btn.classList.contains('confirming')) {
-          btn.classList.add('confirming');
-          btn.textContent = '?';
-          setTimeout(() => { btn.classList.remove('confirming'); btn.textContent = '✕'; }, 2500);
-          return;
-        }
-        const subtaskId = btn.dataset.subtaskRemove;
-        const { error } = await sb.from('subtasks').update({ is_archived: true }).eq('id', subtaskId);
-        if (error) { console.error('Erreur de suppression de la sous-tâche :', error); return; }
-        cachedSubtasks = cachedSubtasks.filter(x => x.id !== subtaskId);
-        renderTdSubtasks(sheet, todoId);
-      });
-    });
-    // réorganisation par glisser-déposer (sous-tâches non terminées uniquement)
-    const incompleteRows = [...list.querySelectorAll('.td-subtask-row:not(.done)')];
-    wireDragReorder(incompleteRows, async (orderedIds) => {
-      for (let i = 0; i < orderedIds.length; i++) {
-        const sub = cachedSubtasks.find(x => x.id === orderedIds[i]);
-        if (sub) sub.position = i + 1;
-        await sb.from('subtasks').update({ position: i + 1 }).eq('id', orderedIds[i]);
-      }
     });
   }
 
@@ -3590,18 +3491,11 @@
       pushView(sheet, 'delete-task');
     });
     sheet.querySelector('[data-td-confirm-delete-task]')?.addEventListener('click', async () => {
-      const kind = sheet.dataset.recordKind || 'todo';
-      const id = sheet.dataset.recordId;
+      const todoId = sheet.dataset.recordId;
       const phone = getActiveContainer();
-      if (kind === 'subtask') {
-        await sb.from('subtasks').update({ is_archived: true }).eq('id', id);
-        cachedSubtasks = cachedSubtasks.filter(s => s.id !== id);
-        backToParentTask(sheet);
-      } else {
-        await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', id);
-        cachedTodos = cachedTodos.filter(t => t.id !== id);
-        closeTaskSheet(phone);
-      }
+      await sb.from('todos').update({ is_archived: true, archived_at: new Date().toISOString() }).eq('id', todoId);
+      cachedTodos = cachedTodos.filter(t => t.id !== todoId);
+      closeTaskSheet(phone);
     });
 
     sheet.querySelector('[data-td-checkbox]')?.addEventListener('click', async (e) => {
@@ -3637,6 +3531,12 @@
       view.style.display = 'none';
       edit.style.display = 'block';
       edit.focus();
+      edit.setSelectionRange(0, 0);
+      edit.scrollTop = 0;
+      requestAnimationFrame(() => {
+        edit.scrollTop = 0;
+        edit.closest('.sheet-view')?.scrollTo({ top: edit.offsetTop - 16 });
+      });
     });
     sheet.querySelector('[data-td-notes-edit]')?.addEventListener('blur', (e) => {
       const val = e.target.value.trim();
@@ -3729,16 +3629,12 @@
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
-      const row = sheet.querySelector('[data-td-add-subtask-row]');
-      if (row) row.style.display = 'none';
       input.style.display = 'block';
       input.value = '';
       input.focus();
     });
     sheet.querySelector('[data-td-add-subtask-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
-      const row = sheet.querySelector('[data-td-add-subtask-row]');
-      if (row) row.style.display = 'none';
       input.style.display = 'block';
       input.value = '';
       input.focus();
@@ -3749,8 +3645,6 @@
     sheet.querySelector('[data-add-subtask-input]')?.addEventListener('blur', async (e) => {
       const title = e.target.value.trim();
       e.target.style.display = 'none';
-      const row = sheet.querySelector('[data-td-add-subtask-row]');
-      if (row) row.style.display = 'flex';
       if (!title) return;
       const todoId = sheet.dataset.recordId;
       const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title }).select().single();
@@ -4002,17 +3896,31 @@
     }, { passive: true });
   });
 
-  // œil ouvert/fermé — affiche/masque les tâches terminées, fermé (masqué) par défaut
-  document.querySelectorAll('[data-toggle-completed]').forEach(btn => {
-    let visible = false;
+  // "..." menu — open/close
+  document.querySelectorAll('[data-menu-toggle]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      visible = !visible;
+      const menu = btn.parentElement.querySelector('.dots-menu');
+      if (!menu) return;
+      document.querySelectorAll('.dots-menu.open').forEach(m => { if (m !== menu) m.classList.remove('open'); });
+      menu.classList.toggle('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dots-menu.open').forEach(m => m.classList.remove('open'));
+  });
+
+  // show / hide completed tasks — hidden by default
+  document.querySelectorAll('[data-toggle-completed]').forEach(btn => {
+    let hidden = true;
+    btn.textContent = 'Voir les tâches terminées';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hidden = !hidden;
       const scope = getActiveContainer() || document;
-      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', visible));
-      btn.querySelector('.eye-closed').style.display = visible ? 'none' : '';
-      btn.querySelector('.eye-open').style.display = visible ? '' : 'none';
-      btn.title = visible ? 'Masquer les tâches terminées' : 'Afficher les tâches terminées';
+      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', !hidden));
+      btn.textContent = hidden ? 'Voir les tâches terminées' : 'Masquer les tâches terminées';
+      btn.closest('.dots-menu')?.classList.remove('open');
     });
   });
   // scrollbar only shows while actively scrolling (or hovered, via CSS)
@@ -4108,10 +4016,8 @@
     if (error || !data) return;
     document.querySelectorAll('[data-app-title-text]').forEach(el => el.textContent = data.title);
     document.querySelectorAll('[data-app-title-input]').forEach(el => el.value = data.title);
-    updateSidebarDateSubtitle();
+    document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = data.subtitle);
     document.querySelectorAll('[data-app-subtitle-input]').forEach(el => el.value = data.subtitle);
-    favoritesOrder = Array.isArray(data.favorites_order) ? data.favorites_order : [];
-    renderDrawerFavorites();
   }
 
   // ---------------- date helpers ----------------
@@ -4295,8 +4201,7 @@
       const kanbanCol = row?.closest('.kanban-column');
       if (kanbanCol) {
         const kanbanView = kanbanCol.closest('[data-kanban-view]');
-        const badgeText = document.querySelector('#app-desktop [data-kanban-project-name]')?.textContent;
-        const projectId = kanbanView ? cachedProjects.find(p => p.name === badgeText)?.id : null;
+        const projectId = cachedProjects.find(p => p.name === kanbanView?.querySelector('[data-kanban-project-name]')?.textContent)?.id;
         if (projectId) setTimeout(() => renderKanbanColumns(projectId), 250);
       }
 
@@ -4378,6 +4283,44 @@
     });
   }
 
+  // ---- édition rapide de l'heure directement sur la ligne de tâche (sans ouvrir la fiche) ----
+  // Écouteur global en phase de capture : intercepte le clic avant les handlers de clic posés
+  // sur .task-row (qui, eux, écoutent en phase de bulle) — fonctionne quel que soit l'endroit
+  // où la ligne est affichée (accueil, kanban, favoris, pages de projet…).
+  document.addEventListener('click', (e) => {
+    const whenEl = e.target.closest('.task-row .tmeta .when');
+    if (!whenEl || whenEl.querySelector('input')) return;
+    const row = whenEl.closest('.task-row');
+    const todoId = row?.dataset.todoId;
+    const todo = todoId ? cachedTodos.find(t => t.id === todoId) : null;
+    if (!todo) return;
+    e.stopPropagation();
+    e.preventDefault();
+
+    const originalHtml = whenEl.innerHTML;
+    const input = document.createElement('input');
+    input.type = 'time';
+    input.className = 'when-time-edit';
+    input.value = (todo.due_time || '').slice(0, 5);
+    whenEl.innerHTML = '';
+    whenEl.appendChild(input);
+    input.focus();
+    if (input.showPicker) { try { input.showPicker(); } catch (_) {} }
+
+    let settled = false;
+    const restore = () => { if (whenEl.contains(input)) whenEl.innerHTML = originalHtml; };
+    input.addEventListener('click', (ev) => ev.stopPropagation());
+    input.addEventListener('change', async () => {
+      settled = true;
+      const val = input.value || null;
+      const { error } = await sb.from('todos').update({ due_time: val }).eq('id', todoId);
+      if (error) { console.error('Erreur de sauvegarde heure :', error.message); restore(); return; }
+      todo.due_time = val;
+      loadData();
+    });
+    input.addEventListener('blur', () => { if (!settled) restore(); });
+  }, true);
+
   function wireProjectBlock(block) {
     block.addEventListener('click', () => {
       const container = block.closest('.phone') || block.closest('.desktop-frame');
@@ -4406,7 +4349,7 @@
     document.querySelector('#app-desktop [data-kanban-view]').style.display = 'none';
     document.querySelector('#app-desktop .board').style.display = 'block';
     const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
-    if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
+    if (badge) badge.style.display = 'none';
   }
   function renderKanbanColumns(projectId) {
     const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
@@ -4657,6 +4600,7 @@
     const kpiProjM = document.getElementById('kpi-projects-mobile');
     if (kpiProjD) kpiProjD.textContent = String(projects.length).padStart(2, '0');
     if (kpiProjM) kpiProjM.textContent = String(projects.length);
+    updateDesktopDateSub(projects.length);
     renderDrawerProjects(projects);
   }
 
@@ -5107,20 +5051,11 @@
     const containers = onlyContainer ? [onlyContainer] : document.querySelectorAll('[data-drawer-favorites]');
     const favTodos = cachedTodos.filter(t => t.is_favorite && !t.is_done);
     const favPages = cachedPages.filter(p => p.is_favorite && !p.is_archived && p.page_type !== 'doc');
-    const items = [
-      ...favTodos.map(t => ({ key: `todo:${t.id}`, html: `<div class="drawer-fav-row" data-fav-todo-id="${t.id}" data-reorder-id="todo:${t.id}" draggable="true"><span class="fav-drag" title="Réorganiser">⠿</span><span class="fav-star">★</span>${escapeHtml(t.title)}</div>` })),
-      ...favPages.map(p => ({ key: `page:${p.id}`, html: `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}" data-reorder-id="page:${p.id}" draggable="true"><span class="fav-drag" title="Réorganiser">⠿</span><span class="fav-star">★</span>${escapeHtml(p.title)}</div>` })),
+    const rows = [
+      ...favTodos.map(t => `<div class="drawer-fav-row" data-fav-todo-id="${t.id}"><span class="fav-star">★</span>${escapeHtml(t.title)}</div>`),
+      ...favPages.map(p => `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}"><span class="fav-star">★</span>${escapeHtml(p.title)}</div>`),
     ];
-    // tri manuel (drag & drop) prioritaire ; les favoris pas encore réordonnés gardent leur ordre naturel, à la fin
-    items.sort((a, b) => {
-      const ia = favoritesOrder.indexOf(a.key);
-      const ib = favoritesOrder.indexOf(b.key);
-      if (ia === -1 && ib === -1) return 0;
-      if (ia === -1) return 1;
-      if (ib === -1) return -1;
-      return ia - ib;
-    });
-    const html = items.map(item => item.html).join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
+    const html = rows.join('') || '<div class="drawer-page-row empty">Aucun favori</div>';
     containers.forEach(container => {
       container.innerHTML = html;
       container.querySelectorAll('[data-fav-todo-id]').forEach(row => {
@@ -5134,12 +5069,6 @@
         row.addEventListener('click', () => {
           openPbPageTasksDirect(getActiveContainer(), row.dataset.favPageId, row.dataset.favPageTitle);
         });
-      });
-      const rowsEls = [...container.querySelectorAll('.drawer-fav-row[data-reorder-id]')];
-      wireDragReorder(rowsEls, async (orderedKeys) => {
-        favoritesOrder = orderedKeys;
-        await sb.from('app_settings').update({ favorites_order: orderedKeys }).eq('id', 1);
-        renderDrawerFavorites(); // resynchronise mobile + desktop
       });
     });
   }
@@ -5239,7 +5168,7 @@
     input.addEventListener('blur', async (e) => {
       const subtitle = e.target.value.trim() || 'PERSONAL OS';
       await sb.from('app_settings').update({ subtitle }).eq('id', 1);
-      updateSidebarDateSubtitle();
+      document.querySelectorAll('[data-app-subtitle-text]').forEach(el => el.textContent = subtitle);
     });
   });
 
@@ -5653,9 +5582,6 @@
     sheet.querySelector('[data-at-flag-options] .opt-row[data-val="low"]')?.classList.add('selected');
     sheet.dataset.stagedImages = '[]';
     sheet.dataset.stagedSubtasks = '[]';
-    sheet.dataset.stagedSources = '[]';
-    const atSourceAddRow = sheet.querySelector('[data-at-source-add-row]');
-    if (atSourceAddRow) atSourceAddRow.style.display = 'none';
     sheet.dataset.pendingReminder = '';
     sheet.dataset.pendingRepeatRule = '';
     updateRepeatDisplay(sheet, null);
@@ -5664,7 +5590,6 @@
     sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(r => r.classList.remove('selected'));
     renderAtImages(sheet);
     renderAtSubtasks(sheet);
-    renderAtSources(sheet);
 
     renderAddTaskProjectOptions(sheet);
 
@@ -5727,26 +5652,6 @@
         const next = subs.filter((_, i) => i !== idx);
         sheet.dataset.stagedSubtasks = JSON.stringify(next);
         renderAtSubtasks(sheet);
-      });
-    });
-  }
-  function renderAtSources(sheet) {
-    const list = sheet.querySelector('[data-at-sources-list]');
-    if (!list) return;
-    const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
-    list.innerHTML = sources.map((s, i) => `
-      <div class="td-source-row" data-idx="${i}">
-        <span class="td-source-bullet">•</span>
-        <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)} :</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
-        <button type="button" class="td-img-remove" data-staged-source-remove="${i}" title="Retirer">✕</button>
-      </div>`).join('');
-    list.querySelectorAll('[data-staged-source-remove]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const idx = parseInt(btn.dataset.stagedSourceRemove, 10);
-        const next = sources.filter((_, i) => i !== idx);
-        sheet.dataset.stagedSources = JSON.stringify(next);
-        renderAtSources(sheet);
       });
     });
   }
@@ -6017,32 +5922,6 @@
       renderAtSubtasks(sheet);
     });
 
-    sheet.querySelector('[data-at-add-source-btn]')?.addEventListener('click', () => {
-      const row = sheet.querySelector('[data-at-source-add-row]');
-      row.style.display = 'flex';
-      sheet.querySelector('[data-at-source-title-input]').value = '';
-      sheet.querySelector('[data-at-source-url-input]').value = '';
-      sheet.querySelector('[data-at-source-title-input]').focus();
-    });
-    function commitAtSource(sheet) {
-      const titleInput = sheet.querySelector('[data-at-source-title-input]');
-      const urlInput = sheet.querySelector('[data-at-source-url-input]');
-      const title = titleInput.value.trim();
-      const url = urlInput.value.trim();
-      if (!url) { sheet.querySelector('[data-at-source-add-row]').style.display = 'none'; return; }
-      const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
-      sheet.dataset.stagedSources = JSON.stringify([...sources, { title, url }]);
-      renderAtSources(sheet);
-      sheet.querySelector('[data-at-source-add-row]').style.display = 'none';
-    }
-    sheet.querySelector('[data-at-source-title-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sheet.querySelector('[data-at-source-url-input]').focus();
-    });
-    sheet.querySelector('[data-at-source-url-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); commitAtSource(sheet); }
-    });
-    sheet.querySelector('[data-at-source-confirm]')?.addEventListener('click', () => commitAtSource(sheet));
-
     sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
       let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
       if (m < 0) { m = 11; y--; }
@@ -6124,7 +6003,6 @@
           pageId = bordelPage.id;
         }
         const images = JSON.parse(sheet.dataset.stagedImages || '[]');
-        const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
         const { data: newTodo, error: insertErr } = await sb.from('todos').insert({
           page_id: pageId,
           title,
@@ -6133,7 +6011,6 @@
           due_time: timeVal,
           priority,
           images,
-          sources,
           reminder: sheet.dataset.pendingReminder || null,
           repeat_rule: sheet.dataset.pendingRepeatRule || null,
         }).select().single();
