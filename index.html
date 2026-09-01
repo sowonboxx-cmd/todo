@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
+    color-scheme: light;
     --bg: #EEF1EC;
     --paper: #F5F7F3;
     --card: #FFFFFF;
@@ -39,6 +40,7 @@
     --radius: 16px;
   }
   html[data-theme="dark"] {
+    color-scheme: dark;
     --bg: #14171A;
     --paper: #191D20;
     --card: #1E2326;
@@ -448,7 +450,7 @@
   .when-time-edit {
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--accent-due);
     background: var(--bg); border: 1px solid var(--line-soft); border-radius: 6px;
-    padding: 2px 4px; width: 84px; text-align: right;
+    padding: 2px 4px; width: 160px; text-align: right;
   }
   .subs-pill {
     display: inline-block;
@@ -4283,7 +4285,7 @@
     });
   }
 
-  // ---- édition rapide de l'heure directement sur la ligne de tâche (sans ouvrir la fiche) ----
+  // ---- édition rapide de la date + l'heure directement sur la ligne de tâche (sans ouvrir la fiche) ----
   // Écouteur global en phase de capture : intercepte le clic avant les handlers de clic posés
   // sur .task-row (qui, eux, écoutent en phase de bulle) — fonctionne quel que soit l'endroit
   // où la ligne est affichée (accueil, kanban, favoris, pages de projet…).
@@ -4299,9 +4301,11 @@
 
     const originalHtml = whenEl.innerHTML;
     const input = document.createElement('input');
-    input.type = 'time';
+    input.type = 'datetime-local';
     input.className = 'when-time-edit';
-    input.value = (todo.due_time || '').slice(0, 5);
+    const datePart = todo.due_date || todayISO();
+    const timePart = (todo.due_time || '00:00').slice(0, 5);
+    input.value = `${datePart}T${timePart}`;
     whenEl.innerHTML = '';
     whenEl.appendChild(input);
     input.focus();
@@ -4312,10 +4316,11 @@
     input.addEventListener('click', (ev) => ev.stopPropagation());
     input.addEventListener('change', async () => {
       settled = true;
-      const val = input.value || null;
-      const { error } = await sb.from('todos').update({ due_time: val }).eq('id', todoId);
-      if (error) { console.error('Erreur de sauvegarde heure :', error.message); restore(); return; }
-      todo.due_time = val;
+      const [newDate, newTime] = (input.value || '').split('T');
+      const patch = { due_date: newDate || null, due_time: newDate && newTime ? newTime : null };
+      const { error } = await sb.from('todos').update(patch).eq('id', todoId);
+      if (error) { console.error('Erreur de sauvegarde date/heure :', error.message); restore(); return; }
+      Object.assign(todo, patch);
       loadData();
     });
     input.addEventListener('blur', () => { if (!settled) restore(); });
