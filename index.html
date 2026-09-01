@@ -453,7 +453,11 @@
   .task-row .tname { font-weight: 600; }
   .task-row.is-done .tname { text-decoration: line-through; color: var(--faint); }
   .task-row .tmeta { flex-shrink: 0; text-align: right; font-family: 'Inter', sans-serif; }
-  .task-row .tmeta .when { font-size: 11.5px; font-weight: 700; color: var(--accent-due); }
+  .task-row .tmeta .when {
+    font-size: 11.5px; font-weight: 700; color: var(--accent-due); cursor: pointer;
+    padding: 3px 6px; margin: -3px -6px; border-radius: 6px;
+  }
+  .task-row .tmeta .when:hover { background: var(--bg); }
   .subs-pill {
     display: inline-block;
     margin-top: 5px; padding: 2px 7px; border-radius: 6px;
@@ -1148,6 +1152,29 @@
     display: flex; align-items: center; justify-content: center; color: var(--accent-due);
   }
   .qd-icon svg { width: 19px; height: 19px; }
+  .quick-priority-head {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 0 0 8px;
+  }
+  .quick-priority { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
+  .qp-flag {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    border: none; background: transparent; cursor: pointer; padding: 4px;
+    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 600; color: var(--ink);
+  }
+  .qp-icon {
+    width: 40px; height: 40px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qp-icon svg { width: 18px; height: 18px; }
+  .qp-flag.active .qp-icon { border-color: var(--faint); box-shadow: 0 0 0 1.5px var(--line) inset; }
+  .quick-popover-backdrop { position: fixed; inset: 0; z-index: 199; background: transparent; }
+  .quick-popover {
+    position: fixed; z-index: 200; background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; box-shadow: var(--shadow); padding: 14px; width: 260px;
+  }
+  .quick-popover .quick-dates { margin-bottom: 16px; }
+  .quick-popover .quick-priority { margin-bottom: 0; }
 
   /* sous-tâches — ligne "+ Sous-tâche" */
   .add-subtask-row {
@@ -1235,7 +1262,10 @@
   [data-addtask-sheet] .at-icon-btn { color: var(--ink); }
   .at-icon-btn.set { color: var(--ink); }
   .at-icon-btn.flag-only { padding: 7px; }
-  .at-date-native { position: absolute; inset: 0; opacity: 0; border: none; padding: 0; margin: 0; font-size: 16px; cursor: pointer; }
+  .dd-time-input {
+    background: transparent; border: none; padding: 0; margin: 0; color: var(--muted); font-weight: 600;
+    font-size: 12.5px; font-family: 'Inter', sans-serif; text-align: right; cursor: pointer; color-scheme: light dark;
+  }
   .at-error { color: var(--danger); font-size: 12px; margin-top: 12px; min-height: 14px; }
   .opt-row.selected-flag { color: var(--ink); }
   .opt-row .flag-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; display: inline-block; }
@@ -2151,6 +2181,21 @@
                   <span>Clear</span>
                 </button>
               </div>
+              <div class="quick-priority-head">Priorité</div>
+              <div class="quick-priority" data-td-priority-quick>
+                <button type="button" class="qp-flag" data-set-priority="high" title="Haute">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Haute</span>
+                </button>
+                <button type="button" class="qp-flag" data-set-priority="med" title="Moyenne">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Moyenne</span>
+                </button>
+                <button type="button" class="qp-flag" data-set-priority="low" title="Basse">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Basse</span>
+                </button>
+              </div>
               <div class="cal-head">
                 <button type="button" class="cal-nav" data-cal-prev>‹</button>
                 <div class="cal-month" data-cal-month-label></div>
@@ -2160,8 +2205,7 @@
               <div class="dd-list">
                 <div class="dd-row" data-td-time-wrap>
                   <span>Heure</span>
-                  <span class="dd-val" data-td-time-val>Aucune</span>
-                  <input type="time" class="at-date-native" data-td-time-input>
+                  <input type="time" class="dd-time-input" data-td-time-input>
                 </div>
                 <div class="dd-row" data-goto="reminder">
                   <span>Reminder</span>
@@ -2173,6 +2217,7 @@
                 </div>
               </div>
             </div>
+
 
             <!-- VIEW: reminder -->
             <div class="sheet-view" data-view="reminder">
@@ -2521,6 +2566,21 @@
                   <span>Clear</span>
                 </button>
               </div>
+              <div class="quick-priority-head">Priorité</div>
+              <div class="quick-priority" data-at-priority-quick>
+                <button type="button" class="qp-flag" data-set-priority="high" title="Haute">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Haute</span>
+                </button>
+                <button type="button" class="qp-flag" data-set-priority="med" title="Moyenne">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Moyenne</span>
+                </button>
+                <button type="button" class="qp-flag" data-set-priority="low" title="Basse">
+                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+                  <span>Basse</span>
+                </button>
+              </div>
               <div class="cal-head">
                 <button type="button" class="cal-nav" data-cal-prev>‹</button>
                 <div class="cal-month" data-cal-month-label></div>
@@ -2530,8 +2590,7 @@
               <div class="dd-list">
                 <div class="dd-row" data-td-time-wrap>
                   <span>Heure</span>
-                  <span class="dd-val" data-td-time-val>Aucune</span>
-                  <input type="time" class="at-date-native" data-td-time-input>
+                  <input type="time" class="dd-time-input" data-td-time-input>
                 </div>
                 <div class="dd-row" data-goto="reminder">
                   <span>Reminder</span>
@@ -3068,6 +3127,16 @@
   }
 
   const PRIORITY_LABEL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+  // applique la priorité choisie pour une tâche en cours de création, et resynchronise la liste Importance + les drapeaux rapides
+  function setAtPriority(sheet, val) {
+    sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === val));
+    sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === val));
+    sheet.dataset.priority = val;
+    const label = sheet.querySelector('[data-at-flag-label]');
+    if (label) label.textContent = PRIORITY_LABEL[val] || 'Basse';
+    const gotoFlag = sheet.querySelector('[data-goto="flag"]');
+    if (gotoFlag) gotoFlag.classList.toggle('set', val !== 'low');
+  }
   const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
   const DOC_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>';
@@ -3080,6 +3149,15 @@
   function applyFlagColor(sheet, priority) {
     const btn = sheet.querySelector('[data-td-flag-btn]');
     if (btn) btn.style.color = priorityColor(priority || 'low');
+  }
+  // applique + sauvegarde la priorité d'une tâche existante, et resynchronise tous les sélecteurs (liste Importance + drapeaux rapides)
+  async function setTdPriority(sheet, val) {
+    sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === val));
+    sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === val));
+    applyFlagColor(sheet, val);
+    const cb = sheet.querySelector('[data-td-checkbox]');
+    if (cb) { cb.classList.remove('p-high', 'p-med', 'p-low'); cb.classList.add('p-' + val); }
+    await saveRecordField(sheet, { priority: val });
   }
   function updateRepeatDisplay(sheet, repeatRule) {
     const repeatVal = sheet.querySelector('[data-td-repeat-val]');
@@ -3456,6 +3534,7 @@
 
     applyFlagColor(sheet, record.priority);
     sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (record.priority || 'low')));
+    sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === (record.priority || 'low')));
 
     renderTdImages(sheet, record);
     renderTdSources(sheet, record);
@@ -3654,14 +3733,15 @@
 
     sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(row => {
       row.addEventListener('click', async () => {
-        sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
-        row.classList.add('selected');
-        applyFlagColor(sheet, row.dataset.val);
-        const cb = sheet.querySelector('[data-td-checkbox]');
-        cb.classList.remove('p-high', 'p-med', 'p-low');
-        cb.classList.add('p-' + row.dataset.val);
-        await saveRecordField(sheet, { priority: row.dataset.val });
+        await setTdPriority(sheet, row.dataset.val);
         popView(sheet);
+      });
+    });
+
+    // drapeaux rapides directement dans la vue Date (ne ferme pas la vue, pour pouvoir aussi choisir une date)
+    sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await setTdPriority(sheet, btn.dataset.setPriority);
       });
     });
 
@@ -4375,6 +4455,106 @@
       if (container) { openTaskSheet(container, row.dataset.todoId); return; }
       row.classList.add('opening');
       setTimeout(() => row.classList.remove('opening'), 220);
+    });
+    const whenEl = row.querySelector('.when');
+    if (whenEl) {
+      whenEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openQuickDatePopover(whenEl, row.dataset.todoId);
+      });
+    }
+  }
+
+  // petit panneau flottant (date + priorité) ouvert en cliquant sur la date d'une tâche dans une liste,
+  // sans passer par la fiche détail complète — mêmes icônes/couleurs que le reste de l'app
+  function quickPopoverHtml() {
+    return `
+      <div class="quick-dates">
+        <button type="button" class="quick-date-btn" data-qp-quick="today">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span>Today</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="tomorrow">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M9 14h6M13 11l3 3-3 3"/></svg></span>
+          <span>Demain</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="nextweek">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="17" font-size="7" text-anchor="middle" fill="currentColor" stroke="none">Lu</text></svg></span>
+          <span>Next week</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="clear">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M10 12l4 4M14 12l-4 4"/></svg></span>
+          <span>Clear</span>
+        </button>
+      </div>
+      <div class="quick-priority-head">Priorité</div>
+      <div class="quick-priority">
+        <button type="button" class="qp-flag" data-qp-priority="high" title="Haute">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Haute</span>
+        </button>
+        <button type="button" class="qp-flag" data-qp-priority="med" title="Moyenne">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Moyenne</span>
+        </button>
+        <button type="button" class="qp-flag" data-qp-priority="low" title="Basse">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Basse</span>
+        </button>
+      </div>`;
+  }
+  function closeQuickPopover() {
+    document.querySelectorAll('.quick-popover, .quick-popover-backdrop').forEach(el => el.remove());
+  }
+  function openQuickDatePopover(anchorEl, todoId) {
+    closeQuickPopover();
+    const backdrop = document.createElement('div');
+    backdrop.className = 'quick-popover-backdrop';
+    backdrop.addEventListener('click', closeQuickPopover);
+    document.body.appendChild(backdrop);
+
+    const pop = document.createElement('div');
+    pop.className = 'quick-popover';
+    pop.innerHTML = quickPopoverHtml();
+    pop.addEventListener('click', (e) => e.stopPropagation());
+    document.body.appendChild(pop);
+
+    const rect = anchorEl.getBoundingClientRect();
+    const popRect = pop.getBoundingClientRect();
+    let top = rect.bottom + 6;
+    let left = rect.right - popRect.width;
+    if (left < 8) left = 8;
+    if (left + popRect.width > window.innerWidth - 8) left = window.innerWidth - popRect.width - 8;
+    if (top + popRect.height > window.innerHeight - 8) top = rect.top - popRect.height - 6;
+    pop.style.top = `${Math.max(8, top)}px`;
+    pop.style.left = `${left}px`;
+
+    const t = cachedTodos.find(x => x.id === todoId);
+    if (t) {
+      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'low')));
+    }
+
+    pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const patch = {};
+        if (btn.dataset.qpQuick === 'today') patch.due_date = todayISO();
+        else if (btn.dataset.qpQuick === 'tomorrow') patch.due_date = isoPlusDays(1);
+        else if (btn.dataset.qpQuick === 'nextweek') patch.due_date = isoPlusDays(7);
+        else if (btn.dataset.qpQuick === 'clear') { patch.due_date = null; patch.due_time = null; }
+        await sb.from('todos').update(patch).eq('id', todoId);
+        if (t) Object.assign(t, patch);
+        closeQuickPopover();
+        loadData();
+      });
+    });
+    pop.querySelectorAll('[data-qp-priority]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const val = btn.dataset.qpPriority;
+        await sb.from('todos').update({ priority: val }).eq('id', todoId);
+        if (t) t.priority = val;
+        closeQuickPopover();
+        loadData();
+      });
     });
   }
 
@@ -5651,6 +5831,7 @@
     sheet.querySelector('[data-at-error]').textContent = '';
     sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
     sheet.querySelector('[data-at-flag-options] .opt-row[data-val="low"]')?.classList.add('selected');
+    sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === 'low'));
     sheet.dataset.stagedImages = '[]';
     sheet.dataset.stagedSubtasks = '[]';
     sheet.dataset.stagedSources = '[]';
@@ -5888,14 +6069,14 @@
     });
     sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(row => {
       row.addEventListener('click', () => {
-        sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
-        row.classList.add('selected');
-        sheet.dataset.priority = row.dataset.val;
-        sheet.querySelector('[data-at-flag-label]').textContent = PRIORITY_LABEL[row.dataset.val] || 'Basse';
-        if (row.dataset.val !== 'low') sheet.querySelector('[data-goto="flag"]').classList.add('set');
-        else sheet.querySelector('[data-goto="flag"]').classList.remove('set');
+        setAtPriority(sheet, row.dataset.val);
         popView(sheet);
       });
+    });
+
+    // drapeaux rapides directement dans la vue Date (ne ferme pas la vue, pour pouvoir aussi choisir une date)
+    sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(btn => {
+      btn.addEventListener('click', () => setAtPriority(sheet, btn.dataset.setPriority));
     });
 
     sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(row => {
