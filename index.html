@@ -447,6 +447,7 @@
   .checkbox.p-high { border-color: var(--danger); }
   .checkbox.p-med { border-color: var(--accent-pvpp); }
   .checkbox.p-low { border-color: var(--accent-manga-blue); }
+  .checkbox.p-none { border-color: #6B716A; }
   .checkbox.done { background: var(--accent-rosalina); border-color: var(--accent-rosalina); }
   .checkbox.done::after { content: '✓'; color: #fff; font-size: 10px; }
   .task-row .tinfo { flex: 1; min-width: 0; }
@@ -1197,6 +1198,7 @@
 
   /* option lists (reminder / repeat) */
   .opt-list { background: var(--bg); border-radius: 12px; margin-bottom: 14px; }
+  .opt-list-scroll { max-height: 320px; overflow-y: auto; }
   .opt-row {
     display: flex; justify-content: space-between; align-items: center; gap: 8px;
     padding: 13px 14px; font-size: 13px; font-weight: 600; color: var(--ink);
@@ -1262,10 +1264,6 @@
   [data-addtask-sheet] .at-icon-btn { color: var(--ink); }
   .at-icon-btn.set { color: var(--ink); }
   .at-icon-btn.flag-only { padding: 7px; }
-  .dd-time-input {
-    background: transparent; border: none; padding: 0; margin: 0; color: var(--muted); font-weight: 600;
-    font-size: 12.5px; font-family: 'Inter', sans-serif; text-align: right; cursor: pointer; color-scheme: light dark;
-  }
   .at-error { color: var(--danger); font-size: 12px; margin-top: 12px; min-height: 14px; }
   .opt-row.selected-flag { color: var(--ink); }
   .opt-row .flag-dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; display: inline-block; }
@@ -2128,6 +2126,7 @@
                 <div class="opt-row" data-val="high"><span class="flag-dot" style="background:var(--danger)"></span>Haute</div>
                 <div class="opt-row" data-val="med"><span class="flag-dot" style="background:var(--accent-pvpp)"></span>Moyenne</div>
                 <div class="opt-row" data-val="low"><span class="flag-dot" style="background:var(--accent-manga-blue)"></span>Basse</div>
+                <div class="opt-row" data-val="none"><span class="flag-dot" style="background:#6B716A"></span>Aucune</div>
               </div>
             </div>
 
@@ -2181,21 +2180,6 @@
                   <span>Clear</span>
                 </button>
               </div>
-              <div class="quick-priority-head">Priorité</div>
-              <div class="quick-priority" data-td-priority-quick>
-                <button type="button" class="qp-flag" data-set-priority="high" title="Haute">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Haute</span>
-                </button>
-                <button type="button" class="qp-flag" data-set-priority="med" title="Moyenne">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Moyenne</span>
-                </button>
-                <button type="button" class="qp-flag" data-set-priority="low" title="Basse">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Basse</span>
-                </button>
-              </div>
               <div class="cal-head">
                 <button type="button" class="cal-nav" data-cal-prev>‹</button>
                 <div class="cal-month" data-cal-month-label></div>
@@ -2203,9 +2187,9 @@
               </div>
               <div class="cal-grid" data-cal-grid></div>
               <div class="dd-list">
-                <div class="dd-row" data-td-time-wrap>
+                <div class="dd-row" data-goto="time">
                   <span>Heure</span>
-                  <input type="time" class="dd-time-input" data-td-time-input>
+                  <span class="dd-val" data-td-time-val>Aucune</span>
                 </div>
                 <div class="dd-row" data-goto="reminder">
                   <span>Reminder</span>
@@ -2218,6 +2202,15 @@
               </div>
             </div>
 
+            <!-- VIEW: time -->
+            <div class="sheet-view" data-view="time">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Heure</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list opt-list-scroll" data-td-time-options></div>
+            </div>
 
             <!-- VIEW: reminder -->
             <div class="sheet-view" data-view="reminder">
@@ -2496,7 +2489,8 @@
               <div class="opt-list" data-at-flag-options>
                 <div class="opt-row" data-val="high"><span class="flag-dot" style="background:var(--danger)"></span>Haute</div>
                 <div class="opt-row" data-val="med"><span class="flag-dot" style="background:var(--accent-pvpp)"></span>Moyenne</div>
-                <div class="opt-row selected" data-val="low"><span class="flag-dot" style="background:var(--accent-manga-blue)"></span>Basse</div>
+                <div class="opt-row" data-val="low"><span class="flag-dot" style="background:var(--accent-manga-blue)"></span>Basse</div>
+                <div class="opt-row selected" data-val="none"><span class="flag-dot" style="background:#6B716A"></span>Aucune</div>
               </div>
             </div>
 
@@ -2566,21 +2560,6 @@
                   <span>Clear</span>
                 </button>
               </div>
-              <div class="quick-priority-head">Priorité</div>
-              <div class="quick-priority" data-at-priority-quick>
-                <button type="button" class="qp-flag" data-set-priority="high" title="Haute">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Haute</span>
-                </button>
-                <button type="button" class="qp-flag" data-set-priority="med" title="Moyenne">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Moyenne</span>
-                </button>
-                <button type="button" class="qp-flag" data-set-priority="low" title="Basse">
-                  <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-                  <span>Basse</span>
-                </button>
-              </div>
               <div class="cal-head">
                 <button type="button" class="cal-nav" data-cal-prev>‹</button>
                 <div class="cal-month" data-cal-month-label></div>
@@ -2588,9 +2567,9 @@
               </div>
               <div class="cal-grid" data-cal-grid></div>
               <div class="dd-list">
-                <div class="dd-row" data-td-time-wrap>
+                <div class="dd-row" data-goto="time">
                   <span>Heure</span>
-                  <input type="time" class="dd-time-input" data-td-time-input>
+                  <span class="dd-val" data-td-time-val>Aucune</span>
                 </div>
                 <div class="dd-row" data-goto="reminder">
                   <span>Reminder</span>
@@ -2601,6 +2580,16 @@
                   <span class="dd-val" data-td-repeat-val>None</span>
                 </div>
               </div>
+            </div>
+
+            <!-- VIEW: time -->
+            <div class="sheet-view" data-view="time">
+              <div class="sheet-topbar">
+                <button class="link" data-back>Retour</button>
+                <div class="sheet-title">Heure</div>
+                <span style="width:44px"></span>
+              </div>
+              <div class="opt-list opt-list-scroll" data-td-time-options></div>
             </div>
 
             <!-- VIEW: reminder -->
@@ -3126,16 +3115,16 @@
     return out;
   }
 
-  const PRIORITY_LABEL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+  const PRIORITY_LABEL = { high: 'Haute', med: 'Moyenne', low: 'Basse', none: 'Aucune' };
   // applique la priorité choisie pour une tâche en cours de création, et resynchronise la liste Importance + les drapeaux rapides
   function setAtPriority(sheet, val) {
     sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === val));
     sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === val));
     sheet.dataset.priority = val;
     const label = sheet.querySelector('[data-at-flag-label]');
-    if (label) label.textContent = PRIORITY_LABEL[val] || 'Basse';
+    if (label) label.textContent = PRIORITY_LABEL[val] || 'Aucune';
     const gotoFlag = sheet.querySelector('[data-goto="flag"]');
-    if (gotoFlag) gotoFlag.classList.toggle('set', val !== 'low');
+    if (gotoFlag) gotoFlag.classList.toggle('set', val !== 'none');
   }
   const FULL_DAY_NAMES = { Mon: 'Monday', Tue: 'Tuesday', Wed: 'Wednesday', Thu: 'Thursday', Fri: 'Friday', Sat: 'Saturday', Sun: 'Sunday' };
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
@@ -3144,11 +3133,12 @@
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
-    return 'var(--accent-manga-blue)';
+    if (priority === 'low') return 'var(--accent-manga-blue)';
+    return '#6B716A';
   }
   function applyFlagColor(sheet, priority) {
     const btn = sheet.querySelector('[data-td-flag-btn]');
-    if (btn) btn.style.color = priorityColor(priority || 'low');
+    if (btn) btn.style.color = priorityColor(priority || 'none');
   }
   // applique + sauvegarde la priorité d'une tâche existante, et resynchronise tous les sélecteurs (liste Importance + drapeaux rapides)
   async function setTdPriority(sheet, val) {
@@ -3156,7 +3146,7 @@
     sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === val));
     applyFlagColor(sheet, val);
     const cb = sheet.querySelector('[data-td-checkbox]');
-    if (cb) { cb.classList.remove('p-high', 'p-med', 'p-low'); cb.classList.add('p-' + val); }
+    if (cb) { cb.classList.remove('p-high', 'p-med', 'p-low', 'p-none'); cb.classList.add('p-' + val); }
     await saveRecordField(sheet, { priority: val });
   }
   function updateRepeatDisplay(sheet, repeatRule) {
@@ -3502,10 +3492,36 @@
     sheet.dataset.calYear = base.getFullYear();
     sheet.dataset.calMonth = base.getMonth();
     sheet.dataset.pendingDate = dueDate;
-    const timeInput = sheet.querySelector('[data-td-time-input]');
-    if (timeInput) timeInput.value = currentDueTime(sheet).slice(0, 5) || '';
     updateDueLabelFromCache(sheet);
     renderCalendar(sheet);
+  }
+  // liste d'heures pile / demi-heure façon TickTick, avec défilement jusqu'à l'heure choisie
+  function renderTimeOptions(sheet) {
+    const list = sheet.querySelector('[data-td-time-options]');
+    if (!list) return;
+    const current = currentDueTime(sheet).slice(0, 5);
+    let html = '<div class="opt-row" data-val="">Aucune</div>';
+    for (let h = 0; h < 24; h++) {
+      for (const m of [0, 30]) {
+        const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        html += `<div class="opt-row" data-val="${val}">${val}</div>`;
+      }
+    }
+    list.innerHTML = html;
+    list.querySelectorAll('.opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (current || '')));
+    list.querySelectorAll('.opt-row').forEach(row => {
+      row.addEventListener('click', async () => {
+        await applyDuePatch(sheet, { due_time: row.dataset.val || null });
+        updateDueLabelFromCache(sheet);
+        popView(sheet);
+      });
+    });
+  }
+  function openTimeView(sheet) {
+    renderTimeOptions(sheet);
+    const list = sheet.querySelector('[data-td-time-options]');
+    const selected = list?.querySelector('.opt-row.selected');
+    if (selected) selected.scrollIntoView({ block: 'center' });
   }
 
   function populateDetailView(sheet) {
@@ -3521,7 +3537,7 @@
     renderTdNotes(sheet, record.notes);
 
     const cb = sheet.querySelector('[data-td-checkbox]');
-    cb.className = 'checkbox' + (record.priority === 'high' ? ' p-high' : record.priority === 'med' ? ' p-med' : ' p-low') + (record.is_done ? ' done' : '');
+    cb.className = 'checkbox' + (record.priority === 'high' ? ' p-high' : record.priority === 'med' ? ' p-med' : record.priority === 'low' ? ' p-low' : ' p-none') + (record.is_done ? ' done' : '');
 
     updateDueLabelFromCache(sheet);
 
@@ -3533,8 +3549,8 @@
     updateRepeatDisplay(sheet, record.repeat_rule);
 
     applyFlagColor(sheet, record.priority);
-    sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (record.priority || 'low')));
-    sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === (record.priority || 'low')));
+    sheet.querySelectorAll('[data-td-flag-options] .opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (record.priority || 'none')));
+    sheet.querySelectorAll('[data-td-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === (record.priority || 'none')));
 
     renderTdImages(sheet, record);
     renderTdSources(sheet, record);
@@ -3639,6 +3655,7 @@
       if (goto) {
         pushView(sheet, goto.dataset.goto);
         if (goto.dataset.goto === 'date') openDateView(sheet);
+        if (goto.dataset.goto === 'time') openTimeView(sheet);
         return;
       }
       const back = e.target.closest('[data-back]');
@@ -3892,11 +3909,6 @@
         popView(sheet);
       });
     });
-    sheet.querySelector('[data-td-time-input]')?.addEventListener('change', async (e) => {
-      await applyDuePatch(sheet, { due_time: e.target.value || null });
-      updateDueLabelFromCache(sheet);
-    });
-
     // ---- reminder ----
     sheet.querySelectorAll('[data-td-reminder-options] .opt-row').forEach(row => {
       row.addEventListener('click', async () => {
@@ -4311,7 +4323,7 @@
     return todo.repeat_rule === 'Every day' || todo.repeat_rule === 'Daily';
   }
   function taskRowHtml(todo, project, page, subStats, includeDate, pinned) {
-    const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : 'p-low';
+    const pClass = todo.priority === 'high' ? 'p-high' : todo.priority === 'med' ? 'p-med' : todo.priority === 'low' ? 'p-low' : 'p-none';
     const tabKey = classifyDue(todo.due_date);
     const label = pinned ? '毎日' : whenLabel(todo, tabKey, includeDate);
     const whenStyle = tabKey === 'overdue' ? ' style="color:var(--danger)"' : '';
@@ -4501,6 +4513,10 @@
           <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
           <span>Basse</span>
         </button>
+        <button type="button" class="qp-flag" data-qp-priority="none" title="Aucune">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="#6B716A" stroke="#6B716A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Aucune</span>
+        </button>
       </div>`;
   }
   function closeQuickPopover() {
@@ -4531,7 +4547,7 @@
 
     const t = cachedTodos.find(x => x.id === todoId);
     if (t) {
-      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'low')));
+      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'none')));
     }
 
     pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
@@ -4888,6 +4904,12 @@
       if (pctEl) pctEl.textContent = pct + '%';
       const barEl = document.querySelector(`[data-home-bar="${key}"] span`);
       if (barEl) barEl.style.width = pct + '%';
+      if (key === 'overdue') {
+        // la colonne Overdue ne s'affiche que s'il reste au moins une tâche en retard non terminée
+        document.querySelectorAll('.home-kanban-col[data-home-col="overdue"]').forEach(col => {
+          col.style.display = (total === 0 || done === total) ? 'none' : '';
+        });
+      }
     });
 
     document.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
@@ -5806,7 +5828,7 @@
     sheet.querySelector('[data-at-title]').placeholder = 'Nom de la tâche';
     sheet.querySelector('[data-at-sheet-title]').textContent = 'Nouvelle tâche';
     sheet.querySelector('[data-at-save]').textContent = 'Ajouter';
-    sheet.dataset.priority = 'low';
+    sheet.dataset.priority = 'none';
     sheet.dataset.pageId = '';
     sheet.dataset.pendingProjectId = '';
     sheet.dataset.pendingFolderId = '';
@@ -5830,8 +5852,8 @@
     sheet.querySelector('[data-goto="project"]').classList.remove('set');
     sheet.querySelector('[data-at-error]').textContent = '';
     sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
-    sheet.querySelector('[data-at-flag-options] .opt-row[data-val="low"]')?.classList.add('selected');
-    sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === 'low'));
+    sheet.querySelector('[data-at-flag-options] .opt-row[data-val="none"]')?.classList.add('selected');
+    sheet.querySelectorAll('[data-at-priority-quick] .qp-flag').forEach(b => b.classList.toggle('active', b.dataset.setPriority === 'none'));
     sheet.dataset.stagedImages = '[]';
     sheet.dataset.stagedSubtasks = '[]';
     sheet.dataset.stagedSources = '[]';
@@ -6050,6 +6072,7 @@
         const targetView = (goto.dataset.goto === 'project' && isDocMode) ? 'docfolder' : goto.dataset.goto;
         pushView(sheet, targetView);
         if (targetView === 'date') openDateView(sheet);
+        if (targetView === 'time') openTimeView(sheet);
         if (targetView === 'docfolder') renderAddTaskDocFolders(sheet);
         return;
       }
@@ -6249,10 +6272,6 @@
         popView(sheet);
       });
     });
-    sheet.querySelector('[data-td-time-input]')?.addEventListener('change', async (e) => {
-      await applyDuePatch(sheet, { due_time: e.target.value || null });
-      updateDueLabelFromCache(sheet);
-    });
   });
 
   document.querySelectorAll('[data-at-save]').forEach(saveBtn => {
@@ -6289,7 +6308,7 @@
       const desc = sheet.querySelector('[data-at-desc]').value.trim();
       const dateVal = sheet.dataset.pendingDueDate || null;
       const timeVal = sheet.dataset.pendingDueTime || null;
-      const priority = sheet.dataset.priority || 'low';
+      const priority = sheet.dataset.priority || 'none';
       let pageId = sheet.dataset.pageId;
 
       if (!title) { errorEl.textContent = 'Ajoute un titre.'; return; }
