@@ -297,6 +297,7 @@
     font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13.5px; flex: 1; min-width: 0;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+  .po-card-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); flex-shrink: 0; }
   .po-card-pct { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--faint); flex-shrink: 0; }
   .po-card-bar { margin-bottom: 10px; flex-shrink: 0; }
   .po-card-tasks { overflow-y: auto; flex: 1; min-height: 0; }
@@ -4744,6 +4745,7 @@
           <div class="po-card-head">
             <span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span>
             <span class="po-card-name">${escapeHtml(project.name)}</span>
+            <span class="po-card-count">${done}/${matching.length}</span>
             <span class="po-card-pct">${pct}%</span>
           </div>
           <div class="bar po-card-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
