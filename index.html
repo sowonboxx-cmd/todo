@@ -284,7 +284,7 @@
   }
   .po-day-tab.active { background: rgba(255,125,1,0.14); color: var(--accent-due); border-color: transparent; }
   .po-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(345px, 1fr)); gap: 14px;
     flex: 1; min-height: 0; overflow-y: auto; align-content: start;
   }
   .po-card {
@@ -302,8 +302,10 @@
   .po-card-bar { margin-bottom: 10px; flex-shrink: 0; }
   .po-card-tasks { overflow-y: auto; flex: 1; min-height: 0; }
   .po-page-label {
-    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--faint);
-    text-transform: uppercase; letter-spacing: 0.03em; margin: 10px 0 4px;
+    display: inline-block;
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 10px 0 6px;
+    background: var(--bg); padding: 3px 8px; border-radius: 6px;
   }
   .po-page-group:first-child .po-page-label { margin-top: 0; }
   .po-card-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
@@ -4730,8 +4732,9 @@
     const showCompleted = getActiveContainer()?.dataset.showCompleted === '1';
     const topLevel = cachedTodos.filter(t => !t.parent_todo_id);
     const sortAsc = (a, b) => {
-      const ta = a.due_time || '99:99', tb = b.due_time || '99:99';
-      if (ta !== tb) return ta < tb ? -1 : 1;
+      const ka = `${a.due_date || '9999-99-99'}T${a.due_time || '99:99'}`;
+      const kb = `${b.due_date || '9999-99-99'}T${b.due_time || '99:99'}`;
+      if (ka !== kb) return ka < kb ? -1 : 1;
       return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
     };
     const cardsHtml = cachedProjects.map(project => {
