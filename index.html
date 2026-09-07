@@ -298,9 +298,14 @@
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .po-card-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); flex-shrink: 0; }
-  .po-card-pct { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--faint); flex-shrink: 0; }
+  .po-card-pct { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #CED0CC; flex-shrink: 0; }
   .po-card-bar { margin-bottom: 10px; flex-shrink: 0; }
   .po-card-tasks { overflow-y: auto; flex: 1; min-height: 0; }
+  .po-page-label {
+    font-family: 'Inter', sans-serif; font-size: 10.5px; font-weight: 700; color: var(--faint);
+    text-transform: uppercase; letter-spacing: 0.03em; margin: 10px 0 4px;
+  }
+  .po-page-group:first-child .po-page-label { margin-top: 0; }
   .po-card-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
   .m-po-view { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
   .m-po-view .po-grid { grid-template-columns: 1fr; overflow-y: visible; flex: none; }
@@ -4716,7 +4721,6 @@
   }
   function renderProjectsOverviewGrid(gridEl, tabKey) {
     if (!gridEl) return;
-    const pageById = Object.fromEntries(cachedPages.map(p => [p.id, p]));
     const subsByTodo = {};
     cachedSubtasks.forEach(s => {
       subsByTodo[s.todo_id] = subsByTodo[s.todo_id] || { done: 0, total: 0 };
@@ -4725,8 +4729,14 @@
     });
     const showCompleted = getActiveContainer()?.dataset.showCompleted === '1';
     const topLevel = cachedTodos.filter(t => !t.parent_todo_id);
+    const sortAsc = (a, b) => {
+      const ta = a.due_time || '99:99', tb = b.due_time || '99:99';
+      if (ta !== tb) return ta < tb ? -1 : 1;
+      return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
+    };
     const cardsHtml = cachedProjects.map(project => {
-      const projectPageIds = new Set(cachedPages.filter(p => p.project_id === project.id && p.page_type !== 'doc').map(p => p.id));
+      const projectPages = cachedPages.filter(p => p.project_id === project.id && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
+      const projectPageIds = new Set(projectPages.map(p => p.id));
       const matching = topLevel.filter(t => projectPageIds.has(t.page_id) && poMatchesTab(t, tabKey));
       // masqué si le projet n'a plus aucune tâche active (non cochée) pour ce filtre —
       // pas la peine d'afficher une carte qui ne montrerait que des tâches déjà terminées
@@ -4736,10 +4746,18 @@
       const kanjiInner = project.kanji_image_url
         ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
         : escapeHtml(project.kanji);
-      const rows = matching
-        .sort((a, b) => (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1))
-        .map(t => taskRowHtml(t, project, pageById[t.page_id], subsByTodo[t.id], false, isDailyRepeat(t)))
-        .join('');
+      // regroupées par page, dans l'ordre déjà établi (position), tâches triées par heure croissante
+      const tasksByPage = {};
+      matching.forEach(t => { (tasksByPage[t.page_id] = tasksByPage[t.page_id] || []).push(t); });
+      const rows = projectPages
+        .filter(pg => tasksByPage[pg.id]?.length)
+        .map(pg => {
+          const pageRows = tasksByPage[pg.id]
+            .sort(sortAsc)
+            .map(t => taskRowHtml(t, project, pg, subsByTodo[t.id], false, isDailyRepeat(t)))
+            .join('');
+          return `<div class="po-page-group"><div class="po-page-label">${escapeHtml(pg.title)}</div>${pageRows}</div>`;
+        }).join('');
       return `
         <div class="po-card">
           <div class="po-card-head">
@@ -4747,12 +4765,22 @@
             <span class="po-card-name">${escapeHtml(project.name)}</span>
             <span class="po-card-count">${done}/${matching.length}</span>
             <span class="po-card-pct">${pct}%</span>
+            <button type="button" class="home-kanban-add" data-po-add="${project.id}" title="Ajouter une tâche">+</button>
           </div>
           <div class="bar po-card-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
           <div class="po-card-tasks${showCompleted ? ' show-completed' : ''}">${rows}</div>
         </div>`;
     }).filter(Boolean).join('');
     gridEl.innerHTML = cardsHtml || '<div class="empty-state">Rien à faire pour ce filtre</div>';
+    gridEl.querySelectorAll('[data-po-add]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        let dueDate = null;
+        if (tabKey === 'today') dueDate = todayISO();
+        else if (tabKey === 'tomorrow') dueDate = isoPlusDays(1);
+        openAddTaskSheet(getActiveContainer(), btn.dataset.poAdd, null, dueDate);
+      });
+    });
     gridEl.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
     gridEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
   }
