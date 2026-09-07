@@ -1169,6 +1169,24 @@
   }
   .qp-icon svg { width: 18px; height: 18px; }
   .qp-flag.active .qp-icon { border-color: var(--faint); box-shadow: 0 0 0 1.5px var(--line) inset; }
+  .qp-time-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 148px; overflow-y: auto;
+    margin: 4px 0 12px; padding-top: 10px; border-top: 1px solid var(--line-soft);
+  }
+  .qp-time-btn {
+    background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 2px;
+    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--ink); cursor: pointer;
+  }
+  .qp-time-btn.active { background: var(--accent-due); border-color: var(--accent-due); color: #fff; }
+  .qp-cal-footer {
+    display: flex; justify-content: space-between; padding-top: 10px;
+    border-top: 1px solid var(--line-soft); margin-bottom: 16px;
+  }
+  .qp-link {
+    background: none; border: none; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700;
+    cursor: pointer; color: var(--accent-due);
+  }
+  .qp-link.danger { color: var(--danger); }
   .quick-popover-backdrop { position: fixed; inset: 0; z-index: 199; background: transparent; }
   .quick-popover {
     position: fixed; z-index: 200; background: var(--card); border: 1px solid var(--line);
@@ -4477,8 +4495,9 @@
     }
   }
 
-  // petit panneau flottant (date + priorité) ouvert en cliquant sur la date d'une tâche dans une liste,
-  // sans passer par la fiche détail complète — mêmes icônes/couleurs que le reste de l'app
+  // petit panneau flottant (calendrier + heure + priorité) ouvert en cliquant sur la date d'une tâche
+  // dans une liste, sans passer par la fiche détail complète — réutilise le composant calendrier
+  // (renderCalendar/applyDuePatch) déjà utilisé dans la fiche tâche, donc même design system.
   function quickPopoverHtml() {
     return `
       <div class="quick-dates">
@@ -4498,6 +4517,17 @@
           <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M10 12l4 4M14 12l-4 4"/></svg></span>
           <span>Clear</span>
         </button>
+      </div>
+      <div class="cal-head">
+        <button type="button" class="cal-nav" data-cal-prev>‹</button>
+        <div class="cal-month" data-cal-month-label></div>
+        <button type="button" class="cal-nav" data-cal-next>›</button>
+      </div>
+      <div class="cal-grid" data-cal-grid></div>
+      <div class="qp-time-grid" data-qp-time-grid></div>
+      <div class="qp-cal-footer">
+        <button type="button" class="qp-link danger" data-qp-clear-all>Effacer</button>
+        <button type="button" class="qp-link" data-qp-validate>Valider</button>
       </div>
       <div class="quick-priority-head">Priorité</div>
       <div class="quick-priority">
@@ -4519,11 +4549,36 @@
         </button>
       </div>`;
   }
+  let quickPopoverDirty = false;
   function closeQuickPopover() {
     document.querySelectorAll('.quick-popover, .quick-popover-backdrop').forEach(el => el.remove());
+    if (quickPopoverDirty) { quickPopoverDirty = false; loadData(); }
+  }
+  function renderQuickTimeGrid(pop) {
+    const grid = pop.querySelector('[data-qp-time-grid]');
+    if (!grid) return;
+    const current = currentDueTime(pop).slice(0, 5);
+    let html = '';
+    for (let h = 0; h < 24; h++) {
+      for (const m of [0, 30]) {
+        const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+        html += `<button type="button" class="qp-time-btn${val === current ? ' active' : ''}" data-time="${val}">${val}</button>`;
+      }
+    }
+    grid.innerHTML = html;
+    grid.querySelectorAll('[data-time]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        await applyDuePatch(pop, { due_time: btn.dataset.time });
+        quickPopoverDirty = true;
+        renderQuickTimeGrid(pop);
+      });
+    });
+    grid.querySelector('.qp-time-btn.active')?.scrollIntoView({ block: 'nearest' });
   }
   function openQuickDatePopover(anchorEl, todoId) {
     closeQuickPopover();
+    quickPopoverDirty = false;
+
     const backdrop = document.createElement('div');
     backdrop.className = 'quick-popover-backdrop';
     backdrop.addEventListener('click', closeQuickPopover);
@@ -4531,10 +4586,80 @@
 
     const pop = document.createElement('div');
     pop.className = 'quick-popover';
+    pop.dataset.recordKind = 'todo';
+    pop.dataset.recordId = todoId;
     pop.innerHTML = quickPopoverHtml();
     pop.addEventListener('click', (e) => e.stopPropagation());
     document.body.appendChild(pop);
 
+    // ---- calendrier (même composant que la fiche tâche) ----
+    function jumpCalendarTo(iso) {
+      const base = iso ? new Date(iso + 'T00:00:00') : new Date();
+      pop.dataset.calYear = base.getFullYear();
+      pop.dataset.calMonth = base.getMonth();
+      pop.dataset.pendingDate = iso || '';
+      renderCalendar(pop);
+    }
+    jumpCalendarTo(currentDueDate(pop));
+    pop.querySelector('[data-cal-grid]').addEventListener('click', (e) => {
+      if (e.target.closest('.cal-cell[data-date]')) quickPopoverDirty = true;
+    });
+    pop.querySelector('[data-cal-prev]').addEventListener('click', () => {
+      let y = parseInt(pop.dataset.calYear, 10), m = parseInt(pop.dataset.calMonth, 10) - 1;
+      if (m < 0) { m = 11; y--; }
+      pop.dataset.calYear = y; pop.dataset.calMonth = m;
+      renderCalendar(pop);
+    });
+    pop.querySelector('[data-cal-next]').addEventListener('click', () => {
+      let y = parseInt(pop.dataset.calYear, 10), m = parseInt(pop.dataset.calMonth, 10) + 1;
+      if (m > 11) { m = 0; y++; }
+      pop.dataset.calYear = y; pop.dataset.calMonth = m;
+      renderCalendar(pop);
+    });
+
+    // ---- raccourcis rapides (Today / Demain / Next week / Clear) ----
+    pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        let iso = null;
+        if (btn.dataset.qpQuick === 'today') iso = todayISO();
+        else if (btn.dataset.qpQuick === 'tomorrow') iso = isoPlusDays(1);
+        else if (btn.dataset.qpQuick === 'nextweek') iso = isoPlusDays(7);
+        const patch = btn.dataset.qpQuick === 'clear' ? { due_date: null, due_time: null } : { due_date: iso };
+        await applyDuePatch(pop, patch);
+        quickPopoverDirty = true;
+        jumpCalendarTo(iso);
+        renderQuickTimeGrid(pop);
+      });
+    });
+
+    // ---- heure ----
+    renderQuickTimeGrid(pop);
+
+    // ---- effacer / valider ----
+    pop.querySelector('[data-qp-clear-all]').addEventListener('click', async () => {
+      await applyDuePatch(pop, { due_date: null, due_time: null });
+      quickPopoverDirty = true;
+      jumpCalendarTo('');
+      renderQuickTimeGrid(pop);
+    });
+    pop.querySelector('[data-qp-validate]').addEventListener('click', closeQuickPopover);
+
+    // ---- priorité ----
+    const t = cachedTodos.find(x => x.id === todoId);
+    if (t) {
+      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'none')));
+    }
+    pop.querySelectorAll('[data-qp-priority]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const val = btn.dataset.qpPriority;
+        await sb.from('todos').update({ priority: val }).eq('id', todoId);
+        if (t) t.priority = val;
+        quickPopoverDirty = true;
+        closeQuickPopover();
+      });
+    });
+
+    // ---- positionnement (après rendu complet, pour mesurer la vraie hauteur) ----
     const rect = anchorEl.getBoundingClientRect();
     const popRect = pop.getBoundingClientRect();
     let top = rect.bottom + 6;
@@ -4544,34 +4669,6 @@
     if (top + popRect.height > window.innerHeight - 8) top = rect.top - popRect.height - 6;
     pop.style.top = `${Math.max(8, top)}px`;
     pop.style.left = `${left}px`;
-
-    const t = cachedTodos.find(x => x.id === todoId);
-    if (t) {
-      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'none')));
-    }
-
-    pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const patch = {};
-        if (btn.dataset.qpQuick === 'today') patch.due_date = todayISO();
-        else if (btn.dataset.qpQuick === 'tomorrow') patch.due_date = isoPlusDays(1);
-        else if (btn.dataset.qpQuick === 'nextweek') patch.due_date = isoPlusDays(7);
-        else if (btn.dataset.qpQuick === 'clear') { patch.due_date = null; patch.due_time = null; }
-        await sb.from('todos').update(patch).eq('id', todoId);
-        if (t) Object.assign(t, patch);
-        closeQuickPopover();
-        loadData();
-      });
-    });
-    pop.querySelectorAll('[data-qp-priority]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const val = btn.dataset.qpPriority;
-        await sb.from('todos').update({ priority: val }).eq('id', todoId);
-        if (t) t.priority = val;
-        closeQuickPopover();
-        loadData();
-      });
-    });
   }
 
   function wireProjectBlock(block) {
