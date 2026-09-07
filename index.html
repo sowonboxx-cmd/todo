@@ -284,7 +284,7 @@
   }
   .po-day-tab.active { background: rgba(255,125,1,0.14); color: var(--accent-due); border-color: transparent; }
   .po-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px;
     flex: 1; min-height: 0; overflow-y: auto; align-content: start;
   }
   .po-card {
@@ -384,10 +384,12 @@
   .task-row.is-done { opacity: 0.55; }
   .task-list .task-row.is-done,
   .m-tasks .task-row.is-done,
-  .kanban-column-tasks .task-row.is-done { display: none; }
+  .kanban-column-tasks .task-row.is-done,
+  .po-card-tasks .task-row.is-done { display: none; }
   .task-list.show-completed .task-row.is-done,
   .m-tasks.show-completed .task-row.is-done,
-  .kanban-column-tasks.show-completed .task-row.is-done { display: flex; }
+  .kanban-column-tasks.show-completed .task-row.is-done,
+  .po-card-tasks.show-completed .task-row.is-done { display: flex; }
 
   .task-list[data-tab], .m-tasks[data-tab] { display: none; }
   .task-list[data-tab].is-active, .m-tasks[data-tab].is-active { display: block; }
@@ -4178,10 +4180,12 @@
       e.stopPropagation();
       visible = !visible;
       const scope = getActiveContainer() || document;
-      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', visible));
+      scope.dataset.showCompleted = visible ? '1' : '';
+      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks, .po-card-tasks').forEach(l => l.classList.toggle('show-completed', visible));
       btn.querySelector('.eye-closed').style.display = visible ? 'none' : '';
       btn.querySelector('.eye-open').style.display = visible ? '' : 'none';
       btn.title = visible ? 'Masquer les tâches terminées' : 'Afficher les tâches terminées';
+      refreshOpenProjectsOverviews();
     });
   });
   // scrollbar only shows while actively scrolling (or hovered, via CSS)
@@ -4718,11 +4722,14 @@
       subsByTodo[s.todo_id].total++;
       if (s.is_done) subsByTodo[s.todo_id].done++;
     });
+    const showCompleted = getActiveContainer()?.dataset.showCompleted === '1';
     const topLevel = cachedTodos.filter(t => !t.parent_todo_id);
     const cardsHtml = cachedProjects.map(project => {
       const projectPageIds = new Set(cachedPages.filter(p => p.project_id === project.id && p.page_type !== 'doc').map(p => p.id));
       const matching = topLevel.filter(t => projectPageIds.has(t.page_id) && poMatchesTab(t, tabKey));
-      if (!matching.length) return '';
+      // masqué si le projet n'a plus aucune tâche active (non cochée) pour ce filtre —
+      // pas la peine d'afficher une carte qui ne montrerait que des tâches déjà terminées
+      if (!matching.some(t => !t.is_done)) return '';
       const done = matching.filter(t => t.is_done).length;
       const pct = Math.round((done / matching.length) * 100);
       const kanjiInner = project.kanji_image_url
@@ -4740,7 +4747,7 @@
             <span class="po-card-pct">${pct}%</span>
           </div>
           <div class="bar po-card-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
-          <div class="po-card-tasks">${rows}</div>
+          <div class="po-card-tasks${showCompleted ? ' show-completed' : ''}">${rows}</div>
         </div>`;
     }).filter(Boolean).join('');
     gridEl.innerHTML = cardsHtml || '<div class="empty-state">Rien à faire pour ce filtre</div>';
