@@ -1709,17 +1709,17 @@
 
         <div class="d-main">
           <div class="d-topbar">
-            <div class="d-topbar-home" data-go-home style="cursor:pointer;">
-              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name>Dashboard</div>
+            <div class="d-topbar-home">
+              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name data-go-home style="cursor:pointer;">Dashboard</div>
+              <button type="button" class="d-topbar-icon-btn" data-open-projects-overview title="Vue par projet">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              </button>
             </div>
             <div class="d-topbar-actions">
               <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
-              <button type="button" class="d-topbar-icon-btn" data-open-projects-overview title="Vue par projet">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-              </button>
               <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
                 <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -2365,6 +2365,34 @@
                   <button type="button" class="week-pill" data-day="Sun">Sun</button>
                 </div>
               </div>
+              <div class="week-picker" data-td-month-picker style="display:none;">
+                <div class="pa-section-head" style="margin-top:0;">Month</div>
+                <div class="segmented" data-td-month-mode>
+                  <button type="button" class="active" data-mode="each">Each</button>
+                  <button type="button" data-mode="onthe">On the</button>
+                  <button type="button" data-mode="workday">Workday</button>
+                </div>
+                <div class="dd-list" data-td-month-onthe style="display:none; margin-top:10px; margin-bottom:0;">
+                  <div class="dd-row" style="cursor:default; gap:8px;">
+                    <select class="td-freq-unit" data-td-month-ordinal style="flex:1;">
+                      <option value="1">First</option>
+                      <option value="2">Second</option>
+                      <option value="3">Third</option>
+                      <option value="4">Fourth</option>
+                      <option value="5">Last</option>
+                    </select>
+                    <select class="td-freq-unit" data-td-month-weekday style="flex:1;">
+                      <option value="1">Monday</option>
+                      <option value="2">Tuesday</option>
+                      <option value="3">Wednesday</option>
+                      <option value="4">Thursday</option>
+                      <option value="5">Friday</option>
+                      <option value="6">Saturday</option>
+                      <option value="0">Sunday</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
 
           </div>
@@ -2743,6 +2771,34 @@
                   <button type="button" class="week-pill" data-day="Fri">Fri</button>
                   <button type="button" class="week-pill" data-day="Sat">Sat</button>
                   <button type="button" class="week-pill" data-day="Sun">Sun</button>
+                </div>
+              </div>
+              <div class="week-picker" data-td-month-picker style="display:none;">
+                <div class="pa-section-head" style="margin-top:0;">Month</div>
+                <div class="segmented" data-td-month-mode>
+                  <button type="button" class="active" data-mode="each">Each</button>
+                  <button type="button" data-mode="onthe">On the</button>
+                  <button type="button" data-mode="workday">Workday</button>
+                </div>
+                <div class="dd-list" data-td-month-onthe style="display:none; margin-top:10px; margin-bottom:0;">
+                  <div class="dd-row" style="cursor:default; gap:8px;">
+                    <select class="td-freq-unit" data-td-month-ordinal style="flex:1;">
+                      <option value="1">First</option>
+                      <option value="2">Second</option>
+                      <option value="3">Third</option>
+                      <option value="4">Fourth</option>
+                      <option value="5">Last</option>
+                    </select>
+                    <select class="td-freq-unit" data-td-month-weekday style="flex:1;">
+                      <option value="1">Monday</option>
+                      <option value="2">Tuesday</option>
+                      <option value="3">Wednesday</option>
+                      <option value="4">Thursday</option>
+                      <option value="5">Friday</option>
+                      <option value="6">Saturday</option>
+                      <option value="0">Sunday</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3492,6 +3548,44 @@
   }
   // Nos règles de répétition sont stockées en texte lisible (ex: "Weekly (Monday)",
   // "Every 2 weeks on Mon, Wed") — on les reparse ici pour avancer à la prochaine échéance.
+  const ORDINAL_WORDS = { '1': '1st', '2': '2nd', '3': '3rd', '4': '4th', '5': 'Last' };
+  const ORDINAL_TO_NUM = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'Last': 5 };
+  const WEEKDAY_NAMES_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  function nthWeekdayOfMonth(year, month, weekday, ordinal) {
+    if (ordinal === 5) {
+      const last = new Date(year, month + 1, 0);
+      const d = new Date(last);
+      while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
+      return d;
+    }
+    let count = 0;
+    for (let day = 1; day <= 31; day++) {
+      const dt = new Date(year, month, day);
+      if (dt.getMonth() !== month) break;
+      if (dt.getDay() === weekday) {
+        count++;
+        if (count === ordinal) return dt;
+      }
+    }
+    return new Date(year, month, 1);
+  }
+  function nearestWorkdayOfMonth(year, month, day) {
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const dt = new Date(year, month, Math.min(day, lastDay));
+    if (dt.getDay() === 6) dt.setDate(dt.getDate() - 1);
+    else if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
+    return dt;
+  }
+  function monthRepeatLabelSuffix(sheet) {
+    const mode = sheet.querySelector('[data-td-month-mode] button.active')?.dataset.mode || 'each';
+    if (mode === 'onthe') {
+      const ord = sheet.querySelector('[data-td-month-ordinal]')?.value || '1';
+      const wd = parseInt(sheet.querySelector('[data-td-month-weekday]')?.value ?? '1', 10);
+      return ` on the ${ORDINAL_WORDS[ord]} ${WEEKDAY_NAMES_FULL[wd]}`;
+    }
+    if (mode === 'workday') return ' on the nearest workday';
+    return '';
+  }
   function computeNextOccurrence(rule, dueDateStr) {
     if (!rule || !dueDateStr) return null;
     const d = new Date(dueDateStr + 'T00:00:00');
@@ -3508,11 +3602,26 @@
       if (m) {
         const n = m[1] ? parseInt(m[1], 10) : 1;
         const unit = m[2];
-        if (unit === 'day') d.setDate(d.getDate() + n);
-        else if (unit === 'week') d.setDate(d.getDate() + n * 7);
-        else if (unit === 'month') d.setMonth(d.getMonth() + n);
-        else if (unit === 'year') d.setFullYear(d.getFullYear() + n);
-        return isoFromDate(d);
+        if (unit === 'day') { d.setDate(d.getDate() + n); return isoFromDate(d); }
+        if (unit === 'week') { d.setDate(d.getDate() + n * 7); return isoFromDate(d); }
+        if (unit === 'year') { d.setFullYear(d.getFullYear() + n); return isoFromDate(d); }
+        if (unit === 'month') {
+          const onThe = rule.match(/on the (1st|2nd|3rd|4th|Last) (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)/);
+          const onWorkday = /on the nearest workday/.test(rule);
+          if (onThe) {
+            d.setMonth(d.getMonth() + n);
+            const nd = nthWeekdayOfMonth(d.getFullYear(), d.getMonth(), WEEKDAY_NAMES_FULL.indexOf(onThe[2]), ORDINAL_TO_NUM[onThe[1]]);
+            return isoFromDate(nd);
+          }
+          if (onWorkday) {
+            const origDay = d.getDate();
+            d.setMonth(d.getMonth() + n);
+            const nd = nearestWorkdayOfMonth(d.getFullYear(), d.getMonth(), origDay);
+            return isoFromDate(nd);
+          }
+          d.setMonth(d.getMonth() + n);
+          return isoFromDate(d);
+        }
       }
     }
     return null;
@@ -3881,13 +3990,16 @@
       sheet.querySelector('[data-td-source-title-input]').focus();
     });
     async function commitSource(sheet) {
+      const row = sheet.querySelector('[data-td-source-add-row]');
+      if (row.style.display === 'none') return; // déjà validé, évite un doublon
       const titleInput = sheet.querySelector('[data-td-source-title-input]');
       const urlInput = sheet.querySelector('[data-td-source-url-input]');
       const title = titleInput.value.trim();
       const url = urlInput.value.trim();
       const editIdx = sheet.dataset.editingSourceIdx;
       sheet.dataset.editingSourceIdx = '';
-      if (!url) { sheet.querySelector('[data-td-source-add-row]').style.display = 'none'; return; }
+      row.style.display = 'none';
+      if (!title && !url) return;
       const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
       const current = Array.isArray(record?.sources) ? record.sources : [];
       let next;
@@ -3898,15 +4010,19 @@
       }
       await saveRecordField(sheet, { sources: next });
       renderTdSources(sheet, getRecord(sheet.dataset.recordKind, sheet.dataset.recordId));
-      sheet.querySelector('[data-td-source-add-row]').style.display = 'none';
     }
     sheet.querySelector('[data-td-source-title-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sheet.querySelector('[data-td-source-url-input]').focus();
+      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-td-source-url-input]').focus(); }
     });
     sheet.querySelector('[data-td-source-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); commitSource(sheet); }
     });
     sheet.querySelector('[data-td-source-confirm]')?.addEventListener('click', () => commitSource(sheet));
+    sheet.querySelector('[data-td-source-add-row]')?.addEventListener('focusout', (e) => {
+      const row = e.currentTarget;
+      if (row.contains(e.relatedTarget)) return;
+      commitSource(sheet);
+    });
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
@@ -4030,9 +4146,19 @@
     sheet.querySelectorAll('[data-td-week-picker] .week-pill').forEach(pill => {
       pill.addEventListener('click', () => pill.classList.toggle('active'));
     });
+    sheet.querySelectorAll('[data-td-month-mode] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sheet.querySelectorAll('[data-td-month-mode] button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const onThe = sheet.querySelector('[data-td-month-onthe]');
+        if (onThe) onThe.style.display = btn.dataset.mode === 'onthe' ? 'block' : 'none';
+      });
+    });
     sheet.querySelector('[data-td-freq-unit]')?.addEventListener('change', (e) => {
-      const picker = sheet.querySelector('[data-td-week-picker]');
-      if (picker) picker.style.display = e.target.value === 'week' ? 'block' : 'none';
+      const weekPicker = sheet.querySelector('[data-td-week-picker]');
+      const monthPicker = sheet.querySelector('[data-td-month-picker]');
+      if (weekPicker) weekPicker.style.display = e.target.value === 'week' ? 'block' : 'none';
+      if (monthPicker) monthPicker.style.display = e.target.value === 'month' ? 'block' : 'none';
     });
     sheet.querySelector('[data-td-custom-repeat-done]')?.addEventListener('click', async () => {
       const n = parseInt(sheet.querySelector('[data-td-freq-n]').value, 10) || 1;
@@ -4047,6 +4173,8 @@
           days = [FULL_DAY_NAMES[WEEK_ABBR[d.getDay()]]];
         }
         label += `, ${days.join(', ')}`;
+      } else if (unit === 'month') {
+        label += monthRepeatLabelSuffix(sheet);
       }
       updateRepeatDisplay(sheet, label);
       await saveRecordField(sheet, { repeat_rule: label });
@@ -6328,6 +6456,9 @@
       const back = e.target.closest('[data-back]');
       if (back) { popView(sheet); return; }
     });
+    sheet.querySelector('[data-at-title]')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-at-save]')?.click(); }
+    });
     sheet.querySelectorAll('.at-type-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         sheet.querySelectorAll('.at-type-tab').forEach(t => t.classList.remove('active'));
@@ -6382,9 +6513,19 @@
     sheet.querySelectorAll('[data-td-week-picker] .week-pill').forEach(pill => {
       pill.addEventListener('click', () => pill.classList.toggle('active'));
     });
+    sheet.querySelectorAll('[data-td-month-mode] button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        sheet.querySelectorAll('[data-td-month-mode] button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const onThe = sheet.querySelector('[data-td-month-onthe]');
+        if (onThe) onThe.style.display = btn.dataset.mode === 'onthe' ? 'block' : 'none';
+      });
+    });
     sheet.querySelector('[data-td-freq-unit]')?.addEventListener('change', (e) => {
-      const picker = sheet.querySelector('[data-td-week-picker]');
-      if (picker) picker.style.display = e.target.value === 'week' ? 'block' : 'none';
+      const weekPicker = sheet.querySelector('[data-td-week-picker]');
+      const monthPicker = sheet.querySelector('[data-td-month-picker]');
+      if (weekPicker) weekPicker.style.display = e.target.value === 'week' ? 'block' : 'none';
+      if (monthPicker) monthPicker.style.display = e.target.value === 'month' ? 'block' : 'none';
     });
     sheet.querySelector('[data-td-custom-repeat-done]')?.addEventListener('click', () => {
       const n = parseInt(sheet.querySelector('[data-td-freq-n]').value, 10) || 1;
@@ -6398,6 +6539,8 @@
           days = [FULL_DAY_NAMES[WEEK_ABBR[d.getDay()]]];
         }
         label += `, ${days.join(', ')}`;
+      } else if (unit === 'month') {
+        label += monthRepeatLabelSuffix(sheet);
       }
       sheet.dataset.pendingRepeatRule = label;
       updateRepeatDisplay(sheet, label);
@@ -6478,23 +6621,32 @@
       sheet.querySelector('[data-at-source-title-input]').focus();
     });
     function commitAtSource(sheet) {
+      const row = sheet.querySelector('[data-at-source-add-row]');
+      if (row.style.display === 'none') return; // déjà validé, évite un doublon
       const titleInput = sheet.querySelector('[data-at-source-title-input]');
       const urlInput = sheet.querySelector('[data-at-source-url-input]');
       const title = titleInput.value.trim();
       const url = urlInput.value.trim();
-      if (!url) { sheet.querySelector('[data-at-source-add-row]').style.display = 'none'; return; }
+      row.style.display = 'none';
+      if (!title && !url) return;
       const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
       sheet.dataset.stagedSources = JSON.stringify([...sources, { title, url }]);
       renderAtSources(sheet);
-      sheet.querySelector('[data-at-source-add-row]').style.display = 'none';
     }
     sheet.querySelector('[data-at-source-title-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') sheet.querySelector('[data-at-source-url-input]').focus();
+      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-at-source-url-input]').focus(); }
     });
     sheet.querySelector('[data-at-source-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); commitAtSource(sheet); }
     });
     sheet.querySelector('[data-at-source-confirm]')?.addEventListener('click', () => commitAtSource(sheet));
+    // valide aussi si on clique ailleurs sans passer par OK / Entrée, tant qu'on quitte vraiment
+    // la ligne titre+URL (pas juste en passant de l'un à l'autre)
+    sheet.querySelector('[data-at-source-add-row]')?.addEventListener('focusout', (e) => {
+      const row = e.currentTarget;
+      if (row.contains(e.relatedTarget)) return;
+      commitAtSource(sheet);
+    });
 
     sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
       let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
