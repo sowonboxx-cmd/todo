@@ -275,10 +275,40 @@
 
   .kanban-view { display: none; flex-direction: column; height: 100%; }
 
+  /* vue par projet (grille de cartes, filtrée par jour) */
+  .projects-overview-view { display: none; flex-direction: column; height: 100%; }
+  .po-day-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; flex-shrink: 0; }
+  .po-day-tab {
+    padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-soft);
+    color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; cursor: pointer;
+  }
+  .po-day-tab.active { background: rgba(255,125,1,0.14); color: var(--accent-due); border-color: transparent; }
+  .po-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px;
+    flex: 1; min-height: 0; overflow-y: auto; align-content: start;
+  }
+  .po-card {
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
+    padding: 12px 14px 10px; display: flex; flex-direction: column; min-height: 0;
+    max-height: calc((100vh - 320px) / 1.10);
+  }
+  .po-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
+  .po-card-name {
+    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13.5px; flex: 1; min-width: 0;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .po-card-pct { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: var(--faint); flex-shrink: 0; }
+  .po-card-bar { margin-bottom: 10px; flex-shrink: 0; }
+  .po-card-tasks { overflow-y: auto; flex: 1; min-height: 0; }
+  .po-card-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
+  .m-po-view { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
+  .m-po-view .po-grid { grid-template-columns: 1fr; overflow-y: visible; flex: none; }
+  .m-po-view .po-card { max-height: none; }
+
   .home-kanban-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; }
   .home-kanban-col {
     flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 220px; max-width: 320px;
-    display: flex; flex-direction: column; max-height: calc((100vh - 260px) / 1.05);
+    display: flex; flex-direction: column; max-height: calc((100vh - 260px) / 1.10);
     background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 14px 14px 10px;
   }
@@ -441,7 +471,7 @@
   .task-row:last-child { border-bottom: none; }
   .checkbox {
     position: relative;
-    width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
+    width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--faint);
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
   .checkbox::before { content: ''; position: absolute; inset: -12px -10px -12px -12px; z-index: 2; }
@@ -594,7 +624,7 @@
   .m-venture .vdesc { color: var(--muted); font-size: 11px; margin-top: 7px; }
 
   .task-list, .m-tasks { overflow-y: auto; padding-right: 10px; padding-left: 8px; margin-left: -8px; }
-  #app-desktop .task-list { max-height: calc((100vh - 300px) / 1.05); }
+  #app-desktop .task-list { max-height: calc((100vh - 300px) / 1.10); }
   .task-list::-webkit-scrollbar, .m-tasks::-webkit-scrollbar { width: 5px; }
   .task-list::-webkit-scrollbar-thumb, .m-tasks::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
   .task-list:hover::-webkit-scrollbar-thumb, .m-tasks:hover::-webkit-scrollbar-thumb,
@@ -683,7 +713,7 @@
   .drawer.open { left: 0; }
   .d-rail.drawer {
     position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
-    transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.05); overflow-y: auto;
+    transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.10); overflow-y: auto;
   }
   .d-rail-bottom-row {
     display: flex; align-items: center; gap: 8px; margin-top: auto;
@@ -1677,6 +1707,9 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
               </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
+              <button type="button" class="d-topbar-icon-btn" data-open-projects-overview title="Vue par projet">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+              </button>
               <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
                 <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                 <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1794,6 +1827,16 @@
           <div class="kanban-view" data-kanban-view style="display:none;">
             <div class="kanban-columns" data-kanban-columns></div>
           </div>
+
+          <div class="projects-overview-view" data-projects-overview-view style="display:none;">
+            <div class="po-day-tabs" data-po-tabs>
+              <button type="button" class="po-day-tab" data-po-day="overdue">Overdue</button>
+              <button type="button" class="po-day-tab active" data-po-day="today">Today</button>
+              <button type="button" class="po-day-tab" data-po-day="tomorrow">Demain</button>
+              <button type="button" class="po-day-tab" data-po-day="week">Cette semaine</button>
+            </div>
+            <div class="po-grid" data-po-grid></div>
+          </div>
         </div>
 
         <div class="search-overlay" id="search-desktop">
@@ -1860,6 +1903,9 @@
                 </div>
               </div>
               <div class="h3-right">
+                <button class="dots-btn" data-open-projects-overview title="Vue par projet">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                </button>
                 <button class="dots-btn" data-toggle-completed title="Afficher les tâches terminées">
                   <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                   <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1906,6 +1952,16 @@
 
             <div class="m-tasks" data-tab="nodate"></div>
             <div class="m-tasks" data-tab="all"></div>
+            </div>
+
+            <div class="m-po-view" data-mobile-po-view>
+              <div class="po-day-tabs" data-po-tabs>
+                <button type="button" class="po-day-tab" data-po-day="overdue">Overdue</button>
+                <button type="button" class="po-day-tab active" data-po-day="today">Today</button>
+                <button type="button" class="po-day-tab" data-po-day="tomorrow">Demain</button>
+                <button type="button" class="po-day-tab" data-po-day="week">Cette semaine</button>
+              </div>
+              <div class="po-grid" data-po-grid></div>
             </div>
           </div>
 
@@ -4072,9 +4128,11 @@
   // date-tab switching (desktop panel + mobile share the same markup pattern)
   document.querySelectorAll('[data-go-home]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const phone = btn.closest('.phone') || btn.closest('.desktop-frame');
-      if (phone) closeAllPhoneSheets(phone, null);
-      const scope = btn.closest('.phone') || btn.closest('.desktop-frame') || document;
+      const phone = btn.closest('.phone');
+      const desktop = btn.closest('.desktop-frame');
+      if (phone) { closeAllPhoneSheets(phone, null); closeMobileProjectsOverview(phone); }
+      if (desktop) closeDesktopProjectsOverview();
+      const scope = phone || desktop || document;
       scope.querySelectorAll('[data-tabgroup] .dt[data-tab="today"]').forEach(dt => dt.click());
     });
   });
@@ -4410,6 +4468,7 @@
         const projectId = kanbanView ? cachedProjects.find(p => p.name === badgeText)?.id : null;
         if (projectId) setTimeout(() => renderKanbanColumns(projectId), 250);
       }
+      if (row?.closest('.po-card')) setTimeout(() => refreshOpenProjectsOverviews(), 250);
 
       if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
 
@@ -4635,6 +4694,123 @@
     const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
     if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
   }
+
+  // ---- vue par projet : grille de cartes filtrées par jour (Overdue/Today/Demain/Cette semaine) ----
+  let poCurrentDay = 'today';
+  function poMatchesTab(todo, tabKey) {
+    const daily = isDailyRepeat(todo);
+    if (tabKey === 'today') return daily || classifyDue(todo.due_date) === 'today';
+    if (daily) return false;
+    if (tabKey === 'overdue') return classifyDue(todo.due_date) === 'overdue';
+    if (tabKey === 'tomorrow') return classifyDue(todo.due_date) === 'tomorrow';
+    if (tabKey === 'week') {
+      const diff = todo.due_date ? daysFromToday(todo.due_date) : null;
+      return diff !== null && diff >= 0 && diff <= 6;
+    }
+    return false;
+  }
+  function renderProjectsOverviewGrid(gridEl, tabKey) {
+    if (!gridEl) return;
+    const pageById = Object.fromEntries(cachedPages.map(p => [p.id, p]));
+    const subsByTodo = {};
+    cachedSubtasks.forEach(s => {
+      subsByTodo[s.todo_id] = subsByTodo[s.todo_id] || { done: 0, total: 0 };
+      subsByTodo[s.todo_id].total++;
+      if (s.is_done) subsByTodo[s.todo_id].done++;
+    });
+    const topLevel = cachedTodos.filter(t => !t.parent_todo_id);
+    const cardsHtml = cachedProjects.map(project => {
+      const projectPageIds = new Set(cachedPages.filter(p => p.project_id === project.id && p.page_type !== 'doc').map(p => p.id));
+      const matching = topLevel.filter(t => projectPageIds.has(t.page_id) && poMatchesTab(t, tabKey));
+      if (!matching.length) return '';
+      const done = matching.filter(t => t.is_done).length;
+      const pct = Math.round((done / matching.length) * 100);
+      const kanjiInner = project.kanji_image_url
+        ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
+        : escapeHtml(project.kanji);
+      const rows = matching
+        .sort((a, b) => (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1))
+        .map(t => taskRowHtml(t, project, pageById[t.page_id], subsByTodo[t.id], false, isDailyRepeat(t)))
+        .join('');
+      return `
+        <div class="po-card">
+          <div class="po-card-head">
+            <span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span>
+            <span class="po-card-name">${escapeHtml(project.name)}</span>
+            <span class="po-card-pct">${pct}%</span>
+          </div>
+          <div class="bar po-card-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
+          <div class="po-card-tasks">${rows}</div>
+        </div>`;
+    }).filter(Boolean).join('');
+    gridEl.innerHTML = cardsHtml || '<div class="empty-state">Rien à faire pour ce filtre</div>';
+    gridEl.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
+    gridEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
+  }
+  function refreshOpenProjectsOverviews() {
+    document.querySelectorAll('[data-po-grid]').forEach(g => {
+      const visible = g.closest('[data-projects-overview-view], [data-mobile-po-view]')?.style.display !== 'none';
+      if (visible) renderProjectsOverviewGrid(g, poCurrentDay);
+    });
+  }
+  document.querySelectorAll('[data-po-day]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      poCurrentDay = btn.dataset.poDay;
+      document.querySelectorAll('[data-po-day]').forEach(b => b.classList.toggle('active', b.dataset.poDay === poCurrentDay));
+      refreshOpenProjectsOverviews();
+    });
+  });
+  function openDesktopProjectsOverview() {
+    const board = document.querySelector('#app-desktop .board');
+    const kanban = document.querySelector('#app-desktop [data-kanban-view]');
+    const overview = document.querySelector('#app-desktop [data-projects-overview-view]');
+    if (!board || !overview) return;
+    board.style.display = 'none';
+    if (kanban) kanban.style.display = 'none';
+    overview.style.display = 'flex';
+    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
+    if (badge) { badge.textContent = 'Par projet'; badge.style.display = 'flex'; }
+    renderProjectsOverviewGrid(overview.querySelector('[data-po-grid]'), poCurrentDay);
+  }
+  function closeDesktopProjectsOverview() {
+    const overview = document.querySelector('#app-desktop [data-projects-overview-view]');
+    if (!overview || overview.style.display === 'none') return;
+    overview.style.display = 'none';
+    document.querySelector('#app-desktop .board').style.display = 'block';
+    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
+    if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
+  }
+  function openMobileProjectsOverview(phone) {
+    const view = phone.querySelector('[data-mobile-po-view]');
+    if (!view) return;
+    const hello = phone.querySelector('.m-hello');
+    const strip = phone.querySelector('.m-content > .project-strip');
+    const panel = phone.querySelector('.m-content > .panel');
+    if (hello) hello.style.display = 'none';
+    if (strip) strip.style.display = 'none';
+    if (panel) panel.style.display = 'none';
+    view.style.display = 'flex';
+    renderProjectsOverviewGrid(view.querySelector('[data-po-grid]'), poCurrentDay);
+  }
+  function closeMobileProjectsOverview(phone) {
+    const view = phone.querySelector('[data-mobile-po-view]');
+    if (!view || view.style.display === 'none') return;
+    view.style.display = 'none';
+    const hello = phone.querySelector('.m-hello');
+    const strip = phone.querySelector('.m-content > .project-strip');
+    const panel = phone.querySelector('.m-content > .panel');
+    if (hello) hello.style.display = '';
+    if (strip) strip.style.display = '';
+    if (panel) panel.style.display = '';
+  }
+  document.querySelectorAll('[data-open-projects-overview]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const phone = btn.closest('.phone');
+      if (phone) openMobileProjectsOverview(phone);
+      else openDesktopProjectsOverview();
+    });
+  });
+
   function renderKanbanColumns(projectId) {
     const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
     if (!columnsEl) return;
@@ -4692,6 +4868,7 @@
     el.addEventListener('click', () => {
       const kanban = document.querySelector('#app-desktop [data-kanban-view]');
       if (kanban && kanban.style.display !== 'none') closeDesktopKanban();
+      closeDesktopProjectsOverview();
       const docsEditor = document.querySelector('[data-docs-editor]');
       if (docsEditor && docsEditor.classList.contains('open')) closeDocsEditor(getActiveContainer());
     });
