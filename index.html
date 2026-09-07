@@ -6025,6 +6025,7 @@
       const openProject = cachedProjects.find(p => p.name === badge?.textContent);
       if (openProject) renderKanbanColumns(openProject.id);
     }
+    refreshOpenProjectsOverviews();
     revealApp();
   }
 
