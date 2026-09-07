@@ -66,6 +66,7 @@
   }
 
   * { box-sizing: border-box; }
+  html, body { overflow-x: hidden; }
   @media (min-width: 900px) {
     html, body { height: 100%; overflow: hidden; }
   }
@@ -1298,12 +1299,12 @@
 
   #app-desktop.desktop-frame {
     border: none; border-radius: 0; box-shadow: none; width: 100%; overflow: hidden;
-    zoom: 1.05; height: calc(100vh / 1.05);
+    zoom: 1.10; height: calc(100vh / 1.10);
   }
   #app-mobile.phone {
     position: relative; width: 100%; max-width: 560px; margin: 0 auto;
     border: none; border-radius: 0; box-shadow: none;
-    height: 100vh; height: 100dvh; background: var(--bg);
+    zoom: 1.12; height: calc(100vh / 1.12); height: calc(100dvh / 1.12); background: var(--bg);
     flex-direction: column; overflow: hidden;
   }
   #app-mobile .m-content {
@@ -4500,24 +4501,6 @@
   // (renderCalendar/applyDuePatch) déjà utilisé dans la fiche tâche, donc même design system.
   function quickPopoverHtml() {
     return `
-      <div class="quick-dates">
-        <button type="button" class="quick-date-btn" data-qp-quick="today">
-          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
-          <span>Today</span>
-        </button>
-        <button type="button" class="quick-date-btn" data-qp-quick="tomorrow">
-          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M9 14h6M13 11l3 3-3 3"/></svg></span>
-          <span>Demain</span>
-        </button>
-        <button type="button" class="quick-date-btn" data-qp-quick="nextweek">
-          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="17" font-size="7" text-anchor="middle" fill="currentColor" stroke="none">Lu</text></svg></span>
-          <span>Next week</span>
-        </button>
-        <button type="button" class="quick-date-btn" data-qp-quick="clear">
-          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M10 12l4 4M14 12l-4 4"/></svg></span>
-          <span>Clear</span>
-        </button>
-      </div>
       <div class="cal-head">
         <button type="button" class="cal-nav" data-cal-prev>‹</button>
         <div class="cal-month" data-cal-month-label></div>
@@ -4528,25 +4511,6 @@
       <div class="qp-cal-footer">
         <button type="button" class="qp-link danger" data-qp-clear-all>Effacer</button>
         <button type="button" class="qp-link" data-qp-validate>Valider</button>
-      </div>
-      <div class="quick-priority-head">Priorité</div>
-      <div class="quick-priority">
-        <button type="button" class="qp-flag" data-qp-priority="high" title="Haute">
-          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-          <span>Haute</span>
-        </button>
-        <button type="button" class="qp-flag" data-qp-priority="med" title="Moyenne">
-          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-          <span>Moyenne</span>
-        </button>
-        <button type="button" class="qp-flag" data-qp-priority="low" title="Basse">
-          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-          <span>Basse</span>
-        </button>
-        <button type="button" class="qp-flag" data-qp-priority="none" title="Aucune">
-          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="#6B716A" stroke="#6B716A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
-          <span>Aucune</span>
-        </button>
       </div>`;
   }
   let quickPopoverDirty = false;
@@ -4617,21 +4581,6 @@
       renderCalendar(pop);
     });
 
-    // ---- raccourcis rapides (Today / Demain / Next week / Clear) ----
-    pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        let iso = null;
-        if (btn.dataset.qpQuick === 'today') iso = todayISO();
-        else if (btn.dataset.qpQuick === 'tomorrow') iso = isoPlusDays(1);
-        else if (btn.dataset.qpQuick === 'nextweek') iso = isoPlusDays(7);
-        const patch = btn.dataset.qpQuick === 'clear' ? { due_date: null, due_time: null } : { due_date: iso };
-        await applyDuePatch(pop, patch);
-        quickPopoverDirty = true;
-        jumpCalendarTo(iso);
-        renderQuickTimeGrid(pop);
-      });
-    });
-
     // ---- heure ----
     renderQuickTimeGrid(pop);
 
@@ -4643,21 +4592,6 @@
       renderQuickTimeGrid(pop);
     });
     pop.querySelector('[data-qp-validate]').addEventListener('click', closeQuickPopover);
-
-    // ---- priorité ----
-    const t = cachedTodos.find(x => x.id === todoId);
-    if (t) {
-      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'none')));
-    }
-    pop.querySelectorAll('[data-qp-priority]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const val = btn.dataset.qpPriority;
-        await sb.from('todos').update({ priority: val }).eq('id', todoId);
-        if (t) t.priority = val;
-        quickPopoverDirty = true;
-        closeQuickPopover();
-      });
-    });
 
     // ---- positionnement (après rendu complet, pour mesurer la vraie hauteur) ----
     const rect = anchorEl.getBoundingClientRect();
