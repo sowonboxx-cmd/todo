@@ -677,7 +677,7 @@
   }
   .search-overlay.open { display: flex; }
   .search-box {
-    width: 480px; max-width: 90%; background: var(--card);
+    width: 576px; max-width: 90%; background: var(--card);
     border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
     overflow: hidden;
   }
@@ -1056,6 +1056,10 @@
   .td-link:empty::before { content: 'Ajouter une description, un lien…'; color: var(--faint); }
   .td-link a { color: var(--accent-due); text-decoration: underline; }
   .td-notes-text { white-space: pre-wrap; word-break: break-word; }
+  .td-notes-h1 { display: block; font-size: 15px; font-weight: 800; margin: 6px 0 2px; }
+  .td-notes-h1:first-child { margin-top: 0; }
+  .td-notes-h2 { display: block; font-size: 13.5px; font-weight: 700; color: var(--muted); margin: 5px 0 2px; }
+  .td-notes-h2:first-child { margin-top: 0; }
   .td-yt-embed { position: relative; width: 100%; padding-top: 56.25%; margin-top: 8px; border-radius: 10px; overflow: hidden; cursor: default; }
   .td-yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
   .td-notes-edit {
@@ -1269,6 +1273,8 @@
   .opt-row .opt-hint { color: var(--faint); font-weight: 500; margin-right: auto; margin-left: 6px; }
   .opt-row .check { color: var(--accent-due); font-weight: 700; }
   .opt-row .chev { color: var(--faint); }
+  .time-clear-x { background: none; border: none; color: var(--faint); font-size: 13px; cursor: pointer; padding: 4px; line-height: 1; }
+  .time-clear-x:hover { color: var(--danger); }
 
   /* custom repeat */
   .freq-picker { background: var(--bg); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
@@ -3174,6 +3180,35 @@
     const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return m ? m[1] : null;
   }
+  function renderNotesMarkdown(text) {
+    return text.split('\n').map(line => {
+      let cls = '';
+      if (line.startsWith('## ')) { cls = 'td-notes-h2'; line = line.slice(3); }
+      else if (line.startsWith('# ')) { cls = 'td-notes-h1'; line = line.slice(2); }
+      const boldMarked = line.replace(/\*\*([^\n]+?)\*\*/g, '\u0001$1\u0002');
+      let html = linkifyNotesHtml(boldMarked).replace(/\u0001/g, '<strong>').replace(/\u0002/g, '</strong>');
+      return cls ? `<span class="${cls}">${html}</span>` : html;
+    }).join('<br>');
+  }
+  function wireBoldShortcut(textarea) {
+    textarea?.addEventListener('keydown', (e) => {
+      const isMod = e.metaKey || e.ctrlKey;
+      if (!isMod || e.key.toLowerCase() !== 'b') return;
+      e.preventDefault();
+      const start = textarea.selectionStart, end = textarea.selectionEnd;
+      const val = textarea.value;
+      const selected = val.slice(start, end);
+      const before = val.slice(0, start), after = val.slice(end);
+      textarea.value = `${before}**${selected}**${after}`;
+      if (selected) {
+        textarea.selectionStart = start + 2;
+        textarea.selectionEnd = start + 2 + selected.length;
+      } else {
+        textarea.selectionStart = textarea.selectionEnd = start + 2;
+      }
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
     const edit = sheet.querySelector('[data-td-notes-edit]');
@@ -3183,10 +3218,10 @@
     if (!trimmed) {
       view.textContent = '';
     } else if (ytId) {
-      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>` +
+      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>` +
         `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
     } else {
-      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>`;
+      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>`;
     }
     view.style.display = 'block';
     edit.style.display = 'none';
@@ -3694,15 +3729,23 @@
     const list = sheet.querySelector('[data-td-time-options]');
     if (!list) return;
     const current = currentDueTime(sheet).slice(0, 5);
-    let html = '<div class="opt-row" data-val="">Aucune</div>';
+    let html = '';
     for (let h = 0; h < 24; h++) {
       for (const m of [0, 30]) {
         const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        html += `<div class="opt-row" data-val="${val}">${val}</div>`;
+        html += `<div class="opt-row" data-val="${val}"><span>${val}</span><button type="button" class="time-clear-x" data-time-clear title="Effacer l'heure">✕</button></div>`;
       }
     }
     list.innerHTML = html;
     list.querySelectorAll('.opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (current || '')));
+    list.querySelectorAll('[data-time-clear]').forEach(x => {
+      x.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await applyDuePatch(sheet, { due_time: null });
+        updateDueLabelFromCache(sheet);
+        popView(sheet);
+      });
+    });
     list.querySelectorAll('.opt-row').forEach(row => {
       row.addEventListener('click', async () => {
         await applyDuePatch(sheet, { due_time: row.dataset.val || null });
@@ -3933,6 +3976,7 @@
       renderTdNotes(sheet, val);
       saveRecordField(sheet, { notes: val || null });
     });
+    wireBoldShortcut(sheet.querySelector('[data-td-notes-edit]'));
     let notesAutoSaveTimer = null;
     sheet.querySelector('[data-td-notes-edit]')?.addEventListener('input', (e) => {
       clearTimeout(notesAutoSaveTimer);
@@ -4524,12 +4568,13 @@
       </div>`;
   }
 
-  function projectBlockHtml(project, stats) {
+  function projectBlockHtml(project, stats, flexBasis) {
     const kanjiInner = project.kanji_image_url
       ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
       : escapeHtml(project.kanji);
+    const flexStyle = flexBasis ? ` style="flex:0 0 ${flexBasis};"` : '';
     return `
-      <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}">
+      <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}"${flexStyle}>
         <div class="pk-top"><span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span><span class="pk-pct">${stats.pct}%</span></div>
         <div class="bar"><span style="width:${stats.pct}%;background:${project.color}"></span></div>
         <div class="pk-count">${stats.done}/${stats.total}</div>
@@ -5206,12 +5251,13 @@
     const deskEl = document.getElementById('venture-list-desktop');
     const deskStripEl = document.getElementById('project-strip-desktop');
     const mobEl = document.querySelector('#app-mobile .project-strip');
+    const flexBasis = sorted.length ? `${(100 / sorted.length).toFixed(4)}%` : null;
     if (deskEl) {
       deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
       deskEl.querySelectorAll('.venture-card').forEach(wireProjectBlock);
     }
     if (deskStripEl) {
-      deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
+      deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos), flexBasis)).join('');
       deskStripEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
       const desktopDrawerEditMode = document.querySelector('#app-desktop .drawer')?.classList.contains('edit-mode');
       if (desktopDrawerEditMode) {
@@ -5222,7 +5268,7 @@
       }
     }
     if (mobEl) {
-      mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
+      mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos), flexBasis)).join('');
       mobEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
     }
     const kpiProjD = document.getElementById('kpi-projects-desktop');
@@ -6459,6 +6505,7 @@
     sheet.querySelector('[data-at-title]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-at-save]')?.click(); }
     });
+    wireBoldShortcut(sheet.querySelector('[data-at-desc]'));
     sheet.querySelectorAll('.at-type-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         sheet.querySelectorAll('.at-type-tab').forEach(t => t.classList.remove('active'));
