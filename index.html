@@ -249,6 +249,25 @@
     margin-bottom: 22px;
   }
   .d-topbar-home { display: flex; align-items: center; gap: 12px; }
+  .d-topbar-search-wrap { flex: 1; display: flex; justify-content: center; position: relative; padding: 0 20px; }
+  .d-topbar-search {
+    display: flex; align-items: center; gap: 8px; width: 100%; max-width: 420px;
+    background: var(--card); border: 1px solid var(--line-soft); border-radius: 999px; padding: 8px 16px;
+  }
+  .d-topbar-search svg { width: 15px; height: 15px; color: var(--faint); flex-shrink: 0; }
+  .d-topbar-search input {
+    flex: 1; min-width: 0; border: none; background: transparent; outline: none;
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
+  }
+  .d-topbar-search input::placeholder { color: var(--faint); }
+  .d-topbar-search-results {
+    position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 420px; max-height: 360px; overflow-y: auto;
+    z-index: 50;
+  }
+  .d-topbar-search-results:not(:empty) {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px;
+  }
   .d-topbar h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0; }
   .d-topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
   .d-search {
@@ -1056,10 +1075,6 @@
   .td-link:empty::before { content: 'Ajouter une description, un lien…'; color: var(--faint); }
   .td-link a { color: var(--accent-due); text-decoration: underline; }
   .td-notes-text { white-space: pre-wrap; word-break: break-word; }
-  .td-notes-h1 { display: block; font-size: 15px; font-weight: 800; margin: 6px 0 2px; }
-  .td-notes-h1:first-child { margin-top: 0; }
-  .td-notes-h2 { display: block; font-size: 13.5px; font-weight: 700; color: var(--muted); margin: 5px 0 2px; }
-  .td-notes-h2:first-child { margin-top: 0; }
   .td-yt-embed { position: relative; width: 100%; padding-top: 56.25%; margin-top: 8px; border-radius: 10px; overflow: hidden; cursor: default; }
   .td-yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
   .td-notes-edit {
@@ -1721,10 +1736,14 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
               </button>
             </div>
-            <div class="d-topbar-actions">
-              <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
+            <div class="d-topbar-search-wrap">
+              <div class="d-topbar-search">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-              </button>
+                <input type="text" placeholder="Rechercher un projet, une page, une tâche…" data-search-input>
+              </div>
+              <div class="d-topbar-search-results" data-search-results></div>
+            </div>
+            <div class="d-topbar-actions">
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
               <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
                 <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -3037,6 +3056,9 @@
         const phone = getActiveContainer();
         if (!phone) return;
         overlay.classList.remove('open');
+        const input = overlay.querySelector('[data-search-input]');
+        if (input) input.value = '';
+        list.innerHTML = '';
         if (el.dataset.searchKind === 'doc') {
           openDocsEditor(phone, el.dataset.searchId, false);
           return;
@@ -3060,6 +3082,14 @@
   document.querySelectorAll('.search-overlay [data-search-input]').forEach(input => {
     input.addEventListener('input', () => renderSearch(input.closest('.search-overlay'), input.value));
   });
+  document.querySelectorAll('.d-topbar-search-wrap [data-search-input]').forEach(input => {
+    const wrap = input.closest('.d-topbar-search-wrap');
+    input.addEventListener('input', () => renderSearch(wrap, input.value));
+    input.addEventListener('focus', () => { if (input.value.trim()) renderSearch(wrap, input.value); });
+    input.addEventListener('blur', () => {
+      setTimeout(() => { wrap.querySelector('[data-search-results]').innerHTML = ''; }, 150);
+    });
+  });
   function openSearchOverlay(frame) {
     if (!frame) return;
     frame.querySelector('.drawer')?.classList.remove('open');
@@ -3082,7 +3112,10 @@
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === ';') {
       e.preventDefault();
-      openSearchOverlay(getActiveContainer());
+      const container = getActiveContainer();
+      const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
+      if (inlineInput) inlineInput.focus();
+      else openSearchOverlay(container);
     }
   });
   document.querySelectorAll('[data-close-search]').forEach(btn => {
@@ -3182,12 +3215,8 @@
   }
   function renderNotesMarkdown(text) {
     return text.split('\n').map(line => {
-      let cls = '';
-      if (line.startsWith('## ')) { cls = 'td-notes-h2'; line = line.slice(3); }
-      else if (line.startsWith('# ')) { cls = 'td-notes-h1'; line = line.slice(2); }
       const boldMarked = line.replace(/\*\*([^\n]+?)\*\*/g, '\u0001$1\u0002');
-      let html = linkifyNotesHtml(boldMarked).replace(/\u0001/g, '<strong>').replace(/\u0002/g, '</strong>');
-      return cls ? `<span class="${cls}">${html}</span>` : html;
+      return linkifyNotesHtml(boldMarked).replace(/\u0001/g, '<strong>').replace(/\u0002/g, '</strong>');
     }).join('<br>');
   }
   function wireBoldShortcut(textarea) {
