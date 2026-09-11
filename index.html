@@ -3118,6 +3118,18 @@
       else openSearchOverlay(container);
     }
   });
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'ù' || e.metaKey || e.ctrlKey || e.altKey) return;
+    const active = document.activeElement;
+    const tag = active?.tagName;
+    const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || active?.isContentEditable;
+    if (isEditable) return;
+    e.preventDefault();
+    const container = getActiveContainer();
+    const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
+    if (inlineInput) inlineInput.focus();
+    else openSearchOverlay(container);
+  });
   document.querySelectorAll('[data-close-search]').forEach(btn => {
     btn.addEventListener('click', () => {
       const overlay = btn.closest('.search-overlay');
