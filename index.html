@@ -66,7 +66,6 @@
   }
 
   * { box-sizing: border-box; }
-  html, body { overflow-x: hidden; }
   @media (min-width: 900px) {
     html, body { height: 100%; overflow: hidden; }
   }
@@ -241,7 +240,7 @@
     font-family: 'Inter', sans-serif;
   }
 
-  .d-main { flex: 1; padding: 26px 30px 30px; overflow-y: hidden; min-height: 0; }
+  .d-main { flex: 1; padding: 26px 30px 30px; overflow-y: auto; min-height: 0; }
   .d-topbar {
     display: flex;
     justify-content: space-between;
@@ -249,25 +248,6 @@
     margin-bottom: 22px;
   }
   .d-topbar-home { display: flex; align-items: center; gap: 12px; }
-  .d-topbar-search-wrap { flex: 1; display: flex; justify-content: center; position: relative; padding: 0 20px; }
-  .d-topbar-search {
-    display: flex; align-items: center; gap: 8px; width: 100%; max-width: 1260px;
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 999px; padding: 8px 16px;
-  }
-  .d-topbar-search svg { width: 15px; height: 15px; color: var(--faint); flex-shrink: 0; }
-  .d-topbar-search input {
-    flex: 1; min-width: 0; border: none; background: transparent; outline: none;
-    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
-  }
-  .d-topbar-search input::placeholder { color: var(--faint); }
-  .d-topbar-search-results {
-    position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 1260px; max-height: 360px; overflow-y: auto;
-    z-index: 50;
-  }
-  .d-topbar-search-results:not(:empty) {
-    background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px;
-  }
   .d-topbar h2 { font-family: 'Inter', sans-serif; font-size: 20px; margin: 0; }
   .d-topbar .sub { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
   .d-search {
@@ -294,48 +274,10 @@
 
   .kanban-view { display: none; flex-direction: column; height: 100%; }
 
-  /* vue par projet (grille de cartes, filtrée par jour) */
-  .projects-overview-view { display: none; flex-direction: column; height: 100%; }
-  .po-day-tabs { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; flex-shrink: 0; }
-  .po-day-tab {
-    padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--line-soft);
-    color: var(--muted); font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; cursor: pointer;
-  }
-  .po-day-tab.active { background: rgba(255,125,1,0.14); color: var(--accent-due); border-color: transparent; }
-  .po-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(345px, 1fr)); gap: 14px;
-    flex: 1; min-height: 0; overflow-y: auto; align-content: start;
-  }
-  .po-card {
-    background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
-    padding: 12px 14px 10px; display: flex; flex-direction: column; min-height: 0;
-    max-height: calc((100vh - 320px) / 1.10);
-  }
-  .po-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
-  .po-card-name {
-    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 13.5px; flex: 1; min-width: 0;
-    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-  }
-  .po-card-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); flex-shrink: 0; }
-  .po-card-pct { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 700; color: #CED0CC; flex-shrink: 0; }
-  .po-card-bar { margin-bottom: 10px; flex-shrink: 0; }
-  .po-card-tasks { overflow-y: auto; flex: 1; min-height: 0; }
-  .po-page-label {
-    display: inline-block;
-    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.03em; margin: 10px 0 6px;
-    background: var(--bg); padding: 3px 8px; border-radius: 6px;
-  }
-  .po-page-group:first-child .po-page-label { margin-top: 0; }
-  .po-card-tasks .task-row { margin: 0; padding-left: 6px; padding-right: 6px; }
-  .m-po-view { display: none; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; }
-  .m-po-view .po-grid { grid-template-columns: 1fr; overflow-y: visible; flex: none; }
-  .m-po-view .po-card { max-height: none; }
-
   .home-kanban-row { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 8px; margin-top: 12px; }
   .home-kanban-col {
     flex: 0 0 calc((100% - 3 * 14px) / 4); min-width: 220px; max-width: 320px;
-    display: flex; flex-direction: column; max-height: calc((100vh - 260px) / 1.10);
+    display: flex; flex-direction: column; max-height: calc((100vh - 260px) / 1.05);
     background: var(--card); border: 1px solid var(--line-soft); border-radius: 14px;
     padding: 14px 14px 10px;
   }
@@ -349,6 +291,10 @@
     border-color: rgb(212 178 76 / 20%);
   }
   .home-kanban-col[data-home-col="today"] .home-kanban-title { color: var(--accent-gold); }
+  .home-kanban-weekday {
+    font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; color: var(--faint);
+    text-transform: uppercase; letter-spacing: 0.03em;
+  }
   .home-kanban-count { font-family: 'Inter', sans-serif; font-size: 12px; font-weight: 600; color: var(--faint); }
   .home-kanban-pct { font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700; color: var(--ink); opacity: 0.85; }
   .home-kanban-bar { margin-bottom: 12px; }
@@ -411,12 +357,10 @@
   .task-row.is-done { opacity: 0.55; }
   .task-list .task-row.is-done,
   .m-tasks .task-row.is-done,
-  .kanban-column-tasks .task-row.is-done,
-  .po-card-tasks .task-row.is-done { display: none; }
+  .kanban-column-tasks .task-row.is-done { display: none; }
   .task-list.show-completed .task-row.is-done,
   .m-tasks.show-completed .task-row.is-done,
-  .kanban-column-tasks.show-completed .task-row.is-done,
-  .po-card-tasks.show-completed .task-row.is-done { display: flex; }
+  .kanban-column-tasks.show-completed .task-row.is-done { display: flex; }
 
   .task-list[data-tab], .m-tasks[data-tab] { display: none; }
   .task-list[data-tab].is-active, .m-tasks[data-tab].is-active { display: block; }
@@ -500,7 +444,7 @@
   .task-row:last-child { border-bottom: none; }
   .checkbox {
     position: relative;
-    width: 15px; height: 15px; border-radius: 50%; border: 1.5px solid var(--faint);
+    width: 15px; height: 15px; border-radius: 5px; border: 1.5px solid var(--faint);
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
   .checkbox::before { content: ''; position: absolute; inset: -12px -10px -12px -12px; z-index: 2; }
@@ -653,7 +597,7 @@
   .m-venture .vdesc { color: var(--muted); font-size: 11px; margin-top: 7px; }
 
   .task-list, .m-tasks { overflow-y: auto; padding-right: 10px; padding-left: 8px; margin-left: -8px; }
-  #app-desktop .task-list { max-height: calc((100vh - 300px) / 1.10); }
+  #app-desktop .task-list { max-height: calc((100vh - 300px) / 1.05); }
   .task-list::-webkit-scrollbar, .m-tasks::-webkit-scrollbar { width: 5px; }
   .task-list::-webkit-scrollbar-thumb, .m-tasks::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
   .task-list:hover::-webkit-scrollbar-thumb, .m-tasks:hover::-webkit-scrollbar-thumb,
@@ -696,7 +640,7 @@
   }
   .search-overlay.open { display: flex; }
   .search-box {
-    width: 576px; max-width: 90%; background: var(--card);
+    width: 480px; max-width: 90%; background: var(--card);
     border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
     overflow: hidden;
   }
@@ -742,7 +686,7 @@
   .drawer.open { left: 0; }
   .d-rail.drawer {
     position: sticky; top: 0; left: auto; bottom: auto; width: 260px; flex-shrink: 0;
-    transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.10); overflow-y: auto;
+    transition: none; z-index: auto; align-self: flex-start; height: calc(100vh / 1.05); overflow-y: auto;
   }
   .d-rail-bottom-row {
     display: flex; align-items: center; gap: 8px; margin-top: auto;
@@ -1229,24 +1173,6 @@
   }
   .qp-icon svg { width: 18px; height: 18px; }
   .qp-flag.active .qp-icon { border-color: var(--faint); box-shadow: 0 0 0 1.5px var(--line) inset; }
-  .qp-time-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 148px; overflow-y: auto;
-    margin: 4px 0 12px; padding-top: 10px; border-top: 1px solid var(--line-soft);
-  }
-  .qp-time-btn {
-    background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 7px 2px;
-    font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--ink); cursor: pointer;
-  }
-  .qp-time-btn.active { background: var(--accent-due); border-color: var(--accent-due); color: #fff; }
-  .qp-cal-footer {
-    display: flex; justify-content: space-between; padding-top: 10px;
-    border-top: 1px solid var(--line-soft); margin-bottom: 16px;
-  }
-  .qp-link {
-    background: none; border: none; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 700;
-    cursor: pointer; color: var(--accent-due);
-  }
-  .qp-link.danger { color: var(--danger); }
   .quick-popover-backdrop { position: fixed; inset: 0; z-index: 199; background: transparent; }
   .quick-popover {
     position: fixed; z-index: 200; background: var(--card); border: 1px solid var(--line);
@@ -1288,8 +1214,6 @@
   .opt-row .opt-hint { color: var(--faint); font-weight: 500; margin-right: auto; margin-left: 6px; }
   .opt-row .check { color: var(--accent-due); font-weight: 700; }
   .opt-row .chev { color: var(--faint); }
-  .time-clear-x { background: none; border: none; color: var(--faint); font-size: 13px; cursor: pointer; padding: 4px; line-height: 1; }
-  .time-clear-x:hover { color: var(--danger); }
 
   /* custom repeat */
   .freq-picker { background: var(--bg); border-radius: 12px; padding: 14px; margin-bottom: 14px; }
@@ -1360,12 +1284,12 @@
 
   #app-desktop.desktop-frame {
     border: none; border-radius: 0; box-shadow: none; width: 100%; overflow: hidden;
-    zoom: 1.10; height: calc(100vh / 1.10); min-height: 0;
+    zoom: 1.05; height: calc(100vh / 1.05);
   }
   #app-mobile.phone {
     position: relative; width: 100%; max-width: 560px; margin: 0 auto;
     border: none; border-radius: 0; box-shadow: none;
-    zoom: 1.12; height: calc(100vh / 1.12); height: calc(100dvh / 1.12); background: var(--bg);
+    height: 100vh; height: 100dvh; background: var(--bg);
     flex-direction: column; overflow: hidden;
   }
   #app-mobile .m-content {
@@ -1730,20 +1654,13 @@
 
         <div class="d-main">
           <div class="d-topbar">
-            <div class="d-topbar-home">
-              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name data-go-home style="cursor:pointer;">Dashboard</div>
-              <button type="button" class="d-topbar-icon-btn" data-open-projects-overview title="Vue par projet">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-              </button>
-            </div>
-            <div class="d-topbar-search-wrap">
-              <div class="d-topbar-search">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                <input type="text" placeholder="Rechercher un projet, une page, une tâche…" data-search-input>
-              </div>
-              <div class="d-topbar-search-results" data-search-results></div>
+            <div class="d-topbar-home" data-go-home style="cursor:pointer;">
+              <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name>Dashboard</div>
             </div>
             <div class="d-topbar-actions">
+              <button type="button" class="d-topbar-icon-btn" data-open-search title="Rechercher">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              </button>
               <button type="button" class="d-topbar-icon-btn" data-desktop-capture-bar title="Ajouter">+</button>
               <button type="button" class="d-topbar-icon-btn" data-toggle-completed title="Afficher les tâches terminées">
                 <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -1770,6 +1687,7 @@
                   <div class="home-kanban-col" data-home-col="today">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">Today</span>
+                      <span class="home-kanban-weekday" data-home-weekday="0"></span>
                       <span class="home-kanban-count" data-home-count="today">0</span>
                       <span class="home-kanban-pct" data-home-pct="today">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="today" title="Ajouter une tâche">+</button>
@@ -1780,6 +1698,7 @@
                   <div class="home-kanban-col" data-home-col="tomorrow">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title">Demain</span>
+                      <span class="home-kanban-weekday" data-home-weekday="1"></span>
                       <span class="home-kanban-count" data-home-count="tomorrow">0</span>
                       <span class="home-kanban-pct" data-home-pct="tomorrow">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="tomorrow" title="Ajouter une tâche">+</button>
@@ -1790,6 +1709,7 @@
                   <div class="home-kanban-col" data-home-col="d2">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="2"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="2"></span>
                       <span class="home-kanban-count" data-home-count="d2">0</span>
                       <span class="home-kanban-pct" data-home-pct="d2">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d2" title="Ajouter une tâche">+</button>
@@ -1800,6 +1720,7 @@
                   <div class="home-kanban-col" data-home-col="d3">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="3"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="3"></span>
                       <span class="home-kanban-count" data-home-count="d3">0</span>
                       <span class="home-kanban-pct" data-home-pct="d3">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d3" title="Ajouter une tâche">+</button>
@@ -1810,6 +1731,7 @@
                   <div class="home-kanban-col" data-home-col="d4">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="4"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="4"></span>
                       <span class="home-kanban-count" data-home-count="d4">0</span>
                       <span class="home-kanban-pct" data-home-pct="d4">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d4" title="Ajouter une tâche">+</button>
@@ -1820,6 +1742,7 @@
                   <div class="home-kanban-col" data-home-col="d5">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="5"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="5"></span>
                       <span class="home-kanban-count" data-home-count="d5">0</span>
                       <span class="home-kanban-pct" data-home-pct="d5">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d5" title="Ajouter une tâche">+</button>
@@ -1830,6 +1753,7 @@
                   <div class="home-kanban-col" data-home-col="d6">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="6"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="6"></span>
                       <span class="home-kanban-count" data-home-count="d6">0</span>
                       <span class="home-kanban-pct" data-home-pct="d6">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d6" title="Ajouter une tâche">+</button>
@@ -1861,16 +1785,6 @@
 
           <div class="kanban-view" data-kanban-view style="display:none;">
             <div class="kanban-columns" data-kanban-columns></div>
-          </div>
-
-          <div class="projects-overview-view" data-projects-overview-view style="display:none;">
-            <div class="po-day-tabs" data-po-tabs>
-              <button type="button" class="po-day-tab" data-po-day="overdue">Overdue</button>
-              <button type="button" class="po-day-tab active" data-po-day="today">Today</button>
-              <button type="button" class="po-day-tab" data-po-day="tomorrow">Demain</button>
-              <button type="button" class="po-day-tab" data-po-day="week">Cette semaine</button>
-            </div>
-            <div class="po-grid" data-po-grid></div>
           </div>
         </div>
 
@@ -1938,9 +1852,6 @@
                 </div>
               </div>
               <div class="h3-right">
-                <button class="dots-btn" data-open-projects-overview title="Vue par projet">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-                </button>
                 <button class="dots-btn" data-toggle-completed title="Afficher les tâches terminées">
                   <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                   <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -1987,16 +1898,6 @@
 
             <div class="m-tasks" data-tab="nodate"></div>
             <div class="m-tasks" data-tab="all"></div>
-            </div>
-
-            <div class="m-po-view" data-mobile-po-view>
-              <div class="po-day-tabs" data-po-tabs>
-                <button type="button" class="po-day-tab" data-po-day="overdue">Overdue</button>
-                <button type="button" class="po-day-tab active" data-po-day="today">Today</button>
-                <button type="button" class="po-day-tab" data-po-day="tomorrow">Demain</button>
-                <button type="button" class="po-day-tab" data-po-day="week">Cette semaine</button>
-              </div>
-              <div class="po-grid" data-po-grid></div>
             </div>
           </div>
 
@@ -2390,34 +2291,6 @@
                   <button type="button" class="week-pill" data-day="Sun">Sun</button>
                 </div>
               </div>
-              <div class="week-picker" data-td-month-picker style="display:none;">
-                <div class="pa-section-head" style="margin-top:0;">Month</div>
-                <div class="segmented" data-td-month-mode>
-                  <button type="button" class="active" data-mode="each">Each</button>
-                  <button type="button" data-mode="onthe">On the</button>
-                  <button type="button" data-mode="workday">Workday</button>
-                </div>
-                <div class="dd-list" data-td-month-onthe style="display:none; margin-top:10px; margin-bottom:0;">
-                  <div class="dd-row" style="cursor:default; gap:8px;">
-                    <select class="td-freq-unit" data-td-month-ordinal style="flex:1;">
-                      <option value="1">First</option>
-                      <option value="2">Second</option>
-                      <option value="3">Third</option>
-                      <option value="4">Fourth</option>
-                      <option value="5">Last</option>
-                    </select>
-                    <select class="td-freq-unit" data-td-month-weekday style="flex:1;">
-                      <option value="1">Monday</option>
-                      <option value="2">Tuesday</option>
-                      <option value="3">Wednesday</option>
-                      <option value="4">Thursday</option>
-                      <option value="5">Friday</option>
-                      <option value="6">Saturday</option>
-                      <option value="0">Sunday</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -2798,34 +2671,6 @@
                   <button type="button" class="week-pill" data-day="Sun">Sun</button>
                 </div>
               </div>
-              <div class="week-picker" data-td-month-picker style="display:none;">
-                <div class="pa-section-head" style="margin-top:0;">Month</div>
-                <div class="segmented" data-td-month-mode>
-                  <button type="button" class="active" data-mode="each">Each</button>
-                  <button type="button" data-mode="onthe">On the</button>
-                  <button type="button" data-mode="workday">Workday</button>
-                </div>
-                <div class="dd-list" data-td-month-onthe style="display:none; margin-top:10px; margin-bottom:0;">
-                  <div class="dd-row" style="cursor:default; gap:8px;">
-                    <select class="td-freq-unit" data-td-month-ordinal style="flex:1;">
-                      <option value="1">First</option>
-                      <option value="2">Second</option>
-                      <option value="3">Third</option>
-                      <option value="4">Fourth</option>
-                      <option value="5">Last</option>
-                    </select>
-                    <select class="td-freq-unit" data-td-month-weekday style="flex:1;">
-                      <option value="1">Monday</option>
-                      <option value="2">Tuesday</option>
-                      <option value="3">Wednesday</option>
-                      <option value="4">Thursday</option>
-                      <option value="5">Friday</option>
-                      <option value="6">Saturday</option>
-                      <option value="0">Sunday</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -3056,9 +2901,6 @@
         const phone = getActiveContainer();
         if (!phone) return;
         overlay.classList.remove('open');
-        const input = overlay.querySelector('[data-search-input]');
-        if (input) input.value = '';
-        list.innerHTML = '';
         if (el.dataset.searchKind === 'doc') {
           openDocsEditor(phone, el.dataset.searchId, false);
           return;
@@ -3082,14 +2924,6 @@
   document.querySelectorAll('.search-overlay [data-search-input]').forEach(input => {
     input.addEventListener('input', () => renderSearch(input.closest('.search-overlay'), input.value));
   });
-  document.querySelectorAll('.d-topbar-search-wrap [data-search-input]').forEach(input => {
-    const wrap = input.closest('.d-topbar-search-wrap');
-    input.addEventListener('input', () => renderSearch(wrap, input.value));
-    input.addEventListener('focus', () => { if (input.value.trim()) renderSearch(wrap, input.value); });
-    input.addEventListener('blur', () => {
-      setTimeout(() => { wrap.querySelector('[data-search-results]').innerHTML = ''; }, 150);
-    });
-  });
   function openSearchOverlay(frame) {
     if (!frame) return;
     frame.querySelector('.drawer')?.classList.remove('open');
@@ -3112,23 +2946,8 @@
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === ';') {
       e.preventDefault();
-      const container = getActiveContainer();
-      const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
-      if (inlineInput) inlineInput.focus();
-      else openSearchOverlay(container);
+      openSearchOverlay(getActiveContainer());
     }
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'ù' || e.metaKey || e.ctrlKey || e.altKey) return;
-    const active = document.activeElement;
-    const tag = active?.tagName;
-    const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || active?.isContentEditable;
-    if (isEditable) return;
-    e.preventDefault();
-    const container = getActiveContainer();
-    const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
-    if (inlineInput) inlineInput.focus();
-    else openSearchOverlay(container);
   });
   document.querySelectorAll('[data-close-search]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -3225,31 +3044,6 @@
     const m = (text || '').match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
     return m ? m[1] : null;
   }
-  function renderNotesMarkdown(text) {
-    return text.split('\n').map(line => {
-      const boldMarked = line.replace(/\*\*([^\n]+?)\*\*/g, '\u0001$1\u0002');
-      return linkifyNotesHtml(boldMarked).replace(/\u0001/g, '<strong>').replace(/\u0002/g, '</strong>');
-    }).join('<br>');
-  }
-  function wireBoldShortcut(textarea) {
-    textarea?.addEventListener('keydown', (e) => {
-      const isMod = e.metaKey || e.ctrlKey;
-      if (!isMod || e.key.toLowerCase() !== 'b') return;
-      e.preventDefault();
-      const start = textarea.selectionStart, end = textarea.selectionEnd;
-      const val = textarea.value;
-      const selected = val.slice(start, end);
-      const before = val.slice(0, start), after = val.slice(end);
-      textarea.value = `${before}**${selected}**${after}`;
-      if (selected) {
-        textarea.selectionStart = start + 2;
-        textarea.selectionEnd = start + 2 + selected.length;
-      } else {
-        textarea.selectionStart = textarea.selectionEnd = start + 2;
-      }
-      textarea.dispatchEvent(new Event('input', { bubbles: true }));
-    });
-  }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
     const edit = sheet.querySelector('[data-td-notes-edit]');
@@ -3259,10 +3053,10 @@
     if (!trimmed) {
       view.textContent = '';
     } else if (ytId) {
-      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>` +
+      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>` +
         `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
     } else {
-      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>`;
+      view.innerHTML = `<div class="td-notes-text">${linkifyNotesHtml(trimmed)}</div>`;
     }
     view.style.display = 'block';
     edit.style.display = 'none';
@@ -3624,44 +3418,6 @@
   }
   // Nos règles de répétition sont stockées en texte lisible (ex: "Weekly (Monday)",
   // "Every 2 weeks on Mon, Wed") — on les reparse ici pour avancer à la prochaine échéance.
-  const ORDINAL_WORDS = { '1': '1st', '2': '2nd', '3': '3rd', '4': '4th', '5': 'Last' };
-  const ORDINAL_TO_NUM = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4, 'Last': 5 };
-  const WEEKDAY_NAMES_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  function nthWeekdayOfMonth(year, month, weekday, ordinal) {
-    if (ordinal === 5) {
-      const last = new Date(year, month + 1, 0);
-      const d = new Date(last);
-      while (d.getDay() !== weekday) d.setDate(d.getDate() - 1);
-      return d;
-    }
-    let count = 0;
-    for (let day = 1; day <= 31; day++) {
-      const dt = new Date(year, month, day);
-      if (dt.getMonth() !== month) break;
-      if (dt.getDay() === weekday) {
-        count++;
-        if (count === ordinal) return dt;
-      }
-    }
-    return new Date(year, month, 1);
-  }
-  function nearestWorkdayOfMonth(year, month, day) {
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    const dt = new Date(year, month, Math.min(day, lastDay));
-    if (dt.getDay() === 6) dt.setDate(dt.getDate() - 1);
-    else if (dt.getDay() === 0) dt.setDate(dt.getDate() + 1);
-    return dt;
-  }
-  function monthRepeatLabelSuffix(sheet) {
-    const mode = sheet.querySelector('[data-td-month-mode] button.active')?.dataset.mode || 'each';
-    if (mode === 'onthe') {
-      const ord = sheet.querySelector('[data-td-month-ordinal]')?.value || '1';
-      const wd = parseInt(sheet.querySelector('[data-td-month-weekday]')?.value ?? '1', 10);
-      return ` on the ${ORDINAL_WORDS[ord]} ${WEEKDAY_NAMES_FULL[wd]}`;
-    }
-    if (mode === 'workday') return ' on the nearest workday';
-    return '';
-  }
   function computeNextOccurrence(rule, dueDateStr) {
     if (!rule || !dueDateStr) return null;
     const d = new Date(dueDateStr + 'T00:00:00');
@@ -3678,26 +3434,11 @@
       if (m) {
         const n = m[1] ? parseInt(m[1], 10) : 1;
         const unit = m[2];
-        if (unit === 'day') { d.setDate(d.getDate() + n); return isoFromDate(d); }
-        if (unit === 'week') { d.setDate(d.getDate() + n * 7); return isoFromDate(d); }
-        if (unit === 'year') { d.setFullYear(d.getFullYear() + n); return isoFromDate(d); }
-        if (unit === 'month') {
-          const onThe = rule.match(/on the (1st|2nd|3rd|4th|Last) (Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday)/);
-          const onWorkday = /on the nearest workday/.test(rule);
-          if (onThe) {
-            d.setMonth(d.getMonth() + n);
-            const nd = nthWeekdayOfMonth(d.getFullYear(), d.getMonth(), WEEKDAY_NAMES_FULL.indexOf(onThe[2]), ORDINAL_TO_NUM[onThe[1]]);
-            return isoFromDate(nd);
-          }
-          if (onWorkday) {
-            const origDay = d.getDate();
-            d.setMonth(d.getMonth() + n);
-            const nd = nearestWorkdayOfMonth(d.getFullYear(), d.getMonth(), origDay);
-            return isoFromDate(nd);
-          }
-          d.setMonth(d.getMonth() + n);
-          return isoFromDate(d);
-        }
+        if (unit === 'day') d.setDate(d.getDate() + n);
+        else if (unit === 'week') d.setDate(d.getDate() + n * 7);
+        else if (unit === 'month') d.setMonth(d.getMonth() + n);
+        else if (unit === 'year') d.setFullYear(d.getFullYear() + n);
+        return isoFromDate(d);
       }
     }
     return null;
@@ -3770,23 +3511,15 @@
     const list = sheet.querySelector('[data-td-time-options]');
     if (!list) return;
     const current = currentDueTime(sheet).slice(0, 5);
-    let html = '';
+    let html = '<div class="opt-row" data-val="">Aucune</div>';
     for (let h = 0; h < 24; h++) {
       for (const m of [0, 30]) {
         const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        html += `<div class="opt-row" data-val="${val}"><span>${val}</span><button type="button" class="time-clear-x" data-time-clear title="Effacer l'heure">✕</button></div>`;
+        html += `<div class="opt-row" data-val="${val}">${val}</div>`;
       }
     }
     list.innerHTML = html;
     list.querySelectorAll('.opt-row').forEach(r => r.classList.toggle('selected', r.dataset.val === (current || '')));
-    list.querySelectorAll('[data-time-clear]').forEach(x => {
-      x.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        await applyDuePatch(sheet, { due_time: null });
-        updateDueLabelFromCache(sheet);
-        popView(sheet);
-      });
-    });
     list.querySelectorAll('.opt-row').forEach(row => {
       row.addEventListener('click', async () => {
         await applyDuePatch(sheet, { due_time: row.dataset.val || null });
@@ -4017,7 +3750,6 @@
       renderTdNotes(sheet, val);
       saveRecordField(sheet, { notes: val || null });
     });
-    wireBoldShortcut(sheet.querySelector('[data-td-notes-edit]'));
     let notesAutoSaveTimer = null;
     sheet.querySelector('[data-td-notes-edit]')?.addEventListener('input', (e) => {
       clearTimeout(notesAutoSaveTimer);
@@ -4075,16 +3807,13 @@
       sheet.querySelector('[data-td-source-title-input]').focus();
     });
     async function commitSource(sheet) {
-      const row = sheet.querySelector('[data-td-source-add-row]');
-      if (row.style.display === 'none') return; // déjà validé, évite un doublon
       const titleInput = sheet.querySelector('[data-td-source-title-input]');
       const urlInput = sheet.querySelector('[data-td-source-url-input]');
       const title = titleInput.value.trim();
       const url = urlInput.value.trim();
       const editIdx = sheet.dataset.editingSourceIdx;
       sheet.dataset.editingSourceIdx = '';
-      row.style.display = 'none';
-      if (!title && !url) return;
+      if (!url) { sheet.querySelector('[data-td-source-add-row]').style.display = 'none'; return; }
       const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
       const current = Array.isArray(record?.sources) ? record.sources : [];
       let next;
@@ -4095,19 +3824,15 @@
       }
       await saveRecordField(sheet, { sources: next });
       renderTdSources(sheet, getRecord(sheet.dataset.recordKind, sheet.dataset.recordId));
+      sheet.querySelector('[data-td-source-add-row]').style.display = 'none';
     }
     sheet.querySelector('[data-td-source-title-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-td-source-url-input]').focus(); }
+      if (e.key === 'Enter') sheet.querySelector('[data-td-source-url-input]').focus();
     });
     sheet.querySelector('[data-td-source-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); commitSource(sheet); }
     });
     sheet.querySelector('[data-td-source-confirm]')?.addEventListener('click', () => commitSource(sheet));
-    sheet.querySelector('[data-td-source-add-row]')?.addEventListener('focusout', (e) => {
-      const row = e.currentTarget;
-      if (row.contains(e.relatedTarget)) return;
-      commitSource(sheet);
-    });
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
@@ -4231,19 +3956,9 @@
     sheet.querySelectorAll('[data-td-week-picker] .week-pill').forEach(pill => {
       pill.addEventListener('click', () => pill.classList.toggle('active'));
     });
-    sheet.querySelectorAll('[data-td-month-mode] button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        sheet.querySelectorAll('[data-td-month-mode] button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const onThe = sheet.querySelector('[data-td-month-onthe]');
-        if (onThe) onThe.style.display = btn.dataset.mode === 'onthe' ? 'block' : 'none';
-      });
-    });
     sheet.querySelector('[data-td-freq-unit]')?.addEventListener('change', (e) => {
-      const weekPicker = sheet.querySelector('[data-td-week-picker]');
-      const monthPicker = sheet.querySelector('[data-td-month-picker]');
-      if (weekPicker) weekPicker.style.display = e.target.value === 'week' ? 'block' : 'none';
-      if (monthPicker) monthPicker.style.display = e.target.value === 'month' ? 'block' : 'none';
+      const picker = sheet.querySelector('[data-td-week-picker]');
+      if (picker) picker.style.display = e.target.value === 'week' ? 'block' : 'none';
     });
     sheet.querySelector('[data-td-custom-repeat-done]')?.addEventListener('click', async () => {
       const n = parseInt(sheet.querySelector('[data-td-freq-n]').value, 10) || 1;
@@ -4258,14 +3973,10 @@
           days = [FULL_DAY_NAMES[WEEK_ABBR[d.getDay()]]];
         }
         label += `, ${days.join(', ')}`;
-      } else if (unit === 'month') {
-        label += monthRepeatLabelSuffix(sheet);
       }
       updateRepeatDisplay(sheet, label);
       await saveRecordField(sheet, { repeat_rule: label });
-      const stack = (sheet.dataset.stack || 'detail').split(',');
-      const dateIdx = stack.lastIndexOf('date');
-      sheet.dataset.stack = (dateIdx !== -1 ? stack.slice(0, dateIdx + 1) : ['detail', 'date']).join(',');
+      sheet.dataset.stack = 'date';
       showSheetView(sheet, 'date');
       renderCalendar(sheet);
     });
@@ -4353,11 +4064,9 @@
   // date-tab switching (desktop panel + mobile share the same markup pattern)
   document.querySelectorAll('[data-go-home]').forEach(btn => {
     btn.addEventListener('click', () => {
-      const phone = btn.closest('.phone');
-      const desktop = btn.closest('.desktop-frame');
-      if (phone) { closeAllPhoneSheets(phone, null); closeMobileProjectsOverview(phone); }
-      if (desktop) closeDesktopProjectsOverview();
-      const scope = phone || desktop || document;
+      const phone = btn.closest('.phone') || btn.closest('.desktop-frame');
+      if (phone) closeAllPhoneSheets(phone, null);
+      const scope = btn.closest('.phone') || btn.closest('.desktop-frame') || document;
       scope.querySelectorAll('[data-tabgroup] .dt[data-tab="today"]').forEach(dt => dt.click());
     });
   });
@@ -4403,12 +4112,10 @@
       e.stopPropagation();
       visible = !visible;
       const scope = getActiveContainer() || document;
-      scope.dataset.showCompleted = visible ? '1' : '';
-      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks, .po-card-tasks').forEach(l => l.classList.toggle('show-completed', visible));
+      scope.querySelectorAll('.task-list, .m-tasks, .kanban-column-tasks').forEach(l => l.classList.toggle('show-completed', visible));
       btn.querySelector('.eye-closed').style.display = visible ? 'none' : '';
       btn.querySelector('.eye-open').style.display = visible ? '' : 'none';
       btn.title = visible ? 'Masquer les tâches terminées' : 'Afficher les tâches terminées';
-      refreshOpenProjectsOverviews();
     });
   });
   // scrollbar only shows while actively scrolling (or hovered, via CSS)
@@ -4551,6 +4258,12 @@
       const offset = parseInt(el.dataset.homeDayOffset, 10);
       el.textContent = formatDateShort(isoPlusDays(offset));
     });
+    // jour de la semaine, discret, à côté du titre des colonnes du board desktop (Today, Demain, d2…d6)
+    document.querySelectorAll('[data-home-weekday]').forEach(el => {
+      const offset = parseInt(el.dataset.homeWeekday, 10);
+      const d = new Date(isoPlusDays(offset) + 'T00:00:00');
+      el.textContent = DAYS_FULL_FR[d.getDay()].slice(0, 3);
+    });
   }
   function whenLabel(todo, tabKey, includeDate) {
     if (todo.due_time) {
@@ -4611,13 +4324,12 @@
       </div>`;
   }
 
-  function projectBlockHtml(project, stats, flexBasis) {
+  function projectBlockHtml(project, stats) {
     const kanjiInner = project.kanji_image_url
       ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
       : escapeHtml(project.kanji);
-    const flexStyle = flexBasis ? ` style="flex:0 0 ${flexBasis};"` : '';
     return `
-      <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}"${flexStyle}>
+      <div class="project-block" data-project="${escapeHtml(project.slug)}" data-project-real-id="${project.id}">
         <div class="pk-top"><span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span><span class="pk-pct">${stats.pct}%</span></div>
         <div class="bar"><span style="width:${stats.pct}%;background:${project.color}"></span></div>
         <div class="pk-count">${stats.done}/${stats.total}</div>
@@ -4696,7 +4408,6 @@
         const projectId = kanbanView ? cachedProjects.find(p => p.name === badgeText)?.id : null;
         if (projectId) setTimeout(() => renderKanbanColumns(projectId), 250);
       }
-      if (row?.closest('.po-card')) setTimeout(() => refreshOpenProjectsOverviews(), 250);
 
       if (t) { t.is_done = nowDone; t.completed_at = nowDone ? new Date().toISOString() : null; }
 
@@ -4783,53 +4494,53 @@
     }
   }
 
-  // petit panneau flottant (calendrier + heure + priorité) ouvert en cliquant sur la date d'une tâche
-  // dans une liste, sans passer par la fiche détail complète — réutilise le composant calendrier
-  // (renderCalendar/applyDuePatch) déjà utilisé dans la fiche tâche, donc même design system.
+  // petit panneau flottant (date + priorité) ouvert en cliquant sur la date d'une tâche dans une liste,
+  // sans passer par la fiche détail complète — mêmes icônes/couleurs que le reste de l'app
   function quickPopoverHtml() {
     return `
-      <div class="cal-head">
-        <button type="button" class="cal-nav" data-cal-prev>‹</button>
-        <div class="cal-month" data-cal-month-label></div>
-        <button type="button" class="cal-nav" data-cal-next>›</button>
+      <div class="quick-dates">
+        <button type="button" class="quick-date-btn" data-qp-quick="today">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+          <span>Today</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="tomorrow">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M9 14h6M13 11l3 3-3 3"/></svg></span>
+          <span>Demain</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="nextweek">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/><text x="12" y="17" font-size="7" text-anchor="middle" fill="currentColor" stroke="none">Lu</text></svg></span>
+          <span>Next week</span>
+        </button>
+        <button type="button" class="quick-date-btn" data-qp-quick="clear">
+          <span class="qd-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="4"/><path d="M8 2v4M16 2v4"/><path d="M10 12l4 4M14 12l-4 4"/></svg></span>
+          <span>Clear</span>
+        </button>
       </div>
-      <div class="cal-grid" data-cal-grid></div>
-      <div class="qp-time-grid" data-qp-time-grid></div>
-      <div class="qp-cal-footer">
-        <button type="button" class="qp-link danger" data-qp-clear-all>Effacer</button>
-        <button type="button" class="qp-link" data-qp-validate>Valider</button>
+      <div class="quick-priority-head">Priorité</div>
+      <div class="quick-priority">
+        <button type="button" class="qp-flag" data-qp-priority="high" title="Haute">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--danger)" stroke="var(--danger)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Haute</span>
+        </button>
+        <button type="button" class="qp-flag" data-qp-priority="med" title="Moyenne">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-pvpp)" stroke="var(--accent-pvpp)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Moyenne</span>
+        </button>
+        <button type="button" class="qp-flag" data-qp-priority="low" title="Basse">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="var(--accent-manga-blue)" stroke="var(--accent-manga-blue)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Basse</span>
+        </button>
+        <button type="button" class="qp-flag" data-qp-priority="none" title="Aucune">
+          <span class="qp-icon"><svg viewBox="0 0 24 24" fill="#6B716A" stroke="#6B716A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15" stroke-width="2"/></svg></span>
+          <span>Aucune</span>
+        </button>
       </div>`;
   }
-  let quickPopoverDirty = false;
   function closeQuickPopover() {
     document.querySelectorAll('.quick-popover, .quick-popover-backdrop').forEach(el => el.remove());
-    if (quickPopoverDirty) { quickPopoverDirty = false; loadData(); }
-  }
-  function renderQuickTimeGrid(pop) {
-    const grid = pop.querySelector('[data-qp-time-grid]');
-    if (!grid) return;
-    const current = currentDueTime(pop).slice(0, 5);
-    let html = '';
-    for (let h = 0; h < 24; h++) {
-      for (const m of [0, 30]) {
-        const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        html += `<button type="button" class="qp-time-btn${val === current ? ' active' : ''}" data-time="${val}">${val}</button>`;
-      }
-    }
-    grid.innerHTML = html;
-    grid.querySelectorAll('[data-time]').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        await applyDuePatch(pop, { due_time: btn.dataset.time });
-        quickPopoverDirty = true;
-        renderQuickTimeGrid(pop);
-      });
-    });
-    grid.querySelector('.qp-time-btn.active')?.scrollIntoView({ block: 'nearest' });
   }
   function openQuickDatePopover(anchorEl, todoId) {
     closeQuickPopover();
-    quickPopoverDirty = false;
-
     const backdrop = document.createElement('div');
     backdrop.className = 'quick-popover-backdrop';
     backdrop.addEventListener('click', closeQuickPopover);
@@ -4837,50 +4548,10 @@
 
     const pop = document.createElement('div');
     pop.className = 'quick-popover';
-    pop.dataset.recordKind = 'todo';
-    pop.dataset.recordId = todoId;
     pop.innerHTML = quickPopoverHtml();
     pop.addEventListener('click', (e) => e.stopPropagation());
     document.body.appendChild(pop);
 
-    // ---- calendrier (même composant que la fiche tâche) ----
-    function jumpCalendarTo(iso) {
-      const base = iso ? new Date(iso + 'T00:00:00') : new Date();
-      pop.dataset.calYear = base.getFullYear();
-      pop.dataset.calMonth = base.getMonth();
-      pop.dataset.pendingDate = iso || '';
-      renderCalendar(pop);
-    }
-    jumpCalendarTo(currentDueDate(pop));
-    pop.querySelector('[data-cal-grid]').addEventListener('click', (e) => {
-      if (e.target.closest('.cal-cell[data-date]')) quickPopoverDirty = true;
-    });
-    pop.querySelector('[data-cal-prev]').addEventListener('click', () => {
-      let y = parseInt(pop.dataset.calYear, 10), m = parseInt(pop.dataset.calMonth, 10) - 1;
-      if (m < 0) { m = 11; y--; }
-      pop.dataset.calYear = y; pop.dataset.calMonth = m;
-      renderCalendar(pop);
-    });
-    pop.querySelector('[data-cal-next]').addEventListener('click', () => {
-      let y = parseInt(pop.dataset.calYear, 10), m = parseInt(pop.dataset.calMonth, 10) + 1;
-      if (m > 11) { m = 0; y++; }
-      pop.dataset.calYear = y; pop.dataset.calMonth = m;
-      renderCalendar(pop);
-    });
-
-    // ---- heure ----
-    renderQuickTimeGrid(pop);
-
-    // ---- effacer / valider ----
-    pop.querySelector('[data-qp-clear-all]').addEventListener('click', async () => {
-      await applyDuePatch(pop, { due_date: null, due_time: null });
-      quickPopoverDirty = true;
-      jumpCalendarTo('');
-      renderQuickTimeGrid(pop);
-    });
-    pop.querySelector('[data-qp-validate]').addEventListener('click', closeQuickPopover);
-
-    // ---- positionnement (après rendu complet, pour mesurer la vraie hauteur) ----
     const rect = anchorEl.getBoundingClientRect();
     const popRect = pop.getBoundingClientRect();
     let top = rect.bottom + 6;
@@ -4890,6 +4561,34 @@
     if (top + popRect.height > window.innerHeight - 8) top = rect.top - popRect.height - 6;
     pop.style.top = `${Math.max(8, top)}px`;
     pop.style.left = `${left}px`;
+
+    const t = cachedTodos.find(x => x.id === todoId);
+    if (t) {
+      pop.querySelectorAll('[data-qp-priority]').forEach(b => b.classList.toggle('active', b.dataset.qpPriority === (t.priority || 'none')));
+    }
+
+    pop.querySelectorAll('[data-qp-quick]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const patch = {};
+        if (btn.dataset.qpQuick === 'today') patch.due_date = todayISO();
+        else if (btn.dataset.qpQuick === 'tomorrow') patch.due_date = isoPlusDays(1);
+        else if (btn.dataset.qpQuick === 'nextweek') patch.due_date = isoPlusDays(7);
+        else if (btn.dataset.qpQuick === 'clear') { patch.due_date = null; patch.due_time = null; }
+        await sb.from('todos').update(patch).eq('id', todoId);
+        if (t) Object.assign(t, patch);
+        closeQuickPopover();
+        loadData();
+      });
+    });
+    pop.querySelectorAll('[data-qp-priority]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const val = btn.dataset.qpPriority;
+        await sb.from('todos').update({ priority: val }).eq('id', todoId);
+        if (t) t.priority = val;
+        closeQuickPopover();
+        loadData();
+      });
+    });
   }
 
   function wireProjectBlock(block) {
@@ -4922,151 +4621,6 @@
     const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
     if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
   }
-
-  // ---- vue par projet : grille de cartes filtrées par jour (Overdue/Today/Demain/Cette semaine) ----
-  let poCurrentDay = 'today';
-  function poMatchesTab(todo, tabKey) {
-    const daily = isDailyRepeat(todo);
-    if (tabKey === 'today') return daily || classifyDue(todo.due_date) === 'today';
-    if (daily) return false;
-    if (tabKey === 'overdue') return classifyDue(todo.due_date) === 'overdue';
-    if (tabKey === 'tomorrow') return classifyDue(todo.due_date) === 'tomorrow';
-    if (tabKey === 'week') {
-      const diff = todo.due_date ? daysFromToday(todo.due_date) : null;
-      return diff !== null && diff >= 0 && diff <= 6;
-    }
-    return false;
-  }
-  function renderProjectsOverviewGrid(gridEl, tabKey) {
-    if (!gridEl) return;
-    const subsByTodo = {};
-    cachedSubtasks.forEach(s => {
-      subsByTodo[s.todo_id] = subsByTodo[s.todo_id] || { done: 0, total: 0 };
-      subsByTodo[s.todo_id].total++;
-      if (s.is_done) subsByTodo[s.todo_id].done++;
-    });
-    const showCompleted = getActiveContainer()?.dataset.showCompleted === '1';
-    const topLevel = cachedTodos.filter(t => !t.parent_todo_id);
-    const sortAsc = (a, b) => {
-      const ka = `${a.due_date || '9999-99-99'}T${a.due_time || '99:99'}`;
-      const kb = `${b.due_date || '9999-99-99'}T${b.due_time || '99:99'}`;
-      if (ka !== kb) return ka < kb ? -1 : 1;
-      return (a.is_done === b.is_done) ? 0 : (a.is_done ? 1 : -1);
-    };
-    const cardsHtml = cachedProjects.map(project => {
-      const projectPages = cachedPages.filter(p => p.project_id === project.id && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
-      const projectPageIds = new Set(projectPages.map(p => p.id));
-      const matching = topLevel.filter(t => projectPageIds.has(t.page_id) && poMatchesTab(t, tabKey));
-      // masqué si le projet n'a plus aucune tâche active (non cochée) pour ce filtre —
-      // pas la peine d'afficher une carte qui ne montrerait que des tâches déjà terminées
-      if (!matching.some(t => !t.is_done)) return '';
-      const done = matching.filter(t => t.is_done).length;
-      const pct = Math.round((done / matching.length) * 100);
-      const kanjiInner = project.kanji_image_url
-        ? `<img src="${escapeHtml(project.kanji_image_url)}" alt="">`
-        : escapeHtml(project.kanji);
-      // regroupées par page, dans l'ordre déjà établi (position), tâches triées par heure croissante
-      const tasksByPage = {};
-      matching.forEach(t => { (tasksByPage[t.page_id] = tasksByPage[t.page_id] || []).push(t); });
-      const rows = projectPages
-        .filter(pg => tasksByPage[pg.id]?.length)
-        .map(pg => {
-          const pageRows = tasksByPage[pg.id]
-            .sort(sortAsc)
-            .map(t => taskRowHtml(t, project, pg, subsByTodo[t.id], false, isDailyRepeat(t)))
-            .join('');
-          return `<div class="po-page-group"><div class="po-page-label">${escapeHtml(pg.title)}</div>${pageRows}</div>`;
-        }).join('');
-      return `
-        <div class="po-card">
-          <div class="po-card-head">
-            <span class="pk-kanji${project.kanji_image_url ? ' has-image' : ''}" style="background:${project.color}">${kanjiInner}</span>
-            <span class="po-card-name">${escapeHtml(project.name)}</span>
-            <span class="po-card-count">${done}/${matching.length}</span>
-            <span class="po-card-pct">${pct}%</span>
-            <button type="button" class="home-kanban-add" data-po-add="${project.id}" title="Ajouter une tâche">+</button>
-          </div>
-          <div class="bar po-card-bar"><span style="width:${pct}%;background:${project.color}"></span></div>
-          <div class="po-card-tasks${showCompleted ? ' show-completed' : ''}">${rows}</div>
-        </div>`;
-    }).filter(Boolean).join('');
-    gridEl.innerHTML = cardsHtml || '<div class="empty-state">Rien à faire pour ce filtre</div>';
-    gridEl.querySelectorAll('[data-po-add]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let dueDate = null;
-        if (tabKey === 'today') dueDate = todayISO();
-        else if (tabKey === 'tomorrow') dueDate = isoPlusDays(1);
-        openAddTaskSheet(getActiveContainer(), btn.dataset.poAdd, null, dueDate);
-      });
-    });
-    gridEl.querySelectorAll('.checkbox:not([data-td-checkbox])').forEach(wireCheckbox);
-    gridEl.querySelectorAll('.task-row').forEach(wireTaskRowClick);
-  }
-  function refreshOpenProjectsOverviews() {
-    document.querySelectorAll('[data-po-grid]').forEach(g => {
-      const visible = g.closest('[data-projects-overview-view], [data-mobile-po-view]')?.style.display !== 'none';
-      if (visible) renderProjectsOverviewGrid(g, poCurrentDay);
-    });
-  }
-  document.querySelectorAll('[data-po-day]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      poCurrentDay = btn.dataset.poDay;
-      document.querySelectorAll('[data-po-day]').forEach(b => b.classList.toggle('active', b.dataset.poDay === poCurrentDay));
-      refreshOpenProjectsOverviews();
-    });
-  });
-  function openDesktopProjectsOverview() {
-    const board = document.querySelector('#app-desktop .board');
-    const kanban = document.querySelector('#app-desktop [data-kanban-view]');
-    const overview = document.querySelector('#app-desktop [data-projects-overview-view]');
-    if (!board || !overview) return;
-    board.style.display = 'none';
-    if (kanban) kanban.style.display = 'none';
-    overview.style.display = 'flex';
-    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
-    if (badge) { badge.textContent = 'Par projet'; badge.style.display = 'flex'; }
-    renderProjectsOverviewGrid(overview.querySelector('[data-po-grid]'), poCurrentDay);
-  }
-  function closeDesktopProjectsOverview() {
-    const overview = document.querySelector('#app-desktop [data-projects-overview-view]');
-    if (!overview || overview.style.display === 'none') return;
-    overview.style.display = 'none';
-    document.querySelector('#app-desktop .board').style.display = 'block';
-    const badge = document.querySelector('#app-desktop [data-kanban-project-name]');
-    if (badge) { badge.textContent = 'Dashboard'; badge.style.display = 'flex'; }
-  }
-  function openMobileProjectsOverview(phone) {
-    const view = phone.querySelector('[data-mobile-po-view]');
-    if (!view) return;
-    const hello = phone.querySelector('.m-hello');
-    const strip = phone.querySelector('.m-content > .project-strip');
-    const panel = phone.querySelector('.m-content > .panel');
-    if (hello) hello.style.display = 'none';
-    if (strip) strip.style.display = 'none';
-    if (panel) panel.style.display = 'none';
-    view.style.display = 'flex';
-    renderProjectsOverviewGrid(view.querySelector('[data-po-grid]'), poCurrentDay);
-  }
-  function closeMobileProjectsOverview(phone) {
-    const view = phone.querySelector('[data-mobile-po-view]');
-    if (!view || view.style.display === 'none') return;
-    view.style.display = 'none';
-    const hello = phone.querySelector('.m-hello');
-    const strip = phone.querySelector('.m-content > .project-strip');
-    const panel = phone.querySelector('.m-content > .panel');
-    if (hello) hello.style.display = '';
-    if (strip) strip.style.display = '';
-    if (panel) panel.style.display = '';
-  }
-  document.querySelectorAll('[data-open-projects-overview]').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const phone = btn.closest('.phone');
-      if (phone) openMobileProjectsOverview(phone);
-      else openDesktopProjectsOverview();
-    });
-  });
-
   function renderKanbanColumns(projectId) {
     const columnsEl = document.querySelector('#app-desktop [data-kanban-columns]');
     if (!columnsEl) return;
@@ -5124,7 +4678,6 @@
     el.addEventListener('click', () => {
       const kanban = document.querySelector('#app-desktop [data-kanban-view]');
       if (kanban && kanban.style.display !== 'none') closeDesktopKanban();
-      closeDesktopProjectsOverview();
       const docsEditor = document.querySelector('[data-docs-editor]');
       if (docsEditor && docsEditor.classList.contains('open')) closeDocsEditor(getActiveContainer());
     });
@@ -5294,13 +4847,12 @@
     const deskEl = document.getElementById('venture-list-desktop');
     const deskStripEl = document.getElementById('project-strip-desktop');
     const mobEl = document.querySelector('#app-mobile .project-strip');
-    const flexBasis = sorted.length ? `${(100 / sorted.length).toFixed(4)}%` : null;
     if (deskEl) {
       deskEl.innerHTML = sorted.map(p => ventureCardHtml(p, projectStats(p, pages, todos))).join('');
       deskEl.querySelectorAll('.venture-card').forEach(wireProjectBlock);
     }
     if (deskStripEl) {
-      deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos), flexBasis)).join('');
+      deskStripEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
       deskStripEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
       const desktopDrawerEditMode = document.querySelector('#app-desktop .drawer')?.classList.contains('edit-mode');
       if (desktopDrawerEditMode) {
@@ -5311,7 +4863,7 @@
       }
     }
     if (mobEl) {
-      mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos), flexBasis)).join('');
+      mobEl.innerHTML = sorted.map(p => projectBlockHtml(p, projectStats(p, pages, todos))).join('');
       mobEl.querySelectorAll('.project-block').forEach(wireProjectBlock);
     }
     const kpiProjD = document.getElementById('kpi-projects-desktop');
@@ -6273,7 +5825,6 @@
       const openProject = cachedProjects.find(p => p.name === badge?.textContent);
       if (openProject) renderKanbanColumns(openProject.id);
     }
-    refreshOpenProjectsOverviews();
     revealApp();
   }
 
@@ -6545,10 +6096,6 @@
       const back = e.target.closest('[data-back]');
       if (back) { popView(sheet); return; }
     });
-    sheet.querySelector('[data-at-title]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-at-save]')?.click(); }
-    });
-    wireBoldShortcut(sheet.querySelector('[data-at-desc]'));
     sheet.querySelectorAll('.at-type-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         sheet.querySelectorAll('.at-type-tab').forEach(t => t.classList.remove('active'));
@@ -6603,19 +6150,9 @@
     sheet.querySelectorAll('[data-td-week-picker] .week-pill').forEach(pill => {
       pill.addEventListener('click', () => pill.classList.toggle('active'));
     });
-    sheet.querySelectorAll('[data-td-month-mode] button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        sheet.querySelectorAll('[data-td-month-mode] button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const onThe = sheet.querySelector('[data-td-month-onthe]');
-        if (onThe) onThe.style.display = btn.dataset.mode === 'onthe' ? 'block' : 'none';
-      });
-    });
     sheet.querySelector('[data-td-freq-unit]')?.addEventListener('change', (e) => {
-      const weekPicker = sheet.querySelector('[data-td-week-picker]');
-      const monthPicker = sheet.querySelector('[data-td-month-picker]');
-      if (weekPicker) weekPicker.style.display = e.target.value === 'week' ? 'block' : 'none';
-      if (monthPicker) monthPicker.style.display = e.target.value === 'month' ? 'block' : 'none';
+      const picker = sheet.querySelector('[data-td-week-picker]');
+      if (picker) picker.style.display = e.target.value === 'week' ? 'block' : 'none';
     });
     sheet.querySelector('[data-td-custom-repeat-done]')?.addEventListener('click', () => {
       const n = parseInt(sheet.querySelector('[data-td-freq-n]').value, 10) || 1;
@@ -6629,14 +6166,10 @@
           days = [FULL_DAY_NAMES[WEEK_ABBR[d.getDay()]]];
         }
         label += `, ${days.join(', ')}`;
-      } else if (unit === 'month') {
-        label += monthRepeatLabelSuffix(sheet);
       }
       sheet.dataset.pendingRepeatRule = label;
       updateRepeatDisplay(sheet, label);
-      const stack = (sheet.dataset.stack || 'detail').split(',');
-      const dateIdx = stack.lastIndexOf('date');
-      sheet.dataset.stack = (dateIdx !== -1 ? stack.slice(0, dateIdx + 1) : ['detail', 'date']).join(',');
+      sheet.dataset.stack = 'date';
       showSheetView(sheet, 'date');
       renderCalendar(sheet);
     });
@@ -6713,32 +6246,23 @@
       sheet.querySelector('[data-at-source-title-input]').focus();
     });
     function commitAtSource(sheet) {
-      const row = sheet.querySelector('[data-at-source-add-row]');
-      if (row.style.display === 'none') return; // déjà validé, évite un doublon
       const titleInput = sheet.querySelector('[data-at-source-title-input]');
       const urlInput = sheet.querySelector('[data-at-source-url-input]');
       const title = titleInput.value.trim();
       const url = urlInput.value.trim();
-      row.style.display = 'none';
-      if (!title && !url) return;
+      if (!url) { sheet.querySelector('[data-at-source-add-row]').style.display = 'none'; return; }
       const sources = JSON.parse(sheet.dataset.stagedSources || '[]');
       sheet.dataset.stagedSources = JSON.stringify([...sources, { title, url }]);
       renderAtSources(sheet);
+      sheet.querySelector('[data-at-source-add-row]').style.display = 'none';
     }
     sheet.querySelector('[data-at-source-title-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') { e.preventDefault(); sheet.querySelector('[data-at-source-url-input]').focus(); }
+      if (e.key === 'Enter') sheet.querySelector('[data-at-source-url-input]').focus();
     });
     sheet.querySelector('[data-at-source-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); commitAtSource(sheet); }
     });
     sheet.querySelector('[data-at-source-confirm]')?.addEventListener('click', () => commitAtSource(sheet));
-    // valide aussi si on clique ailleurs sans passer par OK / Entrée, tant qu'on quitte vraiment
-    // la ligne titre+URL (pas juste en passant de l'un à l'autre)
-    sheet.querySelector('[data-at-source-add-row]')?.addEventListener('focusout', (e) => {
-      const row = e.currentTarget;
-      if (row.contains(e.relatedTarget)) return;
-      commitAtSource(sheet);
-    });
 
     sheet.querySelector('[data-cal-prev]')?.addEventListener('click', () => {
       let y = parseInt(sheet.dataset.calYear, 10), m = parseInt(sheet.dataset.calMonth, 10) - 1;
