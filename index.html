@@ -345,6 +345,7 @@
   .home-kanban-head { display: flex; align-items: baseline; gap: 8px; padding: 0 0 10px; flex-shrink: 0; }
   .home-kanban-title { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 14.5px; color: var(--ink); }
   .home-kanban-title.overdue { color: var(--danger); }
+  .home-kanban-weekday { font-family: 'Inter', sans-serif; font-size: 10px; font-weight: 700; color: var(--faint); text-transform: uppercase; letter-spacing: 0.03em; }
   .home-kanban-col[data-home-col="today"] {
     border-color: rgb(212 178 76 / 20%);
   }
@@ -1814,6 +1815,7 @@
                   <div class="home-kanban-col" data-home-col="d4">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="4"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="4"></span>
                       <span class="home-kanban-count" data-home-count="d4">0</span>
                       <span class="home-kanban-pct" data-home-pct="d4">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d4" title="Ajouter une tâche">+</button>
@@ -1824,6 +1826,7 @@
                   <div class="home-kanban-col" data-home-col="d5">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="5"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="5"></span>
                       <span class="home-kanban-count" data-home-count="d5">0</span>
                       <span class="home-kanban-pct" data-home-pct="d5">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d5" title="Ajouter une tâche">+</button>
@@ -1834,6 +1837,7 @@
                   <div class="home-kanban-col" data-home-col="d6">
                     <div class="home-kanban-head">
                       <span class="home-kanban-title" data-home-day-offset="6"></span>
+                      <span class="home-kanban-weekday" data-home-weekday="6"></span>
                       <span class="home-kanban-count" data-home-count="d6">0</span>
                       <span class="home-kanban-pct" data-home-pct="d6">0%</span>
                       <button type="button" class="home-kanban-add" data-home-add="d6" title="Ajouter une tâche">+</button>
@@ -4554,6 +4558,11 @@
     document.querySelectorAll('[data-home-day-offset]').forEach(el => {
       const offset = parseInt(el.dataset.homeDayOffset, 10);
       el.textContent = formatDateShort(isoPlusDays(offset));
+    });
+    document.querySelectorAll('[data-home-weekday]').forEach(el => {
+      const offset = parseInt(el.dataset.homeWeekday, 10);
+      const d = new Date(isoPlusDays(offset) + 'T00:00:00');
+      el.textContent = DAYS_FULL_FR[d.getDay()].slice(0, 3);
     });
   }
   function whenLabel(todo, tabKey, includeDate) {
