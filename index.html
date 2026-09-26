@@ -727,6 +727,22 @@
     font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
     padding: 2px 7px; border-radius: 6px; background: var(--line-soft); color: var(--muted); flex-shrink: 0;
   }
+  .search-result.is-done { opacity: 0.5; }
+  .search-result.is-done .stitle { text-decoration: line-through; color: var(--faint); }
+  .search-result .sdone-check {
+    width: 16px; height: 16px; border-radius: 50%; background: var(--accent-rosalina); color: #fff;
+    font-size: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .search-recent-head {
+    font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+    color: var(--faint); padding: 8px 8px 4px;
+  }
+  .search-recent-item .sicon { font-size: 12px; }
+  .search-recent-x {
+    border: none; background: transparent; color: var(--faint); font-size: 15px; line-height: 1;
+    cursor: pointer; padding: 4px 6px; border-radius: 6px; flex-shrink: 0;
+  }
+  .search-recent-x:hover { background: var(--line-soft); color: var(--ink); }
 
   /* ---------- mobile hamburger drawer ---------- */
   .drawer-backdrop {
@@ -3043,19 +3059,65 @@
     });
     return results;
   }
+  const RECENT_SEARCHES_KEY = 'ud_recent_searches';
+  function getRecentSearches() {
+    try { return JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) || '[]'); } catch (e) { return []; }
+  }
+  function addRecentSearch(q) {
+    q = (q || '').trim();
+    if (!q) return;
+    try {
+      let list = getRecentSearches().filter(x => x.toLowerCase() !== q.toLowerCase());
+      list.unshift(q);
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(list.slice(0, 6)));
+    } catch (e) {}
+  }
+  function removeRecentSearch(q) {
+    try {
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(getRecentSearches().filter(x => x !== q)));
+    } catch (e) {}
+  }
   function renderSearch(overlay, query) {
     const list = overlay.querySelector('[data-search-results]');
     const q = query.trim().toLowerCase();
-    if (!q) { list.innerHTML = ''; return; }
+    if (!q) {
+      const recent = getRecentSearches();
+      if (!recent.length) { list.innerHTML = ''; return; }
+      list.innerHTML = `
+        <div class="search-recent-head">Recherches récentes</div>
+        ${recent.map(r => `
+          <div class="search-result search-recent-item" data-recent-query="${escapeHtml(r)}">
+            <div class="sicon">⏱</div>
+            <div class="sinfo"><div class="stitle">${escapeHtml(r)}</div></div>
+            <button type="button" class="search-recent-x" data-recent-remove title="Supprimer">×</button>
+          </div>
+        `).join('')}
+      `;
+      list.querySelectorAll('.search-recent-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('[data-recent-remove]')) return;
+          const input = overlay.querySelector('[data-search-input]');
+          if (input) { input.value = el.dataset.recentQuery; }
+          renderSearch(overlay, el.dataset.recentQuery);
+        });
+        el.querySelector('[data-recent-remove]')?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          removeRecentSearch(el.dataset.recentQuery);
+          renderSearch(overlay, '');
+        });
+      });
+      return;
+    }
     const matches = buildSearchIndex().filter(item => item.title.toLowerCase().includes(q));
     if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
     list.innerHTML = matches.slice(0, 8).map(m => `
-      <div class="search-result" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
+      <div class="search-result${m.done ? ' is-done' : ''}" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
         <div class="sicon">${m.kind === 'subtask' ? '↳' : m.kind === 'doc' ? DOC_ICON_SVG : m.kind === 'page' ? DOC_ICON_SVG : TASK_ICON_SVG}</div>
         <div class="sinfo">
           <div class="stitle">${escapeHtml(m.title)}</div>
           <div class="spath">${escapeHtml(m.project)}${m.page ? ' › ' + escapeHtml(m.page) : ''}</div>
         </div>
+        ${m.done ? '<div class="sdone-check">✓</div>' : ''}
         <div class="stag">${m.type}</div>
       </div>
     `).join('');
@@ -3063,6 +3125,7 @@
       el.addEventListener('click', () => {
         const phone = getActiveContainer();
         if (!phone) return;
+        addRecentSearch(query);
         overlay.classList.remove('open');
         const input = overlay.querySelector('[data-search-input]');
         if (input) input.value = '';
@@ -3093,7 +3156,7 @@
   document.querySelectorAll('.d-topbar-search-wrap [data-search-input]').forEach(input => {
     const wrap = input.closest('.d-topbar-search-wrap');
     input.addEventListener('input', () => renderSearch(wrap, input.value));
-    input.addEventListener('focus', () => { if (input.value.trim()) renderSearch(wrap, input.value); });
+    input.addEventListener('focus', () => renderSearch(wrap, input.value));
     input.addEventListener('blur', () => {
       setTimeout(() => { wrap.querySelector('[data-search-results]').innerHTML = ''; }, 150);
     });
@@ -3118,20 +3181,7 @@
     });
   });
   document.addEventListener('keydown', (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === ';') {
-      e.preventDefault();
-      const container = getActiveContainer();
-      const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
-      if (inlineInput) inlineInput.focus();
-      else openSearchOverlay(container);
-    }
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key !== 'ù' || e.metaKey || e.ctrlKey || e.altKey) return;
-    const active = document.activeElement;
-    const tag = active?.tagName;
-    const isEditable = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || active?.isContentEditable;
-    if (isEditable) return;
+    if (!(e.metaKey || e.ctrlKey) || e.key.toLowerCase() !== 'k') return;
     e.preventDefault();
     const container = getActiveContainer();
     const inlineInput = container?.querySelector('.d-topbar-search-wrap [data-search-input]');
