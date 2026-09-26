@@ -1903,7 +1903,7 @@
             <div class="search-input-row">
               <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
               <input type="text" placeholder="Rechercher un projet, une page, une tâche…" data-search-input>
-              <button class="search-close" data-close-search>✕</button>
+              <button class="search-close" data-close-search><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             </div>
             <div class="search-results" data-search-results></div>
           </div>
@@ -2139,9 +2139,9 @@
               <button type="button" data-slash-cmd="h2"><span class="bp-tag">H2</span>Titre 2</button>
               <button type="button" data-slash-cmd="h3"><span class="bp-tag">H3</span>Titre 3</button>
               <button type="button" data-slash-cmd="p"><span class="bp-tag">T</span>Texte</button>
-              <button type="button" data-slash-cmd="todo"><span class="bp-tag">☑</span>Liste à cocher</button>
-              <button type="button" data-slash-cmd="toggle"><span class="bp-tag">▶</span>Menu dépliant</button>
-              <button type="button" data-slash-cmd="table"><span class="bp-tag">▦</span>Tableau</button>
+              <button type="button" data-slash-cmd="todo"><span class="bp-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.5 12l3 3 6-6.5"/></svg></span>Liste à cocher</button>
+              <button type="button" data-slash-cmd="toggle"><span class="bp-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M9 6l6 6-6 6"/></svg></span>Menu dépliant</button>
+              <button type="button" data-slash-cmd="table"><span class="bp-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg></span>Tableau</button>
               <button type="button" data-slash-cmd="ul"><span class="bp-tag">•</span>Liste à puces</button>
               <button type="button" data-slash-cmd="ol"><span class="bp-tag">1.</span>Liste numérotée</button>
               <button type="button" data-slash-cmd="hr"><span class="bp-tag">—</span>Séparateur</button>
@@ -2153,7 +2153,7 @@
               <div class="search-input-row">
                 <span class="search-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span>
                 <input type="text" placeholder="Rechercher…" data-search-input>
-                <button class="search-close" data-close-search>✕</button>
+                <button class="search-close" data-close-search><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
               </div>
               <div class="search-results" data-search-results></div>
             </div>
@@ -2447,7 +2447,7 @@
           </div>
 
           <div class="img-lightbox" data-img-lightbox>
-            <button type="button" class="lightbox-close" data-lightbox-close title="Fermer">✕</button>
+            <button type="button" class="lightbox-close" data-lightbox-close title="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
             <button type="button" class="lightbox-arrow lightbox-prev" data-lightbox-prev title="Précédent">‹</button>
             <img data-img-lightbox-img alt="">
             <button type="button" class="lightbox-arrow lightbox-next" data-lightbox-next title="Suivant">›</button>
@@ -3087,7 +3087,7 @@
         <div class="search-recent-head">Recherches récentes</div>
         ${recent.map(r => `
           <div class="search-result search-recent-item" data-recent-query="${escapeHtml(r)}">
-            <div class="sicon">⏱</div>
+            <div class="sicon">${CLOCK_ICON_SVG}</div>
             <div class="sinfo"><div class="stitle">${escapeHtml(r)}</div></div>
             <button type="button" class="search-recent-x" data-recent-remove title="Supprimer">×</button>
           </div>
@@ -3334,8 +3334,8 @@
       <div class="td-source-row" data-idx="${i}">
         <span class="td-source-bullet">•</span>
         <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)} :</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
-        <button type="button" class="td-source-edit" data-source-edit="${i}" title="Modifier">✎</button>
-        <button type="button" class="td-img-remove" data-source-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-source-edit" data-source-edit="${i}" title="Modifier">${PENCIL_ICON_SVG}</button>
+        <button type="button" class="td-img-remove" data-source-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     list.querySelectorAll('[data-source-remove]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -3343,7 +3343,7 @@
         if (!btn.classList.contains('confirming')) {
           btn.classList.add('confirming');
           btn.textContent = '?';
-          setTimeout(() => { btn.classList.remove('confirming'); btn.textContent = '✕'; }, 2500);
+          setTimeout(() => { btn.classList.remove('confirming'); btn.innerHTML = CLOSE_ICON_SVG; }, 2500);
           return;
         }
         const idx = parseInt(btn.dataset.sourceRemove, 10);
@@ -3405,6 +3405,14 @@
   const WEEK_ABBR = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']; // index = Date.getDay()
   const DOC_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:-1px;margin-right:4px;"><path d="M6 3h9l5 5v13H6z"/><path d="M14 3v6h6"/></svg>';
   const TASK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l6 6L20 6"/></svg>';
+  const CLOCK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>';
+  const CLOSE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const PENCIL_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>';
+  const STAR_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M12 3.5l2.6 5.6 6.1.6-4.6 4 1.3 6-5.4-3-5.4 3 1.3-6-4.6-4 6.1-.6z"/></svg>';
+  const CHECKBOX_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.5 12l3 3 6-6.5"/></svg>';
+  const TABLE_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>';
+  const CHEVRON_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:1em;height:1em;vertical-align:-0.125em;"><path d="M9 6l6 6-6 6"/></svg>';
+  const DRAG_ICON_SVG = '<svg viewBox="0 0 24 24" fill="currentColor" style="width:1em;height:1em;vertical-align:-0.125em;"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
   function priorityColor(priority) {
     if (priority === 'high') return 'var(--danger)';
     if (priority === 'med') return 'var(--accent-pvpp)';
@@ -3499,7 +3507,7 @@
     const images = Array.isArray(record?.images) ? record.images : [];
     wrap.innerHTML = images.map((url, i) => `
       <div class="td-img-thumb" style="background-image:url('${escapeHtml(url)}')" data-img-index="${i}">
-        <button type="button" class="td-img-remove" data-img-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-img-remove" data-img-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     wrap.querySelectorAll('.td-img-thumb').forEach(thumb => {
       thumb.addEventListener('click', (e) => {
@@ -3559,11 +3567,11 @@
 
     const rowHtml = (s) => `
       <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}" data-reorder-id="${s.id}" draggable="true">
-        <span class="td-subtask-drag" title="Réorganiser">⠿</span>
+        <span class="td-subtask-drag" title="Réorganiser">${DRAG_ICON_SVG}</span>
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
         <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
         ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
-        <button type="button" class="td-img-remove" data-subtask-remove="${s.id}" title="Supprimer">✕</button>
+        <button type="button" class="td-img-remove" data-subtask-remove="${s.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>
       </div>`;
 
     let html = incomplete.map(rowHtml).join('');
@@ -3614,7 +3622,7 @@
         if (!btn.classList.contains('confirming')) {
           btn.classList.add('confirming');
           btn.textContent = '?';
-          setTimeout(() => { btn.classList.remove('confirming'); btn.textContent = '✕'; }, 2500);
+          setTimeout(() => { btn.classList.remove('confirming'); btn.innerHTML = CLOSE_ICON_SVG; }, 2500);
           return;
         }
         const subtaskId = btn.dataset.subtaskRemove;
@@ -3832,7 +3840,7 @@
     for (let h = 0; h < 24; h++) {
       for (const m of [0, 30]) {
         const val = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-        html += `<div class="opt-row" data-val="${val}"><span>${val}</span><button type="button" class="time-clear-x" data-time-clear title="Effacer l'heure">✕</button></div>`;
+        html += `<div class="opt-row" data-val="${val}"><span>${val}</span><button type="button" class="time-clear-x" data-time-clear title="Effacer l'heure">${CLOSE_ICON_SVG}</button></div>`;
       }
     }
     list.innerHTML = html;
@@ -5218,7 +5226,7 @@
         <span>${isDoc ? DOC_ICON_SVG : ''}${escapeHtml(p.title)}</span>
         <span class="pb-page-right">
           ${isDoc ? '' : `<span class="pb-count">${count}</span>`}
-          ${isDoc ? '' : `<button type="button" class="pb-page-star${p.is_favorite ? ' active' : ''}" data-page-fav="${p.id}" title="Favori">★</button>`}
+          ${isDoc ? '' : `<button type="button" class="pb-page-star${p.is_favorite ? ' active' : ''}" data-page-fav="${p.id}" title="Favori">${STAR_ICON_SVG}</button>`}
         </span>
       </div>`;
     }).join('') || '<div class="empty-state">Aucune page</div>';
@@ -5523,7 +5531,7 @@
         return `
         <div class="drawer-project${editModeNow ? ' edit-affordance' : ''}" data-project-id="${p.id}" data-reorder-id="${p.id}">
           <span class="dot" style="background:${p.color}"></span><span class="editable-name" data-rename-name>${escapeHtml(p.name)}</span>
-          ${editModeNow ? '<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button>' : ''}
+          ${editModeNow ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">${PENCIL_ICON_SVG}</button>` : ''}
           <span class="drawer-page-count">${pageCount}</span>
         </div>`;
       }).join('');
@@ -5637,7 +5645,7 @@
       container.innerHTML = top.map(f => `
         <div class="drawer-folder-row${editMode ? ' edit-affordance' : ''}" data-folder-id="${f.id}" data-folder-name="${escapeHtml(f.name)}" data-reorder-id="${f.id}">
           <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
-          ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button><button type="button" class="drawer-inline-add" data-add-subfolder="${f.id}" title="Ajouter un sous-dossier">+</button><button type="button" class="drawer-inline-delete" data-delete-folder="${f.id}" title="Supprimer">×</button>` : ''}
+          ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">${PENCIL_ICON_SVG}</button><button type="button" class="drawer-inline-add" data-add-subfolder="${f.id}" title="Ajouter un sous-dossier">+</button><button type="button" class="drawer-inline-delete" data-delete-folder="${f.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>` : ''}
         </div>
       `).join('') || '<div class="drawer-page-row empty">Aucun dossier</div>';
       if (editMode) {
@@ -5711,7 +5719,7 @@
     wrap.className = 'drawer-subfolders-collapse';
     wrap.innerHTML = subs.map(f => `<div class="drawer-page-row" data-subfolder-id="${f.id}" data-subfolder-name="${escapeHtml(f.name)}">
       <span class="editable-name" data-rename-name>${escapeHtml(f.name)}</span>
-      ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">✎</button><button type="button" class="drawer-inline-add" data-add-doc="${f.id}" title="Ajouter un document">+</button><button type="button" class="drawer-inline-delete" data-delete-subfolder="${f.id}" title="Supprimer">×</button>` : ''}
+      ${editMode ? `<button type="button" class="drawer-rename-pencil" data-rename-pencil title="Renommer">${PENCIL_ICON_SVG}</button><button type="button" class="drawer-inline-add" data-add-doc="${f.id}" title="Ajouter un document">+</button><button type="button" class="drawer-inline-delete" data-delete-subfolder="${f.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>` : ''}
     </div>`).join('') || '<div class="drawer-page-row empty">Aucun sous-dossier</div>';
     wrap.querySelectorAll('[data-subfolder-id]').forEach(subRow => {
       subRow.addEventListener('click', (e) => {
@@ -5838,8 +5846,8 @@
     const favTodos = cachedTodos.filter(t => t.is_favorite && !t.is_done);
     const favPages = cachedPages.filter(p => p.is_favorite && !p.is_archived && p.page_type !== 'doc');
     const items = [
-      ...favTodos.map(t => ({ key: `todo:${t.id}`, html: `<div class="drawer-fav-row" data-fav-todo-id="${t.id}" data-reorder-id="todo:${t.id}" draggable="true"><span class="fav-drag" title="Réorganiser">⠿</span><span class="fav-star">★</span>${escapeHtml(t.title)}</div>` })),
-      ...favPages.map(p => ({ key: `page:${p.id}`, html: `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}" data-reorder-id="page:${p.id}" draggable="true"><span class="fav-drag" title="Réorganiser">⠿</span><span class="fav-star">★</span>${escapeHtml(p.title)}</div>` })),
+      ...favTodos.map(t => ({ key: `todo:${t.id}`, html: `<div class="drawer-fav-row" data-fav-todo-id="${t.id}" data-reorder-id="todo:${t.id}" draggable="true"><span class="fav-drag" title="Réorganiser">${DRAG_ICON_SVG}</span><span class="fav-star">${STAR_ICON_SVG}</span>${escapeHtml(t.title)}</div>` })),
+      ...favPages.map(p => ({ key: `page:${p.id}`, html: `<div class="drawer-fav-row" data-fav-page-id="${p.id}" data-fav-page-title="${escapeHtml(p.title)}" data-reorder-id="page:${p.id}" draggable="true"><span class="fav-drag" title="Réorganiser">${DRAG_ICON_SVG}</span><span class="fav-star">${STAR_ICON_SVG}</span>${escapeHtml(p.title)}</div>` })),
     ];
     // tri manuel (drag & drop) prioritaire ; les favoris pas encore réordonnés gardent leur ordre naturel, à la fin
     items.sort((a, b) => {
@@ -5982,7 +5990,7 @@
         <input type="text" class="pa-page-title-input" value="${escapeHtml(page.title)}" data-pa-page-title>
         <button type="button" data-pa-page-up ${i === 0 ? 'disabled' : ''}>↑</button>
         <button type="button" data-pa-page-down ${i === pages.length - 1 ? 'disabled' : ''}>↓</button>
-        <button type="button" data-pa-page-delete>✕</button>
+        <button type="button" data-pa-page-delete>${CLOSE_ICON_SVG}</button>
       </div>`).join('') || '<div class="empty-state">Aucune page</div>';
 
     list.querySelectorAll('[data-pa-page-title]').forEach(input => {
@@ -6109,7 +6117,7 @@
         <input type="text" class="pa-page-title-input" value="${escapeHtml(f.name)}" data-doca-subfolder-title>
         <button type="button" data-doca-subfolder-up ${i === 0 ? 'disabled' : ''}>↑</button>
         <button type="button" data-doca-subfolder-down ${i === subs.length - 1 ? 'disabled' : ''}>↓</button>
-        <button type="button" data-doca-subfolder-delete>✕</button>
+        <button type="button" data-doca-subfolder-delete>${CLOSE_ICON_SVG}</button>
       </div>`).join('') || '<div class="empty-state">Aucun sous-dossier</div>';
 
     list.querySelectorAll('[data-doca-subfolder-title]').forEach(input => {
@@ -6428,7 +6436,7 @@
     const images = JSON.parse(sheet.dataset.stagedImages || '[]');
     wrap.innerHTML = images.map((url, i) => `
       <div class="td-img-thumb" style="background-image:url('${escapeHtml(url)}')" data-img-index="${i}">
-        <button type="button" class="td-img-remove" data-img-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-img-remove" data-img-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     wrap.querySelectorAll('[data-img-remove]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -6448,7 +6456,7 @@
       <div class="td-subtask-row" data-idx="${i}">
         <div class="checkbox"></div>
         <div class="td-subtask-title">${escapeHtml(s.title)}</div>
-        <button type="button" class="td-img-remove" data-staged-sub-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-img-remove" data-staged-sub-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     list.querySelectorAll('[data-staged-sub-remove]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -6468,7 +6476,7 @@
       <div class="td-source-row" data-idx="${i}">
         <span class="td-source-bullet">•</span>
         <span class="td-source-text">${s.title ? `<span class="td-source-title">${escapeHtml(s.title)} :</span> ` : ''}<a class="td-source-link" href="${escapeHtml(s.url)}" target="_blank" rel="noopener">${escapeHtml(siteNameFromUrl(s.url))}</a></span>
-        <button type="button" class="td-img-remove" data-staged-source-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-img-remove" data-staged-source-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     list.querySelectorAll('[data-staged-source-remove]').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -6951,7 +6959,7 @@
     section.style.display = images.length ? 'block' : 'none';
     grid.innerHTML = images.map((url, i) => `
       <div class="docs-media-thumb" style="background-image:url('${escapeHtml(url)}')" data-img-index="${i}">
-        <button type="button" class="td-img-remove" data-docs-media-remove="${i}" title="Retirer">✕</button>
+        <button type="button" class="td-img-remove" data-docs-media-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
     grid.querySelectorAll('.docs-media-thumb').forEach(thumb => {
       thumb.addEventListener('click', (e) => {
@@ -7299,7 +7307,7 @@
     arrow.className = 'dg-arrow';
     arrow.setAttribute('contenteditable', 'false');
     arrow.setAttribute('data-dg-arrow', '');
-    arrow.textContent = '▶';
+    arrow.innerHTML = CHEVRON_ICON_SVG;
     const title = document.createElement('p');
     title.className = 'dg-title';
     title.setAttribute('data-dg-title', '');
