@@ -3023,13 +3023,13 @@
     cachedTodos.forEach(t => {
       const page = cachedPages.find(p => p.id === t.page_id);
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
-      results.push({ title: t.title, type: 'Tâche', project: project?.name || '', page: page?.title || null, kind: 'todo', id: t.id });
+      results.push({ title: t.title, type: 'Tâche', project: project?.name || '', page: page?.title || null, kind: 'todo', id: t.id, done: !!t.is_done });
     });
     cachedSubtasks.forEach(s => {
       const todo = cachedTodos.find(t => t.id === s.todo_id);
       const page = todo ? cachedPages.find(p => p.id === todo.page_id) : null;
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
-      results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id });
+      results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id, done: !!s.is_done });
     });
     cachedPages.filter(p => p.page_type === 'doc' && !p.is_archived).forEach(p => {
       const subfolder = cachedDocFolders.find(f => f.id === p.doc_folder_id);
@@ -6321,10 +6321,8 @@
     sheet.dataset.pendingDueTime = '';
     sheet.querySelector('[data-at-date-label]').textContent = 'Date';
     sheet.querySelector('[data-goto="date"]').classList.remove('set');
-    if (presetDueDate) {
-      sheet.dataset.pendingDueDate = presetDueDate;
-      updateDueLabelFromCache(sheet);
-    }
+    sheet.dataset.pendingDueDate = presetDueDate || todayISO();
+    updateDueLabelFromCache(sheet);
     sheet.querySelector('[data-goto="flag"]').classList.remove('set');
     sheet.querySelector('[data-at-flag-label]').textContent = 'Importance';
     sheet.querySelector('[data-at-project-label]').textContent = 'Projet';
