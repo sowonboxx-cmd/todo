@@ -2929,6 +2929,25 @@
     });
     [...pinned, ...incomplete, ...done].forEach(r => list.appendChild(r));
   }
+  function sortOverdueByDate(list) {
+    const rows = [...list.querySelectorAll('.task-row')];
+    const pinned = rows.filter(r => r.classList.contains('pinned-daily') && !r.classList.contains('is-done'));
+    const incomplete = rows.filter(r => !r.classList.contains('is-done') && !r.classList.contains('pinned-daily'));
+    const done = rows.filter(r => r.classList.contains('is-done'));
+    incomplete.sort((a, b) => {
+      const ta = cachedTodos.find(t => t.id === a.dataset.todoId);
+      const tb = cachedTodos.find(t => t.id === b.dataset.todoId);
+      const ad = ta?.due_date || '';
+      const bd = tb?.due_date || '';
+      if (ad !== bd) return bd.localeCompare(ad); // date la plus récente d'abord, la plus ancienne en dernier
+      const tta = timeOf(a), ttb = timeOf(b);
+      if (tta !== null && ttb !== null) return tta - ttb;
+      if (tta !== null) return -1;
+      if (ttb !== null) return 1;
+      return priorityRank(a) - priorityRank(b);
+    });
+    [...pinned, ...incomplete, ...done].forEach(r => list.appendChild(r));
+  }
   function sortByDueDate(list) {
     const rows = [...list.querySelectorAll('.task-row')];
     const incomplete = rows.filter(r => !r.classList.contains('is-done'));
@@ -2942,7 +2961,7 @@
     });
     [...incomplete, ...done].forEach(r => list.appendChild(r));
   }
-  document.querySelectorAll('.task-list, .m-tasks').forEach(list => sortIncomplete(list));
+  document.querySelectorAll('.task-list, .m-tasks').forEach(list => { if (list.dataset.tab === 'overdue') sortOverdueByDate(list); else sortIncomplete(list); });
 
   // done/total summary for the active tab (mobile), excludes rows hidden by the project filter
   function updateTasksSummary(phone) {
@@ -2968,6 +2987,8 @@
       if (list) {
         if (nowDone) {
           list.appendChild(row); // freshly checked → goes to the bottom, after previously completed ones
+        } else if (list.dataset.tab === 'overdue') {
+          sortOverdueByDate(list); // unchecked → rejoins the date-sorted overdue group
         } else {
           sortIncomplete(list); // unchecked → rejoins the sorted incomplete group
         }
@@ -3034,30 +3055,46 @@
   });
 
   // global predictive search
+  function stripHtmlToText(html) {
+    if (!html) return '';
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent || div.innerText || '';
+  }
   function buildSearchIndex() {
     const results = [];
     cachedTodos.forEach(t => {
       const page = cachedPages.find(p => p.id === t.page_id);
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
-      results.push({ title: t.title, type: 'Tâche', project: project?.name || '', page: page?.title || null, kind: 'todo', id: t.id, done: !!t.is_done });
+      results.push({ title: t.title, type: 'Tâche', project: project?.name || '', page: page?.title || null, kind: 'todo', id: t.id, done: !!t.is_done, notes: t.notes || '' });
     });
     cachedSubtasks.forEach(s => {
       const todo = cachedTodos.find(t => t.id === s.todo_id);
       const page = todo ? cachedPages.find(p => p.id === todo.page_id) : null;
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
-      results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id, done: !!s.is_done });
+      results.push({ title: s.title, type: 'Sous-tâche', project: project?.name || '', page: todo?.title || null, kind: 'subtask', id: s.id, parentId: s.todo_id, done: !!s.is_done, notes: '' });
     });
     cachedPages.filter(p => p.page_type === 'doc' && !p.is_archived).forEach(p => {
       const subfolder = cachedDocFolders.find(f => f.id === p.doc_folder_id);
       const topFolder = subfolder ? cachedDocFolders.find(f => f.id === subfolder.parent_folder_id) : null;
       const path = topFolder ? `${topFolder.name} / ${subfolder.name}` : (subfolder?.name || '');
-      results.push({ title: p.title, type: 'Document', project: path, page: null, kind: 'doc', id: p.id });
+      results.push({ title: p.title, type: 'Document', project: path, page: null, kind: 'doc', id: p.id, notes: stripHtmlToText(p.content) });
     });
     cachedPages.filter(p => p.page_type !== 'doc' && !p.is_archived).forEach(p => {
       const project = cachedProjects.find(pr => pr.id === p.project_id);
-      results.push({ title: p.title, type: 'Page', project: project?.name || '', page: null, kind: 'page', id: p.id, projectId: p.project_id });
+      results.push({ title: p.title, type: 'Page', project: project?.name || '', page: null, kind: 'page', id: p.id, projectId: p.project_id, notes: '' });
     });
     return results;
+  }
+  function searchNoteSnippet(text, q) {
+    const idx = text.toLowerCase().indexOf(q);
+    if (idx === -1) return escapeHtml(text.slice(0, 80).trim());
+    const start = Math.max(0, idx - 30);
+    const end = Math.min(text.length, idx + q.length + 30);
+    let snippet = text.slice(start, end).replace(/\s+/g, ' ').trim();
+    if (start > 0) snippet = '…' + snippet;
+    if (end < text.length) snippet += '…';
+    return escapeHtml(snippet);
   }
   const RECENT_SEARCHES_KEY = 'ud_recent_searches';
   function getRecentSearches() {
@@ -3108,19 +3145,29 @@
       });
       return;
     }
-    const matches = buildSearchIndex().filter(item => item.title.toLowerCase().includes(q));
-    if (!matches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
-    list.innerHTML = matches.slice(0, 8).map(m => `
+    const all = buildSearchIndex();
+    const titleMatches = all.filter(item => item.title.toLowerCase().includes(q));
+    const titleIds = new Set(titleMatches.map(m => m.kind + ':' + m.id));
+    const noteMatches = all.filter(item => !titleIds.has(item.kind + ':' + item.id) && item.notes && item.notes.toLowerCase().includes(q));
+    if (!titleMatches.length && !noteMatches.length) { list.innerHTML = '<div class="empty-state">Aucun résultat</div>'; return; }
+    const rowHtml = (m, snippet) => `
       <div class="search-result${m.done ? ' is-done' : ''}" data-search-kind="${m.kind}" data-search-id="${m.id}" data-search-parent="${m.parentId || ''}">
         <div class="sicon">${m.kind === 'subtask' ? '↳' : m.kind === 'doc' ? DOC_ICON_SVG : m.kind === 'page' ? DOC_ICON_SVG : TASK_ICON_SVG}</div>
         <div class="sinfo">
           <div class="stitle">${escapeHtml(m.title)}</div>
-          <div class="spath">${escapeHtml(m.project)}${m.page ? ' › ' + escapeHtml(m.page) : ''}</div>
+          <div class="spath">${snippet ? snippet : escapeHtml(m.project) + (m.page ? ' › ' + escapeHtml(m.page) : '')}</div>
         </div>
         ${m.done ? '<div class="sdone-check">✓</div>' : ''}
         <div class="stag">${m.type}</div>
       </div>
-    `).join('');
+    `;
+    list.innerHTML = `
+      ${titleMatches.slice(0, 8).map(m => rowHtml(m, null)).join('')}
+      ${noteMatches.length ? `
+        <div class="search-recent-head">Dans les descriptions</div>
+        ${noteMatches.slice(0, 5).map(m => rowHtml(m, searchNoteSnippet(m.notes, q))).join('')}
+      ` : ''}
+    `;
     list.querySelectorAll('.search-result').forEach(el => {
       el.addEventListener('click', () => {
         const phone = getActiveContainer();
@@ -5453,7 +5500,8 @@
     const appDesktopScope = document.getElementById('app-desktop');
     if (appDesktopScope) wireKanbanDragDrop(appDesktopScope);
     document.querySelectorAll('.task-list, .m-tasks').forEach(list => {
-      if (list.dataset.tab !== 'all') sortIncomplete(list); // "All" garde l'ordre de création, pas le tri heure/priorité
+      if (list.dataset.tab === 'overdue') sortOverdueByDate(list); // Overdue : date la plus récente en premier
+      else if (list.dataset.tab !== 'all') sortIncomplete(list); // "All" garde l'ordre de création, pas le tri heure/priorité
     });
     document.querySelectorAll('.phone').forEach(phone => updateTasksSummary(phone));
 
