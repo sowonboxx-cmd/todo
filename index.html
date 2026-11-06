@@ -2337,6 +2337,48 @@
   }
   [data-addtask-sheet] .at-save-btn svg { width: 22px; height: 22px; }
   [data-addtask-sheet] .at-save-btn:active { transform: scale(.97); }
+
+  /* ---------- options + panneau latéral des tâches ---------- */
+  .v-opts-wrap { position: relative; flex-shrink: 0; }
+  .v-opts-btn { width: 38px; height: 38px; border: none; border-radius: 11px; background: var(--v-card); color: var(--v-ink); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .v-opts-btn.on { background: var(--v-ink); color: #fff; }
+  .v-opts-btn svg { width: 18px; height: 18px; }
+  .v-opts { position: absolute; right: 0; top: calc(100% + 8px); z-index: 300; width: 330px; background: #fff; border-radius: 16px; box-shadow: 0 18px 50px rgba(0,0,0,.16), 0 0 0 1px rgba(0,0,0,.04); padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+  .v-opts[hidden] { display: none; }
+  .v-opts-title { font-size: 15px; font-weight: 700; padding: 2px 4px 6px; }
+  .v-opts-sec { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); padding: 4px; }
+  .v-opt { display: flex; align-items: flex-start; gap: 12px; width: 100%; border: none; background: transparent; border-radius: 12px; padding: 11px 12px; text-align: left; cursor: pointer; font-family: 'Inter', sans-serif; color: var(--v-ink); }
+  .v-opt:hover { background: var(--v-soft); }
+  .v-opt.on { background: #F3F1EC; }
+  .v-opt b { display: block; font-size: 13.5px; font-weight: 600; }
+  .v-opt small { display: block; font-size: 12.5px; color: var(--v-faint); margin-top: 2px; line-height: 1.35; }
+  .v-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #CFCFCB; flex-shrink: 0; margin-top: 1px; box-sizing: border-box; }
+  .v-opt.on .v-radio { border: 5px solid var(--v-ink); }
+  .v-opts-note { font-size: 12px; color: var(--v-faint); padding: 6px 4px 0; }
+  .td-sidebar { display: none; }
+  .v-row.v-sel { background: #F3F6FF; box-shadow: inset 3px 0 0 #2F62C9; }
+  .v-card.v-sel, .v-btask.v-sel { box-shadow: 0 0 0 2px #2F62C9; border-radius: 12px; }
+  @media (min-width: 900px) {
+    html.td-side-mode [data-task-sheet] {
+      left: auto; right: 16px; top: 16px; bottom: 16px; width: 500px; max-width: 42vw; max-height: none;
+      border-radius: 20px; box-shadow: -10px 0 40px rgba(0,0,0,.10);
+      transform: translateX(calc(100% + 40px)); opacity: 1; pointer-events: none; transition: transform .22s ease;
+      padding-top: 0;
+    }
+    html.td-side-mode [data-task-sheet].open { transform: translateX(0); pointer-events: auto; }
+    html.td-side-mode [data-sheet-backdrop] { display: none; }
+    html.td-side-mode [data-task-sheet] .sheet-handle { display: none; }
+    html.td-side-mode .td-sidebar { display: flex; align-items: center; gap: 6px; position: sticky; top: 0; z-index: 5; background: var(--card, #fff); margin: 0 -18px 12px; padding: 14px 16px 12px; border-bottom: 1px solid #EFEEEA; }
+    html.td-side-mode .td-sidebar .ic-flat-btn { width: 34px; height: 34px; border-radius: 10px; }
+    html.td-side-mode .td-sidebar .ic-flat-btn svg { width: 16px; height: 16px; }
+    .td-sidebar-count { font-size: 12.5px; color: #8b8b8b; margin-left: 4px; }
+    html.td-side-open #v2 { padding-right: calc(min(500px, 42vw) + 32px); }
+    /* liste plus étroite quand la tâche est ouverte à droite : on garde Tâche, Catégorie, Échéance */
+    html.td-side-open .v-table { min-width: 0; }
+    html.td-side-open .v-row { grid-template-columns: 28px minmax(0, 1fr) 150px 110px; }
+    html.td-side-open .v-row > :nth-child(4), html.td-side-open .v-row > :nth-child(5) { display: none; }
+    html.td-side-open .v-search kbd { display: none; }
+  }
   /* ===================== Espace Cuisine ===================== */
   .v-spaces { margin-bottom: 4px; }
   .cz { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
@@ -9297,6 +9339,10 @@
           <div class="v-search-results" data-search-results></div>
         </div>
         <nav class="v-views" data-v-views aria-label="Vues"></nav>
+        <div class="v-opts-wrap">
+          <button type="button" class="v-opts-btn" data-v-opts aria-label="Options" aria-haspopup="dialog" title="Options"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+          <div class="v-opts" data-v-optsmenu role="dialog" aria-label="Options" hidden></div>
+        </div>
       </header>
       <section class="v-panel" data-v-panel></section>
     </main>`;
@@ -9359,6 +9405,7 @@
       V.focusQuickAdd = false;
       panel.querySelector('[data-v-quickadd]')?.focus();
     }
+    if (typeof syncSideState === 'function') syncSideState();
   }
 
   // ---------------- liste ----------------
@@ -10069,6 +10116,86 @@
 
   // les données ont pu arriver avant que ce script ne soit exécuté
 
+
+  // =====================================================================
+  // OPTIONS + OUVERTURE DES TÂCHES SUR LE CÔTÉ (desktop)
+  // =====================================================================
+  V.taskOpen = LS.get('taskOpen', 'side');          // 'side' = panneau à droite, 'popup' = fenêtre au centre
+  const tdSheet = document.querySelector('[data-task-sheet]');
+  function applyTaskOpenMode() { document.documentElement.classList.toggle('td-side-mode', V.taskOpen === 'side'); }
+  applyTaskOpenMode();
+  function optsHtml() {
+    const opt = (k, t, d) => `<button type="button" class="v-opt${V.taskOpen === k ? ' on' : ''}" data-v-taskopen="${k}" role="radio" aria-checked="${V.taskOpen === k}"><span class="v-radio"></span><span><b>${t}</b><small>${d}</small></span></button>`;
+    return `<div class="v-opts-title">Options</div>
+      <div class="v-opts-sec">Ouvrir une tâche</div>
+      <div role="radiogroup" aria-label="Ouvrir une tâche">
+        ${opt('side', 'Panneau sur le côté', 'La liste reste visible, flèches ↑ ↓ pour passer d’une tâche à l’autre')}
+        ${opt('popup', 'Fenêtre (pop-up)', 'La tâche s’ouvre au centre de l’écran')}
+      </div>
+      <div class="v-opts-note">Sur téléphone, la tâche s’ouvre toujours en plein écran par le bas.</div>`;
+  }
+  function setTaskOpen(mode) {
+    V.taskOpen = mode; LS.set('taskOpen', mode); applyTaskOpenMode();
+    const m = root.querySelector('[data-v-optsmenu]'); if (m && !m.hidden) m.innerHTML = optsHtml();
+    syncSideState();
+  }
+  // barre du panneau : précédente / suivante / pop-up / fermer
+  if (tdSheet) {
+    const bar = document.createElement('div');
+    bar.className = 'td-sidebar';
+    bar.innerHTML = `<button type="button" class="ic-flat-btn" data-td-nav="-1" aria-label="Tâche précédente" title="Tâche précédente (↑)">${svg('<path d="M6 15l6-6 6 6"/>')}</button>
+      <button type="button" class="ic-flat-btn" data-td-nav="1" aria-label="Tâche suivante" title="Tâche suivante (↓)">${svg('<path d="M6 9l6 6 6-6"/>')}</button>
+      <span class="td-sidebar-count" data-td-navcount></span><span style="flex:1"></span>
+      <button type="button" class="ic-flat-btn" data-td-popup aria-label="Ouvrir en pop-up" title="Ouvrir en pop-up">${svg('<rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M9 10h6v4H9z"/>')}</button>
+      <button type="button" class="ic-flat-btn" data-td-sideclose aria-label="Fermer" title="Fermer (Échap)">${I.x}</button>`;
+    tdSheet.insertBefore(bar, tdSheet.firstChild);
+    bar.addEventListener('click', (e) => {
+      const nav = e.target.closest('[data-td-nav]');
+      if (nav) { navTask(+nav.dataset.tdNav); return; }
+      if (e.target.closest('[data-td-popup]')) { setTaskOpen('popup'); return; }
+      if (e.target.closest('[data-td-sideclose]')) closeTaskSheet(container());
+    });
+  }
+  function visibleTaskIds() {
+    const ids = [];
+    root.querySelectorAll('[data-v-panel] [data-v-open]').forEach(el => { const id = el.dataset.vOpen; if (id && !ids.includes(id)) ids.push(id); });
+    return ids;
+  }
+  function navTask(dir) {
+    const ids = visibleTaskIds(); if (!ids.length || !tdSheet) return;
+    const cur = tdSheet.dataset.recordKind === 'subtask' ? tdSheet.dataset.parentTodoId : tdSheet.dataset.recordId;
+    let i = ids.indexOf(cur);
+    i = i === -1 ? 0 : Math.min(ids.length - 1, Math.max(0, i + dir));
+    if (ids[i] && ids[i] !== cur) openTaskSheet(container(), ids[i]);
+    root.querySelector(`[data-v-panel] [data-v-open="${ids[i]}"]`)?.scrollIntoView({ block: 'nearest' });
+  }
+  function syncSideState() {
+    if (!tdSheet) return;
+    const open = tdSheet.classList.contains('open');
+    const side = open && V.taskOpen === 'side' && !isMobile();
+    document.documentElement.classList.toggle('td-side-open', side);
+    const cur = tdSheet.dataset.recordKind === 'subtask' ? tdSheet.dataset.parentTodoId : tdSheet.dataset.recordId;
+    root.querySelectorAll('.v-sel').forEach(el => el.classList.remove('v-sel'));
+    if (side && cur) root.querySelectorAll(`[data-v-panel] [data-v-open="${cur}"]`).forEach(el => el.classList.add('v-sel'));
+    const cnt = tdSheet.querySelector('[data-td-navcount]');
+    if (cnt) { const ids = visibleTaskIds(); const i = ids.indexOf(cur); cnt.textContent = i >= 0 ? `${i + 1} / ${ids.length}` : ''; }
+  }
+  if (tdSheet) new MutationObserver(syncSideState).observe(tdSheet, { attributes: true, attributeFilter: ['class', 'data-record-id'] });
+  root.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-v-opts]');
+    const menu = root.querySelector('[data-v-optsmenu]');
+    if (b) { menu.hidden = !menu.hidden; if (!menu.hidden) menu.innerHTML = optsHtml(); b.classList.toggle('on', !menu.hidden); return; }
+    const o = e.target.closest('[data-v-taskopen]');
+    if (o) { setTaskOpen(o.dataset.vTaskopen); return; }
+    if (menu && !menu.hidden && !menu.contains(e.target)) { menu.hidden = true; root.querySelector('[data-v-opts]')?.classList.remove('on'); }
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!document.documentElement.classList.contains('td-side-open')) return;
+    const a = document.activeElement;
+    if (a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); navTask(e.key === 'ArrowDown' ? 1 : -1); }
+    else if (e.key === 'Escape') closeTaskSheet(container());
+  });
   // =====================================================================
   // ESPACE CUISINE — courses, recettes, next recettes (tables cuisine_*)
   // =====================================================================
