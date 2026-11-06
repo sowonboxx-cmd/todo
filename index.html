@@ -4234,7 +4234,7 @@
   const UPLOAD_KEY = 'ud_upload_cfg';
   function getUploadCfg() { try { const c = JSON.parse(localStorage.getItem(UPLOAD_KEY) || 'null'); return c?.url && c?.token ? c : null; } catch { return null; } }
   function askUploadCfg() {
-    const url = (prompt('Adresse de ton Worker Cloudflare (ex. https://dashboard-images.xxx.workers.dev)\nLaisse vide pour coller plutôt le lien d\'une image.') || '').trim().replace(/\/+$/, '');
+    const url = (prompt('Première fois : adresse de ton Worker Cloudflare\n(ex. https://dashboard-images.xxx.workers.dev)') || '').trim().replace(/\/+$/, '');
     if (!url) return null;
     const token = (prompt('Mot de passe d\'envoi (UPLOAD_TOKEN du Worker)') || '').trim();
     if (!token) return null;
@@ -4293,11 +4293,10 @@
     }
   }
   // bouton « Uploader un fichier » : choix des fichiers si Cloudflare est réglé, sinon lien d'image
-  async function startImageUpload(sheet, fallbackUrlInput) {
-    let skip = false; try { skip = sessionStorage.getItem('ud_upload_skip') === '1'; } catch {}
-    const cfg = getUploadCfg() || (skip ? null : askUploadCfg());
-    if (!cfg) { try { sessionStorage.setItem('ud_upload_skip', '1'); } catch {} }
-    if (!cfg) { fallbackUrlInput(); return; }
+  // plus de liens d'images : uniquement des fichiers envoyés sur ton stockage Cloudflare
+  async function startImageUpload(sheet) {
+    const cfg = getUploadCfg() || askUploadCfg();
+    if (!cfg) return;
     const files = await pickImageFiles();
     await addImageFilesToSheet(sheet, files, cfg);
   }
