@@ -1048,10 +1048,10 @@
   }
   .td-title-input::placeholder { color: var(--faint); }
   .td-project-goto-btn {
-    width: 26px; height: 26px; flex-shrink: 0; border-radius: 50%; border: none;
+    width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%; border: none;
     background: var(--bg); color: var(--ink); display: flex; align-items: center; justify-content: center; cursor: pointer;
   }
-  .td-project-goto-btn svg { width: 13px; height: 13px; }
+  .td-project-goto-btn svg { width: 16px; height: 16px; }
   .td-notes-wrap { margin-bottom: 8px; }
   .td-sources-list { display: flex; flex-direction: column; }
   .td-source-row {
@@ -1115,6 +1115,26 @@
   html[data-theme="dark"] .icon-dark-only { display: block; }
   .ic-flat-btn:hover { color: var(--ink); }
   .ic-flat-btn.hidden-nest { display: none; }
+  .ic-flat-btn[hidden] { display: none; }
+  .td-header-row [data-td-project-btn] { height: 32px; padding: 0 12px; }
+  .td-header-row .at-icon-btn.flag-only { width: 32px; height: 32px; padding: 0; justify-content: center; }
+  .td-header-row .at-icon-btn.flag-only svg { width: 16px; height: 16px; }
+  .td-more-btn svg { width: 17px; height: 17px; }
+  .td-more-wrap { position: relative; }
+  .td-more-menu {
+    position: absolute; top: calc(100% + 6px); right: 0; z-index: 30; min-width: 210px;
+    background: #fff; border-radius: 14px; padding: 6px; box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.04);
+    display: flex; flex-direction: column;
+  }
+  .td-more-menu[hidden] { display: none; }
+  .td-more-menu button {
+    display: flex; align-items: center; gap: 11px; width: 100%; border: none; background: transparent; border-radius: 9px;
+    padding: 11px 12px; font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 500; color: var(--ink); cursor: pointer; text-align: left;
+  }
+  .td-more-menu button[hidden] { display: none; }
+  .td-more-menu button:hover, .td-more-menu button:active { background: #F3F2EE; }
+  .td-more-menu button svg { width: 18px; height: 18px; flex-shrink: 0; color: #8b8b8b; }
+  .td-more-menu button.danger, .td-more-menu button.danger svg { color: var(--danger); }
 
   /* images (par lien), 4 max, carrées en ligne */
   .td-images { display: flex; gap: 8px; margin: 18px 0 4px; flex-wrap: wrap; }
@@ -2748,17 +2768,34 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
                     <span data-td-project-label>Catégorie</span>
                   </button>
-                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Retourner à la liste des tâches" style="display:none;">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                  <button type="button" class="td-project-goto-btn" data-td-project-goto title="Voir les tâches de cette catégorie" style="display:none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1" fill="currentColor"/></svg>
                   </button>
                 </div>
                 <div class="td-header-actions">
                   <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-td-flag-btn>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 21V3.5"/><path d="M6.5 4.5h11l-2 4 2 4h-11"/></svg>
                   </button>
-                  <button type="button" class="ic-flat-btn" data-td-upload-btn title="Ajouter une image (lien)">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
-                  </button>
+                  <button type="button" class="ic-flat-btn" data-td-upload-btn hidden></button>
+                  <div class="td-more-wrap">
+                    <button type="button" class="ic-flat-btn td-more-btn" data-td-more-btn title="Plus d'options" aria-haspopup="menu" aria-expanded="false">
+                      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>
+                    </button>
+                    <div class="td-more-menu" data-td-more-menu role="menu" hidden>
+                      <button type="button" role="menuitem" data-td-more="fav">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
+                        <span data-td-more-fav-label>Ajouter en favori</span>
+                      </button>
+                      <button type="button" role="menuitem" data-td-more="upload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+                        <span>Uploader un fichier</span>
+                      </button>
+                      <button type="button" role="menuitem" class="danger" data-td-more="delete">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></svg>
+                        <span>Supprimer</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -4533,12 +4570,14 @@
     const isSubtask = kind === 'subtask';
     const dangerRow = sheet.querySelector('[data-td-favorite-btn]')?.closest('.td-danger-row');
     if (dangerRow) {
-      dangerRow.style.display = isSubtask ? 'none' : 'flex';
+      dangerRow.style.display = 'none';
+      const moreFav = sheet.querySelector('[data-td-more="fav"]'); if (moreFav) moreFav.hidden = isSubtask;
       if (!isSubtask) {
         const favBtn = sheet.querySelector('[data-td-favorite-btn]');
         const isFav = !!record.is_favorite;
         favBtn.textContent = isFav ? 'Retirer des favoris' : 'Ajouter en favoris';
         favBtn.classList.toggle('active', isFav);
+        const fl = sheet.querySelector('[data-td-more-fav-label]'); if (fl) fl.textContent = isFav ? 'Retirer des favoris' : 'Ajouter en favori';
       }
     }
     // le projet n'a de sens que pour une tâche (une sous-tâche vit dans sa tâche parente)
@@ -4650,11 +4689,32 @@
       openPbPageTasksDirect(phone, pageId, pageTitle);
     });
 
+    (function wireTdMore() {
+      const moreBtn = sheet.querySelector('[data-td-more-btn]');
+      const menu = sheet.querySelector('[data-td-more-menu]');
+      if (!moreBtn || !menu) return;
+      const close = () => { menu.hidden = true; moreBtn.setAttribute('aria-expanded', 'false'); };
+      moreBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        const open = menu.hidden;
+        menu.hidden = !open; moreBtn.setAttribute('aria-expanded', String(open));
+      });
+      document.addEventListener('click', e => { if (!menu.hidden && !menu.contains(e.target)) close(); }, true);
+      menu.addEventListener('click', e => {
+        const it = e.target.closest('[data-td-more]'); if (!it) return;
+        close();
+        const act = it.dataset.tdMore;
+        if (act === 'fav') sheet.querySelector('[data-td-favorite-btn]')?.click();
+        else if (act === 'upload') sheet.querySelector('[data-td-upload-btn]')?.click();
+        else if (act === 'delete') sheet.querySelector('[data-td-goto-delete-task]')?.click();
+      });
+    })();
     sheet.querySelector('[data-td-favorite-btn]')?.addEventListener('click', async () => {
       const btn = sheet.querySelector('[data-td-favorite-btn]');
       const nowFav = !btn.classList.contains('active');
       btn.classList.toggle('active', nowFav);
       btn.textContent = nowFav ? 'Retirer des favoris' : 'Ajouter en favoris';
+      const fl = sheet.querySelector('[data-td-more-fav-label]'); if (fl) fl.textContent = nowFav ? 'Retirer des favoris' : 'Ajouter en favori';
       await saveRecordField(sheet, { is_favorite: nowFav });
     });
     sheet.querySelector('[data-td-goto-delete-task]')?.addEventListener('click', () => {
