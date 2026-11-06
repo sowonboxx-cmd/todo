@@ -1098,6 +1098,20 @@
   .td-tweet { margin-top: 8px; cursor: default; min-height: 20px; }
   .td-tweet .twitter-tweet { margin: 0 auto !important; }
   .td-tweet-loading { font-size: 12.5px; color: var(--faint); padding: 10px 0; }
+  .xcard { border: 1px solid #E6E5E0; border-radius: 14px; padding: 12px 14px; background: #fff; max-width: 550px; margin: 0 auto; }
+  .xcard { white-space: normal; }
+  .xcard a, .xcard a * { color: var(--ink) !important; text-decoration: none !important; }
+  .xcard-head { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
+  .xcard-av { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex-shrink: 0; }
+  .xcard-who { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+  .xcard-who strong { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .xcard .xcard-who span { font-size: 12.5px; color: var(--faint) !important; }
+  .xcard-x { width: 18px; height: 18px; flex-shrink: 0; }
+  .xcard-text { margin-top: 10px; font-size: 14.5px; line-height: 1.45; white-space: pre-wrap; word-break: break-word; color: var(--ink); }
+  .xcard-media { margin-top: 10px; display: grid; gap: 4px; border-radius: 12px; overflow: hidden; }
+  .xcard-media.multi { grid-template-columns: 1fr 1fr; }
+  .xcard-media img, .xcard-media video { width: 100%; display: block; max-height: 420px; object-fit: cover; background: #000; }
+  .xcard-date { margin-top: 8px; font-size: 12px; color: var(--faint); }
   .td-tweet-fallback { display: inline-block; font-size: 13px; font-weight: 600; color: var(--ink); background: var(--bg); border-radius: 10px; padding: 9px 12px; text-decoration: none; }
   .td-img-thumb.loading { background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--faint); }
   .td-notes-edit {
@@ -4014,9 +4028,33 @@
     });
     return twttrLoading;
   }
-  function tweetFallback(el) {
+  // si le lecteur officiel de X est bloqué (Brave, bloqueurs…), on affiche notre propre carte du post
+  function tweetLink(el) {
+    el.innerHTML = `<a class="td-tweet-fallback" href="https://x.com/i/status/${el.dataset.tweetId}" target="_blank" rel="noopener">Voir le post sur X</a>`;
+  }
+  async function tweetFallback(el) {
+    if (el.dataset.card) return; el.dataset.card = '1';
     const id = el.dataset.tweetId;
-    el.innerHTML = `<a class="td-tweet-fallback" href="https://x.com/i/status/${id}" target="_blank" rel="noopener">Voir le post sur X</a>`;
+    try {
+      const res = await fetch(`https://api.fxtwitter.com/status/${id}`);
+      const data = await res.json();
+      const t = data?.tweet; if (!t) throw 0;
+      const a = t.author || {};
+      const media = (t.media?.all || []).map(m => m.type === 'photo'
+        ? `<img src="${escapeHtml(m.url)}" alt="" loading="lazy">`
+        : `<video src="${escapeHtml(m.url)}" poster="${escapeHtml(m.thumbnail_url || '')}" controls playsinline preload="none"></video>`).join('');
+      const date = t.created_timestamp ? new Date(t.created_timestamp * 1000).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+      el.innerHTML = `<div class="xcard">
+        <a class="xcard-head" href="https://x.com/${escapeHtml(a.screen_name || 'i')}/status/${id}" target="_blank" rel="noopener">
+          ${a.avatar_url ? `<img class="xcard-av" src="${escapeHtml(a.avatar_url)}" alt="">` : ''}
+          <span class="xcard-who"><strong>${escapeHtml(a.name || '')}</strong><span>@${escapeHtml(a.screen_name || '')}</span></span>
+          <svg class="xcard-x" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.8 3h3.1l-6.8 7.8L22 21h-6.2l-4.9-6.4L5.3 21H2.2l7.3-8.3L2 3h6.4l4.4 5.8zm-1.1 16.2h1.7L7.4 4.7H5.6z"/></svg>
+        </a>
+        ${t.text ? `<div class="xcard-text">${escapeHtml(t.text)}</div>` : ''}
+        ${media ? `<div class="xcard-media${(t.media?.all || []).length > 1 ? ' multi' : ''}">${media}</div>` : ''}
+        ${date ? `<div class="xcard-date">${date}</div>` : ''}
+      </div>`.replace(/>\s+</g, '><');
+    } catch { tweetLink(el); }
   }
   function mountTweets(root) {
     const els = [...root.querySelectorAll('[data-tweet-id]:not([data-mounted])')];
@@ -4024,9 +4062,9 @@
     els.forEach(el => { el.dataset.mounted = '1'; el.innerHTML = '<div class="td-tweet-loading">Chargement du post…</div>'; });
     loadTwitterWidgets().then(tw => {
       els.forEach(el => {
-        const timer = setTimeout(() => { if (el.querySelector('.td-tweet-loading')) tweetFallback(el); }, 8000);
+        const timer = setTimeout(() => { if (el.querySelector('.td-tweet-loading')) tweetFallback(el); }, 6000);
         tw.widgets.createTweet(el.dataset.tweetId, el, { dnt: true, lang: 'fr', conversation: 'none', align: 'center' })
-          .then(node => { clearTimeout(timer); el.querySelector('.td-tweet-loading')?.remove(); if (!node) tweetFallback(el); })
+          .then(node => { clearTimeout(timer); el.querySelector('.td-tweet-loading')?.remove(); if (el.dataset.card) { node?.remove(); return; } if (!node) tweetFallback(el); })
           .catch(() => { clearTimeout(timer); tweetFallback(el); });
       });
     }).catch(() => els.forEach(tweetFallback));
