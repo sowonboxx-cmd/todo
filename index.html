@@ -1096,6 +1096,13 @@
   .td-yt-embed { position: relative; width: 100%; padding-top: 56.25%; margin-top: 8px; border-radius: 10px; overflow: hidden; cursor: default; }
   .td-yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
   .img-drop { outline: 2px dashed #2F9E5B; outline-offset: -8px; }
+  .td-links { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .td-links .td-yt-embed, .td-links .td-tweet { margin-top: 0; }
+  .link-card { display: flex; align-items: center; gap: 12px; border: 1px solid #EAE9E4; border-radius: 12px; padding: 10px 12px; text-decoration: none !important; color: var(--ink, #1f1f1f) !important; background: var(--card, #fff); cursor: pointer; }
+  .link-card img { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; }
+  .link-card span { display: flex; flex-direction: column; min-width: 0; font-size: 13.5px; line-height: 1.35; }
+  .link-card b { font-weight: 600; }
+  .link-card small { font-size: 12px; color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .td-tweet { margin-top: 8px; cursor: default; min-height: 20px; }
   .td-tweet .twitter-tweet { margin: 0 auto !important; }
   .td-tweet-loading { font-size: 12.5px; color: var(--faint); padding: 10px 0; }
@@ -1989,7 +1996,7 @@
   .v-bar { display: block; height: 4px; border-radius: 4px; background: #EAE9E4; overflow: hidden; }
   .v-bar > span { display: block; height: 100%; background: var(--v-green); border-radius: 4px; }
   .v-sub .v-bar { width: 56px; }
-  .v-sep { height: 0; border-top: 1.5px solid #D9D7D0; margin: 6px 0; }
+  .v-row.v-cut { border-bottom-color: #D6D3CB; background: linear-gradient(to bottom, transparent 55%, rgba(120,115,100,.07)); }
   .v-empty { padding: 40px 0; text-align: center; font-size: 13.5px; color: var(--v-faint); }
   .v-foot { font-size: 13px; color: var(--v-faint); padding: 2px 4px; }
 
@@ -2109,7 +2116,8 @@
   .vm-when { flex-shrink: 0; font-size: 12.5px; color: var(--v-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .vm-when.late { color: var(--v-red); }
   .vm-when.today { color: var(--v-green); font-weight: 600; }
-  .vm-sep { margin: 0 14px; }
+  .vm-row.v-cut { background: linear-gradient(to bottom, transparent 55%, rgba(120,115,100,.08)); }
+  .vm-row.v-cut + .vm-row { border-top-color: #D6D3CB; }
   .vm-crumb { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; color: var(--v-faint); }
   .vm-crumb .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .vm-crumb span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -4285,26 +4293,32 @@
       });
     }).catch(() => els.forEach(tweetFallback));
   }
+  // lien collé → carte avec le favicon du site (YouTube et X restent intégrés)
+  const ANY_URL_RE = /https?:\/\/[^\s<>"']+/g;
+  function linkCardHtml(url) {
+    let host = ''; try { host = new URL(url).hostname.replace(/^www\./, ''); } catch (e) { host = url; }
+    return `<a class="link-card" href="${escapeHtml(url)}" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64" alt="" loading="lazy"><span><b>${escapeHtml(host)}</b><small>${escapeHtml(url)}</small></span></a>`;
+  }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
     const edit = sheet.querySelector('[data-td-notes-edit]');
     edit.value = notes || '';
     const trimmed = (notes || '').trim();
-    const ytId = extractYouTubeId(trimmed);
-    const tweetIds = extractTweetIds(trimmed);
     if (!trimmed) {
       view.textContent = '';
-    } else if (tweetIds.length) {
-      const rest = trimmed.replace(TWEET_RE, '').replace(/\n{3,}/g, '\n\n').trim();
-      view.innerHTML = (rest ? `<div class="td-notes-text">${renderNotesMarkdown(rest)}</div>` : '') +
-        (ytId ? `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>` : '') +
-        tweetIds.map(id => `<div class="td-tweet" data-tweet-id="${id}"></div>`).join('');
-      mountTweets(view);
-    } else if (ytId) {
-      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>` +
-        `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
     } else {
-      view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>`;
+      const urls = [...new Set(trimmed.match(ANY_URL_RE) || [])];
+      const rest = trimmed.replace(ANY_URL_RE, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+      const seen = new Set();
+      const media = urls.map(u => {
+        const yt = extractYouTubeId(u);
+        if (yt) { if (seen.has('yt' + yt)) return ''; seen.add('yt' + yt); return `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${yt}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`; }
+        const tw = extractTweetIds(u)[0];
+        if (tw) { if (seen.has('x' + tw)) return ''; seen.add('x' + tw); return `<div class="td-tweet" data-tweet-id="${tw}"></div>`; }
+        return linkCardHtml(u);
+      }).join('');
+      view.innerHTML = (rest ? `<div class="td-notes-text">${renderNotesMarkdown(rest)}</div>` : '') + (media ? `<div class="td-links">${media}</div>` : '');
+      mountTweets(view);
     }
     view.style.display = 'block';
     edit.style.display = 'none';
@@ -5250,7 +5264,7 @@
     });
 
     sheet.querySelector('[data-td-notes-view]')?.addEventListener('click', (e) => {
-      if (e.target.tagName === 'A') return; // laisse le lien s'ouvrir normalement
+      if (e.target.closest('a')) return; // laisse le lien s'ouvrir normalement
       const view = sheet.querySelector('[data-td-notes-view]');
       const edit = sheet.querySelector('[data-td-notes-edit]');
       view.style.display = 'none';
@@ -9431,9 +9445,12 @@
   function rowsWithSep(rows) {
     const sep = V.dTab === 'all' && V.sort === 'due';
     const isLate = t => !t.is_done && bucket(t) === 'o';
+    // pas de trait en plus : la ligne juste avant la coupure reçoit un léger dégradé gris
     return rows.map((t, i) => {
-      const cut = sep && i > 0 && isLate(rows[i - 1]) !== isLate(t) && !t.is_done && !rows[i - 1].is_done;
-      return (cut ? '<div class="v-sep" role="separator" aria-label="Aujourd\'hui et à venir"></div>' : '') + rowHtml(t);
+      const n = rows[i + 1];
+      const cut = sep && n && isLate(t) !== isLate(n) && !t.is_done && !n.is_done;
+      const h = rowHtml(t);
+      return cut ? h.replace('class="v-row', 'class="v-row v-cut') : h;
     }).join('');
   }
   function renderDesktopList(panel) {
@@ -9665,7 +9682,7 @@
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
         const sep = k === 'all' && V.sort === 'due';
-        return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => (sep && i > 0 && !t.is_done && !rows[i - 1].is_done && isLate(rows[i - 1]) !== isLate(t) ? '<div class="v-sep vm-sep" role="separator"></div>' : '') + mRowHtml(t, k)).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
+        return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => { const n = rows[i + 1]; const h = mRowHtml(t, k); return sep && n && !t.is_done && !n.is_done && isLate(t) !== isLate(n) ? h.replace('class="vm-row', 'class="vm-row v-cut') : h; }).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
       }).join('');
     }
     mroot.querySelector('[data-vm-tabs]').innerHTML = `<div class="v-seg" role="tablist" aria-label="Échéance">${tabsHtml}</div>`;
