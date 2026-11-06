@@ -2489,6 +2489,9 @@
   .cz-ray-sel { border: 1px dashed #D9D7D0; border-radius: 9px; padding: 6px 8px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: #6b6b6b; background: transparent; max-width: 160px; }
   [data-td-project-btn] span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   [data-td-project-btn] { min-width: 0; max-width: 100%; }
+  .cz-pp-notesview { font-size: 15px; line-height: 1.5; color: #4a4a4a; cursor: text; min-height: 24px; white-space: normal; word-break: break-word; }
+  .cz-pp-notesview.empty { color: #a3a3a3; }
+  .cz-pp-notes[hidden], .cz-pp-notesview[hidden] { display: none; }
   .cz-pp-notes { border: none; outline: none; resize: vertical; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5; color: #4a4a4a; padding: 0; min-height: 48px; background: transparent; }
   .cz-pp-links { display: flex; flex-direction: column; gap: 8px; }
   .cz-pp-links .td-yt-embed { margin-top: 0; border-radius: 12px; }
@@ -10453,7 +10456,9 @@
       </div>
       <div class="cz-pp-body">
         <input type="text" class="cz-page-title" data-czpp-name value="${esc(p.name)}" aria-label="Nom du produit">
-        <textarea class="cz-pp-notes" data-czpp-notes rows="3" placeholder="Détails, marque, taille, lien…">${esc(p.notes || '')}</textarea>
+        ${(() => { const txt = (p.notes || '').replace(URL_RE, '').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+          return `<div class="cz-pp-notesview${txt ? '' : ' empty'}" data-czpp-notesview role="button" tabindex="0" aria-label="Modifier les détails">${txt ? esc(txt).replace(/\n/g, '<br>') : 'Détails, marque, taille, lien…'}</div>
+        <textarea class="cz-pp-notes" data-czpp-notes rows="3" placeholder="Détails, marque, taille, lien…" hidden>${esc(p.notes || '')}</textarea>`; })()}
         ${links.length ? `<div class="cz-pp-links">${links.map(czLinkCard).join('')}</div>` : ''}
         ${(p.images || []).length ? `<div class="cz-imgs">${p.images.map((u, i) => `<div class="td-img-thumb" style="background-image:url('${esc(u)}')" data-czpp-img="${i}"><button type="button" class="td-img-remove" data-czpp-imgrm="${i}" aria-label="Retirer">${I.x}</button></div>`).join('')}</div>` : ''}
         <div class="cz-sec">Sous-éléments ${subs.length ? `<small>${subs.filter(x => x.done).length}/${subs.length}</small>` : ''}</div>
@@ -10496,6 +10501,10 @@
     if (t.closest('[data-czpp-more]')) { menu.hidden = !menu.hidden; return; }
     if (menu && !menu.hidden && !menu.contains(t)) menu.hidden = true;
     if (t.closest('[data-czpp-close]')) { czCloseProduct(); return; }
+    if (t.closest('[data-czpp-notesview]')) {
+      const ta = czPP.querySelector('[data-czpp-notes]'); const v = czPP.querySelector('[data-czpp-notesview]');
+      v.hidden = true; ta.hidden = false; ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); return;
+    }
     if (t.closest('[data-czpp-del]')) {
       if (!confirm(`Supprimer « ${p.name} » ?`)) return;
       czCloseProduct(); p.is_archived = true; czRefreshAll();
@@ -10525,7 +10534,7 @@
   czPP.addEventListener('change', (e) => {
     const t = e.target, p = czProd(czPPid); if (!p) return;
     if (t.matches('[data-czpp-name]')) { const v = t.value.trim(); if (v && v !== p.name) czSaveProduct({ name: v }); return; }
-    if (t.matches('[data-czpp-notes]')) { const v = t.value.trim() || null; if (v !== (p.notes || null)) { czSaveProduct({ notes: v }).then(czRenderProduct); } return; }
+    if (t.matches('[data-czpp-notes]')) { const v = t.value.trim() || null; if (v !== (p.notes || null)) { czSaveProduct({ notes: v }).then(czRenderProduct); } else czRenderProduct(); return; }
     if (t.matches('[data-czpp-price]')) { czSaveProduct({ price: t.value.trim() || null }); return; }
     if (t.matches('[data-czpp-raysel]')) {
       let v = t.value; if (!v) return;
@@ -10534,6 +10543,9 @@
       if (!cur.some(x => x.toLowerCase() === v.toLowerCase())) czSaveProduct({ rayons: [...cur, v] }).then(czRenderProduct);
       return;
     }
+  });
+  czPP.addEventListener('focusout', (e) => {
+    if (e.target.matches?.('[data-czpp-notes]')) setTimeout(() => { const ta = czPP.querySelector('[data-czpp-notes]'); if (ta && !ta.hidden && document.activeElement !== ta) czRenderProduct(); }, 150);
   });
   czPP.addEventListener('keydown', async (e) => {
     const t = e.target, p = czProd(czPPid); if (!p) return;
