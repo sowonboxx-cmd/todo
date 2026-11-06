@@ -2156,6 +2156,117 @@
   }
   .vm-fab:active { transform: scale(.92); }
   .vm-fab svg { width: 26px; height: 26px; }
+
+  /* ---------- mobile V3 : vues en haut, menu pleine hauteur, bouton + recherche / ajout ---------- */
+  .vm-views { display: flex; gap: 2px; background: #ffffff; border-radius: 12px; padding: 3px; flex-shrink: 0; margin-left: 6px; }
+  .vm-views button {
+    width: 40px; height: 36px; border: none; border-radius: 9px; background: transparent; color: #8b8b8b; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .vm-views button svg { width: 19px; height: 19px; }
+  .vm-views button.on { background: #ECEAE4; color: #1f1f1f; }
+  .vm-head { padding-right: 14px; }
+  .vm-fab {
+    bottom: calc(env(safe-area-inset-bottom) + 22px); right: 18px; width: 60px; height: 60px; border-radius: 19px;
+    background: #1f1f1f; box-shadow: none;
+  }
+  .vm-fab svg { width: 27px; height: 27px; }
+  .vm-drawer {
+    top: 0; bottom: 0; left: 0; width: min(330px, 86vw); max-width: none; transform: translateX(-102%);
+    flex-direction: column; background: #ffffff; box-shadow: 8px 0 30px rgba(0,0,0,.12);
+  }
+  .vm-drawer:not(.open) { box-shadow: none; }
+  .vm-drawer .v-side {
+    flex: 1; min-height: 0; width: 100%; height: auto; border-radius: 0; box-shadow: none;
+    padding: calc(env(safe-area-inset-top) + 18px) 14px 10px;
+  }
+  .vm-drawer [data-v-quick="fav"], .vm-drawer [data-v-quick="new"] { display: none; }
+  .vm-drawer-foot { border-top: 1px solid #EFEEEA; padding: 8px 10px calc(env(safe-area-inset-bottom) + 14px); flex-shrink: 0; }
+  .vm-drawer-foot button {
+    width: 100%; display: flex; align-items: center; gap: 12px; border: none; background: transparent; border-radius: 12px;
+    padding: 13px 10px; font-size: 15px; font-weight: 500; color: #1f1f1f; cursor: pointer; text-align: left;
+  }
+  .vm-drawer-foot button:active { background: #F5F4F1; }
+  .vm-drawer-foot svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .vm-fcount {
+    margin-left: auto; min-width: 22px; height: 22px; border-radius: 7px; background: #ECEAE4; font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center; padding: 0 6px;
+  }
+  .vm-fcount[hidden] { display: none; }
+
+  .vm-plusov {
+    position: fixed; left: 0; right: 0; top: 0; height: 100%; z-index: 95; display: none; flex-direction: column;
+    background: rgba(243,241,236,.82); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+    padding: calc(env(safe-area-inset-top) + 14px) 16px calc(env(safe-area-inset-bottom) + 18px);
+  }
+  .vm-plusov.open { display: flex; }
+  .vm-plus-top { display: flex; justify-content: flex-end; flex-shrink: 0; }
+  .vm-plus-close {
+    width: 40px; height: 40px; border: none; border-radius: 12px; background: #E6E4DE; color: #1f1f1f; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .vm-plus-close svg { width: 17px; height: 17px; }
+  .vm-plus-spacer { flex: 1.25; min-height: 0; }
+  .vm-plus-spacer2 { flex: 1; min-height: 12px; }
+  .vm-plusov.typing .vm-plus-spacer { flex: 0 0 10px; }
+  .vm-plusov.typing .vm-plus-spacer2 { flex: 0 0 12px; }
+  .vm-plus-field {
+    display: flex; align-items: center; gap: 12px; background: #ffffff; border-radius: 18px; padding: 15px 18px; flex-shrink: 0;
+  }
+  .vm-plus-field svg { width: 20px; height: 20px; color: #8b8b8b; flex-shrink: 0; }
+  .vm-plus-field input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-size: 17px; color: #1f1f1f; }
+  .vm-plus-field input::placeholder { color: #8b8b8b; }
+  .vm-plus-results { flex-shrink: 1; min-height: 0; max-height: 34%; overflow-y: auto; margin-top: 10px; overscroll-behavior: contain; }
+  .vm-plusov.typing .vm-plus-results { flex: 1; max-height: none; }
+  .vm-plus-results:not(:empty) { background: #ffffff; border-radius: 16px; padding: 4px; }
+  .vm-plus-new {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center; gap: 10px; border: none; border-radius: 18px;
+    background: #1f1f1f; color: #ffffff; padding: 17px; font-size: 16px; font-weight: 600; cursor: pointer; min-width: 0;
+  }
+  .vm-plus-new span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .vm-plus-new svg { width: 20px; height: 20px; flex-shrink: 0; }
+
+  /* ---------- fiche « Nouvelle tâche » style HQ ---------- */
+  [data-addtask-sheet] .at-head {
+    display: flex; align-items: center; gap: 14px; margin: 0 -18px 16px; padding: 6px 16px 14px 18px; border-bottom: 1px solid #EFEEEA;
+  }
+  [data-addtask-sheet] .at-head-chk { width: 22px; height: 22px; border-radius: 6px; border: 1.8px solid #CFCFCB; flex-shrink: 0; }
+  [data-addtask-sheet] .at-head-sep { width: 1px; height: 26px; background: #EAE9E4; flex-shrink: 0; }
+  [data-addtask-sheet] .at-head-date {
+    flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; border: none; background: transparent; padding: 6px 0; cursor: pointer;
+    font-family: 'Inter', sans-serif; font-size: 16px; font-weight: 600; color: #8b8b8b; text-align: left;
+  }
+  [data-addtask-sheet] .at-head-date.set { color: #2F9E5B; }
+  [data-addtask-sheet] .at-head-date svg { width: 20px; height: 20px; flex-shrink: 0; }
+  [data-addtask-sheet] .at-head-date span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  [data-addtask-sheet] .at-head-close {
+    margin-left: auto; width: 38px; height: 38px; border: none; border-radius: 11px; background: #EFEEEA; color: #4a4a4a; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  [data-addtask-sheet] .at-head-close svg { width: 16px; height: 16px; }
+  [data-addtask-sheet] .at-title { font-size: 24px; letter-spacing: -.01em; margin-bottom: 6px; }
+  [data-addtask-sheet] .at-desc { background: transparent; padding: 0; border-radius: 0; font-size: 15px; resize: none; margin-bottom: 10px; color: #4a4a4a; }
+  [data-addtask-sheet] .at-addsub {
+    border: none; background: transparent; padding: 4px 0 10px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+    color: #8b8b8b; cursor: pointer; display: block;
+  }
+  [data-addtask-sheet] .at-actions {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; margin: 10px -18px 0; padding: 10px 12px 0; border-top: 1px solid #EFEEEA;
+  }
+  [data-addtask-sheet] .at-act {
+    display: inline-flex; align-items: center; gap: 8px; border: none; background: transparent; border-radius: 10px; padding: 10px 8px;
+    font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; color: #4a4a4a; cursor: pointer; max-width: 100%;
+  }
+  [data-addtask-sheet] .at-act:hover { background: #F5F4F1; }
+  [data-addtask-sheet] .at-act.set { color: #1f1f1f; }
+  [data-addtask-sheet] .at-act svg { width: 19px; height: 19px; flex-shrink: 0; }
+  [data-addtask-sheet] .at-act span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+  [data-addtask-sheet] .at-cat-dot { width: 10px; height: 10px; border-radius: 50%; background: #CFCFCB; margin: 0 4px; flex-shrink: 0; }
+  [data-addtask-sheet] .at-save-btn {
+    margin-left: auto; border: none; background: #2F9E5B; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+    border-radius: 13px; padding: 12px 18px; cursor: pointer;
+  }
+  [data-addtask-sheet] .at-save-btn:active { transform: scale(.97); }
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
@@ -2633,7 +2744,7 @@
                 <div class="td-header-left">
                   <button type="button" class="at-icon-btn" data-goto="project" data-td-project-btn>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-                    <span data-td-project-label>Projet</span>
+                    <span data-td-project-label>Catégorie</span>
                   </button>
                   <button type="button" class="td-project-goto-btn" data-td-project-goto title="Retourner à la liste des tâches" style="display:none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -2717,7 +2828,7 @@
             <div class="sheet-view" data-view="flag">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Importance</div>
+                <div class="sheet-title">Priorité</div>
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-td-flag-options>
@@ -2732,7 +2843,7 @@
             <div class="sheet-view" data-view="project">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Projet</div>
+                <div class="sheet-title">Catégorie</div>
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-td-project-options></div>
@@ -3049,10 +3160,17 @@
             <div class="sheet-handle"></div>
 
             <div class="sheet-view active" data-view="compose">
-              <div class="sheet-topbar">
-                <button class="link" data-at-cancel>Annuler</button>
-                <div class="sheet-title" data-at-sheet-title>Nouvelle tâche</div>
-                <button class="link strong" data-at-save>Ajouter</button>
+              <div class="at-head">
+                <span class="at-head-chk" aria-hidden="true"></span>
+                <span class="at-head-sep" aria-hidden="true"></span>
+                <button type="button" class="at-head-date at-task-only" data-goto="date">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>
+                  <span data-at-date-label>Ajouter une date</span>
+                </button>
+                <div class="sheet-title at-head-title" data-at-sheet-title hidden>Nouvelle tâche</div>
+                <button type="button" class="at-head-close" data-at-cancel aria-label="Fermer">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
               </div>
 
               <div class="at-type-tabs">
@@ -3060,35 +3178,9 @@
                 <button type="button" class="at-type-tab" data-at-type="doc">Document</button>
               </div>
 
-              <input type="text" class="at-title" placeholder="Nom de la tâche" data-at-title>
-              <textarea class="at-desc at-task-only" rows="3" placeholder="Description, lien…" data-at-desc></textarea>
-
-              <div class="at-icons-row">
-                <button type="button" class="at-icon-btn at-task-only" data-goto="date">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                  <span data-at-date-label>Date</span>
-                </button>
-                <button type="button" class="at-icon-btn" data-goto="project">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg>
-                  <span data-at-project-label>Projet</span>
-                </button>
-              </div>
-              <div class="at-icons-row at-task-only">
-                <button type="button" class="at-icon-btn" data-goto="flag" data-at-flag-btn>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h11l-2 4 2 4H5"/></svg>
-                  <span data-at-flag-label>Importance</span>
-                </button>
-                <button type="button" class="ic-flat-btn" data-at-upload-btn title="Ajouter une image (lien)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M8 8l4-4 4 4"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
-                </button>
-                <button type="button" class="ic-flat-btn" data-at-add-subtask-btn title="Sous-tâche">
-                  <img class="icon-light-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list.png" alt="Sous-tâche">
-                  <img class="icon-dark-only" src="https://domainerosalina.com/wp-content/uploads/2026/07/icon-list-white.png" alt="Sous-tâche">
-                </button>
-                <button type="button" class="ic-flat-btn" data-at-add-source-btn title="Source">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                </button>
-              </div>
+              <input type="text" class="at-title" placeholder="Titre de la tâche" data-at-title>
+              <textarea class="at-desc at-task-only" rows="2" placeholder="Description, lien…" data-at-desc></textarea>
+              <button type="button" class="at-addsub at-task-only" data-at-add-subtask-btn>+ Ajouter une sous-tâche</button>
 
               <input type="text" class="add-subtask-input at-task-only" data-at-image-url-input placeholder="Lien de l'image…" style="display:none;">
               <div class="td-images at-task-only" data-at-images></div>
@@ -3103,13 +3195,33 @@
                 <button type="button" class="td-source-confirm-btn" data-at-source-confirm>OK</button>
               </div>
 
+              <div class="at-actions">
+                <button type="button" class="at-act at-task-only" data-goto="flag" data-at-flag-btn>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4h11l-1.5 4L16 12H5"/></svg>
+                  <span data-at-flag-label>Priorité</span>
+                </button>
+                <button type="button" class="at-act" data-goto="project">
+                  <span class="at-cat-dot" data-at-cat-dot></span>
+                  <span data-at-project-label>Catégorie</span>
+                </button>
+                <button type="button" class="at-act at-task-only" data-at-add-source-btn title="Lien">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>
+                  <span>Lien</span>
+                </button>
+                <button type="button" class="at-act at-task-only" data-at-upload-btn title="Fichier">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+                  <span>Fichier</span>
+                </button>
+                <button type="button" class="at-save-btn" data-at-save>Ajouter</button>
+              </div>
+
               <div class="at-error" data-at-error></div>
             </div>
 
             <div class="sheet-view" data-view="flag">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Importance</div>
+                <div class="sheet-title">Priorité</div>
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-at-flag-options>
@@ -3123,7 +3235,7 @@
             <div class="sheet-view" data-view="project">
               <div class="sheet-topbar">
                 <button class="link" data-back>Retour</button>
-                <div class="sheet-title">Projet</div>
+                <div class="sheet-title">Catégorie</div>
                 <span style="width:44px"></span>
               </div>
               <div class="opt-list" data-at-project-options></div>
@@ -4181,7 +4293,7 @@
     }
     const atLabel = sheet.querySelector('[data-at-date-label]');
     if (atLabel) {
-      atLabel.textContent = dueDate ? formatDateFull(dueDate, dueTime) : 'Date';
+      atLabel.textContent = dueDate ? formatDateFull(dueDate, dueTime) : 'Ajouter une date';
       sheet.querySelector('[data-goto="date"]')?.classList.toggle('set', !!dueDate);
     }
     const timeVal = sheet.querySelector('[data-td-time-val]');
@@ -4429,7 +4541,7 @@
       const project = page ? cachedProjects.find(p => p.id === page.project_id) : null;
       sheet.querySelector('[data-td-project-label]').textContent = project
         ? (page ? `${project.name} › ${page.title}` : project.name)
-        : 'Projet';
+        : 'Catégorie';
       sheet.dataset.pendingProjectId = project ? project.id : '';
       sheet.dataset.pendingProjectName = project ? project.name : '';
       renderTdProjectOptions(sheet, page ? page.project_id : null);
@@ -6890,13 +7002,13 @@
     sheet.querySelector('[data-at-desc]').value = '';
     sheet.dataset.pendingDueDate = '';
     sheet.dataset.pendingDueTime = '';
-    sheet.querySelector('[data-at-date-label]').textContent = 'Date';
+    sheet.querySelector('[data-at-date-label]').textContent = 'Ajouter une date';
     sheet.querySelector('[data-goto="date"]').classList.remove('set');
     sheet.dataset.pendingDueDate = presetDueDate || todayISO();
     updateDueLabelFromCache(sheet);
     sheet.querySelector('[data-goto="flag"]').classList.remove('set');
-    sheet.querySelector('[data-at-flag-label]').textContent = 'Importance';
-    sheet.querySelector('[data-at-project-label]').textContent = 'Projet';
+    sheet.querySelector('[data-at-flag-label]').textContent = 'Priorité';
+    sheet.querySelector('[data-at-project-label]').textContent = 'Catégorie';
     sheet.querySelector('[data-goto="project"]').classList.remove('set');
     sheet.querySelector('[data-at-error]').textContent = '';
     sheet.querySelectorAll('[data-at-flag-options] .opt-row').forEach(r => r.classList.remove('selected'));
@@ -8356,6 +8468,9 @@
     x: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
     page: svg('<rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M8.5 9.5h7M8.5 13h7M8.5 16.5h4"/>', ' stroke-width="1.8"'),
     title: svg('<circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/>', ' style="color:#237F46"'),
+    vList: svg('<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor"/>'),
+    vKanban: svg('<rect x="3.5" y="4" width="4.6" height="16" rx="1.6"/><rect x="9.7" y="4" width="4.6" height="10" rx="1.6"/><rect x="15.9" y="4" width="4.6" height="13" rx="1.6"/>'),
+    vCats: svg('<rect x="4" y="4" width="7" height="7" rx="2.2"/><rect x="13" y="4" width="7" height="7" rx="2.2"/><rect x="4" y="13" width="7" height="7" rx="2.2"/><rect x="13" y="13" width="7" height="7" rx="2.2"/>'),
   };
 
   // ---------------- couleurs des catégories ----------------
@@ -8628,22 +8743,27 @@
     <header class="vm-head">
       <button type="button" class="vm-ibtn" data-vm-menu aria-label="Ouvrir le menu">${I.menu}</button>
       <h1 data-vm-title>Tâches</h1>
-      <button type="button" class="vm-ibtn" data-vm-filter aria-label="Filtres et tri">${I.sliders}<span class="vm-dotbadge" data-vm-fbadge hidden></span></button>
-      <button type="button" class="vm-ibtn" data-vm-search aria-label="Rechercher">${I.search}</button>
+      <nav class="vm-views" data-vm-views aria-label="Vues"></nav>
     </header>
     <div class="vm-chiprow" data-vm-chips></div>
     <div class="vm-tabs" data-vm-tabs></div>
     <div class="vm-track" data-vm-track></div>
-    <nav class="vm-nav" data-vm-nav aria-label="Vues"></nav>
-    <button type="button" class="vm-fab" data-v-new aria-label="Nouvelle tâche">${I.plus}</button>
+    <button type="button" class="vm-fab" data-vm-plus aria-label="Rechercher ou ajouter une tâche">${I.plus}</button>
     <div class="vm-drawer-bd" data-vm-drawer-bd></div>
-    <aside class="vm-drawer" data-vm-drawer aria-label="Menu"><div class="v-side" data-v-mside data-v-scroll="mside"></div></aside>
-    <div class="vm-search" data-vm-searchov>
-      <div class="vm-search-bar">
-        <label>${I.search}<input type="search" data-search-input placeholder="Rechercher une tâche…" autocomplete="off" aria-label="Rechercher"></label>
-        <button type="button" data-vm-search-close>Annuler</button>
+    <aside class="vm-drawer" data-vm-drawer aria-label="Menu">
+      <div class="v-side" data-v-mside data-v-scroll="mside"></div>
+      <div class="vm-drawer-foot">
+        <button type="button" data-vm-search>${I.search}Recherche</button>
+        <button type="button" data-vm-filter>${I.sliders}Filtres avancés<span class="vm-fcount" data-vm-fbadge hidden></span></button>
       </div>
-      <div class="vm-search-results" data-search-results></div>
+    </aside>
+    <div class="vm-plusov" data-vm-plusov role="dialog" aria-label="Rechercher ou ajouter">
+      <div class="vm-plus-top"><button type="button" class="vm-plus-close" data-vm-plus-close aria-label="Fermer">${I.x}</button></div>
+      <div class="vm-plus-spacer"></div>
+      <label class="vm-plus-field">${I.search}<input type="search" data-search-input placeholder="Rechercher ou écrire une tâche…" autocomplete="off" enterkeyhint="go" aria-label="Rechercher ou écrire une tâche"></label>
+      <div class="vm-plus-results" data-search-results></div>
+      <div class="vm-plus-spacer2"></div>
+      <button type="button" class="vm-plus-new" data-vm-plus-new>${I.plus}<span data-vm-plus-label>Nouvelle tâche</span></button>
     </div>
     <div class="vm-sheet-bd" data-vm-sheet-bd></div>
     <div class="vm-sheet" data-vm-sheet role="dialog" aria-label="Filtres et tri"></div>`;
@@ -8864,7 +8984,11 @@
     mroot.querySelector('[data-vm-title]').textContent = label || (V.view === 'cats' ? 'Catégories' : V.view === 'kanban' ? 'Kanban' : 'Tâches');
     mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml();
     const badge = mroot.querySelector('[data-vm-fbadge]');
-    badge.hidden = !(advCount() || V.sort !== 'due');
+    const nf = advCount() + (V.sort !== 'due' ? 1 : 0);
+    badge.hidden = !nf;
+    badge.textContent = nf || '';
+    mroot.querySelector('[data-vm-views]').innerHTML = [['list', 'Liste', I.vList], ['kanban', 'Kanban', I.vKanban], ['cats', 'Catégories', I.vCats]]
+      .map(([k, l, ic]) => `<button type="button" class="${V.view === k ? 'on' : ''}" data-v-view="${k}" aria-label="${l}" aria-pressed="${V.view === k}">${ic}</button>`).join('');
 
     const all = cachedTodos.filter(passFilters);
     const track = mroot.querySelector('[data-vm-track]');
@@ -8895,7 +9019,6 @@
     }
     mroot.querySelector('[data-vm-tabs]').innerHTML = `<div class="v-seg" role="tablist" aria-label="Échéance">${tabsHtml}</div>`;
     track.innerHTML = pages;
-    mroot.querySelector('[data-vm-nav]').innerHTML = VIEWS.map(([k, l]) => `<button type="button" class="vm-view${V.view === k ? ' on' : ''}" data-v-view="${k}" aria-pressed="${V.view === k}">${l}</button>`).join('');
     alignTrack();
   }
 
@@ -8949,16 +9072,44 @@
   // ----- tiroir, recherche, fiche filtres -----
   function openDrawer() { mroot.querySelector('[data-vm-drawer]').classList.add('open'); mroot.querySelector('[data-vm-drawer-bd]').classList.add('open'); }
   function closeDrawer() { mroot.querySelector('[data-vm-drawer]').classList.remove('open'); mroot.querySelector('[data-vm-drawer-bd]').classList.remove('open'); }
-  const mSearch = mroot.querySelector('[data-vm-searchov]');
+  const mSearch = mroot.querySelector('[data-vm-plusov]');
+  const mInput = mSearch.querySelector('[data-search-input]');
+  function fitPlusToViewport() {
+    const vv = window.visualViewport;
+    if (!vv || !mSearch.classList.contains('open')) { mSearch.style.height = ''; mSearch.style.top = ''; return; }
+    mSearch.style.height = vv.height + 'px';
+    mSearch.style.top = vv.offsetTop + 'px';
+  }
+  function updatePlus() {
+    const q = mInput.value.trim();
+    mSearch.classList.toggle('typing', !!q);
+    mSearch.querySelector('[data-vm-plus-label]').textContent = q ? `Nouvelle tâche « ${q.length > 28 ? q.slice(0, 28) + '…' : q} »` : 'Nouvelle tâche';
+    renderSearch(mSearch, mInput.value);
+  }
   function openMobileSearch() {
     closeDrawer();
-    const input = mSearch.querySelector('[data-search-input]');
-    input.value = '';
-    renderSearch(mSearch, '');
+    mInput.value = '';
     mSearch.classList.add('open');
-    setTimeout(() => input.focus(), 30);
+    updatePlus();
+    mInput.focus();
+    fitPlusToViewport();
   }
-  function closeMobileSearch() { mSearch.classList.remove('open'); mSearch.querySelector('[data-search-input]').blur(); }
+  function closeMobileSearch() {
+    mSearch.classList.remove('open', 'typing');
+    mInput.blur();
+    fitPlusToViewport();
+  }
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', fitPlusToViewport);
+    window.visualViewport.addEventListener('scroll', fitPlusToViewport);
+  }
+  function newFromPlus() {
+    const title = mInput.value.trim();
+    closeMobileSearch();
+    openNew(contextDate());
+    const t = document.querySelector('[data-addtask-sheet] [data-at-title]');
+    if (t && title) t.value = title;
+  }
   function renderFilterSheet() {
     mroot.querySelector('[data-vm-sheet]').innerHTML = `
       <div class="vm-grab"></div>
@@ -9110,7 +9261,7 @@
   }
 
   function onClick(e) {
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-search-close],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
@@ -9163,10 +9314,11 @@
     if ('vLatein' in d) { V.lateIn = !V.lateIn; LS.set('latein', V.lateIn); v2Render(); return; }
     if ('vmMenu' in d) { openDrawer(); return; }
     if ('vmDrawerBd' in d) { closeDrawer(); return; }
-    if ('vmFilter' in d) { openFilterSheet(); return; }
+    if ('vmFilter' in d) { closeDrawer(); openFilterSheet(); return; }
     if ('vmSheetBd' in d || 'vmSheetClose' in d) { closeFilterSheet(); return; }
-    if ('vmSearch' in d) { openMobileSearch(); return; }
-    if ('vmSearchClose' in d) { closeMobileSearch(); return; }
+    if ('vmSearch' in d || 'vmPlus' in d) { openMobileSearch(); return; }
+    if ('vmPlusClose' in d) { closeMobileSearch(); return; }
+    if ('vmPlusNew' in d) { newFromPlus(); return; }
     if (d.vOpen) { openTaskSheet(container(), d.vOpen); return; }
   }
   root.addEventListener('click', onClick);
@@ -9279,8 +9431,8 @@
   dInput.addEventListener('input', () => renderSearch(dSearch, dInput.value));
   dInput.addEventListener('focus', () => renderSearch(dSearch, dInput.value));
   dInput.addEventListener('blur', () => setTimeout(() => { dSearch.querySelector('[data-search-results]').innerHTML = ''; }, 160));
-  const mInput = mSearch.querySelector('[data-search-input]');
-  mInput.addEventListener('input', () => renderSearch(mSearch, mInput.value));
+  mInput.addEventListener('input', updatePlus);
+  mInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && mInput.value.trim()) { e.preventDefault(); newFromPlus(); } });
 
   document.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -9295,6 +9447,17 @@
       else if (document.activeElement === dInput) dInput.blur();
     }
   });
+
+  // pastille de couleur de la catégorie dans la fiche « Nouvelle tâche »
+  const atLabel = document.querySelector('[data-addtask-sheet] [data-at-project-label]');
+  const atDot = document.querySelector('[data-addtask-sheet] [data-at-cat-dot]');
+  if (atLabel && atDot) {
+    new MutationObserver(() => {
+      const txt = (atLabel.textContent || '').trim();
+      const p = cachedProjects.find(pr => txt === pr.name || txt.startsWith(pr.name + ' ›'));
+      atDot.style.background = p ? (p.color || '#8b8b8b') : '#CFCFCB';
+    }).observe(atLabel, { childList: true, characterData: true, subtree: true });
+  }
 
   // les données ont pu arriver avant que ce script ne soit exécuté
   if (!document.getElementById('app-desktop')?.classList.contains('app-loading')) v2Render();
