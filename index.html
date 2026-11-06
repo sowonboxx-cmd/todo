@@ -8781,6 +8781,7 @@
     mTab: 't',                           // onglet mobile (liste + catégories)
     mKcol: 1,                            // colonne kanban mobile visible
     sort: LS.get('sort', 'due'),
+    sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
     proj: null, page: null, fav: false,  // filtre catégorie / page / favoris
     showFilters: false,
     prio: 'all', subs: 'all', done: false,
@@ -8923,7 +8924,8 @@
     else if (V.sort === 'cat') cmp = (a, b) => ((projOf(a)?.position ?? 999) - (projOf(b)?.position ?? 999)) || byDue(a, b);
     else if (V.sort === 'page') cmp = (a, b) => (pageOf(a)?.title || '').localeCompare(pageOf(b)?.title || '', 'fr') || byDue(a, b);
     else if (V.sort === 'status') cmp = (a, b) => (ST_ORDER[statusOf(a)] - ST_ORDER[statusOf(b)]) || byDue(a, b);
-    arr.sort(cmp);
+    arr.sort(V.sortRev ? (a, b) => cmp(b, a) : cmp);
+    if (V.sort === 'due') arr.sort((a, b) => (a.due_date ? 0 : 1) - (b.due_date ? 0 : 1)); // sans date toujours en bas
     arr.sort((a, b) => (a.is_done ? 1 : 0) - (b.is_done ? 1 : 0));
     return arr;
   }
@@ -9185,7 +9187,7 @@
     const all = cachedTodos.filter(passFilters);
     const count = k => all.filter(t => inTab(t, k) && !t.is_done).length;
     const rows = sortTasks(all.filter(t => inTab(t, V.dTab) && doneOk(t, V.dTab)), V.dTab);
-    const th = (k, l) => `<button type="button" class="v-th${V.sort === k ? ' on' : ''}" data-v-sort="${k}">${l}${V.sort === k ? ' <span aria-hidden="true">↓</span>' : ''}</button>`;
+    const th = (k, l) => `<button type="button" class="v-th${V.sort === k ? ' on' : ''}" data-v-sort="${k}" title="Trier par ${l.toLowerCase()} (re-cliquer pour inverser)">${l}${V.sort === k ? ` <span aria-hidden="true">${V.sortRev ? '↑' : '↓'}</span>` : ''}</button>`;
     panel.innerHTML = `
       <div class="v-tools">
         <div class="v-seg" role="tablist" aria-label="Échéance">${DTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.dTab === k}" class="${V.dTab === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-dtab="${k}">${l} <small>${count(k)}</small></button>`).join('')}</div>
@@ -9200,7 +9202,7 @@
         <div class="v-row v-head"><span></span>${th('title', 'Tâche')}${th('cat', 'Catégorie')}${th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>
         ${rows.map(rowHtml).join('') || '<div class="v-empty">Rien ici.</div>'}
       </div></div>
-      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''} · triées par ${SORT_LABEL[V.sort] || 'échéance'}</div>`;
+      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''} · triées par ${SORT_LABEL[V.sort] || 'échéance'}${V.sortRev ? ' (inversé)' : ''}</div>`;
   }
 
   // ---------------- kanban ----------------
@@ -9635,7 +9637,7 @@
     if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); loadData(); }
   }
   function resetFilters() {
-    V.prio = 'all'; V.subs = 'all'; V.done = false; V.sort = 'due';
+    V.prio = 'all'; V.subs = 'all'; V.done = false; V.sort = 'due'; V.sortRev = false; LS.set('sortRev', false);
     LS.set('sort', V.sort);
   }
 
@@ -9676,12 +9678,15 @@
       alignTrack();
       return;
     }
-    if (d.vSort) { V.sort = d.vSort; LS.set('sort', V.sort); v2Render(); return; }
+    if (d.vSort) {
+      if (V.sort === d.vSort) V.sortRev = !V.sortRev; else { V.sort = d.vSort; V.sortRev = false; }
+      LS.set('sort', V.sort); LS.set('sortRev', V.sortRev); v2Render(); return;
+    }
     if ('vTogglefilters' in d) { V.showFilters = !V.showFilters; v2Render(); return; }
     if (d.vSet) {
       const [k, raw] = d.vSet.split(':');
       V[k] = raw === 'true' ? true : raw === 'false' ? false : raw;
-      if (k === 'sort') LS.set('sort', V.sort);
+      if (k === 'sort') { V.sortRev = false; LS.set('sort', V.sort); LS.set('sortRev', false); }
       v2Render(); return;
     }
     if ('vReset' in d) { resetFilters(); setFilter({}); return; }
