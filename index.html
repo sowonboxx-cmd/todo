@@ -2433,6 +2433,40 @@
   .cz-modal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
   .cz-danger { border: none; background: transparent; color: var(--v-red); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 8px 4px; }
   .cz-primary { border: none; background: var(--v-green); color: #fff; font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 600; border-radius: 11px; padding: 10px 18px; cursor: pointer; }
+  /* fiche produit */
+  .cz-pp-bd { position: fixed; inset: 0; z-index: 1590; background: rgba(24,24,22,.18); display: none; }
+  .cz-pp-bd.open { display: block; }
+  .cz-pp { position: fixed; top: 16px; right: 16px; bottom: 16px; width: min(460px, calc(100vw - 32px)); z-index: 1600; background: #fff; border-radius: 20px; box-shadow: -10px 0 40px rgba(0,0,0,.12); display: none; flex-direction: column; overflow: hidden; font-family: 'Inter', sans-serif; color: #1f1f1f; --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
+  .cz-pp.open { display: flex; }
+  .cz-pp-top { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #EFEEEA; }
+  .cz-pp-top .ic-flat-btn { width: 34px; height: 34px; }
+  .cz-pp-top .ic-flat-btn svg { width: 16px; height: 16px; }
+  .cz-pp-state { font-size: 14px; font-weight: 600; }
+  .cz-pp-body { flex: 1; overflow-y: auto; padding: 14px 20px 30px; display: flex; flex-direction: column; gap: 12px; }
+  .cz-pp-body > * { flex-shrink: 0; }
+  .cz-ray-sel { border: 1px dashed #D9D7D0; border-radius: 9px; padding: 6px 8px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: #6b6b6b; background: transparent; max-width: 160px; }
+  [data-td-project-btn] span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  [data-td-project-btn] { min-width: 0; max-width: 100%; }
+  .cz-pp-notes { border: none; outline: none; resize: vertical; font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.5; color: #4a4a4a; padding: 0; min-height: 48px; background: transparent; }
+  .cz-pp-links { display: flex; flex-direction: column; gap: 8px; }
+  .cz-pp-links .td-yt-embed { margin-top: 0; border-radius: 12px; }
+  .cz-fav { display: flex; align-items: center; gap: 12px; border: 1px solid #EFEEEA; border-radius: 12px; padding: 10px 12px; text-decoration: none; color: #1f1f1f; }
+  .cz-fav img { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; }
+  .cz-fav span { display: flex; flex-direction: column; min-width: 0; font-size: 13.5px; }
+  .cz-fav small { font-size: 12px; color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-prop { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid #EFEEEA; font-size: 13.5px; }
+  .cz-prop > span { width: 92px; flex-shrink: 0; color: #8b8b8b; padding-top: 6px; }
+  .cz-prop input { flex: 1; min-width: 0; border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 14.5px; padding: 5px 0; }
+  .cz-wrap { flex-wrap: wrap; }
+  .cz-chip-input { border: 1px dashed #D9D7D0 !important; border-radius: 9px; padding: 6px 10px !important; font-size: 12.5px !important; width: 90px; flex: none !important; }
+  .cz-uploading { font-size: 13px; color: #8b8b8b; background: #F5F5F3; border-radius: 10px; padding: 10px 12px; }
+  .cz-hasinfo { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #C9C7C0; margin-left: 8px; vertical-align: middle; }
+  button.cz-ray { border: none; background: transparent; cursor: pointer; font-family: 'Inter', sans-serif; padding: 8px 6px 8px 0; text-align: right; }
+  .cz-pp.img-drop { outline: 2px dashed #2F9E5B; outline-offset: -8px; }
+  @media (max-width: 899px) {
+    .cz-pp { top: 40px; left: 0; right: 0; bottom: 0; width: auto; border-radius: 22px 22px 0 0; }
+    .cz-pp-bd { background: rgba(24,24,22,.35); }
+  }
   /* page recette */
   .cz-page { position: fixed; inset: 0; z-index: 1500; background: #fff; overflow-y: auto; display: none; font-family: 'Inter', sans-serif; color: var(--v-ink, #1f1f1f); --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
   .cz-page.open { display: block; }
@@ -2961,7 +2995,7 @@
                   <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-td-flag-btn>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 21V3.5"/><path d="M6.5 4.5h11l-2 4 2 4h-11"/></svg>
                   </button>
-                  <button type="button" class="ic-flat-btn" data-td-upload-btn hidden></button>
+                  <button type="button" class="ic-flat-btn" data-td-upload-btn title="Ajouter une image" aria-label="Ajouter une image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg></button>
                   <div class="td-more-wrap">
                     <button type="button" class="ic-flat-btn td-more-btn" data-td-more-btn title="Plus d'options" aria-haspopup="menu" aria-expanded="false">
                       <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>
@@ -2970,10 +3004,6 @@
                       <button type="button" role="menuitem" data-td-more="fav">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
                         <span data-td-more-fav-label>Ajouter en favori</span>
-                      </button>
-                      <button type="button" role="menuitem" data-td-more="upload">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
-                        <span>Uploader un fichier</span>
                       </button>
                       <button type="button" role="menuitem" class="danger" data-td-more="delete">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></svg>
@@ -10170,9 +10200,8 @@
     const bought = !p.to_buy;
     return `<div class="cz-row${bought ? ' done' : ''}" data-cz-row="${p.id}">
       <button type="button" class="cz-chk${bought ? ' ok' : ''}" data-cz-toggle="${p.id}" aria-label="${bought ? 'Remettre dans les courses' : 'Acheté'} : ${esc(p.name)}">${bought ? I.check : ''}</button>
-      <button type="button" class="cz-name" data-cz-toggle="${p.id}">${esc(p.name)}</button>
-      <span class="cz-ray">${esc((p.rayons || []).join(', '))}</span>
-      <button type="button" class="cz-more" data-cz-pedit="${p.id}" aria-label="Modifier ${esc(p.name)}">${CZI.dots}</button>
+      <button type="button" class="cz-name" data-cz-pedit="${p.id}">${esc(p.name)}${(p.notes || (p.images || []).length || (p.subitems || []).length) ? '<span class="cz-hasinfo" aria-label="a des détails"></span>' : ''}</button>
+      <button type="button" class="cz-ray" data-cz-pedit="${p.id}" tabindex="-1">${esc((p.rayons || []).join(', '))}</button>
     </div>`;
   }
   function czListHtml() {
@@ -10228,6 +10257,7 @@
     await czUpd('cuisine_products', id, { to_buy: p.to_buy });
   }
   function czRefreshAll() {
+    if (czPPid && czPP.classList.contains('open')) czRenderProduct();
     if (V.space !== 'cuisine') { if (CZ.open) czRenderPage(); return; }
     document.querySelectorAll('.cz-tabs').forEach(t => { t.outerHTML = czTabsHtml(); });
     if (V.cz === 'courses') {
@@ -10246,56 +10276,160 @@
     return data;
   }
 
-  // fiche produit (modifier rayon, type, prix, supprimer)
-  function czProductModal(id) {
-    const p = czProd(id); if (!p) return;
-    const rays = [...new Set([...czRayons().map(r => r[0]), ...(p.rayons || [])])].sort((a, b) => a.localeCompare(b, 'fr'));
-    const bd = document.createElement('div');
-    bd.className = 'cz-modal-bd';
-    bd.innerHTML = `<div class="cz-modal" role="dialog" aria-label="Produit">
-      <div class="cz-modal-head"><b>Produit</b><button type="button" class="cz-x" data-czm-close aria-label="Fermer">${I.x}</button></div>
-      <label class="cz-field"><span>Nom</span><input type="text" data-czm-name value="${esc(p.name)}"></label>
-      <div class="cz-field"><span>Type</span><div class="cz-chips">${CZ_KINDS.map(k => `<button type="button" class="cz-chip${(p.kind || 'Alimentation') === k ? ' on' : ''}" data-czm-kind="${k}">${k}</button>`).join('')}</div></div>
-      <div class="cz-field"><span>Rayons</span><div class="cz-chips cz-wrap">${rays.map(r => `<button type="button" class="cz-chip${(p.rayons || []).includes(r) ? ' on' : ''}" data-czm-ray="${esc(r)}">${esc(r)}</button>`).join('')}</div>
-        <input type="text" data-czm-newray placeholder="Nouveau rayon puis Entrée…"></div>
-      <label class="cz-field"><span>Prix moyen</span><input type="text" data-czm-price value="${esc(p.price || '')}" placeholder="ex. 2,10 €"></label>
-      <div class="cz-modal-foot"><button type="button" class="cz-danger" data-czm-del>Supprimer</button><button type="button" class="cz-primary" data-czm-save>Enregistrer</button></div>
-    </div>`;
-    document.body.appendChild(bd);
-    const close = () => bd.remove();
-    bd.addEventListener('click', async (e) => {
-      if (e.target === bd || e.target.closest('[data-czm-close]')) return close();
-      const k = e.target.closest('[data-czm-kind]');
-      if (k) { bd.querySelectorAll('[data-czm-kind]').forEach(b => b.classList.toggle('on', b === k)); return; }
-      const r = e.target.closest('[data-czm-ray]');
-      if (r) { r.classList.toggle('on'); return; }
-      if (e.target.closest('[data-czm-del]')) {
-        if (!confirm(`Supprimer « ${p.name} » ?`)) return;
-        p.is_archived = true; close(); czRefreshAll();
-        await czUpd('cuisine_products', p.id, { is_archived: true });
-        return;
-      }
-      if (e.target.closest('[data-czm-save]')) {
-        const patch = {
-          name: bd.querySelector('[data-czm-name]').value.trim() || p.name,
-          kind: bd.querySelector('[data-czm-kind].on')?.dataset.czmKind || p.kind,
-          rayons: [...bd.querySelectorAll('[data-czm-ray].on')].map(b => b.dataset.czmRay),
-          price: bd.querySelector('[data-czm-price]').value.trim() || null,
-        };
-        Object.assign(p, patch); close(); czRefreshAll();
-        await czUpd('cuisine_products', p.id, patch);
-      }
-    });
-    bd.querySelector('[data-czm-newray]').addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter') return;
-      e.preventDefault();
-      const v = e.target.value.trim(); if (!v) return;
-      const wrap = bd.querySelector('.cz-wrap');
-      let b = [...wrap.querySelectorAll('[data-czm-ray]')].find(x => x.dataset.czmRay.toLowerCase() === v.toLowerCase());
-      if (!b) { wrap.insertAdjacentHTML('beforeend', `<button type="button" class="cz-chip" data-czm-ray="${esc(v)}">${esc(v)}</button>`); b = wrap.lastElementChild; }
-      b.classList.add('on'); e.target.value = '';
-    });
+  // ---------- fiche produit (panneau à droite sur ordinateur, plein écran sur téléphone) ----------
+  const czPP = document.createElement('div');
+  czPP.className = 'cz-pp';
+  czPP.setAttribute('role', 'dialog');
+  czPP.setAttribute('aria-label', 'Produit');
+  document.body.appendChild(czPP);
+  const czPPbd = document.createElement('div');
+  czPPbd.className = 'cz-pp-bd';
+  document.body.appendChild(czPPbd);
+  let czPPid = null;
+  const URL_RE = /https?:\/\/[^\s<>"']+/g;
+  function czLinkCard(url) {
+    const s = czSrc(url);
+    if (s?.t === 'yt') return `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${s.id}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`;
+    if (s?.t === 'x') return `<div class="td-tweet" data-tweet-id="${s.id}"></div>`;
+    const host = s?.host || url;
+    return `<a class="cz-fav" href="${esc(url)}" target="_blank" rel="noopener"><img src="https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64" alt="" loading="lazy"><span><b>${esc(host)}</b><small>${esc(url)}</small></span></a>`;
   }
+  function czOpenProduct(id) {
+    czPPid = id;
+    czRenderProduct();
+    czPP.classList.add('open'); czPPbd.classList.add('open');
+  }
+  function czCloseProduct() {
+    czPPid = null;
+    czPP.classList.remove('open'); czPPbd.classList.remove('open');
+    czPP.innerHTML = '';
+  }
+  function czRenderProduct() {
+    const p = czProd(czPPid);
+    if (!p) { czCloseProduct(); return; }
+    const rays = [...new Set([...czRayons().map(r => r[0]), ...(p.rayons || [])])].sort((a, b) => a.localeCompare(b, 'fr'));
+    const subs = Array.isArray(p.subitems) ? p.subitems : [];
+    const links = [...new Set((p.notes || '').match(URL_RE) || [])];
+    const recs = CZ.items.filter(i => i.product_id === p.id).map(i => czById(i.recipe_id)).filter(Boolean);
+    const UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>';
+    czPP.innerHTML = `
+      <div class="cz-pp-top">
+        <button type="button" class="cz-chk${p.to_buy ? '' : ' ok'}" data-cz-toggle="${p.id}" aria-label="${p.to_buy ? 'Marquer comme acheté' : 'Remettre dans les courses'}">${p.to_buy ? '' : I.check}</button>
+        <span class="cz-pp-state">${p.to_buy ? 'À acheter' : 'Acheté'}</span>
+        <span style="flex:1"></span>
+        <button type="button" class="ic-flat-btn" data-czpp-up title="Ajouter une image" aria-label="Ajouter une image">${UP}</button>
+        <div class="td-more-wrap">
+          <button type="button" class="ic-flat-btn" data-czpp-more aria-label="Plus d'options">${CZI.dots}</button>
+          <div class="td-more-menu" data-czpp-menu hidden><button type="button" class="danger" data-czpp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer le produit</span></button></div>
+        </div>
+        <button type="button" class="ic-flat-btn" data-czpp-close aria-label="Fermer">${I.x}</button>
+      </div>
+      <div class="cz-pp-body">
+        <input type="text" class="cz-page-title" data-czpp-name value="${esc(p.name)}" aria-label="Nom du produit">
+        <textarea class="cz-pp-notes" data-czpp-notes rows="3" placeholder="Détails, marque, taille, lien…">${esc(p.notes || '')}</textarea>
+        ${links.length ? `<div class="cz-pp-links">${links.map(czLinkCard).join('')}</div>` : ''}
+        ${(p.images || []).length ? `<div class="cz-imgs">${p.images.map((u, i) => `<div class="td-img-thumb" style="background-image:url('${esc(u)}')" data-czpp-img="${i}"><button type="button" class="td-img-remove" data-czpp-imgrm="${i}" aria-label="Retirer">${I.x}</button></div>`).join('')}</div>` : ''}
+        <div class="cz-sec">Sous-éléments ${subs.length ? `<small>${subs.filter(x => x.done).length}/${subs.length}</small>` : ''}</div>
+        ${subs.length ? `<div class="cz-card">${subs.map((x, i) => `<div class="cz-row${x.done ? ' done' : ''}"><button type="button" class="cz-chk${x.done ? ' ok' : ''}" data-czpp-subtog="${i}" aria-label="Cocher">${x.done ? I.check : ''}</button><span class="cz-name cz-static">${esc(x.title)}</span><button type="button" class="cz-more" data-czpp-subrm="${i}" aria-label="Retirer">${I.x}</button></div>`).join('')}</div>` : ''}
+        <input type="text" class="cz-inline-add" data-czpp-subadd placeholder="+ Ajouter un sous-élément (Entrée)" enterkeyhint="done">
+        <div class="cz-props">
+          <div class="cz-prop"><span>Type</span><div class="cz-chips">${CZ_KINDS.map(k => `<button type="button" class="cz-chip${(p.kind || 'Alimentation') === k ? ' on' : ''}" data-czpp-kind="${k}">${k}</button>`).join('')}</div></div>
+          <div class="cz-prop"><span>Rayons</span><div class="cz-chips cz-wrap">${(p.rayons || []).map(r => `<button type="button" class="cz-chip on" data-czpp-ray="${esc(r)}" title="Retirer">${esc(r)} ✕</button>`).join('')}<select class="cz-ray-sel" data-czpp-raysel aria-label="Ajouter un rayon"><option value="">+ Rayon</option>${rays.filter(r => !(p.rayons || []).includes(r)).map(r => `<option value="${esc(r)}">${esc(r)}</option>`).join('')}<option value="__new">Nouveau rayon…</option></select></div></div>
+          <label class="cz-prop"><span>Prix moyen</span><input type="text" data-czpp-price value="${esc(p.price || '')}" placeholder="—"></label>
+        </div>
+        ${recs.length ? `<div class="cz-sec">Dans les recettes</div><div class="cz-chips cz-wrap">${recs.map(r => `<button type="button" class="cz-chip" data-czpp-recipe="${r.id}">${esc(r.name)}</button>`).join('')}</div>` : ''}
+      </div>`;
+    mountTweets(czPP);
+  }
+  async function czSaveProduct(patch) {
+    const p = czProd(czPPid); if (!p) return;
+    Object.assign(p, patch);
+    czRefreshAll();
+    await czUpd('cuisine_products', p.id, patch);
+  }
+  async function czProductAddImages(files) {
+    const p = czProd(czPPid); if (!p) return;
+    files = (files || []).filter(f => /^image\//.test(f.type));
+    if (!files.length) return;
+    const cfg = getUploadCfg() || askUploadCfg(); if (!cfg) return;
+    const wrap = czPP.querySelector('.cz-pp-body');
+    const ph = document.createElement('div'); ph.className = 'cz-uploading'; ph.textContent = 'Envoi de ' + files.length + ' image' + (files.length > 1 ? 's' : '') + '…';
+    wrap?.prepend(ph);
+    const urls = [];
+    for (const f of files) { try { urls.push(await uploadImageFile(f, cfg)); } catch (e) { alert(e.message); break; } }
+    ph.remove();
+    if (!urls.length) return;
+    await czSaveProduct({ images: [...(p.images || []), ...urls] });
+    czRenderProduct();
+  }
+  czPPbd.addEventListener('click', czCloseProduct);
+  czPP.addEventListener('click', async (e) => {
+    const t = e.target, p = czProd(czPPid); if (!p) return;
+    const menu = czPP.querySelector('[data-czpp-menu]');
+    if (t.closest('[data-czpp-more]')) { menu.hidden = !menu.hidden; return; }
+    if (menu && !menu.hidden && !menu.contains(t)) menu.hidden = true;
+    if (t.closest('[data-czpp-close]')) { czCloseProduct(); return; }
+    if (t.closest('[data-czpp-del]')) {
+      if (!confirm(`Supprimer « ${p.name} » ?`)) return;
+      czCloseProduct(); p.is_archived = true; czRefreshAll();
+      await czUpd('cuisine_products', p.id, { is_archived: true });
+      return;
+    }
+    if (t.closest('[data-czpp-up]')) { czProductAddImages(await pickImageFiles()); return; }
+    const k = t.closest('[data-czpp-kind]');
+    if (k) { await czSaveProduct({ kind: k.dataset.czppKind }); czRenderProduct(); return; }
+    const r = t.closest('[data-czpp-ray]');
+    if (r) {
+      const v = r.dataset.czppRay, cur = p.rayons || [];
+      await czSaveProduct({ rayons: cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v] });
+      czRenderProduct(); return;
+    }
+    const st = t.closest('[data-czpp-subtog]');
+    if (st) { const subs = (p.subitems || []).map((x, i) => i === +st.dataset.czppSubtog ? { ...x, done: !x.done } : x); await czSaveProduct({ subitems: subs }); czRenderProduct(); return; }
+    const sr = t.closest('[data-czpp-subrm]');
+    if (sr) { await czSaveProduct({ subitems: (p.subitems || []).filter((_, i) => i !== +sr.dataset.czppSubrm) }); czRenderProduct(); return; }
+    const irm = t.closest('[data-czpp-imgrm]');
+    if (irm) { e.stopPropagation(); await czSaveProduct({ images: (p.images || []).filter((_, i) => i !== +irm.dataset.czppImgrm) }); czRenderProduct(); return; }
+    const img = t.closest('[data-czpp-img]');
+    if (img) { openLightbox(getActiveContainer(), p.images, +img.dataset.czppImg); return; }
+    const rc = t.closest('[data-czpp-recipe]');
+    if (rc) { czCloseProduct(); czOpen(rc.dataset.czppRecipe); return; }
+  });
+  czPP.addEventListener('change', (e) => {
+    const t = e.target, p = czProd(czPPid); if (!p) return;
+    if (t.matches('[data-czpp-name]')) { const v = t.value.trim(); if (v && v !== p.name) czSaveProduct({ name: v }); return; }
+    if (t.matches('[data-czpp-notes]')) { const v = t.value.trim() || null; if (v !== (p.notes || null)) { czSaveProduct({ notes: v }).then(czRenderProduct); } return; }
+    if (t.matches('[data-czpp-price]')) { czSaveProduct({ price: t.value.trim() || null }); return; }
+    if (t.matches('[data-czpp-raysel]')) {
+      let v = t.value; if (!v) return;
+      if (v === '__new') { v = (prompt('Nom du nouveau rayon') || '').trim(); if (!v) { t.value = ''; return; } }
+      const cur = p.rayons || [];
+      if (!cur.some(x => x.toLowerCase() === v.toLowerCase())) czSaveProduct({ rayons: [...cur, v] }).then(czRenderProduct);
+      return;
+    }
+  });
+  czPP.addEventListener('keydown', async (e) => {
+    const t = e.target, p = czProd(czPPid); if (!p) return;
+    if (e.key === 'Escape') { czCloseProduct(); return; }
+    if (e.key !== 'Enter') return;
+    if (t.matches('[data-czpp-name]')) { e.preventDefault(); t.blur(); return; }
+    if (t.matches('[data-czpp-subadd]')) {
+      e.preventDefault(); const v = t.value.trim(); if (!v) return;
+      await czSaveProduct({ subitems: [...(p.subitems || []), { title: v, done: false }] });
+      czRenderProduct(); czPP.querySelector('[data-czpp-subadd]')?.focus(); return;
+    }
+    if (t.matches('[data-czpp-newray]')) {
+      e.preventDefault(); const v = t.value.trim(); if (!v) return;
+      const cur = p.rayons || [];
+      if (!cur.some(x => x.toLowerCase() === v.toLowerCase())) await czSaveProduct({ rayons: [...cur, v] });
+      czRenderProduct(); czPP.querySelector('[data-czpp-newray]')?.focus();
+    }
+  });
+  // glisser-déposer / coller une image dans la fiche produit
+  czPP.addEventListener('dragover', (e) => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { e.preventDefault(); czPP.classList.add('img-drop'); } });
+  czPP.addEventListener('dragleave', (e) => { if (!czPP.contains(e.relatedTarget)) czPP.classList.remove('img-drop'); });
+  czPP.addEventListener('drop', (e) => { if (!e.dataTransfer?.files?.length) return; e.preventDefault(); czPP.classList.remove('img-drop'); czProductAddImages([...e.dataTransfer.files]); });
+  czPP.addEventListener('paste', (e) => { const f = [...(e.clipboardData?.files || [])].filter(x => /^image\//.test(x.type)); if (!f.length) return; e.preventDefault(); czProductAddImages(f); });
 
   // ---------- recettes / next ----------
   function czRecipeRows(kind) {
@@ -10501,7 +10635,7 @@
     const tog = t.closest('[data-cz-toggle]');
     if (tog) { czToggle(tog.dataset.czToggle); return; }
     const pe = t.closest('[data-cz-pedit]');
-    if (pe) { czProductModal(pe.dataset.czPedit); return; }
+    if (pe) { czOpenProduct(pe.dataset.czPedit); return; }
     const sc = t.closest('[data-cz-scope]');
     if (sc) { CZ.scope = sc.dataset.czScope; LS.set('cz_scope', CZ.scope); v2Render(); return; }
     const kd = t.closest('[data-cz-kind]');

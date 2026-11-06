@@ -42,3 +42,7 @@ drop policy if exists "cuisine_recipe_items_auth" on cuisine_recipe_items;
 create policy "cuisine_products_auth" on cuisine_products for all to authenticated using (true) with check (true);
 create policy "cuisine_recipes_auth" on cuisine_recipes for all to authenticated using (true) with check (true);
 create policy "cuisine_recipe_items_auth" on cuisine_recipe_items for all to authenticated using (true) with check (true);
+-- Ultimate Dashboard — Cuisine : détails sur les produits (description, images, sous-éléments)
+alter table cuisine_products add column if not exists notes text;
+alter table cuisine_products add column if not exists images text[] not null default '{}';
+alter table cuisine_products add column if not exists subitems jsonb not null default '[]'::jsonb;
