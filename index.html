@@ -2337,6 +2337,139 @@
   }
   [data-addtask-sheet] .at-save-btn svg { width: 22px; height: 22px; }
   [data-addtask-sheet] .at-save-btn:active { transform: scale(.97); }
+  /* ===================== Espace Cuisine ===================== */
+  .v-spaces { margin-bottom: 4px; }
+  .cz { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+  .cz > * { flex-shrink: 0; }
+  .cz-desk { height: 100%; overflow-y: auto; padding-right: 2px; }
+  .cz-head { display: flex; align-items: center; gap: 10px; }
+  .cz-tabs button { padding-left: 14px; padding-right: 14px; }
+  .cz-bar { display: flex; align-items: center; gap: 10px; }
+  .cz-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; background: var(--v-soft); border-radius: 12px; padding: 10px 14px; }
+  .cz-search svg { width: 17px; height: 17px; color: var(--v-faint); flex-shrink: 0; }
+  .cz-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--v-ink); }
+  .cz-ctrls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .cz-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cz-chip { border: none; background: var(--v-chip); color: #4a4a4a; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; padding: 7px 11px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
+  .cz-chip small { color: inherit; opacity: .6; font-weight: 500; }
+  .cz-chip.on { background: var(--v-ink); color: #fff; }
+  .cz-opt { margin-left: auto; }
+  .cz-select { border: none; background: var(--v-chip); border-radius: 9px; padding: 7px 10px; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; color: #4a4a4a; max-width: 180px; }
+  .cz-card { background: var(--v-card); border-radius: 14px; overflow: hidden; border: 1px solid var(--v-line); }
+  .cz-row { display: flex; align-items: center; gap: 10px; padding: 4px 6px 4px 12px; min-height: 46px; transition: opacity .3s; }
+  .cz-row + .cz-row { border-top: 1px solid var(--v-line); }
+  .cz-row.leaving { opacity: .35; }
+  .cz-chk { width: 22px; height: 22px; flex-shrink: 0; border: none; border-radius: 6px; background: var(--v-check); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0; color: #fff; }
+  .cz-chk.ok { background: var(--v-green); }
+  .cz-chk svg { width: 13px; height: 13px; }
+  .cz-name { flex: 1; min-width: 0; text-align: left; border: none; background: transparent; padding: 8px 0; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--v-ink); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-name.cz-static { cursor: default; }
+  .cz-row.done .cz-name { color: #a3a3a3; }
+  .cz-ray { font-size: 12.5px; color: var(--v-faint); flex-shrink: 0; max-width: 40%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-more { width: 32px; height: 32px; flex-shrink: 0; border: none; background: transparent; color: #b5b4ae; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .cz-more:hover { background: var(--v-soft); color: var(--v-ink); }
+  .cz-more svg { width: 16px; height: 16px; }
+  .cz-grp { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); padding: 10px 4px 6px; }
+  .cz-grp small { font-weight: 500; letter-spacing: 0; }
+  .cz-hint { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--v-faint); padding: 2px 4px 6px; }
+  .cz-foot { text-align: center; font-size: 12.5px; color: #a3a3a3; padding: 12px 0 4px; }
+  .cz-list { display: flex; flex-direction: column; gap: 4px; }
+  .cz-addbtn { margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; background: var(--v-ink); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; border-radius: 13px; padding: 13px; cursor: pointer; }
+  .cz-addbtn.green { background: var(--v-green); }
+  .cz-addbtn svg { width: 18px; height: 18px; }
+  .cz-viewsw button { padding: 6px 9px; display: flex; }
+  .cz-viewsw svg { width: 17px; height: 17px; }
+  .cz-newbtn { display: inline-flex; align-items: center; gap: 6px; border: none; background: var(--v-chip); color: var(--v-ink); font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; border-radius: 11px; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+  .cz-newbtn svg { width: 15px; height: 15px; }
+  .cz-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px 16px; }
+  .cz-rc { display: flex; flex-direction: column; gap: 7px; cursor: pointer; min-width: 0; }
+  .cz-rc b { font-size: 14px; font-weight: 600; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .cz-th { position: relative; border-radius: 13px; overflow: hidden; background: #232323; aspect-ratio: 16 / 10; }
+  .cz-th img, .cz-th iframe, .cz-grad { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border: 0; display: flex; align-items: center; justify-content: center; }
+  .cz-grad svg { width: 30px; height: 30px; color: rgba(255,255,255,.55); }
+  .cz-play { position: absolute; left: 50%; top: 50%; width: 46px; height: 32px; margin: -16px 0 0 -23px; border-radius: 9px; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .cz-play svg { width: 18px; height: 18px; }
+  .cz-src { position: absolute; left: 8px; top: 8px; font-size: 10.5px; font-weight: 700; color: #fff; padding: 3px 7px; border-radius: 6px; max-width: calc(100% - 16px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-yt { background: #E62117; } .cz-ig { background: linear-gradient(45deg,#F58529,#DD2A7B 55%,#8134AF); } .cz-x { background: #000; } .cz-web { background: rgba(0,0,0,.55); }
+  .cz-pills { display: flex; gap: 5px; flex-wrap: wrap; }
+  .cz-pill { font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 6px; background: var(--v-chip); color: #4a4a4a; border: none; font-family: 'Inter', sans-serif; white-space: nowrap; }
+  .cz-pill.imp-high { background: #FBE9E7; color: #C8342B; }
+  .cz-pill.imp-medium { background: #FBF1DE; color: #9A6700; }
+  .cz-pill.buy { background: #FBE9E7; color: #C8342B; cursor: pointer; }
+  .cz-pill.stock { background: #E5F3EA; color: #237A45; cursor: pointer; }
+  .cz-rrow { display: flex; align-items: center; gap: 12px; padding: 8px 10px; cursor: pointer; }
+  .cz-rrow + .cz-rrow { border-top: 1px solid var(--v-line); }
+  .cz-rrow .cz-th { width: 92px; flex-shrink: 0; border-radius: 9px; }
+  .cz-rrow .cz-play { width: 30px; height: 22px; margin: -11px 0 0 -15px; border-radius: 6px; }
+  .cz-rrow .cz-play svg { width: 13px; height: 13px; }
+  .cz-rrow .cz-src { display: none; }
+  .cz-rrow-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+  .cz-rrow-body b { font-size: 14.5px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-install { background: var(--v-card); border-radius: 14px; padding: 18px; font-size: 14px; line-height: 1.5; }
+  .cz-install code { background: var(--v-soft); padding: 1px 5px; border-radius: 5px; }
+  .cz-err { color: var(--v-faint); font-size: 12px; }
+  /* mobile */
+  #v2m.cz-on .vm-views { display: none; }
+  .cz-mob { padding: 0 16px 120px; overflow-y: auto; }
+  .cz-mob .cz-search { background: var(--v-card); }
+  .cz-mob .cz-ctrls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
+  .cz-mob .cz-ctrls::-webkit-scrollbar { display: none; }
+  .cz-mob .cz-chips { flex-wrap: nowrap; }
+  .cz-mob .cz-opt { margin-left: 0; }
+  .cz-mob .cz-grid { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .cz-mob .cz-card { border: none; }
+  /* fiche produit */
+  .cz-modal-bd { position: fixed; inset: 0; z-index: 2000; background: rgba(24,24,22,.35); display: flex; align-items: center; justify-content: center; padding: 16px; }
+  .cz-modal { width: min(440px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; background: #fff; border-radius: 20px; padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; font-family: 'Inter', sans-serif; color: var(--v-ink); }
+  .cz-modal-head { display: flex; align-items: center; justify-content: space-between; font-size: 16px; }
+  .cz-x { width: 34px; height: 34px; border: none; border-radius: 10px; background: #EFEEEA; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .cz-x svg { width: 15px; height: 15px; }
+  .cz-field { display: flex; flex-direction: column; gap: 7px; font-size: 12px; font-weight: 600; color: var(--v-faint); }
+  .cz-field input { border: 1px solid var(--v-line); border-radius: 10px; padding: 10px 12px; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--v-ink); outline: none; }
+  .cz-modal-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+  .cz-danger { border: none; background: transparent; color: var(--v-red); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; padding: 8px 4px; }
+  .cz-primary { border: none; background: var(--v-green); color: #fff; font-family: 'Inter', sans-serif; font-size: 14.5px; font-weight: 600; border-radius: 11px; padding: 10px 18px; cursor: pointer; }
+  /* page recette */
+  .cz-page { position: fixed; inset: 0; z-index: 1500; background: #fff; overflow-y: auto; display: none; font-family: 'Inter', sans-serif; color: var(--v-ink, #1f1f1f); --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
+  .cz-page.open { display: block; }
+  html.cz-page-open, html.cz-page-open body { overflow: hidden; }
+  .cz-page-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(env(safe-area-inset-top) + 12px) 18px 10px; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); }
+  .cz-back { display: inline-flex; align-items: center; gap: 4px; border: none; background: #F3F1EC; border-radius: 10px; padding: 8px 12px 8px 8px; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
+  .cz-back svg { width: 17px; height: 17px; }
+  .cz-page-body { max-width: 1240px; margin: 0 auto; padding: 6px 24px 60px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .cz-page-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .cz-page-media { display: flex; flex-direction: column; gap: 14px; min-width: 0; position: sticky; top: 64px; }
+  .cz-page-title { border: none; outline: none; font-family: 'Inter', sans-serif; font-size: 28px; font-weight: 700; letter-spacing: -.01em; color: var(--v-ink); padding: 4px 0; width: 100%; background: transparent; }
+  .cz-props { display: flex; flex-direction: column; border-top: 1px solid var(--v-line); }
+  .cz-props label { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--v-line); font-size: 13.5px; }
+  .cz-props label > span { width: 92px; flex-shrink: 0; color: var(--v-faint); }
+  .cz-props input, .cz-props select { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 14.5px; color: var(--v-ink); padding: 4px 0; }
+  .cz-props em { font-style: normal; color: var(--v-faint); }
+  .cz-sec { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); padding-top: 8px; }
+  .cz-sec small { letter-spacing: 0; font-weight: 500; }
+  .cz-notes { border: 1px solid var(--v-line); border-radius: 12px; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 14.5px; line-height: 1.5; color: var(--v-ink); resize: vertical; outline: none; min-height: 110px; }
+  .cz-inline-add { border: 1px dashed #D9D7D0; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--v-ink); outline: none; background: transparent; }
+  .cz-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: #F3F1EC; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
+  .cz-ghost svg { width: 18px; height: 18px; }
+  .cz-media { position: relative; }
+  .cz-media-x { position: absolute; right: 6px; top: 6px; z-index: 2; width: 28px; height: 28px; border: none; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .cz-media-x svg { width: 13px; height: 13px; }
+  .cz-media .td-yt-embed { margin-top: 0; border-radius: 14px; }
+  .cz-ig { width: 100%; height: 640px; border: 1px solid var(--v-line); border-radius: 14px; background: #fff; display: block; }
+  .cz-openlink { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600; color: var(--v-faint); }
+  .cz-webcard { display: flex; align-items: center; gap: 12px; border: 1px solid var(--v-line); border-radius: 14px; padding: 12px 14px; text-decoration: none; color: var(--v-ink); }
+  .cz-webcard svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--v-faint); }
+  .cz-webcard span { display: flex; flex-direction: column; min-width: 0; }
+  .cz-webcard small { font-size: 12px; color: var(--v-faint); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-imgs { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+  .cz-imgs .td-img-thumb { width: auto; height: auto; aspect-ratio: 1; }
+  .cz-page .td-more-wrap { position: relative; }
+  @media (max-width: 899px) {
+    .cz-page-body { grid-template-columns: 1fr; gap: 18px; padding: 4px 16px 60px; }
+    .cz-page-media { order: -1; position: static; }
+    .cz-page-title { font-size: 24px; }
+    .cz-ig { height: 560px; }
+  }
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
@@ -8788,6 +8921,8 @@
     sort: LS.get('sort', 'due'),
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
     proj: null, page: null, fav: false,  // filtre catégorie / page / favoris
+    space: null,                         // null = tâches, 'cuisine' = espace Cuisine
+    cz: LS.get('cz_tab', 'courses'),     // onglet de l'espace Cuisine
     showFilters: false,
     prio: 'all', subs: 'all', done: false,
     catDay: LS.get('catday', 't'),
@@ -9088,6 +9223,17 @@
         <button type="button" class="${V.fav ? 'on' : ''}" data-v-quick="fav">${I.starQ}<span>Favoris</span></button>
         <button type="button" data-v-quick="new">${I.plus}<span>Nouvelle tâche</span></button>
       </div>
+      <div class="v-cats v-spaces">
+        <div class="v-side-label">Espaces</div>
+        <section class="v-cat open${V.space === 'cuisine' ? ' active-cat' : ''}" style="--c-bg:#F6EFE6;--c-fg:#7A4A12">
+          <div class="v-cat-head"><button type="button" class="v-cat-name" data-cz-go="${V.cz || 'courses'}">Cuisine</button></div>
+          <div class="v-cat-pages">
+            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'courses' ? ' on' : ''}" data-cz-go="courses">${CZI.cart}<span>Courses</span><span class="v-page-count">${CZ.loaded ? (czLive().filter(p => p.to_buy).length || '') : ''}</span></button>
+            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'recettes' ? ' on' : ''}" data-cz-go="recettes">${CZI.fork}<span>Recettes</span><span class="v-page-count">${CZ.loaded ? CZ.recipes.filter(r => r.kind !== 'next').length : ''}</span></button>
+            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'next' ? ' on' : ''}" data-cz-go="next">${CZI.play}<span>Next recettes</span><span class="v-page-count">${CZ.loaded ? CZ.recipes.filter(r => r.kind === 'next').length : ''}</span></button>
+          </div>
+        </section>
+      </div>
       <div class="v-cats">
         <div class="v-side-label">Catégories<button type="button" data-v-addcat aria-label="Nouvelle catégorie" title="Nouvelle catégorie">${I.plus}</button></div>
         ${cats}
@@ -9160,6 +9306,15 @@
   // =====================================================================
   function renderDesktop() {
     root.querySelector('[data-v-side]').innerHTML = sidebarHtml();
+    if (V.space === 'cuisine') {
+      root.querySelector('[data-v-title]').textContent = 'Cuisine';
+      root.querySelector('[data-v-views]').innerHTML = '';
+      const panel = root.querySelector('[data-v-panel]');
+      const focusQ = czFocusState();
+      panel.innerHTML = `<div class="cz cz-desk"><div class="cz-head">${czTabsHtml()}</div>${czBodyHtml(false)}</div>`;
+      czRestoreFocus(panel, focusQ);
+      return;
+    }
     root.querySelector('[data-v-title]').textContent = activeFilterLabel() || 'Tâches';
     root.querySelector('[data-v-views]').innerHTML = VIEWS.map(([k, l]) => `<button type="button" class="${V.view === k ? 'on' : ''}" data-v-view="${k}" aria-pressed="${V.view === k}">${l}</button>`).join('');
     const panel = root.querySelector('[data-v-panel]');
@@ -9377,6 +9532,19 @@
 
   function renderMobile() {
     mroot.querySelector('[data-v-mside]').innerHTML = sidebarHtml();
+    mroot.classList.toggle('cz-on', V.space === 'cuisine');
+    if (V.space === 'cuisine') {
+      mroot.querySelector('[data-vm-title]').textContent = 'Cuisine';
+      mroot.querySelector('[data-vm-chips]').innerHTML = '';
+      mroot.querySelector('[data-vm-views]').innerHTML = '';
+      mroot.querySelector('[data-vm-fbadge]').hidden = true;
+      mroot.querySelector('[data-vm-tabs]').innerHTML = czTabsHtml();
+      const focusQ = czFocusState();
+      const track = mroot.querySelector('[data-vm-track]');
+      track.innerHTML = `<div class="vm-page cz cz-mob" data-v-scroll="cz-${V.cz}">${czBodyHtml(true)}</div>`;
+      czRestoreFocus(track, focusQ);
+      return;
+    }
     const label = activeFilterLabel();
     mroot.querySelector('[data-vm-title]').textContent = label || (V.view === 'cats' ? 'Catégories' : V.view === 'kanban' ? 'Kanban' : 'Tâches');
     mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml();
@@ -9427,11 +9595,13 @@
   }
   function alignTrack() {
     const track = mroot.querySelector('[data-vm-track]');
+    if (V.space === 'cuisine') { track.scrollLeft = 0; return; }
     const page = track.children[currentPageIndex()];
     if (!page) return;
     track.scrollLeft = page.offsetLeft;
   }
   function syncTabsFromScroll() {
+    if (V.space === 'cuisine') return;
     const track = mroot.querySelector('[data-vm-track]');
     const kids = [...track.children];
     if (!kids.length) return;
@@ -9578,6 +9748,7 @@
   // =====================================================================
   const container = () => getActiveContainer();
   function setFilter(f) {
+    V.space = null;
     V.proj = f.proj || null; V.page = f.page || null; V.fav = !!f.fav;
     if (isMobile()) closeDrawer();
     v2Render();
@@ -9687,7 +9858,7 @@
       setFilter({});
       return;
     }
-    if (d.vView) { V.view = d.vView; LS.set('view', V.view); v2Render(); return; }
+    if (d.vView) { V.space = null; V.view = d.vView; LS.set('view', V.view); v2Render(); return; }
     if (d.vDtab) { V.dTab = d.vDtab; LS.set('dtab', V.dTab); v2Render(); return; }
     if (d.vMtab) {
       if (V.view === 'kanban') V.mKcol = KTAB_COL[d.vMtab];
@@ -9718,6 +9889,7 @@
     if ('vmDrawerBd' in d) { closeDrawer(); return; }
     if ('vmFilter' in d) { closeDrawer(); openFilterSheet(); return; }
     if ('vmSheetBd' in d || 'vmSheetClose' in d) { closeFilterSheet(); return; }
+    if ('vmPlus' in d && V.space === 'cuisine') { czFab(); return; }
     if ('vmSearch' in d || 'vmPlus' in d) { openMobileSearch(); return; }
     if ('vmPlusClose' in d) { closeMobileSearch(); return; }
     if ('vmPlusNew' in d) { newFromPlus(); return; }
@@ -9862,6 +10034,594 @@
   }
 
   // les données ont pu arriver avant que ce script ne soit exécuté
+
+  // =====================================================================
+  // ESPACE CUISINE — courses, recettes, next recettes (tables cuisine_*)
+  // =====================================================================
+  const CZ = {
+    loaded: false, loading: false, err: null,
+    products: [], recipes: [], items: [],
+    q: '', rq: '',
+    scope: LS.get('cz_scope', 'buy'),          // buy = à acheter, all = tous les produits
+    kind: LS.get('cz_kind', 'Alimentation'),   // all | Alimentation | Divers | Shopping
+    rayon: '',                                  // filtre rayon
+    group: LS.get('cz_group', false),           // grouper par rayon (option)
+    rview: LS.get('cz_rview', 'grid'),          // grid | list
+    origin: '', imp: '',
+    open: null,                                 // id de la recette ouverte
+  };
+  const CZ_TABS = [['courses', 'Courses'], ['recettes', 'Recettes'], ['next', 'Next']];
+  const CZ_KINDS = ['Alimentation', 'Divers', 'Shopping'];
+  const CZ_IMP = ['High', 'Medium', 'Low'];
+  const CZ_GRAD = ['#8a4b2a,#d39a5b', '#3b2f2a,#a3754d', '#7a1f1f,#e0703a', '#2c3b2f,#8fae6b', '#5b3a1d,#f0c27b', '#41262a,#c26a5a', '#2a2f3b,#7a8fae', '#6b4a1d,#e8b36a'];
+  const CZI = {
+    cart: svg('<path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>', ' stroke-width="1.8"'),
+    fork: svg('<path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8a2 2 0 0 1-2 2M5 3v8a2 2 0 0 0 2 2M17 21V3c-2 1.5-3 4-3 7h3"/>', ' stroke-width="1.8"'),
+    play: svg('<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M10 9l5 2.5-5 2.5z"/>', ' stroke-width="1.8"'),
+    tri: '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
+    grid: svg('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+    list: svg('<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1" fill="currentColor"/>'),
+    back: svg('<path d="M15 18l-6-6 6-6"/>'),
+    dots: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>',
+    photo: svg('<rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/>', ' stroke-width="1.8"'),
+    link: svg('<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>', ' stroke-width="1.9"'),
+  };
+  const czNorm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  const czById = id => CZ.recipes.find(r => r.id === id);
+  const czProd = id => CZ.products.find(p => p.id === id);
+  const czLive = () => CZ.products.filter(p => !p.is_archived);
+  const czByName = (a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' });
+  function czGrad(name) { let h = 0; for (const c of name || '') h = (h * 31 + c.charCodeAt(0)) >>> 0; return `linear-gradient(135deg,${CZ_GRAD[h % CZ_GRAD.length]})`; }
+  function czSrc(url) {
+    if (!url) return null;
+    const yt = extractYouTubeId(url);
+    if (yt) return { t: 'yt', id: yt, label: 'YouTube' };
+    let m = url.match(/instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(p|reel|reels|tv)\/([A-Za-z0-9_-]+)/);
+    if (m) return { t: 'ig', kind: m[1] === 'reels' ? 'reel' : m[1], id: m[2], label: 'Insta' };
+    TWEET_RE.lastIndex = 0; m = TWEET_RE.exec(url); TWEET_RE.lastIndex = 0;
+    if (m) return { t: 'x', id: m[1], label: 'X' };
+    let host = ''; try { host = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
+    return { t: 'web', host, label: host || 'Lien' };
+  }
+
+  async function czLoad(force) {
+    if (CZ.loading || (CZ.loaded && !force)) return;
+    CZ.loading = true;
+    const [p, r, i] = await Promise.all([
+      sb.from('cuisine_products').select('*').eq('is_archived', false),
+      sb.from('cuisine_recipes').select('*').eq('is_archived', false),
+      sb.from('cuisine_recipe_items').select('*'),
+    ]);
+    CZ.loading = false;
+    const err = p.error || r.error || i.error;
+    if (err) { CZ.err = err.message || String(err); CZ.loaded = true; v2Render(); return; }
+    CZ.err = null; CZ.loaded = true;
+    CZ.products = p.data || []; CZ.recipes = r.data || []; CZ.items = i.data || [];
+    v2Render();
+    if (CZ.open) czRenderPage();
+  }
+  async function czUpd(table, id, patch) {
+    const { error } = await sb.from(table).update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) { console.error(error); alert('Enregistrement impossible : ' + (error.message || error)); }
+  }
+
+  function czGo(tab) {
+    V.space = 'cuisine'; V.cz = tab || V.cz || 'courses'; LS.set('cz_tab', V.cz);
+    V.proj = null; V.page = null; V.fav = false;
+    if (isMobile()) closeDrawer();
+    czLoad();
+    v2Render();
+  }
+
+  // ---------- rendu commun (desktop + mobile) ----------
+  function czTabsHtml() {
+    const n = { courses: czLive().filter(p => p.to_buy).length, recettes: CZ.recipes.filter(r => r.kind !== 'next').length, next: CZ.recipes.filter(r => r.kind === 'next').length };
+    return `<div class="v-seg cz-tabs" role="tablist" aria-label="Cuisine">${CZ_TABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.cz === k}" class="${V.cz === k ? 'on' : ''}" data-cz-tab="${k}">${l} <small>${CZ.loaded ? n[k] : ''}</small></button>`).join('')}</div>`;
+  }
+  function czBodyHtml(mobile) {
+    if (!CZ.loaded) return '<div class="v-empty">Chargement…</div>';
+    if (CZ.err) return `<div class="cz-install"><b>L'espace Cuisine n'est pas encore installé.</b><p>Ouvre Supabase → SQL Editor, colle le fichier <code>cuisine_install.sql</code> et lance-le, puis recharge la page.</p><p class="cz-err">${esc(CZ.err)}</p></div>`;
+    return V.cz === 'courses' ? czCoursesHtml(mobile) : czRecipesHtml(V.cz === 'next' ? 'next' : 'recipe', mobile);
+  }
+
+  // ---------- courses ----------
+  function czRayons() {
+    const m = new Map();
+    czLive().forEach(p => (p.rayons || []).forEach(r => m.set(r, (m.get(r) || 0) + 1)));
+    return [...m.entries()].sort((a, b) => a[0].localeCompare(b[0], 'fr'));
+  }
+  function czScopeCounts() {
+    let rows = czLive();
+    if (CZ.kind !== 'all') rows = rows.filter(p => (p.kind || 'Alimentation') === CZ.kind);
+    if (CZ.rayon) rows = rows.filter(p => (p.rayons || []).includes(CZ.rayon));
+    return [rows.filter(p => p.to_buy).length, rows.length];
+  }
+  function czCoursesHtml(mobile) {
+    const [nBuy, nAll] = czScopeCounts();
+    const rays = czRayons();
+    return `
+      <div class="cz-bar">
+        <label class="cz-search">${I.search}<input type="search" data-cz-q value="${esc(CZ.q)}" placeholder="Chercher ou ajouter un produit…" autocomplete="off" enterkeyhint="done" aria-label="Chercher ou ajouter un produit"></label>
+      </div>
+      <div class="cz-ctrls">
+        <div class="v-seg cz-scope"><button type="button" class="${CZ.scope === 'buy' ? 'on' : ''}" data-cz-scope="buy">À acheter <small>${nBuy}</small></button><button type="button" class="${CZ.scope === 'all' ? 'on' : ''}" data-cz-scope="all">Tous les produits <small>${nAll}</small></button></div>
+        <select class="cz-select" data-cz-rayon aria-label="Rayon"><option value="">Tous les rayons</option>${rays.map(([r, n]) => `<option value="${esc(r)}"${CZ.rayon === r ? ' selected' : ''}>${esc(r)} (${n})</option>`).join('')}</select>
+        <div class="cz-chips">${['all', ...CZ_KINDS].map(k => `<button type="button" class="cz-chip${CZ.kind === k ? ' on' : ''}" data-cz-kind="${k}">${k === 'all' ? 'Tout' : k}</button>`).join('')}</div>
+        <button type="button" class="cz-chip cz-opt${CZ.group ? ' on' : ''}" data-cz-group aria-pressed="${CZ.group}" title="Grouper la liste par rayon">Par rayon</button>
+      </div>
+      <div class="cz-list" data-cz-list>${czListHtml()}</div>`;
+  }
+  function czFilteredProducts() {
+    const q = czNorm(CZ.q);
+    let rows = czLive();
+    if (CZ.kind !== 'all') rows = rows.filter(p => (p.kind || 'Alimentation') === CZ.kind);
+    if (CZ.rayon) rows = rows.filter(p => (p.rayons || []).includes(CZ.rayon));
+    if (q) rows = rows.filter(p => czNorm(p.name).includes(q));
+    else if (CZ.scope === 'buy') rows = rows.filter(p => p.to_buy);
+    rows.sort((a, b) => (q ? (b.to_buy - a.to_buy) : 0) || czByName(a, b));
+    return rows;
+  }
+  function czRowHtml(p) {
+    const bought = !p.to_buy;
+    return `<div class="cz-row${bought ? ' done' : ''}" data-cz-row="${p.id}">
+      <button type="button" class="cz-chk${bought ? ' ok' : ''}" data-cz-toggle="${p.id}" aria-label="${bought ? 'Remettre dans les courses' : 'Acheté'} : ${esc(p.name)}">${bought ? I.check : ''}</button>
+      <button type="button" class="cz-name" data-cz-toggle="${p.id}">${esc(p.name)}</button>
+      <span class="cz-ray">${esc((p.rayons || []).join(', '))}</span>
+      <button type="button" class="cz-more" data-cz-pedit="${p.id}" aria-label="Modifier ${esc(p.name)}">${CZI.dots}</button>
+    </div>`;
+  }
+  function czListHtml() {
+    const rows = czFilteredProducts();
+    const q = CZ.q.trim();
+    const exact = q && czLive().some(p => czNorm(p.name) === czNorm(q));
+    let html = '';
+    if (q) {
+      const bought = rows.filter(p => !p.to_buy).length;
+      if (bought) html += `<div class="cz-hint">Déjà achetés : touche pour remettre dans la liste</div>`;
+    }
+    if (!rows.length && !q) html += `<div class="v-empty">${CZ.scope === 'buy' ? 'Rien à acheter 🎉' : 'Aucun produit.'}</div>`;
+    if (rows.length) {
+      if (CZ.group && !q) {
+        const groups = new Map();
+        rows.forEach(p => { const k = (p.rayons || [])[0] || 'Sans rayon'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
+        [...groups.entries()].sort((a, b) => a[0] === 'Sans rayon' ? 1 : b[0] === 'Sans rayon' ? -1 : a[0].localeCompare(b[0], 'fr'))
+          .forEach(([k, ps]) => { html += `<div class="cz-grp">${esc(k)} <small>${ps.length}</small></div><div class="cz-card">${ps.map(czRowHtml).join('')}</div>`; });
+      } else html += `<div class="cz-card">${rows.map(czRowHtml).join('')}</div>`;
+    }
+    if (q && !exact) html += `<button type="button" class="cz-addbtn" data-cz-addprod>${I.plus}Ajouter « ${esc(q)} » aux courses</button>`;
+    if (!q && CZ.scope === 'buy' && rows.length) html += `<div class="cz-foot">${czLive().filter(p => !p.to_buy).length} produits déjà achetés · tape un nom pour les retrouver</div>`;
+    return html;
+  }
+  function czRefreshList() {
+    document.querySelectorAll('[data-cz-list]').forEach(el => { el.innerHTML = czListHtml(); });
+  }
+  async function czToggle(id) {
+    const p = czProd(id); if (!p) return;
+    p.to_buy = !p.to_buy;
+    const leaving = !p.to_buy && CZ.scope === 'buy' && !CZ.q.trim();
+    if (leaving) {
+      document.querySelectorAll(`[data-cz-row="${id}"]`).forEach(r => { r.classList.add('done', 'leaving'); const c = r.querySelector('.cz-chk'); c.classList.add('ok'); c.innerHTML = I.check; });
+      setTimeout(() => { czRefreshAll(); }, 420);
+    } else czRefreshAll();
+    await czUpd('cuisine_products', id, { to_buy: p.to_buy });
+  }
+  function czRefreshAll() {
+    if (V.space !== 'cuisine') { if (CZ.open) czRenderPage(); return; }
+    document.querySelectorAll('.cz-tabs').forEach(t => { t.outerHTML = czTabsHtml(); });
+    if (V.cz === 'courses') {
+      czRefreshList();
+      const n = czScopeCounts();
+      document.querySelectorAll('.cz-scope small').forEach((s, i) => { s.textContent = n[i % 2]; });
+    }
+    if (CZ.open) czRenderPage();
+  }
+  async function czAddProduct(name) {
+    name = (name || '').trim(); if (!name) return null;
+    const row = { name, to_buy: true, rayons: CZ.rayon ? [CZ.rayon] : [], kind: CZ.kind !== 'all' ? CZ.kind : 'Alimentation' };
+    const { data, error } = await sb.from('cuisine_products').insert(row).select().single();
+    if (error) { alert('Ajout impossible : ' + error.message); return null; }
+    CZ.products.push(data);
+    return data;
+  }
+
+  // fiche produit (modifier rayon, type, prix, supprimer)
+  function czProductModal(id) {
+    const p = czProd(id); if (!p) return;
+    const rays = [...new Set([...czRayons().map(r => r[0]), ...(p.rayons || [])])].sort((a, b) => a.localeCompare(b, 'fr'));
+    const bd = document.createElement('div');
+    bd.className = 'cz-modal-bd';
+    bd.innerHTML = `<div class="cz-modal" role="dialog" aria-label="Produit">
+      <div class="cz-modal-head"><b>Produit</b><button type="button" class="cz-x" data-czm-close aria-label="Fermer">${I.x}</button></div>
+      <label class="cz-field"><span>Nom</span><input type="text" data-czm-name value="${esc(p.name)}"></label>
+      <div class="cz-field"><span>Type</span><div class="cz-chips">${CZ_KINDS.map(k => `<button type="button" class="cz-chip${(p.kind || 'Alimentation') === k ? ' on' : ''}" data-czm-kind="${k}">${k}</button>`).join('')}</div></div>
+      <div class="cz-field"><span>Rayons</span><div class="cz-chips cz-wrap">${rays.map(r => `<button type="button" class="cz-chip${(p.rayons || []).includes(r) ? ' on' : ''}" data-czm-ray="${esc(r)}">${esc(r)}</button>`).join('')}</div>
+        <input type="text" data-czm-newray placeholder="Nouveau rayon puis Entrée…"></div>
+      <label class="cz-field"><span>Prix moyen</span><input type="text" data-czm-price value="${esc(p.price || '')}" placeholder="ex. 2,10 €"></label>
+      <div class="cz-modal-foot"><button type="button" class="cz-danger" data-czm-del>Supprimer</button><button type="button" class="cz-primary" data-czm-save>Enregistrer</button></div>
+    </div>`;
+    document.body.appendChild(bd);
+    const close = () => bd.remove();
+    bd.addEventListener('click', async (e) => {
+      if (e.target === bd || e.target.closest('[data-czm-close]')) return close();
+      const k = e.target.closest('[data-czm-kind]');
+      if (k) { bd.querySelectorAll('[data-czm-kind]').forEach(b => b.classList.toggle('on', b === k)); return; }
+      const r = e.target.closest('[data-czm-ray]');
+      if (r) { r.classList.toggle('on'); return; }
+      if (e.target.closest('[data-czm-del]')) {
+        if (!confirm(`Supprimer « ${p.name} » ?`)) return;
+        p.is_archived = true; close(); czRefreshAll();
+        await czUpd('cuisine_products', p.id, { is_archived: true });
+        return;
+      }
+      if (e.target.closest('[data-czm-save]')) {
+        const patch = {
+          name: bd.querySelector('[data-czm-name]').value.trim() || p.name,
+          kind: bd.querySelector('[data-czm-kind].on')?.dataset.czmKind || p.kind,
+          rayons: [...bd.querySelectorAll('[data-czm-ray].on')].map(b => b.dataset.czmRay),
+          price: bd.querySelector('[data-czm-price]').value.trim() || null,
+        };
+        Object.assign(p, patch); close(); czRefreshAll();
+        await czUpd('cuisine_products', p.id, patch);
+      }
+    });
+    bd.querySelector('[data-czm-newray]').addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      e.preventDefault();
+      const v = e.target.value.trim(); if (!v) return;
+      const wrap = bd.querySelector('.cz-wrap');
+      let b = [...wrap.querySelectorAll('[data-czm-ray]')].find(x => x.dataset.czmRay.toLowerCase() === v.toLowerCase());
+      if (!b) { wrap.insertAdjacentHTML('beforeend', `<button type="button" class="cz-chip" data-czm-ray="${esc(v)}">${esc(v)}</button>`); b = wrap.lastElementChild; }
+      b.classList.add('on'); e.target.value = '';
+    });
+  }
+
+  // ---------- recettes / next ----------
+  function czRecipeRows(kind) {
+    const q = czNorm(CZ.rq);
+    let rows = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
+    if (kind === 'recipe' && CZ.origin) rows = rows.filter(r => (r.origin || '') === CZ.origin);
+    if (kind === 'next' && CZ.imp) rows = rows.filter(r => (r.importance || '') === CZ.imp);
+    if (q) {
+      const ingOf = id => CZ.items.filter(i => i.recipe_id === id).map(i => czProd(i.product_id)?.name || '').join(' ');
+      rows = rows.filter(r => czNorm(r.name + ' ' + (r.origin || '') + ' ' + (r.notes || '') + ' ' + ingOf(r.id)).includes(q));
+    }
+    if (kind === 'next') {
+      const rank = { High: 0, Medium: 1, Low: 2 };
+      rows.sort((a, b) => ((rank[a.importance] ?? 3) - (rank[b.importance] ?? 3)) || String(b.created_at).localeCompare(String(a.created_at)));
+    } else rows.sort(czByName);
+    return rows;
+  }
+  function czThumb(r) {
+    const img = (r.images || [])[0];
+    const s = czSrc((r.links || [])[0]);
+    let bg;
+    if (img) bg = `<img src="${esc(img)}" alt="" loading="lazy">`;
+    else if (s?.t === 'yt') bg = `<img src="https://i.ytimg.com/vi/${s.id}/hqdefault.jpg" alt="" loading="lazy">`;
+    else bg = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
+    const play = s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
+    const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.label)}</span>` : '';
+    return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}</div>`;
+  }
+  function czPills(r) {
+    const out = [];
+    if (r.kind === 'next') { if (r.importance) out.push(`<span class="cz-pill imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>`); }
+    else {
+      if (r.origin) out.push(`<span class="cz-pill">${esc(r.origin)}</span>`);
+      if (r.minutes) out.push(`<span class="cz-pill">${r.minutes} min</span>`);
+      if ((r.types || [])[0]) out.push(`<span class="cz-pill">${esc(r.types[0])}</span>`);
+    }
+    return out.join('');
+  }
+  function czRecipesHtml(kind, mobile) {
+    const all = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
+    const chips = kind === 'next'
+      ? ['', ...CZ_IMP].map(v => `<button type="button" class="cz-chip${CZ.imp === v ? ' on' : ''}" data-cz-imp="${v}">${v || 'Toutes'}${v ? ` <small>${all.filter(r => r.importance === v).length}</small>` : ''}</button>`).join('')
+      : ['', ...[...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'))].map(v => `<button type="button" class="cz-chip${CZ.origin === v ? ' on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Tout')}</button>`).join('');
+    return `
+      <div class="cz-bar">
+        <label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label>
+        <div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>
+        ${mobile ? '' : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
+      </div>
+      <div class="cz-ctrls"><div class="cz-chips">${chips}</div></div>
+      <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
+  }
+  function czRecipeListHtml(kind) {
+    const rows = czRecipeRows(kind);
+    if (!rows.length) return `<div class="v-empty">${CZ.rq ? 'Aucun résultat.' : 'Rien ici pour l’instant.'}</div>`;
+    if (CZ.rview === 'list') {
+      return `<div class="cz-card">${rows.map(r => `<div class="cz-rrow" data-cz-open="${r.id}">${czThumb(r)}<div class="cz-rrow-body"><b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div></div>`).join('')}</div>`;
+    }
+    return `<div class="cz-grid">${rows.map(r => `<div class="cz-rc" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div>`).join('')}</div>`;
+  }
+  async function czNewRecipe() {
+    const kind = V.cz === 'next' ? 'next' : 'recipe';
+    const { data, error } = await sb.from('cuisine_recipes').insert({ name: kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette', kind, links: [], images: [], types: [], tags: [] }).select().single();
+    if (error) { alert('Création impossible : ' + error.message); return; }
+    CZ.recipes.push(data);
+    czRefreshAll(); if (V.space === 'cuisine') v2Render();
+    czOpen(data.id, true);
+  }
+
+  // ---------- page recette ----------
+  const czPage = document.createElement('div');
+  czPage.className = 'cz-page';
+  czPage.setAttribute('role', 'dialog');
+  czPage.setAttribute('aria-label', 'Recette');
+  document.body.appendChild(czPage);
+  function czOpen(id, focusTitle) {
+    CZ.open = id;
+    czRenderPage();
+    czPage.classList.add('open');
+    document.documentElement.classList.add('cz-page-open');
+    czPage.scrollTop = 0;
+    if (focusTitle) { const t = czPage.querySelector('[data-czp-name]'); t?.focus(); t?.select(); }
+  }
+  function czClose() {
+    CZ.open = null;
+    czPage.classList.remove('open');
+    document.documentElement.classList.remove('cz-page-open');
+    czPage.innerHTML = '';
+    if (V.space === 'cuisine') v2Render();
+  }
+  function czEmbedHtml(url, i) {
+    const s = czSrc(url);
+    const rm = `<button type="button" class="cz-media-x" data-czp-unlinkurl="${i}" aria-label="Retirer ce lien">${I.x}</button>`;
+    if (!s) return '';
+    if (s.t === 'yt') return `<div class="cz-media">${rm}<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${s.id}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div></div>`;
+    if (s.t === 'ig') return `<div class="cz-media">${rm}<iframe class="cz-ig" src="https://www.instagram.com/${s.kind}/${s.id}/embed/captioned/" title="Instagram" loading="lazy" scrolling="no" allowtransparency="true" allowfullscreen></iframe><a class="cz-openlink" href="${esc(url)}" target="_blank" rel="noopener">Ouvrir sur Instagram</a></div>`;
+    if (s.t === 'x') return `<div class="cz-media">${rm}<div class="td-tweet" data-tweet-id="${s.id}"></div></div>`;
+    return `<div class="cz-media">${rm}<a class="cz-webcard" href="${esc(url)}" target="_blank" rel="noopener">${CZI.link}<span><b>${esc(s.host)}</b><small>${esc(url)}</small></span></a></div>`;
+  }
+  function czRenderPage() {
+    const r = czById(CZ.open);
+    if (!r) { czClose(); return; }
+    const ings = CZ.items.filter(i => i.recipe_id === r.id).map(i => czProd(i.product_id)).filter(p => p && !p.is_archived).sort(czByName);
+    const notBuy = ings.filter(p => !p.to_buy).length;
+    const isNext = r.kind === 'next';
+    const origins = [...new Set(CZ.recipes.map(x => x.origin).filter(Boolean))];
+    czPage.innerHTML = `
+      <div class="cz-page-top">
+        <button type="button" class="cz-back" data-czp-close>${CZI.back}<span>${isNext ? 'Next recettes' : 'Recettes'}</span></button>
+        <div class="td-more-wrap">
+          <button type="button" class="ic-flat-btn td-more-btn" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
+          <div class="td-more-menu" data-czp-menu hidden>
+            <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+            <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
+            <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="cz-page-body">
+        <div class="cz-page-main">
+          <input type="text" class="cz-page-title" data-czp-name value="${esc(r.name)}" aria-label="Nom de la recette">
+          <div class="cz-props">
+            ${isNext
+              ? `<label><span>Importance</span><select data-czp-f="importance">${['', ...CZ_IMP, 'Done - Top', 'Done - Moyen'].map(v => `<option value="${v}"${(r.importance || '') === v ? ' selected' : ''}>${v || '—'}</option>`).join('')}</select></label>`
+              : `<label><span>Origine</span><input type="text" data-czp-f="origin" value="${esc(r.origin || '')}" list="cz-origins" placeholder="—"></label>
+                 <label><span>Type</span><input type="text" data-czp-f="types" value="${esc((r.types || []).join(', '))}" placeholder="Plat, Entrée…"></label>
+                 <label><span>Temps</span><input type="number" inputmode="numeric" min="0" data-czp-f="minutes" value="${r.minutes ?? ''}" placeholder="—"><em>min</em></label>
+                 <label><span>Moments</span><input type="text" data-czp-f="tags" value="${esc((r.tags || []).join(', '))}" placeholder="Dinner, Lunch…"></label>`}
+          </div>
+          <datalist id="cz-origins">${origins.map(o => `<option value="${esc(o)}">`).join('')}</datalist>
+          <div class="cz-sec">Recette</div>
+          <textarea class="cz-notes" data-czp-f="notes" rows="5" placeholder="Étapes, astuces, quantités…">${esc(r.notes || '')}</textarea>
+          <div class="cz-sec">Ingrédients <small>${ings.length || ''}</small></div>
+          ${ings.length ? `<div class="cz-card">${ings.map(p => `<div class="cz-row">
+              <span class="cz-name cz-static">${esc(p.name)}</span><span class="cz-ray">${esc((p.rayons || [])[0] || '')}</span>
+              <button type="button" class="cz-pill ${p.to_buy ? 'buy' : 'stock'}" data-cz-toggle="${p.id}" title="Toucher pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button>
+              <button type="button" class="cz-more" data-czp-unlink="${p.id}" aria-label="Retirer ${esc(p.name)}">${I.x}</button></div>`).join('')}</div>` : ''}
+          <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient (Entrée)" enterkeyhint="done">
+          <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+          ${notBuy ? `<button type="button" class="cz-addbtn green" data-czp-allbuy>${CZI.cart}Mettre les ${notBuy} ingrédient${notBuy > 1 ? 's' : ''} dans les courses</button>` : ''}
+        </div>
+        <div class="cz-page-media">
+          ${(r.links || []).map(czEmbedHtml).join('')}
+          ${(r.images || []).length ? `<div class="cz-imgs">${r.images.map((u, i) => `<div class="td-img-thumb" style="background-image:url('${esc(u)}')" data-czp-img="${i}"><button type="button" class="td-img-remove" data-czp-imgrm="${i}" aria-label="Retirer">${I.x}</button></div>`).join('')}</div>` : ''}
+          <input type="url" class="cz-inline-add" data-czp-linkadd placeholder="+ Coller un lien YouTube, Insta, X… (Entrée)" enterkeyhint="done">
+          <button type="button" class="cz-ghost" data-czp-upimg>${CZI.photo}Ajouter une photo</button>
+        </div>
+      </div>`;
+    mountTweets(czPage);
+  }
+  async function czSaveField(r, f, raw) {
+    let v = raw;
+    if (f === 'types' || f === 'tags') v = raw.split(',').map(s => s.trim()).filter(Boolean);
+    else if (f === 'minutes') v = raw === '' ? null : Math.max(0, parseInt(raw, 10) || 0);
+    else v = raw.trim() || null;
+    r[f] = v;
+    await czUpd('cuisine_recipes', r.id, { [f]: v });
+  }
+  async function czAddIngredient(r, name) {
+    name = name.trim(); if (!name) return;
+    let p = czLive().find(x => czNorm(x.name) === czNorm(name));
+    if (!p) {
+      const { data, error } = await sb.from('cuisine_products').insert({ name, to_buy: true, rayons: [], kind: 'Alimentation' }).select().single();
+      if (error) { alert(error.message); return; }
+      CZ.products.push(data); p = data;
+    }
+    if (CZ.items.some(i => i.recipe_id === r.id && i.product_id === p.id)) return;
+    CZ.items.push({ recipe_id: r.id, product_id: p.id });
+    czRenderPage();
+    czPage.querySelector('[data-czp-ingadd]')?.focus();
+    const { error } = await sb.from('cuisine_recipe_items').insert({ recipe_id: r.id, product_id: p.id });
+    if (error) alert(error.message);
+  }
+  async function czUploadImages(r) {
+    const cfg = getUploadCfg() || askUploadCfg();
+    if (!cfg) return;
+    const files = (await pickImageFiles()).filter(f => /^image\//.test(f.type));
+    if (!files.length) return;
+    const urls = [];
+    for (const f of files.slice(0, 10)) { try { urls.push(await uploadImageFile(f, cfg)); } catch (e) { alert(e.message); break; } }
+    if (!urls.length) return;
+    r.images = [...(r.images || []), ...urls];
+    czRenderPage();
+    await czUpd('cuisine_recipes', r.id, { images: r.images });
+  }
+
+  // ---------- événements ----------
+  document.addEventListener('click', async (e) => {
+    const t = e.target;
+    const go = t.closest('[data-cz-go]');
+    if (go) { e.preventDefault(); czGo(go.dataset.czGo); return; }
+    const tab = t.closest('[data-cz-tab]');
+    if (tab) { V.cz = tab.dataset.czTab; LS.set('cz_tab', V.cz); v2Render(); return; }
+    const play = t.closest('[data-cz-play]');
+    if (play) {
+      e.stopPropagation();
+      const r = czById(play.dataset.czPlay); const s = czSrc(r?.links?.[0]);
+      const th = play.closest('.cz-th');
+      if (s?.t === 'yt' && th) th.innerHTML = `<iframe src="https://www.youtube.com/embed/${s.id}?autoplay=1&playsinline=1" title="YouTube" frameborder="0" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`;
+      return;
+    }
+    if (t.closest('.cz-th iframe')) return;
+    const tog = t.closest('[data-cz-toggle]');
+    if (tog) { czToggle(tog.dataset.czToggle); return; }
+    const pe = t.closest('[data-cz-pedit]');
+    if (pe) { czProductModal(pe.dataset.czPedit); return; }
+    const sc = t.closest('[data-cz-scope]');
+    if (sc) { CZ.scope = sc.dataset.czScope; LS.set('cz_scope', CZ.scope); v2Render(); return; }
+    const kd = t.closest('[data-cz-kind]');
+    if (kd) { CZ.kind = kd.dataset.czKind; LS.set('cz_kind', CZ.kind); v2Render(); return; }
+    if (t.closest('[data-cz-group]')) { CZ.group = !CZ.group; LS.set('cz_group', CZ.group); v2Render(); return; }
+    if (t.closest('[data-cz-addprod]')) {
+      const p = await czAddProduct(CZ.q);
+      if (p) { CZ.q = ''; v2Render(); }
+      return;
+    }
+    const rv = t.closest('[data-cz-rview]');
+    if (rv) { CZ.rview = rv.dataset.czRview; LS.set('cz_rview', CZ.rview); v2Render(); return; }
+    const og = t.closest('[data-cz-origin]');
+    if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); return; }
+    const im = t.closest('[data-cz-imp]');
+    if (im) { CZ.imp = im.dataset.czImp; v2Render(); return; }
+    if (t.closest('[data-cz-newrecipe]')) { czNewRecipe(); return; }
+    const op = t.closest('[data-cz-open]');
+    if (op) { czOpen(op.dataset.czOpen); return; }
+
+    // page recette
+    if (!czPage.contains(t)) return;
+    const r = czById(CZ.open); if (!r) return;
+    if (t.closest('[data-czp-close]')) { czClose(); return; }
+    const menu = czPage.querySelector('[data-czp-menu]');
+    if (t.closest('[data-czp-more]')) { menu.hidden = !menu.hidden; return; }
+    if (menu && !menu.hidden && !menu.contains(t)) menu.hidden = true;
+    if (t.closest('[data-czp-move]')) {
+      r.kind = r.kind === 'next' ? 'recipe' : 'next';
+      czRenderPage(); czRefreshAll();
+      await czUpd('cuisine_recipes', r.id, { kind: r.kind });
+      return;
+    }
+    if (t.closest('[data-czp-del]')) {
+      if (!confirm(`Supprimer « ${r.name} » ?`)) return;
+      r.is_archived = true; CZ.recipes = CZ.recipes.filter(x => x !== r);
+      czClose();
+      await czUpd('cuisine_recipes', r.id, { is_archived: true });
+      return;
+    }
+    if (t.closest('[data-czp-upimg]')) { if (menu) menu.hidden = true; czUploadImages(r); return; }
+    const ul = t.closest('[data-czp-unlink]');
+    if (ul) {
+      const pid = ul.dataset.czpUnlink;
+      CZ.items = CZ.items.filter(i => !(i.recipe_id === r.id && i.product_id === pid));
+      czRenderPage();
+      await sb.from('cuisine_recipe_items').delete().eq('recipe_id', r.id).eq('product_id', pid);
+      return;
+    }
+    if (t.closest('[data-czp-allbuy]')) {
+      const ps = CZ.items.filter(i => i.recipe_id === r.id).map(i => czProd(i.product_id)).filter(p => p && !p.to_buy && !p.is_archived);
+      ps.forEach(p => { p.to_buy = true; });
+      czRenderPage(); czRefreshAll();
+      for (const p of ps) await czUpd('cuisine_products', p.id, { to_buy: true });
+      return;
+    }
+    const lr = t.closest('[data-czp-unlinkurl]');
+    if (lr) {
+      r.links = (r.links || []).filter((_, i) => i !== +lr.dataset.czpUnlinkurl);
+      czRenderPage();
+      await czUpd('cuisine_recipes', r.id, { links: r.links });
+      return;
+    }
+    const irm = t.closest('[data-czp-imgrm]');
+    if (irm) {
+      e.stopPropagation();
+      r.images = (r.images || []).filter((_, i) => i !== +irm.dataset.czpImgrm);
+      czRenderPage();
+      await czUpd('cuisine_recipes', r.id, { images: r.images });
+      return;
+    }
+    const img = t.closest('[data-czp-img]');
+    if (img) { openLightbox(getActiveContainer(), r.images, +img.dataset.czpImg); return; }
+  });
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    if (t.matches('[data-cz-q]')) { CZ.q = t.value; czRefreshList(); return; }
+    if (t.matches('[data-cz-rq]')) { CZ.rq = t.value; document.querySelectorAll('[data-cz-rlist]').forEach(el => { el.innerHTML = czRecipeListHtml(V.cz === 'next' ? 'next' : 'recipe'); }); }
+  });
+  document.addEventListener('change', (e) => {
+    const t = e.target;
+    if (t.matches('[data-cz-rayon]')) { CZ.rayon = t.value; v2Render(); return; }
+    if (!czPage.contains(t)) return;
+    const r = czById(CZ.open); if (!r) return;
+    if (t.matches('[data-czp-name]')) { const v = t.value.trim(); if (v && v !== r.name) { r.name = v; czUpd('cuisine_recipes', r.id, { name: v }); } return; }
+    if (t.matches('[data-czp-f]')) czSaveField(r, t.dataset.czpF, t.value);
+  });
+  document.addEventListener('keydown', async (e) => {
+    const t = e.target;
+    if (e.key === 'Escape' && CZ.open && !document.querySelector('.cz-modal-bd') && !document.querySelector('[data-img-lightbox].open')) { czClose(); return; }
+    if (e.key !== 'Enter') return;
+    if (t.matches('[data-cz-q]')) {
+      e.preventDefault();
+      const q = CZ.q.trim(); if (!q) { t.blur(); return; }
+      const match = czLive().find(p => czNorm(p.name) === czNorm(q));
+      if (match) { if (!match.to_buy) await czToggle(match.id); }
+      else await czAddProduct(q);
+      CZ.q = ''; t.value = ''; czRefreshAll();
+      return;
+    }
+    if (!czPage.contains(t)) return;
+    const r = czById(CZ.open); if (!r) return;
+    if (t.matches('[data-czp-name]')) { e.preventDefault(); t.blur(); return; }
+    if (t.matches('[data-czp-ingadd]')) { e.preventDefault(); const v = t.value; t.value = ''; await czAddIngredient(r, v); return; }
+    if (t.matches('[data-czp-linkadd]')) {
+      e.preventDefault();
+      const v = t.value.trim(); if (!/^https?:\/\//i.test(v)) return;
+      r.links = [...(r.links || []), v];
+      czRenderPage();
+      await czUpd('cuisine_recipes', r.id, { links: r.links });
+    }
+  });
+  // collage d'une photo directement dans la page recette
+  czPage.addEventListener('paste', async (e) => {
+    const files = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type));
+    const r = czById(CZ.open);
+    if (!files.length || !r) return;
+    e.preventDefault();
+    const cfg = getUploadCfg() || askUploadCfg(); if (!cfg) return;
+    const urls = [];
+    for (const f of files) { try { urls.push(await uploadImageFile(f, cfg)); } catch (err) { alert(err.message); break; } }
+    if (!urls.length) return;
+    r.images = [...(r.images || []), ...urls];
+    czRenderPage();
+    await czUpd('cuisine_recipes', r.id, { images: r.images });
+  });
+  function czFab() {
+    if (V.cz === 'courses') { const i = mroot.querySelector('[data-cz-q]'); i?.focus(); i?.scrollIntoView({ block: 'center' }); }
+    else czNewRecipe();
+  }
+
+  function czFocusState() {
+    const a = document.activeElement;
+    if (!a || !a.matches || !a.matches('[data-cz-q],[data-cz-rq]')) return null;
+    return { sel: a.matches('[data-cz-q]') ? '[data-cz-q]' : '[data-cz-rq]', pos: a.selectionStart };
+  }
+  function czRestoreFocus(scope, st) {
+    if (!st) return;
+    const i = scope.querySelector(st.sel); if (!i) return;
+    i.focus(); try { i.setSelectionRange(st.pos, st.pos); } catch (e) {}
+  }
+
   if (!document.getElementById('app-desktop')?.classList.contains('app-loading')) v2Render();
 })();
 </script>
