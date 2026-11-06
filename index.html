@@ -1996,7 +1996,6 @@
   .v-bar { display: block; height: 4px; border-radius: 4px; background: #EAE9E4; overflow: hidden; }
   .v-bar > span { display: block; height: 100%; background: var(--v-green); border-radius: 4px; }
   .v-sub .v-bar { width: 56px; }
-  .v-row.v-cut { border-bottom-color: #D6D3CB; background: linear-gradient(to bottom, transparent 55%, rgba(120,115,100,.07)); }
   .v-empty { padding: 40px 0; text-align: center; font-size: 13.5px; color: var(--v-faint); }
   .v-foot { font-size: 13px; color: var(--v-faint); padding: 2px 4px; }
 
@@ -2116,8 +2115,7 @@
   .vm-when { flex-shrink: 0; font-size: 12.5px; color: var(--v-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .vm-when.late { color: var(--v-red); }
   .vm-when.today { color: var(--v-green); font-weight: 600; }
-  .vm-row.v-cut { background: linear-gradient(to bottom, transparent 55%, rgba(120,115,100,.08)); }
-  .vm-row.v-cut + .vm-row { border-top-color: #D6D3CB; }
+
   .vm-crumb { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; color: var(--v-faint); }
   .vm-crumb .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .vm-crumb span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -9458,7 +9456,7 @@
   }
   // dans « Tout » trié par échéance : petit trait entre les tâches en retard et le reste (aujourd'hui et après)
   function rowsWithSep(rows) {
-    const sep = V.dTab === 'all' && V.sort === 'due';
+    const sep = false; // séparation retirée à la demande : liste « Tout » sans effet
     const isLate = t => !t.is_done && bucket(t) === 'o';
     // pas de trait en plus : la ligne juste avant la coupure reçoit un léger dégradé gris
     return rows.map((t, i) => {
@@ -9696,7 +9694,7 @@
         }
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
-        const sep = k === 'all' && V.sort === 'due';
+        const sep = false;
         return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => { const n = rows[i + 1]; const h = mRowHtml(t, k); return sep && n && !t.is_done && !n.is_done && isLate(t) !== isLate(n) ? h.replace('class="vm-row', 'class="vm-row v-cut') : h; }).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
       }).join('');
     }
