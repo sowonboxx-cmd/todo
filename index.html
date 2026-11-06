@@ -1991,6 +1991,12 @@
   .v-due:hover { background: var(--v-soft2); }
   .v-due.late { color: var(--v-red); }
   .v-due.today { color: var(--v-green); }
+  .v-stbtn { border: none; cursor: pointer; font-family: inherit; }
+  .v-stbtn:hover { filter: brightness(.96); box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .v-stmenu { position: fixed; z-index: 3000; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.05); display: flex; flex-direction: column; min-width: 150px; font-family: 'Inter', sans-serif; }
+  .v-stmenu button { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: none; background: transparent; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
+  .v-stmenu button:hover { background: #F3F2EE; }
+  .v-stmenu button svg { width: 13px; height: 13px; color: #2F9E5B; }
   .v-rep { display: inline-flex; vertical-align: -2px; margin-left: 5px; color: var(--v-faint); }
   .v-rep svg { width: 13px; height: 13px; }
   .v-due.none { color: #bdbdbd; }
@@ -9159,6 +9165,7 @@
   const byLate = (a, b) => (b.due_date || '').localeCompare(a.due_date || '') || tkey(a).localeCompare(tkey(b)) || (PR[a.priority] ?? 3) - (PR[b.priority] ?? 3);
   function statusOf(t) {
     if (t.is_done) return 'done';
+    if (t.status === 'wip' || t.status === 'todo') return t.status;   // choisi à la main
     const s = M.subs.get(t.id);
     return s && s.d > 0 ? 'wip' : 'todo';
   }
@@ -9456,7 +9463,7 @@
       <div class="v-tcell"><span class="v-ttl">${esc(t.title)}</span>${t.priority === 'high' && !t.is_done ? '<span class="v-pill prio">Prioritaire</span>' : ''}${s && s.n ? `<span class="v-sub"><span class="v-bar"><span style="width:${pct}%"></span></span>${s.d}/${s.n}</span>` : ''}</div>
       <span>${p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
       <span class="v-pagecell">${esc(pg?.title || '')}</span>
-      <span><span class="v-pill st-${st}">${ST_LABEL[st]}</span></span>
+      <span><button type="button" class="v-pill st-${st} v-stbtn" data-v-st="${t.id}" aria-label="Changer le statut" aria-haspopup="menu">${ST_LABEL[st]}</button></span>
       <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}${repIcon(t)}</button></span>
     </div>`;
   }
@@ -9945,16 +9952,54 @@
     const { error } = await sb.from('todos').update({ is_done: t.is_done, completed_at: t.completed_at }).eq('id', id);
     if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); loadData(); }
   }
+  // menu de statut (clic sur « À faire / En cours / Terminée » dans la liste)
+  function openStatusMenu(anchor, id) {
+    document.querySelector('.v-stmenu')?.remove();
+    const t = cachedTodos.find(x => x.id === id); if (!t) return;
+    const cur = statusOf(t);
+    const m = document.createElement('div');
+    m.className = 'v-stmenu'; m.setAttribute('role', 'menu');
+    m.innerHTML = ['todo', 'wip', 'done'].map(k => `<button type="button" role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? 'on' : ''}" data-st="${k}"><span class="v-pill st-${k}">${ST_LABEL[k]}</span>${cur === k ? I.check : ''}</button>`).join('');
+    document.body.appendChild(m);
+    const r = anchor.getBoundingClientRect();
+    m.style.left = Math.min(r.left, window.innerWidth - m.offsetWidth - 12) + 'px';
+    m.style.top = (r.bottom + 6 + m.offsetHeight > window.innerHeight ? r.top - m.offsetHeight - 6 : r.bottom + 6) + 'px';
+    const close = () => { m.remove(); document.removeEventListener('pointerdown', outside, true); };
+    const outside = (ev) => { if (!m.contains(ev.target)) close(); };
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+    m.addEventListener('click', async (ev) => {
+      const b = ev.target.closest('[data-st]'); if (!b) return;
+      const k = b.dataset.st; close();
+      if (k === cur) return;
+      if (k === 'done' || cur === 'done') {
+        // passe par la case à cocher (gère aussi les tâches qui se répètent)
+        const chkBtn = root.querySelector(`[data-v-open="${id}"] [data-v-chk]`) || anchor;
+        if (k !== 'done') { t.status = k; }
+        await toggleDone(id, chkBtn);
+        if (k !== 'done') { const { error } = await sb.from('todos').update({ status: k }).eq('id', id); if (error) statusSaveError(error); }
+        return;
+      }
+      t.status = k; v2Render();
+      const { error } = await sb.from('todos').update({ status: k }).eq('id', id);
+      if (error) statusSaveError(error);
+    });
+  }
+  function statusSaveError(error) {
+    console.error(error);
+    alertBubble(/status/.test(error.message || '') ? 'Lance d’abord migration_statut.sql dans Supabase.' : 'Erreur de sauvegarde.');
+    loadData();
+  }
   function resetFilters() {
     V.prio = 'all'; V.subs = 'all'; V.done = false; V.sort = 'due'; V.sortRev = false; LS.set('sortRev', false);
     LS.set('sort', V.sort);
   }
 
   function onClick(e) {
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
+    if (d.vSt) { e.stopPropagation(); openStatusMenu(el, d.vSt); return; }
     if (d.vDue) { e.stopPropagation(); openQuickDatePopover(el, d.vDue); return; }
     if (d.vProj) { e.stopPropagation(); setFilter(V.proj === d.vProj && !V.page ? {} : { proj: d.vProj }); return; }
     if (d.vPage) { const pg = M.pageById.get(d.vPage); setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
