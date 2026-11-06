@@ -2381,6 +2381,21 @@
     html.td-side-mode .td-sidebar .ic-flat-btn svg { width: 16px; height: 16px; }
     .td-sidebar-count { font-size: 12.5px; color: #8b8b8b; margin-left: 4px; }
     html.td-side-open #v2 { padding-right: calc(min(500px, 42vw) + 32px); }
+    /* aperçu centré (style Notion) : grande fenêtre au centre */
+    html.td-center-mode [data-task-sheet] { width: min(980px, 80vw); max-width: none; height: 90vh; max-height: 90vh; padding: 0 56px 40px; }
+    html.td-center-mode [data-task-sheet] .sheet-handle { display: none; }
+    html.td-center-mode .td-sidebar { display: flex; align-items: center; gap: 6px; position: sticky; top: 0; z-index: 5; background: var(--card, #fff); margin: 0 -56px 18px; padding: 14px 20px 12px; border-bottom: 1px solid #EFEEEA; }
+    html.td-center-mode .td-sidebar .ic-flat-btn { width: 34px; height: 34px; border-radius: 10px; }
+    html.td-center-mode .td-sidebar .ic-flat-btn svg { width: 16px; height: 16px; }
+    html.td-center-mode [data-task-sheet] .td-title-input { font-size: 30px; }
+    html.td-center-mode [data-task-sheet] .td-images .td-img-thumb { width: 160px; height: 160px; }
+    html.td-center-mode .cz-pp { top: 5vh; bottom: 5vh; right: auto; left: 50%; width: min(900px, 78vw); transform: translateX(-50%); border-radius: 20px; }
+    html.td-center-mode .cz-pp-body { padding: 18px 48px 40px; }
+    html.td-center-mode .cz-pp-bd { background: rgba(24,24,22,.38); }
+    html.td-center-mode .cz-page.open { inset: 4vh 0 0 0; margin: 0 auto; width: min(1200px, 88vw); height: 92vh; border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.25); }
+    html.td-center-mode .cz-page-top { border-radius: 20px 20px 0 0; }
+    html.td-center-mode.cz-page-open body::after { content: ''; position: fixed; inset: 0; background: rgba(24,24,22,.38); z-index: 1499; }
+
     /* liste plus étroite quand la tâche est ouverte à droite : on garde Tâche, Catégorie, Échéance */
     html.td-side-open .v-table { min-width: 0; }
     html.td-side-open .v-row { grid-template-columns: 28px minmax(0, 1fr) 150px 110px; }
@@ -10142,7 +10157,13 @@
   // =====================================================================
   V.taskOpen = LS.get('taskOpen', 'side');          // 'side' = panneau à droite, 'popup' = fenêtre au centre
   const tdSheet = document.querySelector('[data-task-sheet]');
-  function applyTaskOpenMode() { document.documentElement.classList.toggle('td-side-mode', V.taskOpen === 'side'); }
+  function applyTaskOpenMode() {
+    const h = document.documentElement;
+    h.classList.toggle('td-side-mode', V.taskOpen === 'side');
+    h.classList.toggle('td-center-mode', V.taskOpen === 'center');
+    const b = tdSheet?.querySelector('[data-td-popup]');
+    if (b) { const t = V.taskOpen === 'center' ? 'Ouvrir sur le côté' : 'Aperçu centré'; b.title = t; b.setAttribute('aria-label', t); }
+  }
   applyTaskOpenMode();
   function optsHtml() {
     const opt = (k, t, d) => `<button type="button" class="v-opt${V.taskOpen === k ? ' on' : ''}" data-v-taskopen="${k}" role="radio" aria-checked="${V.taskOpen === k}"><span class="v-radio"></span><span><b>${t}</b><small>${d}</small></span></button>`;
@@ -10150,6 +10171,7 @@
       <div class="v-opts-sec">Ouvrir une tâche</div>
       <div role="radiogroup" aria-label="Ouvrir une tâche">
         ${opt('side', 'Panneau sur le côté', 'La liste reste visible, flèches ↑ ↓ pour passer d’une tâche à l’autre')}
+        ${opt('center', 'Aperçu centré', 'Grande fenêtre au centre, idéale pour les vidéos, images et recettes')}
         ${opt('popup', 'Fenêtre (pop-up)', 'La tâche s’ouvre au centre de l’écran')}
       </div>
       <div class="v-opts-note">Sur téléphone, la tâche s’ouvre toujours en plein écran par le bas.</div>`;
@@ -10169,10 +10191,11 @@
       <button type="button" class="ic-flat-btn" data-td-popup aria-label="Ouvrir en pop-up" title="Ouvrir en pop-up">${svg('<rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="M9 10h6v4H9z"/>')}</button>
       <button type="button" class="ic-flat-btn" data-td-sideclose aria-label="Fermer" title="Fermer (Échap)">${I.x}</button>`;
     tdSheet.insertBefore(bar, tdSheet.firstChild);
+    applyTaskOpenMode();
     bar.addEventListener('click', (e) => {
       const nav = e.target.closest('[data-td-nav]');
       if (nav) { navTask(+nav.dataset.tdNav); return; }
-      if (e.target.closest('[data-td-popup]')) { setTaskOpen('popup'); return; }
+      if (e.target.closest('[data-td-popup]')) { setTaskOpen(V.taskOpen === 'center' ? 'side' : 'center'); return; }
       if (e.target.closest('[data-td-sideclose]')) closeTaskSheet(container());
     });
   }
@@ -10194,6 +10217,7 @@
     const open = tdSheet.classList.contains('open');
     const side = open && V.taskOpen === 'side' && !isMobile();
     document.documentElement.classList.toggle('td-side-open', side);
+    document.documentElement.classList.toggle('td-center-open', open && V.taskOpen === 'center' && !isMobile());
     const cur = tdSheet.dataset.recordKind === 'subtask' ? tdSheet.dataset.parentTodoId : tdSheet.dataset.recordId;
     root.querySelectorAll('.v-sel').forEach(el => el.classList.remove('v-sel'));
     if (side && cur) root.querySelectorAll(`[data-v-panel] [data-v-open="${cur}"]`).forEach(el => el.classList.add('v-sel'));
@@ -10210,7 +10234,7 @@
     if (menu && !menu.hidden && !menu.contains(e.target)) { menu.hidden = true; root.querySelector('[data-v-opts]')?.classList.remove('on'); }
   });
   document.addEventListener('keydown', (e) => {
-    if (!document.documentElement.classList.contains('td-side-open')) return;
+    if (!document.documentElement.classList.contains('td-side-open') && !document.documentElement.classList.contains('td-center-open')) return;
     const a = document.activeElement;
     if (a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))) return;
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); navTask(e.key === 'ArrowDown' ? 1 : -1); }
@@ -10775,6 +10799,7 @@
   // ---------- événements ----------
   document.addEventListener('click', async (e) => {
     const t = e.target;
+    if (CZ.open && document.documentElement.classList.contains('td-center-mode') && (t === document.body || t === document.documentElement)) { czClose(); return; }
     const go = t.closest('[data-cz-go]');
     if (go) { e.preventDefault(); czGo(go.dataset.czGo); return; }
     const tab = t.closest('[data-cz-tab]');
@@ -10882,6 +10907,7 @@
   });
   document.addEventListener('keydown', async (e) => {
     const t = e.target;
+    if (e.key === 'Escape' && czPPid && czPP.classList.contains('open')) { czCloseProduct(); return; }
     if (e.key === 'Escape' && CZ.open && !document.querySelector('.cz-modal-bd') && !document.querySelector('[data-img-lightbox].open')) { czClose(); return; }
     if (e.key !== 'Enter') return;
     if (t.matches('[data-cz-q]')) {
