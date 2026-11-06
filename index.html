@@ -2133,6 +2133,29 @@
   .vm-search-bar label { min-width: 0; }
   .vm-search-bar button { flex-shrink: 0; }
   :where(#v2, #v2m) input[type="search"]::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+
+  /* ---------- mobile : écran figé, toucher réactif, bouton + flottant ---------- */
+  @media (max-width: 899px) {
+    html.v2-on { overflow: hidden; height: 100%; overscroll-behavior: none; }
+    html.v2-on body.v2-on { position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; }
+  }
+  #v2m { touch-action: manipulation; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
+  #v2m input { -webkit-user-select: text; user-select: text; }
+  #v2m button, #v2m a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+  .vm-head, .vm-tabs, .vm-chiprow, .vm-nav { touch-action: none; }
+  .vm-page, .vm-drawer .v-side, .vm-sheet, .vm-search-results { overscroll-behavior: contain; }
+  .vm-page { padding-bottom: 96px; }
+  .vm-tabs .v-seg button { min-height: 38px; }
+  .vm-tabs .v-seg button:active, .vm-ibtn:active, .vm-nav button.vm-view:active { opacity: .6; }
+  .vm-nav button.vm-view { min-height: 44px; }
+  .vm-fab {
+    position: fixed; right: 18px; bottom: calc(env(safe-area-inset-bottom) + 86px); z-index: 80;
+    width: 58px; height: 58px; border: none; border-radius: 18px; background: #2F9E5B; color: #fff; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 24px rgba(47,158,91,.35), 0 2px 6px rgba(0,0,0,.12);
+    transition: transform .12s ease;
+  }
+  .vm-fab:active { transform: scale(.92); }
+  .vm-fab svg { width: 26px; height: 26px; }
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
@@ -8290,6 +8313,7 @@
    ===================================================================== */
 (function () {
   document.body.classList.add('v2-on');
+  document.documentElement.classList.add('v2-on');
 
   const LS = {
     get(k, d) { try { const v = localStorage.getItem('v2_' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -8611,6 +8635,7 @@
     <div class="vm-tabs" data-vm-tabs></div>
     <div class="vm-track" data-vm-track></div>
     <nav class="vm-nav" data-vm-nav aria-label="Vues"></nav>
+    <button type="button" class="vm-fab" data-v-new aria-label="Nouvelle tâche">${I.plus}</button>
     <div class="vm-drawer-bd" data-vm-drawer-bd></div>
     <aside class="vm-drawer" data-vm-drawer aria-label="Menu"><div class="v-side" data-v-mside data-v-scroll="mside"></div></aside>
     <div class="vm-search" data-vm-searchov>
@@ -8870,24 +8895,19 @@
     }
     mroot.querySelector('[data-vm-tabs]').innerHTML = `<div class="v-seg" role="tablist" aria-label="Échéance">${tabsHtml}</div>`;
     track.innerHTML = pages;
-    mroot.querySelector('[data-vm-nav]').innerHTML = VIEWS.map(([k, l]) => `<button type="button" class="vm-view${V.view === k ? ' on' : ''}" data-v-view="${k}" aria-pressed="${V.view === k}">${l}</button>`).join('')
-      + `<button type="button" class="vm-plus" data-v-new aria-label="Nouvelle tâche">${I.plus}</button>`;
-    alignTrack(false);
+    mroot.querySelector('[data-vm-nav]').innerHTML = VIEWS.map(([k, l]) => `<button type="button" class="vm-view${V.view === k ? ' on' : ''}" data-v-view="${k}" aria-pressed="${V.view === k}">${l}</button>`).join('');
+    alignTrack();
   }
 
   // ----- swipe entre onglets -----
   function currentPageIndex() {
     return V.view === 'kanban' ? V.mKcol : Math.max(0, MTABS.findIndex(([k]) => k === V.mTab));
   }
-  let programmaticScroll = false;
-  function alignTrack(smooth) {
+  function alignTrack() {
     const track = mroot.querySelector('[data-vm-track]');
     const page = track.children[currentPageIndex()];
     if (!page) return;
-    programmaticScroll = true;
-    if (smooth) track.scrollTo({ left: page.offsetLeft, behavior: 'smooth' });
-    else track.scrollLeft = page.offsetLeft;
-    setTimeout(() => { programmaticScroll = false; }, smooth ? 450 : 50);
+    track.scrollLeft = page.offsetLeft;
   }
   function syncTabsFromScroll() {
     const track = mroot.querySelector('[data-vm-track]');
@@ -8905,10 +8925,26 @@
     });
   }
   let scrollTimer = null;
-  mroot.querySelector('[data-vm-track]').addEventListener('scroll', () => {
+  const trackEl = mroot.querySelector('[data-vm-track]');
+  trackEl.addEventListener('scroll', () => {
     clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => { if (!programmaticScroll) syncTabsFromScroll(); }, 90);
+    scrollTimer = setTimeout(syncTabsFromScroll, 70);
   }, { passive: true });
+
+  // glisser vers la droite depuis la première page (Overdue) = ouvrir le menu ; glisser vers la gauche sur le menu = le fermer
+  function swipe(el, onEnd) {
+    let s = null;
+    el.addEventListener('touchstart', (e) => { const t = e.touches[0]; s = { x: t.clientX, y: t.clientY, left: trackEl.scrollLeft }; }, { passive: true });
+    el.addEventListener('touchend', (e) => {
+      if (!s) return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - s.x, dy = t.clientY - s.y;
+      if (Math.abs(dx) > 60 && Math.abs(dy) < Math.abs(dx) * 0.6) onEnd(dx, s);
+      s = null;
+    }, { passive: true });
+  }
+  swipe(trackEl, (dx, s) => { if (dx > 0 && s.left <= 2) openDrawer(); });
+  swipe(mroot.querySelector('[data-vm-drawer]'), (dx) => { if (dx < 0) closeDrawer(); });
 
   // ----- tiroir, recherche, fiche filtres -----
   function openDrawer() { mroot.querySelector('[data-vm-drawer]').classList.add('open'); mroot.querySelector('[data-vm-drawer-bd]').classList.add('open'); }
@@ -8967,7 +9003,7 @@
     const saved = saveScroll(scope);
     if (mobile) renderMobile(); else renderDesktop();
     restoreScroll(scope, saved);
-    if (mobile) alignTrack(false);
+    if (mobile) alignTrack();
     if (sheetOpen()) renderFilterSheet();
     if (!V.loaded) {
       V.loaded = true;
@@ -8983,7 +9019,7 @@
       if (!V.loaded) return;
       const m = isMobile();
       if (m !== lastMobile) { lastMobile = m; v2Render(); }
-      else if (m) alignTrack(false);
+      else if (m) alignTrack();
     }, 120);
   });
 
@@ -9107,7 +9143,7 @@
       if (V.view === 'kanban') V.mKcol = KTAB_COL[d.vMtab];
       else V.mTab = d.vMtab;
       mroot.querySelectorAll('[data-v-mtab]').forEach(b => b.classList.toggle('on', b === el));
-      alignTrack(true);
+      alignTrack();
       return;
     }
     if (d.vSort) { V.sort = d.vSort; LS.set('sort', V.sort); v2Render(); return; }
