@@ -1988,6 +1988,7 @@
   .v-bar { display: block; height: 4px; border-radius: 4px; background: #EAE9E4; overflow: hidden; }
   .v-bar > span { display: block; height: 100%; background: var(--v-green); border-radius: 4px; }
   .v-sub .v-bar { width: 56px; }
+  .v-sep { height: 0; border-top: 1.5px solid #D9D7D0; margin: 6px 0; }
   .v-empty { padding: 40px 0; text-align: center; font-size: 13.5px; color: var(--v-faint); }
   .v-foot { font-size: 13px; color: var(--v-faint); padding: 2px 4px; }
 
@@ -8777,7 +8778,7 @@
 
   const V = {
     view: LS.get('view', 'list'),        // list | kanban | cats
-    dTab: LS.get('dtab', 't'),           // onglet de la liste desktop : o t d w all
+    dTab: 'all',                         // onglet de la liste desktop : o t d w all — on ouvre toujours sur « Tout »
     mTab: 't',                           // onglet mobile (liste + catégories)
     mKcol: 1,                            // colonne kanban mobile visible
     sort: LS.get('sort', 'due'),
@@ -9183,6 +9184,15 @@
       <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}</button></span>
     </div>`;
   }
+  // dans « Tout » trié par échéance : petit trait entre les tâches en retard et le reste (aujourd'hui et après)
+  function rowsWithSep(rows) {
+    const sep = V.dTab === 'all' && V.sort === 'due';
+    const isLate = t => !t.is_done && bucket(t) === 'o';
+    return rows.map((t, i) => {
+      const cut = sep && i > 0 && isLate(rows[i - 1]) !== isLate(t) && !t.is_done && !rows[i - 1].is_done;
+      return (cut ? '<div class="v-sep" role="separator" aria-label="Aujourd\'hui et à venir"></div>' : '') + rowHtml(t);
+    }).join('');
+  }
   function renderDesktopList(panel) {
     const all = cachedTodos.filter(passFilters);
     const count = k => all.filter(t => inTab(t, k) && !t.is_done).length;
@@ -9200,7 +9210,7 @@
       <label class="v-quickadd"><input type="text" data-v-quickadd placeholder="Ajouter une tâche et appuyer sur Entrée…" aria-label="Ajouter une tâche"></label>
       <div class="v-tablewrap" data-v-scroll="list-${V.dTab}"><div class="v-table">
         <div class="v-row v-head"><span></span>${th('title', 'Tâche')}${th('cat', 'Catégorie')}${th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>
-        ${rows.map(rowHtml).join('') || '<div class="v-empty">Rien ici.</div>'}
+        ${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}
       </div></div>
       <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''} · triées par ${SORT_LABEL[V.sort] || 'échéance'}${V.sortRev ? ' (inversé)' : ''}</div>`;
   }
