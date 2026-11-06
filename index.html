@@ -4081,6 +4081,7 @@
     } else if (tweetIds.length) {
       const rest = trimmed.replace(TWEET_RE, '').replace(/\n{3,}/g, '\n\n').trim();
       view.innerHTML = (rest ? `<div class="td-notes-text">${renderNotesMarkdown(rest)}</div>` : '') +
+        (ytId ? `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>` : '') +
         tweetIds.map(id => `<div class="td-tweet" data-tweet-id="${id}"></div>`).join('');
       mountTweets(view);
     } else if (ytId) {
