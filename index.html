@@ -2372,6 +2372,10 @@
   .cz-grp { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); padding: 10px 4px 6px; }
   .cz-grp small { font-weight: 500; letter-spacing: 0; }
   .cz-hint { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--v-faint); padding: 2px 4px 6px; }
+  .cz-recent-head { display: flex; align-items: center; gap: 6px; width: 100%; border: none; background: transparent; padding: 14px 4px 6px; font-family: 'Inter', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); cursor: pointer; text-align: left; }
+  .cz-recent-head svg { width: 13px; height: 13px; transition: transform .15s; }
+  .cz-recent-head[aria-expanded="true"] svg { transform: rotate(90deg); }
+  .cz-recent-head small { font-weight: 500; letter-spacing: 0; }
   .cz-foot { text-align: center; font-size: 12.5px; color: #a3a3a3; padding: 12px 0 4px; }
   .cz-list { display: flex; flex-direction: column; gap: 4px; }
   .cz-addbtn { margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; border: none; background: var(--v-ink); color: #fff; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600; border-radius: 13px; padding: 13px; cursor: pointer; }
@@ -10046,6 +10050,7 @@
     kind: LS.get('cz_kind', 'Alimentation'),   // all | Alimentation | Divers | Shopping
     rayon: '',                                  // filtre rayon
     group: LS.get('cz_group', false),           // grouper par rayon (option)
+    recentOpen: LS.get('cz_recent', false),     // section « Cochés récemment » dépliée ?
     rview: LS.get('cz_rview', 'grid'),          // grid | list
     origin: '', imp: '',
     open: null,                                 // id de la recette ouverte
@@ -10189,8 +10194,24 @@
       } else html += `<div class="cz-card">${rows.map(czRowHtml).join('')}</div>`;
     }
     if (q && !exact) html += `<button type="button" class="cz-addbtn" data-cz-addprod>${I.plus}Ajouter « ${esc(q)} » aux courses</button>`;
+    if (!q && CZ.scope === 'buy') {
+      const rec = czRecentChecked();
+      if (rec.length) html += `<button type="button" class="cz-recent-head" data-cz-recent aria-expanded="${CZ.recentOpen}">${I.chev}<span>Cochés récemment</span><small>${rec.length}</small></button>${CZ.recentOpen ? `<div class="cz-card">${rec.map(czRowHtml).join('')}</div>` : ''}`;
+    }
     if (!q && CZ.scope === 'buy' && rows.length) html += `<div class="cz-foot">${czLive().filter(p => !p.to_buy).length} produits déjà achetés · tape un nom pour les retrouver</div>`;
     return html;
+  }
+  // produits cochés (achetés) dans la dernière heure — pour rattraper un mauvais clic en magasin
+  function czRecentChecked() {
+    const since = Date.now() - 60 * 60 * 1000;
+    let rows = czLive().filter(p => {
+      if (p.to_buy || !p.updated_at) return false;
+      const u = Date.parse(p.updated_at), c = Date.parse(p.created_at || 0);
+      return u >= since && Math.abs(u - c) > 5000; // pas les lignes juste importées
+    });
+    if (CZ.kind !== 'all') rows = rows.filter(p => (p.kind || 'Alimentation') === CZ.kind);
+    if (CZ.rayon) rows = rows.filter(p => (p.rayons || []).includes(CZ.rayon));
+    return rows.sort((a, b) => Date.parse(b.updated_at) - Date.parse(a.updated_at));
   }
   function czRefreshList() {
     document.querySelectorAll('[data-cz-list]').forEach(el => { el.innerHTML = czListHtml(); });
@@ -10198,6 +10219,7 @@
   async function czToggle(id) {
     const p = czProd(id); if (!p) return;
     p.to_buy = !p.to_buy;
+    p.updated_at = new Date().toISOString();
     const leaving = !p.to_buy && CZ.scope === 'buy' && !CZ.q.trim();
     if (leaving) {
       document.querySelectorAll(`[data-cz-row="${id}"]`).forEach(r => { r.classList.add('done', 'leaving'); const c = r.querySelector('.cz-chk'); c.classList.add('ok'); c.innerHTML = I.check; });
@@ -10484,6 +10506,7 @@
     if (sc) { CZ.scope = sc.dataset.czScope; LS.set('cz_scope', CZ.scope); v2Render(); return; }
     const kd = t.closest('[data-cz-kind]');
     if (kd) { CZ.kind = kd.dataset.czKind; LS.set('cz_kind', CZ.kind); v2Render(); return; }
+    if (t.closest('[data-cz-recent]')) { CZ.recentOpen = !CZ.recentOpen; LS.set('cz_recent', CZ.recentOpen); czRefreshList(); return; }
     if (t.closest('[data-cz-group]')) { CZ.group = !CZ.group; LS.set('cz_group', CZ.group); v2Render(); return; }
     if (t.closest('[data-cz-addprod]')) {
       const p = await czAddProduct(CZ.q);
