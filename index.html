@@ -1094,6 +1094,12 @@
   .td-notes-text { white-space: pre-wrap; word-break: break-word; }
   .td-yt-embed { position: relative; width: 100%; padding-top: 56.25%; margin-top: 8px; border-radius: 10px; overflow: hidden; cursor: default; }
   .td-yt-embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .img-drop { outline: 2px dashed #2F9E5B; outline-offset: -8px; }
+  .td-tweet { margin-top: 8px; cursor: default; min-height: 20px; }
+  .td-tweet .twitter-tweet { margin: 0 auto !important; }
+  .td-tweet-loading { font-size: 12.5px; color: var(--faint); padding: 10px 0; }
+  .td-tweet-fallback { display: inline-block; font-size: 13px; font-weight: 600; color: var(--ink); background: var(--bg); border-radius: 10px; padding: 9px 12px; text-decoration: none; }
+  .td-img-thumb.loading { background: var(--bg); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--faint); }
   .td-notes-edit {
     display: block; width: 100%; box-sizing: border-box; border: none; background: var(--bg);
     border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--ink);
@@ -3988,14 +3994,57 @@
       textarea.dispatchEvent(new Event('input', { bubbles: true }));
     });
   }
+  // posts X / Twitter : on affiche le post à la place du lien
+  const TWEET_RE = /https?:\/\/(?:www\.|mobile\.)?(?:twitter|x)\.com\/[A-Za-z0-9_]+\/status(?:es)?\/(\d+)[^\s]*/g;
+  function extractTweetIds(text) {
+    const ids = []; let m; TWEET_RE.lastIndex = 0;
+    while ((m = TWEET_RE.exec(text || ''))) if (!ids.includes(m[1])) ids.push(m[1]);
+    return ids;
+  }
+  let twttrLoading = null;
+  function loadTwitterWidgets() {
+    if (window.twttr?.widgets) return Promise.resolve(window.twttr);
+    if (twttrLoading) return twttrLoading;
+    twttrLoading = new Promise((resolve, reject) => {
+      const sc = document.createElement('script');
+      sc.src = 'https://platform.twitter.com/widgets.js'; sc.async = true; sc.charset = 'utf-8';
+      sc.onload = () => { const wait = (n) => window.twttr?.widgets ? resolve(window.twttr) : n > 40 ? reject() : setTimeout(() => wait(n + 1), 100); wait(0); };
+      sc.onerror = () => { twttrLoading = null; reject(); };
+      document.head.appendChild(sc);
+    });
+    return twttrLoading;
+  }
+  function tweetFallback(el) {
+    const id = el.dataset.tweetId;
+    el.innerHTML = `<a class="td-tweet-fallback" href="https://x.com/i/status/${id}" target="_blank" rel="noopener">Voir le post sur X</a>`;
+  }
+  function mountTweets(root) {
+    const els = [...root.querySelectorAll('[data-tweet-id]:not([data-mounted])')];
+    if (!els.length) return;
+    els.forEach(el => { el.dataset.mounted = '1'; el.innerHTML = '<div class="td-tweet-loading">Chargement du post…</div>'; });
+    loadTwitterWidgets().then(tw => {
+      els.forEach(el => {
+        const timer = setTimeout(() => { if (el.querySelector('.td-tweet-loading')) tweetFallback(el); }, 8000);
+        tw.widgets.createTweet(el.dataset.tweetId, el, { dnt: true, lang: 'fr', conversation: 'none', align: 'center' })
+          .then(node => { clearTimeout(timer); el.querySelector('.td-tweet-loading')?.remove(); if (!node) tweetFallback(el); })
+          .catch(() => { clearTimeout(timer); tweetFallback(el); });
+      });
+    }).catch(() => els.forEach(tweetFallback));
+  }
   function renderTdNotes(sheet, notes) {
     const view = sheet.querySelector('[data-td-notes-view]');
     const edit = sheet.querySelector('[data-td-notes-edit]');
     edit.value = notes || '';
     const trimmed = (notes || '').trim();
     const ytId = extractYouTubeId(trimmed);
+    const tweetIds = extractTweetIds(trimmed);
     if (!trimmed) {
       view.textContent = '';
+    } else if (tweetIds.length) {
+      const rest = trimmed.replace(TWEET_RE, '').replace(/\n{3,}/g, '\n\n').trim();
+      view.innerHTML = (rest ? `<div class="td-notes-text">${renderNotesMarkdown(rest)}</div>` : '') +
+        tweetIds.map(id => `<div class="td-tweet" data-tweet-id="${id}"></div>`).join('');
+      mountTweets(view);
     } else if (ytId) {
       view.innerHTML = `<div class="td-notes-text">${renderNotesMarkdown(trimmed)}</div>` +
         `<div class="td-yt-embed"><iframe src="https://www.youtube.com/embed/${ytId}" title="YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
@@ -4180,6 +4229,97 @@
       });
     });
   }
+
+  // ---- envoi d'images vers Cloudflare (Worker + R2). Réglages gardés sur l'appareil. ----
+  const UPLOAD_KEY = 'ud_upload_cfg';
+  function getUploadCfg() { try { const c = JSON.parse(localStorage.getItem(UPLOAD_KEY) || 'null'); return c?.url && c?.token ? c : null; } catch { return null; } }
+  function askUploadCfg() {
+    const url = (prompt('Adresse de ton Worker Cloudflare (ex. https://dashboard-images.xxx.workers.dev)\nLaisse vide pour coller plutôt le lien d\'une image.') || '').trim().replace(/\/+$/, '');
+    if (!url) return null;
+    const token = (prompt('Mot de passe d\'envoi (UPLOAD_TOKEN du Worker)') || '').trim();
+    if (!token) return null;
+    const cfg = { url, token };
+    try { localStorage.setItem(UPLOAD_KEY, JSON.stringify(cfg)); } catch {}
+    return cfg;
+  }
+  async function uploadImageFile(file, cfg) {
+    const res = await fetch(cfg.url + '/upload', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + cfg.token, 'Content-Type': file.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name || 'image') },
+      body: file,
+    });
+    if (res.status === 401) { try { localStorage.removeItem(UPLOAD_KEY); } catch {} throw new Error('Mot de passe refusé'); }
+    if (!res.ok) throw new Error('Envoi impossible (' + res.status + ')');
+    const data = await res.json();
+    return data.url;
+  }
+  function pickImageFiles() {
+    return new Promise(resolve => {
+      const input = document.createElement('input');
+      input.type = 'file'; input.accept = 'image/*'; input.multiple = true;
+      input.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+      document.body.appendChild(input);
+      input.addEventListener('change', () => { resolve([...input.files]); input.remove(); }, { once: true });
+      input.click();
+    });
+  }
+  // ajoute des fichiers image à une fiche (tâche existante ou nouvelle tâche)
+  async function addImageFilesToSheet(sheet, files, cfg) {
+    files = (files || []).filter(f => /^image\//.test(f.type));
+    if (!files.length) return;
+    cfg = cfg || getUploadCfg() || askUploadCfg();
+    if (!cfg) return;
+    const isNew = sheet.hasAttribute('data-addtask-sheet');
+    const current = isNew ? JSON.parse(sheet.dataset.stagedImages || '[]') : (getRecord(sheet.dataset.recordKind, sheet.dataset.recordId)?.images || []);
+    const room = Math.max(0, 5 - current.length);
+    if (!room) { alert('5 images maximum par tâche.'); return; }
+    files = files.slice(0, room);
+    const wrap = sheet.querySelector(isNew ? '[data-at-images]' : '[data-td-images]');
+    const ph = files.map(() => { const d = document.createElement('div'); d.className = 'td-img-thumb loading'; d.textContent = 'Envoi…'; wrap?.appendChild(d); return d; });
+    const urls = [];
+    for (const f of files) {
+      try { urls.push(await uploadImageFile(f, cfg)); } catch (e) { alert(e.message || 'Envoi impossible'); break; }
+    }
+    ph.forEach(d => d.remove());
+    if (!urls.length) return;
+    if (isNew) {
+      const now = JSON.parse(sheet.dataset.stagedImages || '[]');
+      sheet.dataset.stagedImages = JSON.stringify([...now, ...urls].slice(0, 5));
+      renderAtImages(sheet);
+    } else {
+      const now = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId)?.images || [];
+      await saveRecordField(sheet, { images: [...now, ...urls].slice(0, 5) });
+      renderTdImages(sheet, getRecord(sheet.dataset.recordKind, sheet.dataset.recordId));
+    }
+  }
+  // bouton « Uploader un fichier » : choix des fichiers si Cloudflare est réglé, sinon lien d'image
+  async function startImageUpload(sheet, fallbackUrlInput) {
+    let skip = false; try { skip = sessionStorage.getItem('ud_upload_skip') === '1'; } catch {}
+    const cfg = getUploadCfg() || (skip ? null : askUploadCfg());
+    if (!cfg) { try { sessionStorage.setItem('ud_upload_skip', '1'); } catch {} }
+    if (!cfg) { fallbackUrlInput(); return; }
+    const files = await pickImageFiles();
+    await addImageFilesToSheet(sheet, files, cfg);
+  }
+  // glisser-déposer et coller (Ctrl/Cmd+V) une image dans une fiche
+  function wireImageDrop(sheet) {
+    if (!sheet || sheet.dataset.dropWired) return; sheet.dataset.dropWired = '1';
+    const hasFiles = e => [...(e.dataTransfer?.types || [])].includes('Files');
+    sheet.addEventListener('dragover', e => { if (hasFiles(e)) { e.preventDefault(); sheet.classList.add('img-drop'); } });
+    sheet.addEventListener('dragleave', e => { if (!sheet.contains(e.relatedTarget)) sheet.classList.remove('img-drop'); });
+    sheet.addEventListener('drop', e => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); sheet.classList.remove('img-drop');
+      addImageFilesToSheet(sheet, [...e.dataTransfer.files]);
+    });
+    sheet.addEventListener('paste', e => {
+      const files = [...(e.clipboardData?.files || [])].filter(f => /^image\//.test(f.type));
+      if (!files.length) return;
+      e.preventDefault();
+      addImageFilesToSheet(sheet, files);
+    });
+  }
+  document.querySelectorAll('[data-task-sheet], [data-addtask-sheet]').forEach(wireImageDrop);
 
   function renderTdImages(sheet, record) {
     const wrap = sheet.querySelector('[data-td-images]');
@@ -4896,10 +5036,12 @@
       const record = getRecord(sheet.dataset.recordKind, sheet.dataset.recordId);
       const current = Array.isArray(record?.images) ? record.images : [];
       if (current.length >= 5) return;
-      const input = sheet.querySelector('[data-td-image-url-input]');
-      input.style.display = 'block';
-      input.value = '';
-      input.focus();
+      startImageUpload(sheet, () => {
+        const input = sheet.querySelector('[data-td-image-url-input]');
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+      });
     });
     sheet.querySelector('[data-td-image-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') e.target.blur();
@@ -7525,10 +7667,12 @@
     sheet.querySelector('[data-at-upload-btn]')?.addEventListener('click', () => {
       const images = JSON.parse(sheet.dataset.stagedImages || '[]');
       if (images.length >= 5) return;
-      const input = sheet.querySelector('[data-at-image-url-input]');
-      input.style.display = 'block';
-      input.value = '';
-      input.focus();
+      startImageUpload(sheet, () => {
+        const input = sheet.querySelector('[data-at-image-url-input]');
+        input.style.display = 'block';
+        input.value = '';
+        input.focus();
+      });
     });
     sheet.querySelector('[data-at-image-url-input]')?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') e.target.blur();
