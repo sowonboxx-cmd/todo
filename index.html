@@ -4009,7 +4009,7 @@
     });
   }
   // posts X / Twitter : on affiche le post à la place du lien
-  const TWEET_RE = /https?:\/\/(?:www\.|mobile\.)?(?:twitter|x)\.com\/[A-Za-z0-9_]+\/status(?:es)?\/(\d+)[^\s]*/g;
+  const TWEET_RE = /https?:\/\/(?:www\.|mobile\.)?(?:twitter|x)\.com\/(?:i\/web|[A-Za-z0-9_]+)\/status(?:es)?\/(\d+)[^\s]*/g;
   function extractTweetIds(text) {
     const ids = []; let m; TWEET_RE.lastIndex = 0;
     while ((m = TWEET_RE.exec(text || ''))) if (!ids.includes(m[1])) ids.push(m[1]);
