@@ -1036,6 +1036,7 @@
   .td-back-row svg { width: 14px; height: 14px; flex-shrink: 0; }
   .td-due-text:hover { background: var(--bg); }
   .td-due-date { color: var(--accent-due); font-weight: 700; font-size: 13.5px; }
+  .td-due-date.is-today { color: #2F9E5B; }
   .td-due-repeat {
     display: flex; align-items: center; gap: 4px; color: var(--muted);
     font-size: 11px; font-weight: 600; margin-top: 2px;
@@ -1982,7 +1983,7 @@
   }
   .v-due:hover { background: var(--v-soft2); }
   .v-due.late { color: var(--v-red); }
-  .v-due.today { color: var(--v-orange); }
+  .v-due.today { color: var(--v-green); }
   .v-due.none { color: #bdbdbd; }
   .v-sub { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; font-size: 12px; color: var(--v-faint); font-variant-numeric: tabular-nums; }
   .v-bar { display: block; height: 4px; border-radius: 4px; background: #EAE9E4; overflow: hidden; }
@@ -2021,7 +2022,7 @@
   .v-card-top { display: flex; gap: 8px; align-items: flex-start; }
   .v-card-top .v-ttl { flex: 1; font-size: 13.5px; font-weight: 600; line-height: 1.35; white-space: normal;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-  .v-when { font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; color: var(--v-orange); font-variant-numeric: tabular-nums; }
+  .v-when { font-size: 12px; font-weight: 600; white-space: nowrap; flex-shrink: 0; color: var(--v-green); font-variant-numeric: tabular-nums; }
   .v-when.late { color: var(--v-red); }
   .v-when.plain { color: var(--v-faint); font-weight: 400; }
   .v-crumb { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 12px; color: var(--v-faint); }
@@ -2107,6 +2108,8 @@
   .vm-top .v-ttl { flex: 1; font-size: 15px; font-weight: 500; line-height: 1.3; }
   .vm-when { flex-shrink: 0; font-size: 12.5px; color: var(--v-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
   .vm-when.late { color: var(--v-red); }
+  .vm-when.today { color: var(--v-green); font-weight: 600; }
+  .vm-sep { margin: 0 14px; }
   .vm-crumb { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; color: var(--v-faint); }
   .vm-crumb .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .vm-crumb span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -4526,6 +4529,7 @@
     const dueLabel = sheet.querySelector('[data-td-due-label]');
     if (dueLabel) {
       dueLabel.textContent = dueDate ? formatDateFull(dueDate, dueTime) : 'Sans échéance';
+      dueLabel.classList.toggle('is-today', dueDate === todayISO());
     }
     const atLabel = sheet.querySelector('[data-at-date-label]');
     if (atLabel) {
@@ -8778,7 +8782,7 @@
 
   const V = {
     view: LS.get('view', 'list'),        // list | kanban | cats
-    dTab: 'all',                         // onglet de la liste desktop : o t d w all — on ouvre toujours sur « Tout »
+    dTab: 't',                           // onglet de la liste desktop : o all t d w — on ouvre toujours sur « Today »
     mTab: 't',                           // onglet mobile (liste + catégories)
     mKcol: 1,                            // colonne kanban mobile visible
     sort: LS.get('sort', 'due'),
@@ -9169,7 +9173,7 @@
   }
 
   // ---------------- liste ----------------
-  const DTABS = [['o', 'Overdue'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine'], ['all', 'Tout']];
+  const DTABS = [['o', 'Overdue'], ['all', 'Tout'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine']];
   function rowHtml(t) {
     const p = projOf(t), pg = pageOf(t), c = colors(p), s = M.subs.get(t.id), st = statusOf(t), b = bucket(t);
     const late = b === 'o' && !t.is_done;
@@ -9276,6 +9280,7 @@
   function catMatch(t, day, lateIn) {
     const b = bucket(t);
     if (day === 'o') return b === 'o' && !t.is_done;
+    if (day === 'all') return true;
     if (lateIn && b === 'o' && !t.is_done && (day === 't' || day === 'w')) return true;
     if (day === 't') return b === 't';
     if (day === 'd') return b === 'd';
@@ -9344,14 +9349,15 @@
   // =====================================================================
   // MOBILE
   // =====================================================================
-  const MTABS = [['o', 'Overdue'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine']];
+  const MTABS = [['o', 'Overdue'], ['all', 'Tout'], ['t', 'Today'], ['d', 'Demain']];   // liste + catégories mobile
+  const KTABS = [['o', 'Overdue'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine']];    // kanban mobile (colonnes de jours)
   function mRowHtml(t, k) {
     const late = bucket(t) === 'o' && !t.is_done;
     const when = (k === 't' || k === 'd') && !late ? time(t) : dateTime(t);
     const c = colors(projOf(t));
     return `<div class="vm-row${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">${chk(t)}
       <div class="vm-body">
-        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${when ? `<span class="vm-when${late ? ' late' : ''}">${when}</span>` : ''}</div>
+        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${when ? `<span class="vm-when${late ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${when}</span>` : ''}</div>
         <div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
         ${subRow(t)}
       </div></div>`;
@@ -9361,7 +9367,7 @@
     const c = colors(projOf(t));
     return `<div class="vm-card${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">${chk(t)}
       <div class="vm-body">
-        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt ? `<span class="vm-when${w.cls === 'late' ? ' late' : ''}">${w.txt}</span>` : ''}</div>
+        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt ? `<span class="vm-when${w.cls === 'late' ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${w.txt}</span>` : ''}</div>
         <div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
         ${subRow(t)}
       </div></div>`;
@@ -9389,7 +9395,7 @@
       const cols = kanbanCols().map(col => ({ col, tasks: colTasks(col, all) }));
       const cnt = { o: cols[0].tasks.length, t: cols[1].tasks.length, d: cols[2].tasks.length, w: cols.slice(3, 8).reduce((n, c) => n + c.tasks.length, 0) };
       const cur = kColToTab(V.mKcol);
-      tabsHtml = MTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${cur === k}" class="${cur === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-mtab="${k}">${l} <small>${cnt[k]}</small></button>`).join('');
+      tabsHtml = KTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${cur === k}" class="${cur === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-mtab="${k}">${l} <small>${cnt[k]}</small></button>`).join('');
       pages = cols.map(({ col, tasks }) => `<div class="vm-page vm-kpage" data-v-scroll="mk-${col.key}"><div class="vm-col">
           <div class="vm-col-head${col.late ? ' late' : ''}"><h2>${col.title}</h2>${col.wd ? `<span class="v-col-wd">${col.wd}</span>` : ''}<span class="v-col-n">${tasks.length}</span>
             ${col.key !== 'o' ? `<button type="button" class="v-icon-btn" data-v-new-date="${col.date || (col.key === 'l' ? col.drop : '')}" aria-label="Ajouter une tâche : ${col.title}">${I.plus}</button>` : ''}</div>
@@ -9405,7 +9411,9 @@
           return `<div class="vm-page" data-v-scroll="mc-${k}">${blocks.length ? `<div class="vm-cats">${blocks.map(b => blockHtml(b, k, true)).join('')}</div>` : '<div class="vm-empty">Rien de prévu.</div>'}</div>`;
         }
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
-        return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map(t => mRowHtml(t, k)).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
+        const isLate = t => !t.is_done && bucket(t) === 'o';
+        const sep = k === 'all' && V.sort === 'due';
+        return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => (sep && i > 0 && !t.is_done && !rows[i - 1].is_done && isLate(rows[i - 1]) !== isLate(t) ? '<div class="v-sep vm-sep" role="separator"></div>' : '') + mRowHtml(t, k)).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
       }).join('');
     }
     mroot.querySelector('[data-vm-tabs]').innerHTML = `<div class="v-seg" role="tablist" aria-label="Échéance">${tabsHtml}</div>`;
