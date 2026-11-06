@@ -1991,6 +1991,8 @@
   .v-due:hover { background: var(--v-soft2); }
   .v-due.late { color: var(--v-red); }
   .v-due.today { color: var(--v-green); }
+  .v-rep { display: inline-flex; vertical-align: -2px; margin-left: 5px; color: var(--v-faint); }
+  .v-rep svg { width: 13px; height: 13px; }
   .v-due.none { color: #bdbdbd; }
   .v-sub { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; font-size: 12px; color: var(--v-faint); font-variant-numeric: tabular-nums; }
   .v-bar { display: block; height: 4px; border-radius: 4px; background: #EAE9E4; overflow: hidden; }
@@ -9440,6 +9442,10 @@
 
   // ---------------- liste ----------------
   const DTABS = [['o', 'Overdue'], ['all', 'Tout'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine']];
+  // petite icône « se répète » à côté de la date
+  const REP_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12"/><path d="M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></svg>';
+  const isRepeating = t => !!t.repeat_rule && !/^(none|aucune?|never)$/i.test(String(t.repeat_rule).trim());
+  const repIcon = t => isRepeating(t) ? `<span class="v-rep" title="Se répète : ${esc(t.repeat_rule)}" aria-label="Tâche récurrente">${REP_SVG}</span>` : '';
   function rowHtml(t) {
     const p = projOf(t), pg = pageOf(t), c = colors(p), s = M.subs.get(t.id), st = statusOf(t), b = bucket(t);
     const late = b === 'o' && !t.is_done;
@@ -9451,7 +9457,7 @@
       <span>${p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
       <span class="v-pagecell">${esc(pg?.title || '')}</span>
       <span><span class="v-pill st-${st}">${ST_LABEL[st]}</span></span>
-      <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}</button></span>
+      <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}${repIcon(t)}</button></span>
     </div>`;
   }
   // dans « Tout » trié par échéance : petit trait entre les tâches en retard et le reste (aujourd'hui et après)
@@ -9521,7 +9527,7 @@
     return `<div class="v-card${t.is_done ? ' is-done' : ''}" draggable="true" data-v-open="${t.id}" data-v-drag="${t.id}">
       ${chk(t)}
       <div class="v-card-body">
-        <div class="v-card-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt ? `<span class="v-when ${w.cls}">${w.txt}</span>` : ''}</div>
+        <div class="v-card-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt || isRepeating(t) ? `<span class="v-when ${w.cls}">${w.txt}${repIcon(t)}</span>` : ''}</div>
         <div class="v-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
         ${subRow(t)}
       </div>
@@ -9626,7 +9632,7 @@
     const c = colors(projOf(t));
     return `<div class="vm-row${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">${chk(t)}
       <div class="vm-body">
-        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${when ? `<span class="vm-when${late ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${when}</span>` : ''}</div>
+        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${when || isRepeating(t) ? `<span class="vm-when${late ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${when}${repIcon(t)}</span>` : ''}</div>
         <div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
         ${subRow(t)}
       </div></div>`;
@@ -9636,7 +9642,7 @@
     const c = colors(projOf(t));
     return `<div class="vm-card${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">${chk(t)}
       <div class="vm-body">
-        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt ? `<span class="vm-when${w.cls === 'late' ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${w.txt}</span>` : ''}</div>
+        <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${w.txt || isRepeating(t) ? `<span class="vm-when${w.cls === 'late' ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${w.txt}${repIcon(t)}</span>` : ''}</div>
         <div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
         ${subRow(t)}
       </div></div>`;
