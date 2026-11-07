@@ -9356,7 +9356,7 @@
     const c = catOf(t);
     if (!c) return `<button type="button" class="v-tcat empty" data-v-tcat="${t.id}" aria-haspopup="menu" aria-label="Choisir une catégorie">Catégorie</button>`;
     const k = catColors(c);
-    return `<button type="button" class="v-tcat" style="background:${k.bg};color:${k.fg}" data-v-tcat="${t.id}" aria-haspopup="menu" aria-label="Catégorie : ${esc(c.name)} — changer">${esc(c.name)}${I.down}</button>`;
+    return `<button type="button" class="v-tcat" style="background:${k.bg};color:${k.fg}" data-v-tcat="${t.id}" aria-haspopup="menu" aria-label="Catégorie : ${esc(c.name)} — changer">${esc(c.name)}</button>`;
   }
   // priorité (colonne affichée quand on est dans une page)
   const PRIO_LBL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
@@ -9511,7 +9511,7 @@
     btn.hidden = false;
     btn.style.background = k.bg; btn.style.color = k.fg;
     btn.classList.toggle('empty', !c);
-    btn.innerHTML = `${esc(c ? c.name : '+ Catégorie')}${c ? I.down : ''}`;
+    btn.textContent = c ? c.name : '+ Catégorie';
     btn.setAttribute('aria-label', c ? `Catégorie : ${c.name} — changer` : 'Choisir une catégorie');
   }
   window.openTaskCatMenu = openCatMenu;
