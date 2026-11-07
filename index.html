@@ -9148,8 +9148,8 @@
 
   const V = {
     view: LS.get('view', 'list'),        // list | kanban | cats
-    dTab: 't',                           // onglet de la liste desktop : o all t d w — on ouvre toujours sur « Today »
-    mTab: 't',                           // onglet mobile (liste + catégories)
+    dTab: 'all',                         // onglet de la liste desktop : o all t d w — on ouvre toujours sur « Tout » (aujourd'hui, puis retard, puis la suite)
+    mTab: 'all',                          // onglet mobile (liste + catégories)
     mKcol: 1,                            // colonne kanban mobile visible
     sort: LS.get('sort', 'due'),
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
@@ -9302,6 +9302,10 @@
     else if (key === 'tcat') cmp = (a, b) => ((catOf(a)?.position ?? 9999) - (catOf(b)?.position ?? 9999)) || ((PR[a.priority] ?? 3) - (PR[b.priority] ?? 3)) || byDue(a, b);
     arr.sort(rev ? (a, b) => cmp(b, a) : cmp);
     if (key === 'due') arr.sort((a, b) => (a.due_date ? 0 : 1) - (b.due_date ? 0 : 1)); // sans date toujours en bas
+    if (key === 'due' && tab === 'all') {   // « Tout » : aujourd'hui d'abord, puis le retard (comme l'onglet Overdue), puis la suite par date
+      const rank = t => { const b = bucket(t); return b === 't' ? 0 : b === 'o' ? 1 : b === 'n' ? 3 : 2; };
+      arr.sort((a, b) => rank(a) - rank(b) || (rank(a) === 1 ? (rev ? byLate(b, a) : byLate(a, b)) : 0));
+    }
     arr.sort((a, b) => (a.is_done ? 1 : 0) - (b.is_done ? 1 : 0));
     return arr;
   }
