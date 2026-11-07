@@ -1290,6 +1290,53 @@
   .tw-sep { align-self: center; font-size: 20px; font-weight: 600; color: var(--ink); }
   .dd-clear-date { margin: 4px auto 0; padding: 12px 18px; font-size: 14.5px; color: #E0582B; }
 
+
+  /* ---------- calendrier (draft 3) : gris, date en grand, icônes rapides, jours en carrés arrondis ---------- */
+  .cal-nav { width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; color: #8b8a85; padding: 0; }
+  .cal-nav:hover { background: #F3F2EE; color: var(--ink); }
+  .cal-nav svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .cal-dow { color: #a9a7a0; font-weight: 600; }
+  .cal-cell { position: relative; font-weight: 500; }
+  .cal-cell span { border-radius: 10px; }
+  .cal-cell:not(.empty):not(.selected):hover span { background: #F3F2EE; }
+  .cal-cell.past span { color: #b9b7b0; }
+  .cal-cell.today span { border: none; color: #E8590C; font-weight: 700; }
+  .cal-cell.selected span { background: #1f1f1f; color: #fff; font-weight: 600; }
+  .cal-cell.future-occurrence:not(.selected) span { background: #1f1f1f; opacity: .18; color: #fff; }
+  .cal-cell.busy::after { content: ''; position: absolute; left: 50%; bottom: 1px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #c9c7c0; }
+  .cal-cell.selected.busy::after { display: none; }
+  [data-view="date"] .dp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 4px 2px 0; }
+  .dp-big { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .dp-big b { font: 700 21px 'Inter', sans-serif; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dp-big small { font: 500 13.5px 'Inter', sans-serif; color: #8b8a85; min-height: 16px; }
+  .dp-acts { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+  .dp-cancel { border: none; background: none; font: 500 15px 'Inter', sans-serif; color: #8b8a85; padding: 8px 8px; cursor: pointer; }
+  .dp-cancel:hover { color: var(--ink); }
+  .dp-ok { border: none; background: #1f1f1f; color: #fff; font: 600 14px 'Inter', sans-serif; padding: 8px 16px; border-radius: 10px; cursor: pointer; }
+  .dp-quick { display: flex; gap: 6px; padding: 14px 0 14px; }
+  .dp-quick button { flex: 1; height: 40px; border: none; border-radius: 11px; background: #F3F2EE; color: #6b6963; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .12s; }
+  .dp-quick button:hover { background: #EAE9E4; color: var(--ink); }
+  .dp-quick svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  [data-view="date"] .cal-head { margin: 2px 0 8px; }
+  [data-view="date"] .cal-month { font-size: 16px; }
+  [data-view="date"] .cal-dow { font-size: 11.5px; }
+  [data-view="date"] .cal-cell { padding: 4px 0; font-size: 15px; }
+  [data-view="date"] .cal-cell span { width: 36px; height: 36px; border-radius: 11px; }
+  [data-view="date"] .cal-cell.busy::after { bottom: 0; }
+  .dp-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 10px; }
+  .dp-chip { display: inline-flex; align-items: center; gap: 7px; background: #F3F2EE; border-radius: 11px; padding: 9px 12px; font: 500 14px 'Inter', sans-serif; color: #55534d; cursor: pointer; user-select: none; }
+  .dp-chip:hover { background: #EAE9E4; }
+  .dp-chip svg { width: 17px; height: 17px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .dp-chip .dd-val { display: none; font: inherit; color: inherit; }
+  .dp-chip.on { background: #1f1f1f; color: #fff; }
+  .dp-chip.on .dp-ph { display: none; }
+  .dp-chip.on .dd-val { display: inline; }
+  .dp-chip .dd-time-x { width: auto; height: auto; color: inherit; opacity: .6; font-size: 15px; padding: 0 0 0 2px; cursor: pointer; }
+  .dp-chip .dd-time-x:hover { opacity: 1; }
+  .dp-chip .dd-time-x[hidden] { display: none; }
+  [data-view="date"] .time-wheel { margin: 0 0 8px; }
+  [data-view="date"] .dd-clear-date { color: #C8342B; font-weight: 500; }
+
   /* raccourcis de date */
   .quick-dates { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
   .quick-date-btn {
@@ -3343,41 +3390,32 @@
 
             <!-- VIEW: date -->
             <div class="sheet-view" data-view="date">
-              <div class="sheet-topbar">
-                <button class="link" data-back>Annuler</button>
-                <div class="sheet-title">Date</div>
-                <button class="link strong" data-back>OK</button>
+              <div class="dp-head">
+                <div class="dp-big"><b data-dp-big>Sans date</b><small data-dp-rel></small></div>
+                <div class="dp-acts"><button type="button" class="dp-cancel" data-back>Annuler</button><button type="button" class="dp-ok" data-back>OK</button></div>
+              </div>
+              <div class="dp-quick">
+                <button type="button" data-quick="today" title="Aujourd'hui" aria-label="Aujourd'hui"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg></button>
+                <button type="button" data-quick="tomorrow" title="Demain" aria-label="Demain"><svg viewBox="0 0 24 24"><path d="M5 18a7 7 0 0 1 14 0"/><path d="M2.5 18h19M12 3v6M9 6l3-3 3 3M4.2 11.2l1.3 1.3M19.8 11.2l-1.3 1.3"/></svg></button>
+                <button type="button" data-quick="nextweek" title="Dans 7 jours" aria-label="Dans 7 jours"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3.5"/><path d="M8 2.5v4M16 2.5v4"/><text x="12" y="17.3" font-size="8.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Inter, sans-serif">+7</text></svg></button>
+                <button type="button" data-quick="nextmonth" title="Dans un mois" aria-label="Dans un mois"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3.5"/><path d="M8 2.5v4M16 2.5v4M8.5 13h7M12.5 10l3 3-3 3"/></svg></button>
               </div>
               <div class="cal-head">
-                <button type="button" class="cal-nav" data-cal-prev>‹</button>
+                <button type="button" class="cal-nav" data-cal-prev aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
                 <div class="cal-month" data-cal-month-label></div>
-                <button type="button" class="cal-nav" data-cal-next>›</button>
+                <button type="button" class="cal-nav" data-cal-next aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
               </div>
               <div class="cal-grid" data-cal-grid></div>
-              <div class="dd-list">
-                <div class="dd-row dd-time-row" data-time-toggle>
-                  <span>Heure</span>
-                  <span class="dd-time-right">
-                    <span class="dd-val" data-td-time-val>Aucune</span>
-                    <button type="button" class="dd-time-x" data-time-x aria-label="Retirer l'heure" hidden>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                    </button>
-                  </span>
-                </div>
-                <div class="time-wheel" data-time-wheel hidden>
-                  <div class="tw-band" aria-hidden="true"></div>
-                  <div class="tw-col" data-tw-h role="listbox" aria-label="Heures"></div>
-                  <div class="tw-sep" aria-hidden="true">:</div>
-                  <div class="tw-col" data-tw-m role="listbox" aria-label="Minutes"></div>
-                </div>
-                <div class="dd-row" data-goto="reminder">
-                  <span>Reminder</span>
-                  <span class="dd-val" data-td-reminder-val>None</span>
-                </div>
-                <div class="dd-row" data-goto="repeat">
-                  <span>Repeat</span>
-                  <span class="dd-val" data-td-repeat-val>None</span>
-                </div>
+              <div class="dp-chips">
+                <div class="dp-chip" data-time-toggle role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span class="dp-ph">Heure</span><span class="dd-val" data-td-time-val>Aucune</span><span class="dd-time-x" data-time-x role="button" aria-label="Retirer l'heure" hidden>×</span></div>
+                <div class="dp-chip" data-goto="reminder" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="dp-ph">Rappel</span><span class="dd-val" data-td-reminder-val>None</span></div>
+                <div class="dp-chip" data-goto="repeat" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></svg><span class="dp-ph">Répéter</span><span class="dd-val" data-td-repeat-val>None</span></div>
+              </div>
+              <div class="time-wheel" data-time-wheel hidden>
+                <div class="tw-band" aria-hidden="true"></div>
+                <div class="tw-col" data-tw-h role="listbox" aria-label="Heures"></div>
+                <div class="tw-sep" aria-hidden="true">:</div>
+                <div class="tw-col" data-tw-m role="listbox" aria-label="Minutes"></div>
               </div>
               <button type="button" class="dd-clear dd-clear-date" data-date-clear>Effacer la date</button>
             </div>
@@ -3752,41 +3790,32 @@
 
             <!-- VIEW: date (identique à la fiche tâche) -->
             <div class="sheet-view" data-view="date">
-              <div class="sheet-topbar">
-                <button class="link" data-back>Annuler</button>
-                <div class="sheet-title">Date</div>
-                <button class="link strong" data-back>OK</button>
+              <div class="dp-head">
+                <div class="dp-big"><b data-dp-big>Sans date</b><small data-dp-rel></small></div>
+                <div class="dp-acts"><button type="button" class="dp-cancel" data-back>Annuler</button><button type="button" class="dp-ok" data-back>OK</button></div>
+              </div>
+              <div class="dp-quick">
+                <button type="button" data-quick="today" title="Aujourd'hui" aria-label="Aujourd'hui"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg></button>
+                <button type="button" data-quick="tomorrow" title="Demain" aria-label="Demain"><svg viewBox="0 0 24 24"><path d="M5 18a7 7 0 0 1 14 0"/><path d="M2.5 18h19M12 3v6M9 6l3-3 3 3M4.2 11.2l1.3 1.3M19.8 11.2l-1.3 1.3"/></svg></button>
+                <button type="button" data-quick="nextweek" title="Dans 7 jours" aria-label="Dans 7 jours"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3.5"/><path d="M8 2.5v4M16 2.5v4"/><text x="12" y="17.3" font-size="8.5" font-weight="700" text-anchor="middle" fill="currentColor" stroke="none" font-family="Inter, sans-serif">+7</text></svg></button>
+                <button type="button" data-quick="nextmonth" title="Dans un mois" aria-label="Dans un mois"><svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="16" rx="3.5"/><path d="M8 2.5v4M16 2.5v4M8.5 13h7M12.5 10l3 3-3 3"/></svg></button>
               </div>
               <div class="cal-head">
-                <button type="button" class="cal-nav" data-cal-prev>‹</button>
+                <button type="button" class="cal-nav" data-cal-prev aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
                 <div class="cal-month" data-cal-month-label></div>
-                <button type="button" class="cal-nav" data-cal-next>›</button>
+                <button type="button" class="cal-nav" data-cal-next aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
               </div>
               <div class="cal-grid" data-cal-grid></div>
-              <div class="dd-list">
-                <div class="dd-row dd-time-row" data-time-toggle>
-                  <span>Heure</span>
-                  <span class="dd-time-right">
-                    <span class="dd-val" data-td-time-val>Aucune</span>
-                    <button type="button" class="dd-time-x" data-time-x aria-label="Retirer l'heure" hidden>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
-                    </button>
-                  </span>
-                </div>
-                <div class="time-wheel" data-time-wheel hidden>
-                  <div class="tw-band" aria-hidden="true"></div>
-                  <div class="tw-col" data-tw-h role="listbox" aria-label="Heures"></div>
-                  <div class="tw-sep" aria-hidden="true">:</div>
-                  <div class="tw-col" data-tw-m role="listbox" aria-label="Minutes"></div>
-                </div>
-                <div class="dd-row" data-goto="reminder">
-                  <span>Reminder</span>
-                  <span class="dd-val" data-td-reminder-val>None</span>
-                </div>
-                <div class="dd-row" data-goto="repeat">
-                  <span>Repeat</span>
-                  <span class="dd-val" data-td-repeat-val>None</span>
-                </div>
+              <div class="dp-chips">
+                <div class="dp-chip" data-time-toggle role="button" tabindex="0"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span class="dp-ph">Heure</span><span class="dd-val" data-td-time-val>Aucune</span><span class="dd-time-x" data-time-x role="button" aria-label="Retirer l'heure" hidden>×</span></div>
+                <div class="dp-chip" data-goto="reminder" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg><span class="dp-ph">Rappel</span><span class="dd-val" data-td-reminder-val>None</span></div>
+                <div class="dp-chip" data-goto="repeat" role="button" tabindex="0"><svg viewBox="0 0 24 24"><path d="M17 3.5l3 3-3 3"/><path d="M4 11.5v-1a4 4 0 0 1 4-4h12"/><path d="M7 20.5l-3-3 3-3"/><path d="M20 12.5v1a4 4 0 0 1-4 4H4"/></svg><span class="dp-ph">Répéter</span><span class="dd-val" data-td-repeat-val>None</span></div>
+              </div>
+              <div class="time-wheel" data-time-wheel hidden>
+                <div class="tw-band" aria-hidden="true"></div>
+                <div class="tw-col" data-tw-h role="listbox" aria-label="Heures"></div>
+                <div class="tw-sep" aria-hidden="true">:</div>
+                <div class="tw-col" data-tw-m role="listbox" aria-label="Minutes"></div>
               </div>
               <button type="button" class="dd-clear dd-clear-date" data-date-clear>Effacer la date</button>
             </div>
@@ -4934,7 +4963,40 @@
     }
     const timeVal = sheet.querySelector('[data-td-time-val]');
     if (timeVal) timeVal.textContent = dueTime ? dueTime.slice(0, 5) : 'Aucune';
+    dpSync(sheet);
   }
+  // calendrier : grande date + « dans 6 jours » en haut, pastilles Heure / Rappel / Répéter en bas
+  function dpRel(iso) {
+    const n = daysFromToday(iso);
+    if (n === 0) return "aujourd'hui";
+    if (n === 1) return 'demain';
+    if (n === -1) return 'hier';
+    return n > 0 ? `dans ${n} jours` : `il y a ${-n} jours`;
+  }
+  function dpSync(sheet) {
+    const big = sheet.querySelector('[data-dp-big]');
+    if (big) {
+      const iso = sheet.dataset.pendingDate !== undefined && sheet.dataset.pendingDate !== '' ? sheet.dataset.pendingDate : currentDueDate(sheet);
+      const t = (currentDueTime(sheet) || '').slice(0, 5);
+      if (iso) {
+        const d = new Date(iso + 'T00:00:00');
+        big.textContent = `${DAYS_FULL_FR[d.getDay()].slice(0, 3)}. ${d.getDate()} ${MONTHS_FULL_FR[d.getMonth()].toLowerCase()}${d.getFullYear() !== new Date().getFullYear() ? ' ' + d.getFullYear() : ''}`;
+        sheet.querySelector('[data-dp-rel]').textContent = dpRel(iso) + (t ? ' · ' + t : '');
+      } else { big.textContent = 'Sans date'; sheet.querySelector('[data-dp-rel]').textContent = ''; }
+    }
+    sheet.querySelectorAll('.dp-chip').forEach(ch => {
+      const v = ch.querySelector('.dd-val'); if (!v) return;
+      ch.classList.toggle('on', !/^(none|aucune?|jamais|)$/i.test(v.textContent.trim()));
+    });
+  }
+  function dpWatch() {
+    document.querySelectorAll('[data-view="date"]').forEach(view => {
+      const sheet = view.closest('[data-task-sheet], [data-addtask-sheet]') || view.parentElement;
+      const mo = new MutationObserver(() => dpSync(sheet));
+      view.querySelectorAll('.dp-chip .dd-val').forEach(v => mo.observe(v, { childList: true, characterData: true, subtree: true }));
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', dpWatch); else setTimeout(dpWatch, 0);
 
   function nextMondayISO() {
     const d = new Date();
@@ -5041,6 +5103,7 @@
     const viewYear = parseInt(sheet.dataset.calYear, 10);
     const viewMonth = parseInt(sheet.dataset.calMonth, 10);
     monthLabel.textContent = `${MONTHS_FULL_FR[viewMonth]} ${viewYear}`;
+    if (sheet.querySelector('[data-dp-big]')) dpSync(sheet);
 
     const dows = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
     let html = dows.map(d => `<div class="cal-dow">${d}</div>`).join('');
@@ -5062,13 +5125,17 @@
       }
     }
 
+    // petit point sous les jours qui ont déjà des tâches
+    const monthKey = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-`;
+    const busyDays = new Set((typeof cachedTodos !== 'undefined' ? cachedTodos : []).filter(t => !t.is_done && t.due_date && t.due_date.startsWith(monthKey) && t.id !== sheet.dataset.recordId).map(t => t.due_date));
     for (let i = 0; i < startOffset; i++) html += `<div class="cal-cell empty"></div>`;
     for (let d = 1; d <= daysInMonth; d++) {
       const dateStr = `${viewYear}-${String(viewMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
       const isToday = dateStr === todayStr;
       const isSelected = dateStr === selected;
       const isFuture = occurrenceDates.has(dateStr);
-      html += `<div class="cal-cell${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}${isFuture ? ' future-occurrence' : ''}" data-date="${dateStr}"><span>${d}</span></div>`;
+      const busy = busyDays.has(dateStr);
+      html += `<div class="cal-cell${isToday ? ' today' : ''}${dateStr < todayStr ? ' past' : ''}${isSelected ? ' selected' : ''}${isFuture ? ' future-occurrence' : ''}${busy ? ' busy' : ''}" data-date="${dateStr}"><span>${d}</span></div>`;
     }
     grid.innerHTML = html;
     grid.querySelectorAll('.cal-cell[data-date]').forEach(cell => {
@@ -5624,6 +5691,7 @@
         if (btn.dataset.quick === 'today') patch.due_date = todayISO();
         else if (btn.dataset.quick === 'tomorrow') patch.due_date = isoPlusDays(1);
         else if (btn.dataset.quick === 'nextweek') patch.due_date = isoPlusDays(7);
+        else if (btn.dataset.quick === 'nextmonth') { const d = new Date(); d.setMonth(d.getMonth() + 1); patch.due_date = isoFromDate(d); }
         else if (btn.dataset.quick === 'clear') { patch.due_date = null; patch.due_time = null; }
         await applyDuePatch(sheet, patch);
         sheet.dataset.pendingDate = patch.due_date || '';
@@ -6230,9 +6298,9 @@
   function quickPopoverHtml() {
     return `
       <div class="cal-head">
-        <button type="button" class="cal-nav" data-cal-prev>‹</button>
+        <button type="button" class="cal-nav" data-cal-prev aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
         <div class="cal-month" data-cal-month-label></div>
-        <button type="button" class="cal-nav" data-cal-next>›</button>
+        <button type="button" class="cal-nav" data-cal-next aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
       </div>
       <div class="cal-grid" data-cal-grid></div>
       <div class="qp-time-grid" data-qp-time-grid></div>
@@ -8204,6 +8272,7 @@
         if (btn.dataset.quick === 'today') patch.due_date = todayISO();
         else if (btn.dataset.quick === 'tomorrow') patch.due_date = isoPlusDays(1);
         else if (btn.dataset.quick === 'nextweek') patch.due_date = isoPlusDays(7);
+        else if (btn.dataset.quick === 'nextmonth') { const d = new Date(); d.setMonth(d.getMonth() + 1); patch.due_date = isoFromDate(d); }
         else if (btn.dataset.quick === 'clear') { patch.due_date = null; patch.due_time = null; }
         await applyDuePatch(sheet, patch);
         sheet.dataset.pendingDate = patch.due_date || '';
@@ -9349,7 +9418,10 @@
     return arr;
   }
   const time = t => (t.due_time ? t.due_time.slice(0, 5) : '');
-  const dateTime = t => (t.due_date ? formatDateShort(t.due_date) + (t.due_time ? ' · ' + time(t) : '') : '');
+  // dates naturelles : sur ordi Avant-hier … Après-demain, sur téléphone seulement « Today »
+  const REL_DAY = { '-2': 'Avant‑hier', '-1': 'Hier', '0': 'Aujourd’hui', '1': 'Demain', '2': 'Après‑demain' };
+  const relDay = iso => { const n = daysFromToday(iso); return isMobile() ? (n === 0 ? 'Today' : '') : (REL_DAY[n] || ''); };
+  const dateTime = t => (t.due_date ? (relDay(t.due_date) || formatDateShort(t.due_date)) + (t.due_time ? ' · ' + time(t) : '') : '');
   const weekdayOf = iso => DAYS_FULL_FR[new Date(iso + 'T00:00:00').getDay()].slice(0, 3).toLowerCase() + '.';
   function dateForTab(k) {
     if (k === 'd') return isoPlusDays(1);
