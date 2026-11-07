@@ -2504,6 +2504,45 @@
     html.td-center-mode .td-sidebar .ic-flat-btn svg { width: 16px; height: 16px; }
     html.td-center-mode [data-task-sheet] .td-title-input { font-size: 30px; }
     html.td-center-mode [data-task-sheet] .td-images .td-img-thumb { width: 160px; height: 160px; }
+    /* aperçu centré : tout un peu plus gros (sauf le titre, déjà grand) */
+    html.td-center-mode .td-sidebar .ic-flat-btn { width: 40px; height: 40px; border-radius: 11px; }
+    html.td-center-mode .td-sidebar .ic-flat-btn svg { width: 19px; height: 19px; }
+    html.td-center-mode .td-sidebar-count { font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .td-header-row [data-td-project-btn] { height: 40px; padding: 0 16px; font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .at-icon-btn { font-size: 15px; padding: 9px 15px; }
+    html.td-center-mode [data-task-sheet] .at-icon-btn svg { width: 18px; height: 18px; }
+    html.td-center-mode [data-task-sheet] .td-header-row .at-icon-btn.flag-only, html.td-center-mode [data-task-sheet] .td-header-row .ic-flat-btn { width: 40px; height: 40px; }
+    html.td-center-mode [data-task-sheet] .td-header-row .at-icon-btn.flag-only svg, html.td-center-mode [data-task-sheet] .td-header-row .ic-flat-btn svg { width: 19px; height: 19px; }
+    html.td-center-mode [data-task-sheet] .td-project-goto-btn { width: 40px; height: 40px; }
+    html.td-center-mode [data-task-sheet] .td-project-goto-btn svg { width: 19px; height: 19px; }
+    html.td-center-mode [data-task-sheet] .td-tcat { font-size: 15.5px; padding: 8px 13px; border-radius: 10px; max-width: 240px; }
+    html.td-center-mode [data-task-sheet] .td-due-date { font-size: 16.5px; }
+    html.td-center-mode [data-task-sheet] .td-due .checkbox { width: 19px; height: 19px; }
+    html.td-center-mode [data-task-sheet] .td-link, html.td-center-mode [data-task-sheet] .td-notes-edit { font-size: 16px; }
+    html.td-center-mode [data-task-sheet] .td-link:empty::before { font-size: 16px; }
+    html.td-center-mode [data-task-sheet] .pa-section-head { font-size: 13.5px; margin: 26px 0 10px; }
+    html.td-center-mode [data-task-sheet] .td-subtask-row { gap: 12px; padding: 12px 0; }
+    html.td-center-mode [data-task-sheet] .td-subtask-title { font-size: 16.5px; }
+    html.td-center-mode [data-task-sheet] .td-subtask-due { font-size: 13px; }
+    html.td-center-mode [data-task-sheet] .td-subtask-drag { font-size: 15px; width: 16px; }
+    html.td-center-mode [data-task-sheet] .td-subtask-row .td-img-remove { font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .td-subtasks-done-toggle { font-size: 14.5px; padding: 12px 0 6px; }
+    html.td-center-mode [data-task-sheet] .add-subtask-row { font-size: 16px; padding: 12px 4px; }
+    html.td-center-mode [data-task-sheet] .add-subtask-plus { font-size: 20px; }
+    html.td-center-mode [data-task-sheet] .add-subtask-input, html.td-center-mode [data-task-sheet] .td-source-input { font-size: 16px; padding: 12px 14px; }
+    html.td-center-mode [data-task-sheet] .add-subtask-input::placeholder, html.td-center-mode [data-task-sheet] .td-source-input::placeholder { font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .td-source-text, html.td-center-mode [data-task-sheet] .td-source-bullet { font-size: 16px; }
+    html.td-center-mode [data-task-sheet] .td-source-confirm-btn { font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .td-back-row { font-size: 15px; }
+    html.td-center-mode [data-task-sheet] .link-card { padding: 13px 16px; gap: 14px; }
+    html.td-center-mode [data-task-sheet] .link-card img { width: 26px; height: 26px; }
+    html.td-center-mode [data-task-sheet] .link-card span { font-size: 16px; }
+    html.td-center-mode [data-task-sheet] .link-card small { font-size: 14px; }
+    /* cases des sous-tâches : comme les tâches du tableau (carré gris, sans bordure) */
+    html.td-center-mode [data-task-sheet] .td-subtask-row .checkbox { width: 21px; height: 21px; border: none; border-radius: 6px; background: var(--v-check, #E6E5E0); }
+    html.td-center-mode [data-task-sheet] .td-subtask-row .checkbox:hover { background: #D9D8D2; }
+    html.td-center-mode [data-task-sheet] .td-subtask-row .checkbox.done { background: var(--v-green, #2F9E5B); }
+    html.td-center-mode [data-task-sheet] .td-subtask-row .checkbox.done::after { font-size: 13px; font-weight: 700; }
     html.td-center-mode .cz-pp { top: 5vh; bottom: 5vh; right: auto; left: 50%; width: min(900px, 78vw); transform: translateX(-50%); border-radius: 20px; }
     html.td-center-mode .cz-pp-body { padding: 18px 48px 40px; }
     html.td-center-mode .cz-pp-bd { background: rgba(24,24,22,.38); }
