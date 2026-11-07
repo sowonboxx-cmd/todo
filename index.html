@@ -1998,6 +1998,108 @@
   .v-stmenu button:hover { background: #F3F2EE; }
   .v-stmenu button svg { width: 13px; height: 13px; color: #2F9E5B; }
   .v-rep { display: inline-flex; vertical-align: -2px; margin-left: 5px; color: var(--v-faint); }
+
+  /* ---------- catégories de tâches (par projet) ---------- */
+  .v-tcat {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
+    white-space: nowrap; max-width: 100%; overflow: hidden; text-overflow: ellipsis; border: none; font-family: inherit; line-height: 1.35;
+  }
+  button.v-tcat { cursor: pointer; }
+  button.v-tcat svg { width: 12px; height: 12px; flex-shrink: 0; opacity: .7; }
+  button.v-tcat:hover { filter: brightness(.96); box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+  .v-tcat.empty { background: transparent; color: var(--v-faint); box-shadow: inset 0 0 0 1px transparent; }
+  .v-row:hover .v-tcat.empty { box-shadow: inset 0 0 0 1px #DAD8D1; color: var(--v-muted); }
+  .v-prio { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 500; white-space: nowrap; }
+  .v-prio svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .v-prio.none { color: var(--v-faint); }
+  .v-tool {
+    display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 11px; border-radius: 10px; border: 1px solid var(--v-line);
+    background: #fff; font: 500 13px 'Inter', sans-serif; color: var(--v-ink); cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  }
+  .v-tool svg { width: 14px; height: 14px; color: var(--v-muted); }
+  .v-tool:hover { background: var(--v-soft); }
+  .v-tool.on { background: #EEF3FE; border-color: #CFDCF8; color: #2F62C9; }
+  .v-tool.on svg { color: #2F62C9; }
+  .v-ghead { display: flex; align-items: center; gap: 10px; padding: 18px 4px 8px; }
+  .v-ghead:first-child { padding-top: 6px; }
+  .v-ghead small { font-size: 12.5px; color: var(--v-muted); }
+  .v-gsp { flex: 1; }
+  .v-gadd { display: inline-flex; align-items: center; gap: 5px; border: none; background: transparent; color: var(--v-muted); font: 500 12.5px 'Inter', sans-serif; padding: 5px 8px; border-radius: 8px; cursor: pointer; }
+  .v-gadd svg { width: 13px; height: 13px; }
+  .v-gadd:hover { background: var(--v-soft); color: var(--v-ink); }
+  .v-gtable { border: 1px solid var(--v-line); border-radius: 12px; overflow: hidden; }
+  .v-gtable .v-row:last-child { border-bottom: none; }
+  .v-row.v-head.v-ghd { position: static; border-radius: 0; min-height: 36px; }
+  .v-ccard .v-cmeta { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--v-muted); min-width: 0; }
+  .v-cdue { white-space: nowrap; }
+  .v-cdue.late { color: var(--v-red); font-weight: 600; }
+  .v-cdue.today { color: var(--v-green); font-weight: 600; }
+  .v-cpg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .v-ccard .v-pill { font-size: 11.5px; padding: 2px 7px; }
+  .v-col-head .v-tcat { max-width: 160px; }
+  /* menu catégorie */
+  .v-tcmenu { width: 260px; padding: 8px; gap: 1px; }
+  .v-tcm-q { border: none; background: #F5F5F3; border-radius: 9px; padding: 8px 10px; font: 13px 'Inter', sans-serif; margin-bottom: 4px; outline: none; color: var(--v-ink, #1f1f1f); }
+  .v-tcm-q:focus { box-shadow: 0 0 0 2px #CFDCF8; }
+  .v-tcm-list { display: flex; flex-direction: column; gap: 1px; max-height: 300px; overflow: auto; }
+  .v-tcmenu button { justify-content: flex-start; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 8px 9px; text-align: left; }
+  .v-tcmenu button > svg { margin-left: auto; }
+  .v-tcm-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .v-tcm-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .v-tcm-sep { border-top: 1px solid #EFEEEA; margin: 4px 0; }
+  .v-tcmenu .v-tcm-none { color: #8b8b8b; }
+  .v-tcmenu .v-tcm-new { color: #2F62C9; font-weight: 600; }
+  .v-tcm-empty { font-size: 12.5px; color: #8b8b8b; padding: 6px 9px; }
+  /* fenêtre « Gérer les catégories » */
+  .v-tcm-bd { position: fixed; inset: 0; background: rgba(24,24,22,.35); z-index: 2900; }
+  .v-tcm {
+    position: fixed; left: 50%; top: 12vh; transform: translateX(-50%); width: min(520px, calc(100vw - 24px)); max-height: 76vh; overflow: auto;
+    background: #fff; border-radius: 20px; padding: 20px 22px; z-index: 2950; font-family: 'Inter', sans-serif; color: #1f1f1f;
+    display: flex; flex-direction: column; gap: 10px; box-shadow: 0 30px 80px rgba(0,0,0,.25);
+  }
+  .v-tcm > * { flex-shrink: 0; }
+  .v-tcm-head { display: flex; align-items: center; gap: 10px; }
+  .v-tcm-head b { flex: 1; font-size: 17px; }
+  .v-tcm-x { width: 34px; height: 34px; border-radius: 10px; border: none; background: #EFEEEA; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .v-tcm-x svg { width: 16px; height: 16px; }
+  .v-tcm-sub { font-size: 13px; color: #8b8b8b; line-height: 1.45; }
+  .v-tcm-warn { font-size: 13.5px; line-height: 1.5; background: #FBF1D9; color: #6E4A00; border-radius: 12px; padding: 12px 14px; }
+  .v-tcm-items { display: flex; flex-direction: column; gap: 6px; }
+  .v-tcm-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px 7px 10px; border: 1px solid #EFEEEA; border-radius: 12px; background: #fff; }
+  .v-tcm-item.dragging { opacity: .45; }
+  .v-tcm-item.drop-before { box-shadow: 0 -2px 0 #2F62C9; }
+  .v-tcm-item.drop-after { box-shadow: 0 2px 0 #2F62C9; }
+  .v-tcm-grip { color: #c4c2bb; cursor: grab; letter-spacing: -2px; font-size: 13px; user-select: none; }
+  .v-tcm-color { width: 14px; height: 14px; border-radius: 50%; border: none; cursor: pointer; flex-shrink: 0; padding: 0; }
+  .v-tcm-name-in { flex: 1; min-width: 0; border: none; background: transparent; font: 500 14px 'Inter', sans-serif; padding: 5px 6px; border-radius: 7px; color: #1f1f1f; outline: none; }
+  .v-tcm-name-in:focus { background: #F5F5F3; }
+  .v-tcm-n { font-size: 12.5px; color: #8b8b8b; white-space: nowrap; }
+  .v-tcm-ib { height: 28px; min-width: 28px; border: none; background: transparent; border-radius: 8px; color: #8b8b8b; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font: 600 12px 'Inter', sans-serif; padding: 0 5px; }
+  .v-tcm-ib svg { width: 15px; height: 15px; }
+  .v-tcm-ib:hover:not(:disabled) { background: #F3F2EE; color: #1f1f1f; }
+  .v-tcm-ib:disabled { opacity: .3; cursor: default; }
+  .v-tcm-ib.danger:hover, .v-tcm-ib.danger.on { color: #C8342B; background: #FBECEC; }
+  .v-tcm-swatches { display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 10px 6px 40px; }
+  .v-tcm-swatches button { width: 22px; height: 22px; border-radius: 50%; border: none; cursor: pointer; }
+  .v-tcm-swatches button.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
+  .v-tcm-add { display: flex; align-items: center; gap: 10px; border: 1px dashed #D9D7D0; border-radius: 12px; padding: 4px 12px; color: #8b8b8b; }
+  .v-tcm-add input { flex: 1; border: none; background: transparent; font: 14px 'Inter', sans-serif; padding: 7px 0; outline: none; color: #1f1f1f; }
+  /* fiche tâche */
+  .td-tcat { display: inline-flex; align-items: center; gap: 4px; border: none; border-radius: 8px; padding: 5px 10px; font: 500 13px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
+  .td-tcat[hidden] { display: none; }
+  .td-tcat svg { width: 12px; height: 12px; opacity: .7; flex-shrink: 0; }
+  .td-tcat.empty { background: transparent !important; color: var(--text-muted, #8b8b8b) !important; box-shadow: inset 0 0 0 1px #DAD8D1; }
+  /* mobile */
+  .vm-gbtn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #E4E2DC; background: #fff; border-radius: 10px; padding: 7px 10px; font: 500 12.5px 'Inter', sans-serif; color: #1f1f1f; white-space: nowrap; flex-shrink: 0; }
+  .vm-gbtn svg { width: 13px; height: 13px; color: #8b8b8b; }
+  .vm-gbtn.on { background: #EEF3FE; border-color: #CFDCF8; color: #2F62C9; }
+  .vm-gbtn.on svg { color: #2F62C9; }
+  .vm-ghead { display: flex; align-items: center; gap: 8px; padding: 14px 4px 6px; }
+  .vm-ghead:first-child { padding-top: 4px; }
+  .vm-ghead small { font-size: 12px; color: #8b8b8b; }
+  .vm-gadd { width: 30px; height: 30px; border: none; background: transparent; border-radius: 9px; color: #8b8b8b; display: flex; align-items: center; justify-content: center; }
+  .vm-gadd svg { width: 16px; height: 16px; }
+  .vm-ghead + .vm-list { margin-bottom: 2px; }
   .v-rep svg { width: 13px; height: 13px; }
   .v-due.none { color: #bdbdbd; }
   .v-sub { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; font-size: 12px; color: var(--v-faint); font-variant-numeric: tabular-nums; }
@@ -2098,8 +2200,10 @@
   .vm-ibtn:active { background: rgba(0,0,0,.05); }
   .vm-ibtn svg { width: 20px; height: 20px; }
   .vm-ibtn .vm-dotbadge { position: absolute; top: 9px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--v-green); }
-  .vm-chiprow { padding: 0 16px 10px; display: flex; flex-shrink: 0; }
+  .vm-chiprow { padding: 0 16px 10px; display: flex; flex-shrink: 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
   .vm-chiprow:empty { display: none; }
+  .vm-chiprow > * { flex-shrink: 0; white-space: nowrap; }
+  .vm-chiprow::-webkit-scrollbar { display: none; }
   .vm-tabs { padding: 0 16px 12px; flex-shrink: 0; }
   .vm-tabs .v-seg { background: var(--v-seg); border-radius: 12px; }
   .vm-tabs .v-seg button { flex: 1; justify-content: center; font-size: 13px; padding: 8px 4px; border-radius: 9px; color: var(--v-muted); gap: 5px; }
@@ -2225,6 +2329,7 @@
   #v2m input { -webkit-user-select: text; user-select: text; }
   #v2m button, #v2m a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .vm-head, .vm-tabs, .vm-chiprow, .vm-nav { touch-action: none; }
+  .vm-chiprow { touch-action: pan-x; }
   .vm-page, .vm-drawer .v-side, .vm-sheet, .vm-search-results { overscroll-behavior: contain; }
   .vm-page { padding-bottom: 96px; }
   .vm-tabs .v-seg button { min-height: 38px; }
@@ -3064,6 +3169,7 @@
                   <button type="button" class="td-project-goto-btn" data-td-project-goto title="Voir les tâches de cette catégorie" style="display:none;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1" fill="currentColor"/></svg>
                   </button>
+                  <button type="button" class="td-tcat" data-td-tcat aria-haspopup="menu" hidden></button>
                 </div>
                 <div class="td-header-actions">
                   <button type="button" class="at-icon-btn flag-only" data-goto="flag" data-td-flag-btn>
@@ -5128,6 +5234,7 @@
     } else if (gotoBtn) {
       gotoBtn.style.display = 'none';
     }
+    if (window.tcatSheetSync) window.tcatSheetSync(sheet, isSubtask ? null : record);
 
     // sous-tâches : uniquement pour une tâche (pas d'imbrication)
     sheet.querySelector('[data-td-add-speed-btn]')?.classList.toggle('hidden-nest', isSubtask);
@@ -5200,6 +5307,10 @@
     });
 
     sheet.querySelector('[data-td-back-row]')?.addEventListener('click', () => backToParentTask(sheet));
+    sheet.querySelector('[data-td-tcat]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (window.openTaskCatMenu && (sheet.dataset.recordKind || 'todo') === 'todo') window.openTaskCatMenu(e.currentTarget, sheet.dataset.recordId);
+    });
 
     sheet.querySelector('[data-td-project-goto]')?.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -7563,6 +7674,7 @@
     }
     refreshOpenProjectsOverviews();
     revealApp();
+    if (window.tcLoad) window.tcLoad(); // catégories de tâches (rechargées en arrière-plan)
     if (typeof v2Render === 'function') v2Render();
   }
 
@@ -7584,6 +7696,8 @@
     sheet.querySelector('[data-at-sheet-title]').textContent = 'Nouvelle tâche';
     sheet.querySelector('[data-at-save]').setAttribute('aria-label', 'Ajouter');
     sheet.dataset.priority = 'none';
+    sheet.dataset.pendingCat = window.__pendingCatId || ''; // catégorie de tâche choisie depuis « + Ajouter » d'un groupe
+    window.__pendingCatId = null;
     sheet.dataset.pageId = '';
     sheet.dataset.pendingProjectId = '';
     sheet.dataset.pendingFolderId = '';
@@ -8118,6 +8232,7 @@
           sources,
           reminder: sheet.dataset.pendingReminder || null,
           repeat_rule: sheet.dataset.pendingRepeatRule || null,
+          ...(window.tcatForInsert ? window.tcatForInsert(sheet.dataset.pendingCat, pageId) : {}),
         }).select().single();
         if (insertErr) throw insertErr;
 
@@ -9171,16 +9286,18 @@
   }
   const ST_LABEL = { todo: 'À faire', wip: 'En cours', done: 'Terminée' };
   const ST_ORDER = { wip: 0, todo: 1, done: 2 };
-  const SORT_LABEL = { due: 'échéance', title: 'titre', cat: 'catégorie', page: 'page', status: 'statut' };
-  function sortTasks(arr, tab) {
+  const SORT_LABEL = { due: 'échéance', title: 'titre', cat: 'projet', page: 'page', status: 'statut', tcat: 'catégorie', prio: 'priorité' };
+  function sortTasks(arr, tab, key = V.sort, rev = V.sortRev) {
     let cmp = byDue;
-    if (V.sort === 'due' && tab === 'o') cmp = byLate;
-    else if (V.sort === 'title') cmp = (a, b) => a.title.localeCompare(b.title, 'fr');
-    else if (V.sort === 'cat') cmp = (a, b) => ((projOf(a)?.position ?? 999) - (projOf(b)?.position ?? 999)) || byDue(a, b);
-    else if (V.sort === 'page') cmp = (a, b) => (pageOf(a)?.title || '').localeCompare(pageOf(b)?.title || '', 'fr') || byDue(a, b);
-    else if (V.sort === 'status') cmp = (a, b) => (ST_ORDER[statusOf(a)] - ST_ORDER[statusOf(b)]) || byDue(a, b);
-    arr.sort(V.sortRev ? (a, b) => cmp(b, a) : cmp);
-    if (V.sort === 'due') arr.sort((a, b) => (a.due_date ? 0 : 1) - (b.due_date ? 0 : 1)); // sans date toujours en bas
+    if (key === 'due' && tab === 'o') cmp = byLate;
+    else if (key === 'title') cmp = (a, b) => a.title.localeCompare(b.title, 'fr');
+    else if (key === 'cat') cmp = (a, b) => ((projOf(a)?.position ?? 999) - (projOf(b)?.position ?? 999)) || byDue(a, b);
+    else if (key === 'page') cmp = (a, b) => (pageOf(a)?.title || '').localeCompare(pageOf(b)?.title || '', 'fr') || byDue(a, b);
+    else if (key === 'status') cmp = (a, b) => (ST_ORDER[statusOf(a)] - ST_ORDER[statusOf(b)]) || byDue(a, b);
+    else if (key === 'prio') cmp = (a, b) => ((PR[a.priority] ?? 3) - (PR[b.priority] ?? 3)) || byDue(a, b);
+    else if (key === 'tcat') cmp = (a, b) => ((catOf(a)?.position ?? 9999) - (catOf(b)?.position ?? 9999)) || ((PR[a.priority] ?? 3) - (PR[b.priority] ?? 3)) || byDue(a, b);
+    arr.sort(rev ? (a, b) => cmp(b, a) : cmp);
+    if (key === 'due') arr.sort((a, b) => (a.due_date ? 0 : 1) - (b.due_date ? 0 : 1)); // sans date toujours en bas
     arr.sort((a, b) => (a.is_done ? 1 : 0) - (b.is_done ? 1 : 0));
     return arr;
   }
@@ -9203,6 +9320,331 @@
     return `<div class="v-subrow"><span class="v-bar"><span style="width:${pct}%"></span></span><small>${s.d}/${s.n}</small></div>`;
   }
   const chk = t => `<button type="button" class="v-chk${t.is_done ? ' done' : ''}" data-v-chk="${t.id}" aria-label="${t.is_done ? 'Rouvrir' : 'Terminer'} : ${esc(t.title)}">${I.check}</button>`;
+
+  // ---------------- catégories de tâches (propres à chaque projet, partagées par ses pages) ----------------
+  // table task_categories + colonne todos.category_id (migration_categories.sql). Tant que la migration
+  // n'est pas lancée, TC.missing = true et tout ce qui touche aux catégories reste caché.
+  const TC = { loaded: false, loading: false, missing: false, list: [] };
+  const TC_COLORS = ['#2F62C9', '#B4541A', '#B23A6E', '#6A44B8', '#237A45', '#946200', '#4a4a4a', '#1F7A8C', '#C8342B', '#3E72A6'];
+  async function tcLoad() {
+    if (TC.loading || typeof sb === 'undefined' || !sb) return;
+    TC.loading = true;
+    let res;
+    try { res = await sb.from('task_categories').select('*'); } catch (err) { res = { error: err }; }
+    TC.loading = false; TC.loaded = true;
+    if (res.error || !Array.isArray(res.data)) { TC.missing = true; TC.list = []; console.info('Catégories de tâches indisponibles (lancer migration_categories.sql) :', res.error?.message || res.error); }
+    else { TC.missing = false; TC.list = res.data.filter(c => !c.is_archived); }
+    v2Render();
+  }
+  const ctxProj = () => V.page ? (M.pageById.get(V.page)?.project_id || null) : (V.proj || null);
+  const catsOf = pid => TC.list.filter(c => c.project_id === pid).sort((a, b) => (a.position || 0) - (b.position || 0) || String(a.name).localeCompare(String(b.name), 'fr'));
+  function catOf(t) {
+    if (!t || !t.category_id) return null;
+    const c = TC.list.find(x => x.id === t.category_id);
+    if (!c) return null;
+    const p = projOf(t);
+    return p && p.id === c.project_id ? c : null;
+  }
+  const catOn = () => TC.loaded && !TC.missing && !!ctxProj();
+  const catColors = c => colors({ color: c?.color || '#8b8b8b' });
+  const NOCAT_C = { bg: '#F1F0EC', fg: '#6b6b6b', dot: '#B9B7B0' };
+  function tcatChip(c, extra = '') {
+    const k = c ? catColors(c) : NOCAT_C;
+    return `<span class="v-tcat" style="background:${k.bg};color:${k.fg}">${esc(c ? c.name : 'Sans catégorie')}${extra}</span>`;
+  }
+  function tcatBtn(t) {
+    const c = catOf(t);
+    if (!c) return `<button type="button" class="v-tcat empty" data-v-tcat="${t.id}" aria-haspopup="menu" aria-label="Choisir une catégorie">Catégorie</button>`;
+    const k = catColors(c);
+    return `<button type="button" class="v-tcat" style="background:${k.bg};color:${k.fg}" data-v-tcat="${t.id}" aria-haspopup="menu" aria-label="Catégorie : ${esc(c.name)} — changer">${esc(c.name)}${I.down}</button>`;
+  }
+  // priorité (colonne affichée quand on est dans une page)
+  const PRIO_LBL = { high: 'Haute', med: 'Moyenne', low: 'Basse' };
+  const PRIO_COL = { high: 'var(--danger)', med: 'var(--accent-pvpp)', low: 'var(--accent-manga-blue)' };
+  const FLAG_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.5 21V3.5"/><path d="M6.5 4.5h11l-2 4 2 4h-11"/></svg>';
+  const prioCell = t => PRIO_LBL[t.priority] ? `<span class="v-prio" style="color:${PRIO_COL[t.priority]}">${FLAG_SVG}${PRIO_LBL[t.priority]}</span>` : '<span class="v-prio none">—</span>';
+
+  // regroupement de la liste : none | cat | prio | status (catégorie seulement dans un projet)
+  V.group = LS.get('group', 'cat');
+  V.gsort = LS.get('gsort', 'prio');
+  V.gsortRev = LS.get('gsortRev', false) === true;
+  const GROUP_LBL = { none: 'Aucun', cat: 'Catégorie', prio: 'Priorité', status: 'Statut' };
+  function effGroup() {
+    const g = V.group;
+    if (!ctxProj()) return 'none';                     // hors projet : la liste reste comme avant
+    if (g === 'cat' && !catOn()) return 'none';
+    return GROUP_LBL[g] ? g : 'none';
+  }
+  function groupsOf(rows) {
+    const g = effGroup();
+    if (g === 'cat') {
+      const groups = catsOf(ctxProj()).map(c => ({ key: c.id, cat: c, chip: tcatChip(c), tasks: [] }));
+      const by = new Map(groups.map(x => [x.key, x]));
+      const none = { key: '', cat: null, chip: tcatChip(null), tasks: [] };
+      rows.forEach(t => { const c = catOf(t); (c && by.get(c.id) || none).tasks.push(t); });
+      return [...groups, none].filter(x => x.tasks.length);
+    }
+    if (g === 'prio') {
+      return ['high', 'med', 'low', 'none'].map(k => ({ key: 'p:' + k, chip: k === 'none' ? '<span class="v-tcat" style="background:#F1F0EC;color:#6b6b6b">Sans priorité</span>' : `<span class="v-prio" style="color:${PRIO_COL[k]}">${FLAG_SVG}${PRIO_LBL[k]}</span>`, tasks: rows.filter(t => (PRIO_LBL[t.priority] ? t.priority : 'none') === k) })).filter(x => x.tasks.length);
+    }
+    if (g === 'status') {
+      return ['wip', 'todo', 'done'].map(k => ({ key: 's:' + k, chip: `<span class="v-pill st-${k}">${ST_LABEL[k]}</span>`, tasks: rows.filter(t => statusOf(t) === k) })).filter(x => x.tasks.length);
+    }
+    return null;
+  }
+  function groupBtnHtml(kanban) {
+    if (!ctxProj()) return '';
+    const g = kanban ? (V.group === 'cat' && catOn() ? 'cat' : 'none') : effGroup();
+    const lbl = kanban ? (g === 'cat' ? 'Catégorie' : 'Échéance') : GROUP_LBL[g];
+    return `<button type="button" class="v-tool${g !== 'none' ? ' on' : ''}" data-v-group="${kanban ? 'k' : 'l'}" aria-haspopup="menu">${I.vCats}<span>${kanban ? 'Colonnes' : 'Grouper'} : ${lbl}</span></button>`;
+  }
+  const manageBtnHtml = () => ctxProj() && TC.loaded ? `<button type="button" class="v-tool" data-v-tcmanage title="Gérer les catégories du projet">${I.sliders}<span>Catégories</span></button>` : '';
+
+  // petit menu flottant générique (même style que le menu de statut)
+  function floatMenu(anchor, html, cls = '') {
+    document.querySelector('.v-stmenu')?.remove();
+    const m = document.createElement('div');
+    m.className = 'v-stmenu ' + cls; m.setAttribute('role', 'menu');
+    m.innerHTML = html;
+    document.body.appendChild(m);
+    const place = () => {
+      const r = anchor.getBoundingClientRect();
+      m.style.left = Math.max(8, Math.min(r.left, window.innerWidth - m.offsetWidth - 12)) + 'px';
+      m.style.top = Math.max(8, r.bottom + 6 + m.offsetHeight > window.innerHeight ? r.top - m.offsetHeight - 6 : r.bottom + 6) + 'px';
+    };
+    place();
+    const close = () => { m.remove(); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', onEsc, true); };
+    const outside = (ev) => { if (!m.contains(ev.target)) close(); };
+    const onEsc = (ev) => { if (ev.key === 'Escape') { ev.stopPropagation(); close(); } };
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+    document.addEventListener('keydown', onEsc, true);
+    return { m, close, place };
+  }
+  function openGroupMenu(anchor, kanban) {
+    const cur = kanban ? (V.group === 'cat' && catOn() ? 'cat' : 'none') : effGroup();
+    const opts = kanban ? [['cat', 'Catégorie'], ['none', 'Échéance']] : [['none', 'Aucun'], ['cat', 'Catégorie'], ['prio', 'Priorité'], ['status', 'Statut']];
+    const { m, close } = floatMenu(anchor, opts.filter(([k]) => k !== 'cat' || catOn()).map(([k, l]) => `<button type="button" role="menuitemradio" aria-checked="${cur === k}" data-g="${k}"><span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''));
+    m.addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-g]'); if (!b) return;
+      close();
+      V.group = b.dataset.g; LS.set('group', V.group);
+      v2Render();
+    });
+  }
+
+  // menu « catégorie » d'une tâche : chercher / créer, Aucune catégorie, + Nouvelle catégorie
+  function openCatMenu(anchor, id) {
+    const t = cachedTodos.find(x => x.id === id); if (!t) return;
+    const p = projOf(t);
+    if (!p) { alertBubble('Range d’abord la tâche dans un projet.'); return; }
+    if (TC.missing) { alertBubble('Lance d’abord migration_categories.sql dans Supabase.'); return; }
+    const { m, close, place } = floatMenu(anchor, `
+      <input type="text" class="v-tcm-q" placeholder="Chercher ou créer…" aria-label="Chercher ou créer une catégorie" autocomplete="off">
+      <div class="v-tcm-list"></div>
+      <div class="v-tcm-sep"></div>
+      <button type="button" data-c="" class="v-tcm-none"><span>Aucune catégorie</span>${!catOf(t) ? I.check : ''}</button>
+      <button type="button" data-c="+" class="v-tcm-new"><span>+ Nouvelle catégorie</span></button>`, 'v-tcmenu');
+    const q = m.querySelector('.v-tcm-q');
+    const cur = catOf(t)?.id || '';
+    const draw = () => {
+      const s = q.value.trim().toLowerCase();
+      const list = catsOf(p.id).filter(c => !s || c.name.toLowerCase().includes(s));
+      m.querySelector('.v-tcm-list').innerHTML = list.map(c => `<button type="button" role="menuitemradio" aria-checked="${cur === c.id}" data-c="${c.id}"><span class="v-tcm-dot" style="background:${catColors(c).dot}"></span><span class="v-tcm-name">${esc(c.name)}</span>${cur === c.id ? I.check : ''}</button>`).join('')
+        || (s ? '' : '<div class="v-tcm-empty">Aucune catégorie dans ce projet.</div>');
+      m.querySelector('.v-tcm-new span').textContent = s ? `+ Créer « ${q.value.trim()} »` : '+ Nouvelle catégorie';
+      place();
+    };
+    draw();
+    q.addEventListener('input', draw);
+    q.addEventListener('keydown', (ev) => {
+      if (ev.key !== 'Enter') return;
+      ev.preventDefault();
+      const first = m.querySelector('.v-tcm-list [data-c]');
+      (first || m.querySelector('.v-tcm-new')).click();
+    });
+    setTimeout(() => { if (!isMobile()) q.focus(); }, 0);
+    m.addEventListener('click', async (ev) => {
+      const b = ev.target.closest('[data-c]'); if (!b) return;
+      let cid = b.dataset.c;
+      if (cid === '+') {
+        const name = q.value.trim();
+        if (!name) { q.focus(); q.placeholder = 'Nom de la nouvelle catégorie…'; return; }
+        close();
+        const c = await createCat(p.id, name);
+        if (!c) return;
+        cid = c.id;
+      } else close();
+      setTaskCat(t, cid || null);
+    });
+  }
+  async function setTaskCat(t, cid) {
+    if ((t.category_id || null) === (cid || null)) return;
+    const prev = t.category_id || null;
+    t.category_id = cid || null;
+    v2Render(); syncOpenSheetCat(t);
+    const { error } = await sb.from('todos').update({ category_id: t.category_id }).eq('id', t.id);
+    if (error) { console.error(error); t.category_id = prev; v2Render(); syncOpenSheetCat(t); alertBubble(/category_id/.test(error.message || '') ? 'Lance d’abord migration_categories.sql dans Supabase.' : 'Erreur de sauvegarde.'); }
+  }
+  async function createCat(pid, name) {
+    const list = catsOf(pid);
+    const used = new Set(list.map(c => c.color));
+    const color = TC_COLORS.find(c => !used.has(c)) || TC_COLORS[list.length % TC_COLORS.length];
+    const pos = list.reduce((n, c) => Math.max(n, c.position || 0), 0) + 1;
+    const { data, error } = await sb.from('task_categories').insert({ project_id: pid, name, color, position: pos }).select().single();
+    if (error || !data) { console.error(error); alertBubble(TC.missing ? 'Lance d’abord migration_categories.sql dans Supabase.' : 'Impossible de créer la catégorie.'); return null; }
+    TC.list.push(data);
+    return data;
+  }
+  function syncOpenSheetCat(t) {
+    const sheet = document.querySelector('[data-task-sheet]');
+    if (sheet && sheet.classList.contains('open') && sheet.dataset.recordId === t.id && (sheet.dataset.recordKind || 'todo') === 'todo') tcatSheetSync(sheet, t);
+  }
+  // puce catégorie dans la fiche d'une tâche
+  function tcatSheetSync(sheet, record) {
+    const btn = sheet.querySelector('[data-td-tcat]'); if (!btn) return;
+    if (!record || TC.missing || !TC.loaded) { btn.hidden = true; return; }
+    buildMaps();
+    const p = projOf(record);
+    if (!p) { btn.hidden = true; return; }
+    const c = catOf(record);
+    const k = c ? catColors(c) : NOCAT_C;
+    btn.hidden = false;
+    btn.style.background = k.bg; btn.style.color = k.fg;
+    btn.classList.toggle('empty', !c);
+    btn.innerHTML = `${esc(c ? c.name : '+ Catégorie')}${c ? I.down : ''}`;
+    btn.setAttribute('aria-label', c ? `Catégorie : ${c.name} — changer` : 'Choisir une catégorie');
+  }
+  window.openTaskCatMenu = openCatMenu;
+  window.tcLoad = tcLoad;
+  window.tcatSheetSync = tcatSheetSync;
+  // à la création depuis « + Ajouter » d'un groupe : catégorie gardée seulement si la page choisie est dans le même projet
+  window.tcatForInsert = (cid, pageId) => {
+    if (!cid || TC.missing) return {};
+    const c = TC.list.find(x => x.id === cid);
+    const pg = cachedPages.find(x => x.id === pageId);
+    return c && pg && pg.project_id === c.project_id ? { category_id: cid } : {};
+  };
+
+  // fenêtre « Catégories de <projet> » : renommer, couleur, ordre, supprimer, ajouter
+  function openCatManager() {
+    const pid = ctxProj(); if (!pid) return;
+    const p = M.projById.get(pid);
+    closeCatManager();
+    const bd = document.createElement('div'); bd.className = 'v-tcm-bd'; bd.dataset.tcmBd = '';
+    const box = document.createElement('div'); box.className = 'v-tcm'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Catégories de ' + (p?.name || ''));
+    document.body.append(bd, box);
+    let colorOpen = null, confirmDel = null;
+    const draw = () => {
+      const list = catsOf(pid);
+      const pages = projPages(pid).map(x => x.title);
+      const count = cid => cachedTodos.filter(t => !t.is_done && !t.parent_todo_id && t.category_id === cid && projOf(t)?.id === pid).length;
+      box.innerHTML = `
+        <div class="v-tcm-head"><b>Catégories de ${esc(p?.name || '')}</b><button type="button" class="v-tcm-x" data-tcm-close aria-label="Fermer">${I.x}</button></div>
+        ${TC.missing ? `<div class="v-tcm-warn">Les catégories ne sont pas encore installées : lance <b>migration_categories.sql</b> dans Supabase (SQL Editor), puis recharge la page.</div>` : `
+        <div class="v-tcm-sub">Partagées par toutes les pages de ${esc(p?.name || '')}${pages.length ? ` (${esc(pages.slice(0, 3).join(', '))}${pages.length > 3 ? '…' : ''})` : ''}. Glisse ⋮⋮ pour changer l'ordre des groupes.</div>
+        <div class="v-tcm-items">${list.map((c, i) => `
+          <div class="v-tcm-item" data-tcm-item="${c.id}" draggable="true">
+            <span class="v-tcm-grip" aria-hidden="true">⋮⋮</span>
+            <button type="button" class="v-tcm-color" data-tcm-color="${c.id}" style="background:${catColors(c).dot}" aria-label="Couleur de ${esc(c.name)}"></button>
+            <input type="text" class="v-tcm-name-in" data-tcm-name="${c.id}" value="${esc(c.name)}" aria-label="Nom de la catégorie">
+            <span class="v-tcm-n">${count(c.id)} tâche${count(c.id) > 1 ? 's' : ''}</span>
+            <button type="button" class="v-tcm-ib" data-tcm-move="${c.id}:-1" ${i === 0 ? 'disabled' : ''} aria-label="Monter">${svg('<path d="M6 15l6-6 6 6"/>')}</button>
+            <button type="button" class="v-tcm-ib" data-tcm-move="${c.id}:1" ${i === list.length - 1 ? 'disabled' : ''} aria-label="Descendre">${I.down}</button>
+            <button type="button" class="v-tcm-ib${confirmDel === c.id ? ' danger on' : ' danger'}" data-tcm-del="${c.id}" aria-label="Supprimer ${esc(c.name)}">${confirmDel === c.id ? 'Supprimer ?' : svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>')}</button>
+          </div>
+          ${colorOpen === c.id ? `<div class="v-tcm-swatches">${TC_COLORS.map(h => `<button type="button" data-tcm-sw="${c.id}:${h}" style="background:${h}" class="${c.color === h ? 'on' : ''}" aria-label="Couleur ${h}"></button>`).join('')}</div>` : ''}`).join('')}
+        </div>
+        <label class="v-tcm-add"><span>+</span><input type="text" data-tcm-new placeholder="Nouvelle catégorie (Entrée pour ajouter)" aria-label="Nouvelle catégorie"></label>`}`;
+    };
+    draw();
+    const save = async (id, patch) => {
+      const c = TC.list.find(x => x.id === id); if (!c) return;
+      Object.assign(c, patch);
+      draw(); v2Render();
+      const { error } = await sb.from('task_categories').update(patch).eq('id', id);
+      if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); }
+    };
+    const reorder = async (ids) => {
+      const ups = [];
+      ids.forEach((id, i) => { const c = TC.list.find(x => x.id === id); if (c && c.position !== i + 1) { c.position = i + 1; ups.push(sb.from('task_categories').update({ position: i + 1 }).eq('id', id)); } });
+      draw(); v2Render();
+      const res = await Promise.all(ups);
+      if (res.some(r => r.error)) alertBubble('Erreur de sauvegarde.');
+    };
+    box.addEventListener('click', async (e) => {
+      const b = e.target.closest('[data-tcm-close],[data-tcm-color],[data-tcm-sw],[data-tcm-move],[data-tcm-del]'); if (!b) return;
+      const d = b.dataset;
+      if ('tcmClose' in d) { closeCatManager(); return; }
+      if (d.tcmColor) { colorOpen = colorOpen === d.tcmColor ? null : d.tcmColor; confirmDel = null; draw(); return; }
+      if (d.tcmSw) { const [id, h] = d.tcmSw.split(':'); colorOpen = null; save(id, { color: h }); return; }
+      if (d.tcmMove) {
+        const [id, dir] = d.tcmMove.split(':');
+        const ids = catsOf(pid).map(c => c.id); const i = ids.indexOf(id), j = i + Number(dir);
+        if (j < 0 || j >= ids.length) return;
+        [ids[i], ids[j]] = [ids[j], ids[i]]; reorder(ids); return;
+      }
+      if (d.tcmDel) {
+        if (confirmDel !== d.tcmDel) { confirmDel = d.tcmDel; draw(); return; }
+        const id = d.tcmDel; confirmDel = null;
+        TC.list = TC.list.filter(c => c.id !== id);
+        cachedTodos.forEach(t => { if (t.category_id === id) t.category_id = null; });
+        draw(); v2Render();
+        const { error } = await sb.from('task_categories').delete().eq('id', id);
+        if (error) { console.error(error); alertBubble('Suppression impossible.'); tcLoad(); }
+      }
+    });
+    box.addEventListener('keydown', async (e) => {
+      if (e.key === 'Escape') { e.stopPropagation(); closeCatManager(); return; }
+      if (e.key !== 'Enter') return;
+      const nIn = e.target.closest('[data-tcm-new]');
+      if (nIn) {
+        e.preventDefault();
+        const name = nIn.value.trim(); if (!name) return;
+        nIn.value = '';
+        const c = await createCat(pid, name);
+        if (c) { draw(); v2Render(); box.querySelector('[data-tcm-new]')?.focus(); }
+        return;
+      }
+      if (e.target.closest('[data-tcm-name]')) { e.preventDefault(); e.target.blur(); }
+    });
+    box.addEventListener('focusout', (e) => {
+      const inp = e.target.closest?.('[data-tcm-name]'); if (!inp) return;
+      const c = TC.list.find(x => x.id === inp.dataset.tcmName); const name = inp.value.trim();
+      if (c && name && name !== c.name) save(c.id, { name });
+      else if (c && !name) inp.value = c.name;
+    });
+    // glisser ⋮⋮ pour réordonner
+    let dragId = null;
+    box.addEventListener('dragstart', (e) => {
+      const it = e.target.closest?.('[data-tcm-item]'); if (!it || e.target.matches?.('input')) return;
+      dragId = it.dataset.tcmItem; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', 'tcm:' + dragId); it.classList.add('dragging');
+    });
+    box.addEventListener('dragover', (e) => {
+      if (!dragId) return;
+      const it = e.target.closest('[data-tcm-item]');
+      box.querySelectorAll('.drop-before,.drop-after').forEach(x => x.classList.remove('drop-before', 'drop-after'));
+      if (!it || it.dataset.tcmItem === dragId) return;
+      e.preventDefault();
+      const r = it.getBoundingClientRect();
+      it.classList.add(e.clientY < r.top + r.height / 2 ? 'drop-before' : 'drop-after');
+    });
+    box.addEventListener('drop', (e) => {
+      if (!dragId) return;
+      e.preventDefault(); e.stopPropagation();
+      const it = e.target.closest('[data-tcm-item]');
+      const ids = catsOf(pid).map(c => c.id).filter(x => x !== dragId);
+      if (it && it.dataset.tcmItem !== dragId) {
+        const r = it.getBoundingClientRect();
+        let i = ids.indexOf(it.dataset.tcmItem); if (e.clientY >= r.top + r.height / 2) i++;
+        ids.splice(i, 0, dragId); reorder(ids);
+      }
+      dragId = null;
+    });
+    box.addEventListener('dragend', () => { dragId = null; box.querySelectorAll('.dragging,.drop-before,.drop-after').forEach(x => x.classList.remove('dragging', 'drop-before', 'drop-after')); });
+    bd.addEventListener('click', closeCatManager);
+    if (!TC.missing && !catsOf(pid).length) setTimeout(() => box.querySelector('[data-tcm-new]')?.focus(), 0);
+  }
+  function closeCatManager() { document.querySelectorAll('.v-tcm, .v-tcm-bd').forEach(x => x.remove()); }
 
   // ---------------- filtres partagés ----------------
   function activeFilterLabel() {
@@ -9350,7 +9792,7 @@
         </section>
       </div>
       <div class="v-cats">
-        <div class="v-side-label">Catégories<button type="button" data-v-addcat aria-label="Nouvelle catégorie" title="Nouvelle catégorie">${I.plus}</button></div>
+        <div class="v-side-label">Projets<button type="button" data-v-addcat aria-label="Nouveau projet" title="Nouveau projet">${I.plus}</button></div>
         ${cats}
         <section class="v-cat v-favs${V.favOpen ? ' open' : ''}${V.fav ? ' active-cat' : ''}" style="--c-bg:#FBF5E3;--c-fg:#8F6200">
           <div class="v-cat-head">
@@ -9458,11 +9900,12 @@
     const late = b === 'o' && !t.is_done;
     const dueCls = !t.due_date ? 'none' : late ? 'late' : b === 't' ? 'today' : '';
     const pct = s && s.n ? Math.round((s.d / s.n) * 100) : 0;
+    const inCtx = catOn(), prioCol = inCtx && !!V.page; // dans une page : Catégorie + Priorité à la place de Projet + Page
     return `<div class="v-row${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">
       ${chk(t)}
-      <div class="v-tcell"><span class="v-ttl">${esc(t.title)}</span>${t.priority === 'high' && !t.is_done ? '<span class="v-pill prio">Prioritaire</span>' : ''}${s && s.n ? `<span class="v-sub"><span class="v-bar"><span style="width:${pct}%"></span></span>${s.d}/${s.n}</span>` : ''}</div>
-      <span>${p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
-      <span class="v-pagecell">${esc(pg?.title || '')}</span>
+      <div class="v-tcell"><span class="v-ttl">${esc(t.title)}</span>${t.priority === 'high' && !t.is_done && !prioCol ? '<span class="v-pill prio">Prioritaire</span>' : ''}${s && s.n ? `<span class="v-sub"><span class="v-bar"><span style="width:${pct}%"></span></span>${s.d}/${s.n}</span>` : ''}</div>
+      <span>${inCtx ? tcatBtn(t) : p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
+      ${prioCol ? prioCell(t) : `<span class="v-pagecell">${esc(pg?.title || '')}</span>`}
       <span><button type="button" class="v-pill st-${st} v-stbtn" data-v-st="${t.id}" aria-label="Changer le statut" aria-haspopup="menu">${ST_LABEL[st]}</button></span>
       <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}${repIcon(t)}</button></span>
     </div>`;
@@ -9482,23 +9925,32 @@
   function renderDesktopList(panel) {
     const all = cachedTodos.filter(passFilters);
     const count = k => all.filter(t => inTab(t, k) && !t.is_done).length;
-    const rows = sortTasks(all.filter(t => inTab(t, V.dTab) && doneOk(t, V.dTab)), V.dTab);
-    const th = (k, l) => `<button type="button" class="v-th${V.sort === k ? ' on' : ''}" data-v-sort="${k}" title="Trier par ${l.toLowerCase()} (re-cliquer pour inverser)">${l}${V.sort === k ? ` <span aria-hidden="true">${V.sortRev ? '↑' : '↓'}</span>` : ''}</button>`;
+    const grp = effGroup() !== 'none';
+    const sKey = grp ? V.gsort : V.sort, sRev = grp ? V.gsortRev : V.sortRev;
+    const rows = sortTasks(all.filter(t => inTab(t, V.dTab) && doneOk(t, V.dTab)), V.dTab, sKey, sRev);
+    const th = (k, l) => `<button type="button" class="v-th${sKey === k ? ' on' : ''}" data-v-sort="${k}" title="Trier par ${l.toLowerCase()} (re-cliquer pour inverser)">${l}${sKey === k ? ` <span aria-hidden="true">${sRev ? '↑' : '↓'}</span>` : ''}</button>`;
+    const inCtx = catOn();
+    const head = `<div class="v-row v-head${grp ? ' v-ghd' : ''}"><span></span>${th('title', 'Tâche')}${inCtx ? th('tcat', 'Catégorie') : th('cat', 'Projet')}${inCtx && V.page ? th('prio', 'Priorité') : th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>`;
+    const groups = grp ? groupsOf(rows) : null;
+    const body = groups
+      ? (groups.map(g => `<div class="v-ghead">${g.chip}<small>${g.tasks.length} tâche${g.tasks.length > 1 ? 's' : ''}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="v-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}Ajouter</button>` : ''}</div>
+          <div class="v-gtable">${head}${g.tasks.map(rowHtml).join('')}</div>`).join('') || '<div class="v-empty">Rien ici.</div>')
+      : `${head}${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}`;
     panel.innerHTML = `
       <div class="v-tools">
         <div class="v-seg" role="tablist" aria-label="Échéance">${DTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.dTab === k}" class="${V.dTab === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-dtab="${k}">${l} <small>${count(k)}</small></button>`).join('')}</div>
         ${catSelectHtml()}
         ${filterBtnHtml()}
         ${chipHtml()}
+        ${groupBtnHtml(false)}${catOn() || (ctxProj() && TC.missing) ? manageBtnHtml() : ''}
         ${newBtnHtml()}
       </div>
       ${V.showFilters ? filtersHtml() : ''}
       <label class="v-quickadd"><input type="text" data-v-quickadd placeholder="Ajouter une tâche et appuyer sur Entrée…" aria-label="Ajouter une tâche"></label>
-      <div class="v-tablewrap" data-v-scroll="list-${V.dTab}"><div class="v-table">
-        <div class="v-row v-head"><span></span>${th('title', 'Tâche')}${th('cat', 'Catégorie')}${th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>
-        ${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}
+      <div class="v-tablewrap" data-v-scroll="list-${V.dTab}"><div class="v-table${grp ? ' v-grouped' : ''}">
+        ${body}
       </div></div>
-      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''} · triées par ${SORT_LABEL[V.sort] || 'échéance'}${V.sortRev ? ' (inversé)' : ''}</div>`;
+      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''}${grp ? ` · groupées par ${GROUP_LBL[effGroup()].toLowerCase()}` : ''} · triées par ${SORT_LABEL[sKey] || 'échéance'}${sRev ? ' (inversé)' : ''}</div>`;
   }
 
   // ---------------- kanban ----------------
@@ -9540,11 +9992,46 @@
       </div>
     </div>`;
   }
+  // kanban par catégorie (dans un projet) : une colonne par catégorie + « Sans catégorie »
+  const kanbanByCat = () => catOn() && V.group === 'cat';
+  function catCols() {
+    const cs = catsOf(ctxProj()).map(c => ({ key: 'tc:' + c.id, cat: c, match: t => catOf(t)?.id === c.id }));
+    cs.push({ key: 'tc:', cat: null, match: t => !catOf(t) });
+    return cs;
+  }
+  function catCardHtml(t) {
+    const b = bucket(t), late = b === 'o' && !t.is_done, st = statusOf(t);
+    const pg = pageOf(t);
+    return `<div class="v-card v-ccard${t.is_done ? ' is-done' : ''}" draggable="true" data-v-open="${t.id}" data-v-drag="${t.id}">
+      ${chk(t)}
+      <div class="v-card-body">
+        <div class="v-card-top"><span class="v-ttl">${esc(t.title)}</span></div>
+        <div class="v-cmeta">${PRIO_LBL[t.priority] ? `<span class="v-prio" style="color:${PRIO_COL[t.priority]}">${FLAG_SVG}</span>` : ''}<span class="v-cdue${late ? ' late' : b === 't' && !t.is_done ? ' today' : ''}">${t.due_date ? dateTime(t) : 'Sans date'}${repIcon(t)}</span>${!V.page && pg ? `<span class="v-cpg">${esc(pg.title)}</span>` : ''}<span class="v-gsp"></span><span class="v-pill st-${st}">${ST_LABEL[st]}</span></div>
+        ${subRow(t)}
+      </div>
+    </div>`;
+  }
   function renderDesktopKanban(panel) {
     const all = cachedTodos.filter(passFilters);
+    if (kanbanByCat()) {
+      const cols = catCols();
+      const sorted = arr => sortTasks(arr, 'all', 'prio', false);
+      panel.innerHTML = `
+        <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${groupBtnHtml(true)}${manageBtnHtml()}${newBtnHtml()}</div>
+        ${V.showFilters ? filtersHtml() : ''}
+        <div class="v-board" data-v-scroll="board-cat">${cols.map(col => {
+          const tasks = sorted(all.filter(t => col.match(t) && (V.done || !t.is_done)));
+          return `<div class="v-col" data-v-dropcol="${col.key}">
+            <div class="v-col-head">${tcatChip(col.cat)}<span class="v-col-n">${tasks.length}</span>
+              <button type="button" class="v-icon-btn" data-v-gadd="${col.cat ? col.cat.id : ''}" aria-label="Ajouter une tâche : ${esc(col.cat ? col.cat.name : 'Sans catégorie')}">${I.plus}</button></div>
+            <div class="v-col-body" data-v-scroll="col-${col.key}">${tasks.map(catCardHtml).join('') || '<div class="v-empty" style="padding:28px 0">Aucune tâche</div>'}</div>
+          </div>`;
+        }).join('')}</div>`;
+      return;
+    }
     const cols = kanbanCols();
     panel.innerHTML = `
-      <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${newBtnHtml()}</div>
+      <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${catOn() ? groupBtnHtml(true) : ''}${newBtnHtml()}</div>
       ${V.showFilters ? filtersHtml() : ''}
       <div class="v-board" data-v-scroll="board">${cols.map(col => {
         const tasks = colTasks(col, all);
@@ -9674,7 +10161,8 @@
     }
     const label = activeFilterLabel();
     mroot.querySelector('[data-vm-title]').textContent = label || (V.view === 'cats' ? 'Catégories' : V.view === 'kanban' ? 'Kanban' : 'Tâches');
-    mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml();
+    mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml() + (catOn() && V.view === 'list'
+      ? `<button type="button" class="vm-gbtn${effGroup() === 'cat' ? ' on' : ''}" data-vm-group aria-pressed="${effGroup() === 'cat'}">${I.vCats}Grouper : ${effGroup() === 'cat' ? 'Catégorie' : 'Aucun'}</button><button type="button" class="vm-gbtn" data-v-tcmanage>${I.sliders}Catégories</button>` : '');
     const badge = mroot.querySelector('[data-vm-fbadge]');
     const nf = advCount() + (V.sort !== 'due' ? 1 : 0);
     badge.hidden = !nf;
@@ -9704,6 +10192,10 @@
         if (isCats) {
           const { blocks } = catBlocks(k, false);
           return `<div class="vm-page" data-v-scroll="mc-${k}">${blocks.length ? `<div class="vm-cats">${blocks.map(b => blockHtml(b, k, true)).join('')}</div>` : '<div class="vm-empty">Rien de prévu.</div>'}</div>`;
+        }
+        if (effGroup() !== 'none') {
+          const groups = groupsOf(sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k, V.gsort, V.gsortRev));
+          return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? groups.map(g => `<div class="vm-ghead">${g.chip}<small>${g.tasks.length}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="vm-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}</button>` : ''}</div><div class="vm-list">${g.tasks.map(t => mRowHtml(t, k)).join('')}</div>`).join('') : '<div class="vm-empty">Rien ici.</div>'}</div>`;
         }
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
@@ -9845,6 +10337,7 @@
   }
   function v2Render() {
     buildMaps();
+    if (!TC.loaded && !TC.loading) tcLoad();
     const mobile = isMobile();
     const scope = mobile ? mroot : root;
     const saved = saveScroll(scope);
@@ -9880,7 +10373,8 @@
     if (isMobile()) closeDrawer();
     v2Render();
   }
-  function openNew(date, projId, pageId) {
+  function openNew(date, projId, pageId, catId) {
+    window.__pendingCatId = catId || null;
     let pid = projId || null, pgid = pageId || null;
     if (!pid && !pgid) {
       if (V.page) { pgid = V.page; pid = M.pageById.get(V.page)?.project_id || null; }
@@ -9995,11 +10489,16 @@
   }
 
   function onClick(e) {
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
     if (d.vSt) { e.stopPropagation(); openStatusMenu(el, d.vSt); return; }
+    if (d.vTcat) { e.stopPropagation(); openCatMenu(el, d.vTcat); return; }
+    if (d.vGroup) { openGroupMenu(el, d.vGroup === 'k'); return; }
+    if ('vmGroup' in d) { V.group = effGroup() === 'cat' ? 'none' : 'cat'; LS.set('group', V.group); v2Render(); return; }
+    if ('vGadd' in d) { openNew(contextDate(), null, null, d.vGadd || null); return; }
+    if ('vTcmanage' in d) { openCatManager(); return; }
     if (d.vDue) { e.stopPropagation(); openQuickDatePopover(el, d.vDue); return; }
     if (d.vProj) { e.stopPropagation(); setFilter(V.proj === d.vProj && !V.page ? {} : { proj: d.vProj }); return; }
     if (d.vPage) { const pg = M.pageById.get(d.vPage); setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
@@ -10031,6 +10530,10 @@
       mroot.querySelectorAll('[data-v-mtab]').forEach(b => b.classList.toggle('on', b === el));
       alignTrack();
       return;
+    }
+    if (d.vSort && effGroup() !== 'none' && V.view === 'list') {   // tri à l'intérieur des groupes
+      if (V.gsort === d.vSort) V.gsortRev = !V.gsortRev; else { V.gsort = d.vSort; V.gsortRev = false; }
+      LS.set('gsort', V.gsort); LS.set('gsortRev', V.gsortRev); v2Render(); return;
     }
     if (d.vSort) {
       if (V.sort === d.vSort) V.sortRev = !V.sortRev; else { V.sort = d.vSort; V.sortRev = false; }
@@ -10107,6 +10610,7 @@
     colEl.classList.remove('drag-over');
     const id = e.dataTransfer.getData('text/plain');
     const t = cachedTodos.find(x => x.id === id);
+    if (colEl.dataset.vDropcol.startsWith('tc:')) { if (t) setTaskCat(t, colEl.dataset.vDropcol.slice(3) || null); return; }
     const col = kanbanCols().find(c => c.key === colEl.dataset.vDropcol);
     if (!t || !col || col.key === 'o') return;
     const newDate = col.date !== undefined ? col.date : col.drop;
