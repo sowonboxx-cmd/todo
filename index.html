@@ -2084,22 +2084,29 @@
   .v-tcm-swatches button.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
   .v-tcm-add { display: flex; align-items: center; gap: 10px; border: 1px dashed #D9D7D0; border-radius: 12px; padding: 4px 12px; color: #8b8b8b; }
   .v-tcm-add input { flex: 1; border: none; background: transparent; font: 14px 'Inter', sans-serif; padding: 7px 0; outline: none; color: #1f1f1f; }
+  @media (max-width: 520px) { .v-tcm-grip, .v-tcm-n, .v-tcm-hint { display: none; } .v-tcm { top: 8vh; padding: 18px 16px; } .v-tcm-swatches { padding-left: 26px; } }
   /* fiche tâche */
   .td-tcat { display: inline-flex; align-items: center; gap: 4px; border: none; border-radius: 8px; padding: 5px 10px; font: 500 13px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; max-width: 180px; overflow: hidden; text-overflow: ellipsis; }
   .td-tcat[hidden] { display: none; }
   .td-tcat svg { width: 12px; height: 12px; opacity: .7; flex-shrink: 0; }
   .td-tcat.empty { background: transparent !important; color: var(--text-muted, #8b8b8b) !important; box-shadow: inset 0 0 0 1px #DAD8D1; }
-  /* mobile */
-  .vm-gbtn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #E4E2DC; background: #fff; border-radius: 10px; padding: 7px 10px; font: 500 12.5px 'Inter', sans-serif; color: #1f1f1f; white-space: nowrap; flex-shrink: 0; }
-  .vm-gbtn svg { width: 13px; height: 13px; color: #8b8b8b; }
-  .vm-gbtn.on { background: #EEF3FE; border-color: #CFDCF8; color: #2F62C9; }
-  .vm-gbtn.on svg { color: #2F62C9; }
-  .vm-ghead { display: flex; align-items: center; gap: 8px; padding: 14px 4px 6px; }
-  .vm-ghead:first-child { padding-top: 4px; }
-  .vm-ghead small { font-size: 12px; color: #8b8b8b; }
-  .vm-gadd { width: 30px; height: 30px; border: none; background: transparent; border-radius: 9px; color: #8b8b8b; display: flex; align-items: center; justify-content: center; }
-  .vm-gadd svg { width: 16px; height: 16px; }
-  .vm-ghead + .vm-list { margin-bottom: 2px; }
+  /* mobile : liste groupée « ultra fine » (une seule carte, petits titres de catégorie) */
+  .vm-gcard { background: var(--v-card); border-radius: 16px; overflow: hidden; }
+  .vm-ghead { display: flex; align-items: baseline; gap: 6px; padding: 12px 14px 4px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+  .vm-ghead + .vm-row { border-top: none; }
+  .vm-gcard .vm-row + .vm-ghead { border-top: 1px solid var(--v-line); }
+  .vm-ghead small { font-size: 11px; font-weight: 500; letter-spacing: 0; color: #9a9890; }
+  .vm-row.slim { padding: 10px 14px; }
+  .vm-row.slim + .vm-row.slim { border-top: none; }
+  .vm-row.slim .vm-crumb { font-size: 12px; }
+  /* bas du menu mobile */
+  .vm-drawer .v-side .vm-drawer-foot { margin: 18px -4px 0; padding: 8px 0 calc(env(safe-area-inset-bottom) + 14px); }
+  .vm-dsec { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #9a9890; padding: 16px 10px 6px; margin-top: 6px; border-top: 1px solid #EFEEEA; }
+  .vm-switch { margin-left: auto; width: 42px; height: 25px; border-radius: 13px; background: #DAD8D1; position: relative; flex-shrink: 0; transition: background .15s; }
+  .vm-switch::after { content: ''; position: absolute; left: 3px; top: 3px; width: 19px; height: 19px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.15); }
+  .vm-switch.on { background: #2F62C9; }
+  .vm-switch.on::after { transform: translateX(17px); }
+  .vm-dcount { margin-left: auto; color: #9a9890; font-size: 13px; }
   .v-rep svg { width: 13px; height: 13px; }
   .v-due.none { color: #bdbdbd; }
   .v-sub { display: inline-flex; align-items: center; gap: 7px; flex-shrink: 0; font-size: 12px; color: var(--v-faint); font-variant-numeric: tabular-nums; }
@@ -2202,8 +2209,6 @@
   .vm-ibtn .vm-dotbadge { position: absolute; top: 9px; right: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--v-green); }
   .vm-chiprow { padding: 0 16px 10px; display: flex; flex-shrink: 0; gap: 6px; overflow-x: auto; scrollbar-width: none; }
   .vm-chiprow:empty { display: none; }
-  .vm-chiprow > * { flex-shrink: 0; white-space: nowrap; }
-  .vm-chiprow::-webkit-scrollbar { display: none; }
   .vm-tabs { padding: 0 16px 12px; flex-shrink: 0; }
   .vm-tabs .v-seg { background: var(--v-seg); border-radius: 12px; }
   .vm-tabs .v-seg button { flex: 1; justify-content: center; font-size: 13px; padding: 8px 4px; border-radius: 9px; color: var(--v-muted); gap: 5px; }
@@ -2329,7 +2334,6 @@
   #v2m input { -webkit-user-select: text; user-select: text; }
   #v2m button, #v2m a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .vm-head, .vm-tabs, .vm-chiprow, .vm-nav { touch-action: none; }
-  .vm-chiprow { touch-action: pan-x; }
   .vm-page, .vm-drawer .v-side, .vm-sheet, .vm-search-results { overscroll-behavior: contain; }
   .vm-page { padding-bottom: 96px; }
   .vm-tabs .v-seg button { min-height: 38px; }
@@ -9541,7 +9545,7 @@
       box.innerHTML = `
         <div class="v-tcm-head"><b>Catégories de ${esc(p?.name || '')}</b><button type="button" class="v-tcm-x" data-tcm-close aria-label="Fermer">${I.x}</button></div>
         ${TC.missing ? `<div class="v-tcm-warn">Les catégories ne sont pas encore installées : lance <b>migration_categories.sql</b> dans Supabase (SQL Editor), puis recharge la page.</div>` : `
-        <div class="v-tcm-sub">Partagées par toutes les pages de ${esc(p?.name || '')}${pages.length ? ` (${esc(pages.slice(0, 3).join(', '))}${pages.length > 3 ? '…' : ''})` : ''}. Glisse ⋮⋮ pour changer l'ordre des groupes.</div>
+        <div class="v-tcm-sub">Partagées par toutes les pages de ${esc(p?.name || '')}${pages.length ? ` (${esc(pages.slice(0, 3).join(', '))}${pages.length > 3 ? '…' : ''})` : ''}<span class="v-tcm-hint">. Glisse ⋮⋮ pour changer l'ordre des groupes</span>.</div>
         <div class="v-tcm-items">${list.map((c, i) => `
           <div class="v-tcm-item" data-tcm-item="${c.id}" draggable="true">
             <span class="v-tcm-grip" aria-hidden="true">⋮⋮</span>
@@ -9845,10 +9849,6 @@
     <div class="vm-drawer-bd" data-vm-drawer-bd></div>
     <aside class="vm-drawer" data-vm-drawer aria-label="Menu">
       <div class="v-side" data-v-mside data-v-scroll="mside"></div>
-      <div class="vm-drawer-foot">
-        <button type="button" data-vm-search>${I.search}Recherche</button>
-        <button type="button" data-vm-filter>${I.sliders}Filtres avancés<span class="vm-fcount" data-vm-fbadge hidden></span></button>
-      </div>
     </aside>
     <div class="vm-plusov" data-vm-plusov role="dialog" aria-label="Rechercher ou ajouter">
       <div class="vm-plus-top"><button type="button" class="vm-plus-close" data-vm-plus-close aria-label="Fermer">${I.x}</button></div>
@@ -10120,14 +10120,14 @@
   // =====================================================================
   const MTABS = [['o', 'Overdue'], ['all', 'Tout'], ['t', 'Today'], ['d', 'Demain']];   // liste + catégories mobile
   const KTABS = [['o', 'Overdue'], ['t', 'Today'], ['d', 'Demain'], ['w', 'Semaine']];    // kanban mobile (colonnes de jours)
-  function mRowHtml(t, k) {
+  function mRowHtml(t, k, slim) {
     const late = bucket(t) === 'o' && !t.is_done;
     const when = (k === 't' || k === 'd') && !late ? time(t) : dateTime(t);
     const c = colors(projOf(t));
-    return `<div class="vm-row${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">${chk(t)}
+    return `<div class="vm-row${t.is_done ? ' is-done' : ''}${slim ? ' slim' : ''}" data-v-open="${t.id}">${chk(t)}
       <div class="vm-body">
         <div class="vm-top"><span class="v-ttl">${esc(t.title)}</span>${when || isRepeating(t) ? `<span class="vm-when${late ? ' late' : bucket(t) === 't' && !t.is_done ? ' today' : ''}">${when}${repIcon(t)}</span>` : ''}</div>
-        <div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>
+        ${slim ? (V.page ? '' : `<div class="vm-crumb"><span>${esc(pageOf(t)?.title || '')}</span></div>`) : `<div class="vm-crumb"><span class="dot" style="background:${c.dot}"></span><span>${esc(crumbText(t))}</span></div>`}
         ${subRow(t)}
       </div></div>`;
   }
@@ -10145,7 +10145,17 @@
   function kColToTab(i) { return i === 0 ? 'o' : i === 1 ? 't' : i === 2 ? 'd' : i <= 7 ? 'w' : ''; }
 
   function renderMobile() {
-    mroot.querySelector('[data-v-mside]').innerHTML = sidebarHtml();
+    // bas du menu (il faut descendre pour le voir) : recherche, filtres, affichage de la page
+    const gOn = effGroup() === 'cat', ctxP = V.space !== 'cuisine' && ctxProj();
+    const ctxName = ctxP ? (V.page ? M.pageById.get(V.page)?.title : M.projById.get(ctxP)?.name) || '' : '';
+    mroot.querySelector('[data-v-mside]').innerHTML = sidebarHtml() + `
+      <div class="vm-drawer-foot">
+        <button type="button" data-vm-search>${I.search}Recherche</button>
+        <button type="button" data-vm-filter>${I.sliders}Filtres avancés<span class="vm-fcount" data-vm-fbadge hidden></span></button>
+        ${ctxP && TC.loaded ? `<div class="vm-dsec">Affichage · ${esc(ctxName)}</div>
+        ${catOn() ? `<button type="button" data-vm-group role="switch" aria-checked="${gOn}">Grouper par catégorie<span class="vm-switch${gOn ? ' on' : ''}"></span></button>` : ''}
+        <button type="button" data-v-tcmanage>Gérer les catégories<span class="vm-dcount">${TC.missing ? '' : catsOf(ctxP).length}</span></button>` : ''}
+      </div>`;
     mroot.classList.toggle('cz-on', V.space === 'cuisine');
     if (V.space === 'cuisine') {
       mroot.querySelector('[data-vm-title]').textContent = 'Cuisine';
@@ -10161,8 +10171,7 @@
     }
     const label = activeFilterLabel();
     mroot.querySelector('[data-vm-title]').textContent = label || (V.view === 'cats' ? 'Catégories' : V.view === 'kanban' ? 'Kanban' : 'Tâches');
-    mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml() + (catOn() && V.view === 'list'
-      ? `<button type="button" class="vm-gbtn${effGroup() === 'cat' ? ' on' : ''}" data-vm-group aria-pressed="${effGroup() === 'cat'}">${I.vCats}Grouper : ${effGroup() === 'cat' ? 'Catégorie' : 'Aucun'}</button><button type="button" class="vm-gbtn" data-v-tcmanage>${I.sliders}Catégories</button>` : '');
+    mroot.querySelector('[data-vm-chips]').innerHTML = chipHtml();
     const badge = mroot.querySelector('[data-vm-fbadge]');
     const nf = advCount() + (V.sort !== 'due' ? 1 : 0);
     badge.hidden = !nf;
@@ -10195,7 +10204,7 @@
         }
         if (effGroup() !== 'none') {
           const groups = groupsOf(sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k, V.gsort, V.gsortRev));
-          return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? groups.map(g => `<div class="vm-ghead">${g.chip}<small>${g.tasks.length}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="vm-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}</button>` : ''}</div><div class="vm-list">${g.tasks.map(t => mRowHtml(t, k)).join('')}</div>`).join('') : '<div class="vm-empty">Rien ici.</div>'}</div>`;
+          return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? `<div class="vm-gcard">${groups.map(g => `<div class="vm-ghead" style="color:${g.cat ? catColors(g.cat).fg : '#6b6b6b'}">${g.cat ? esc(g.cat.name) : g.key === '' ? 'Sans catégorie' : g.chip}<small>${g.tasks.length}</small></div>${g.tasks.map(t => mRowHtml(t, k, true)).join('')}`).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
         }
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
@@ -10498,7 +10507,7 @@
     if (d.vGroup) { openGroupMenu(el, d.vGroup === 'k'); return; }
     if ('vmGroup' in d) { V.group = effGroup() === 'cat' ? 'none' : 'cat'; LS.set('group', V.group); v2Render(); return; }
     if ('vGadd' in d) { openNew(contextDate(), null, null, d.vGadd || null); return; }
-    if ('vTcmanage' in d) { openCatManager(); return; }
+    if ('vTcmanage' in d) { if (isMobile()) closeDrawer(); openCatManager(); return; }
     if (d.vDue) { e.stopPropagation(); openQuickDatePopover(el, d.vDue); return; }
     if (d.vProj) { e.stopPropagation(); setFilter(V.proj === d.vProj && !V.page ? {} : { proj: d.vProj }); return; }
     if (d.vPage) { const pg = M.pageById.get(d.vPage); setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
