@@ -2378,6 +2378,9 @@
     html.v2-on body.v2-on { position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; }
     html.v2-on, html.v2-on body.v2-on { touch-action: pan-x pan-y; }   /* pas de zoom à deux doigts */
     .vm-page { overflow-x: hidden; }                                     /* la page ne glisse plus à droite / à gauche */
+    .vm-page { overscroll-behavior-x: none; }
+    #v2m.cz-on .vm-track { overflow-x: hidden; scroll-snap-type: none; }   /* Cuisine : une seule page, rien à faire glisser */
+    #v2m.cz-on .vm-page { touch-action: pan-y; }
   }
   #v2m { touch-action: manipulation; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
   #v2m input { -webkit-user-select: text; user-select: text; }
@@ -2684,9 +2687,14 @@
   #v2m.cz-on .vm-views { display: none; }
   .cz-mob { padding: 0 16px 120px; overflow-y: auto; }
   .cz-mob .cz-search { background: var(--v-card); }
-  .cz-mob .cz-ctrls { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 16px; }
-  .cz-mob .cz-ctrls::-webkit-scrollbar { display: none; }
-  .cz-mob .cz-chips { flex-wrap: nowrap; }
+  /* mobile : tout visible d'un coup, sans défiler sur le côté — « À acheter / Tous » en haut, les filtres en dessous */
+  .cz-mob .cz-ctrls { flex-wrap: wrap; gap: 8px; }
+  .cz-mob .cz-scope { flex: 1 1 100%; display: flex; }
+  .cz-mob .cz-scope button { flex: 1; justify-content: center; }
+  .cz-mob .cz-chips { flex-wrap: wrap; }
+  .cz-mob .cz-chips { order: 1; flex: 1 1 100%; }
+  .cz-mob .cz-select { max-width: 200px; order: 2; }
+  .cz-mob .cz-opt { order: 3; }
   .cz-mob .cz-opt { margin-left: 0; }
   .cz-mob .cz-grid { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
   .cz-mob .cz-card { border: none; }
