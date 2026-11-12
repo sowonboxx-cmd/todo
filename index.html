@@ -2376,6 +2376,8 @@
   @media (max-width: 899px) {
     html.v2-on { overflow: hidden; height: 100%; overscroll-behavior: none; }
     html.v2-on body.v2-on { position: fixed; inset: 0; overflow: hidden; overscroll-behavior: none; }
+    html.v2-on, html.v2-on body.v2-on { touch-action: pan-x pan-y; }   /* pas de zoom à deux doigts */
+    .vm-page { overflow-x: hidden; }                                     /* la page ne glisse plus à droite / à gauche */
   }
   #v2m { touch-action: manipulation; -webkit-tap-highlight-color: transparent; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
   #v2m input { -webkit-user-select: text; user-select: text; }
@@ -11642,5 +11644,21 @@
 })();
 </script>
 
+<script>
+  // iPhone : Safari ignore « user-scalable=no » → on bloque nous-mêmes le zoom à deux doigts et le double-tap,
+  // sinon tout l'écran (menu compris) devient flottant et glisse dans tous les sens.
+  (function () {
+    const mobile = () => window.matchMedia('(max-width: 899px)').matches;
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => { if (mobile()) e.preventDefault(); }, { passive: false }));
+    document.addEventListener('touchmove', e => { if (mobile() && (e.touches.length > 1 || (e.scale && e.scale !== 1))) e.preventDefault(); }, { passive: false });
+    let lastEnd = 0;
+    document.addEventListener('touchend', e => {
+      if (!mobile()) return;
+      const now = Date.now();
+      if (now - lastEnd < 300 && !e.target.closest('input, textarea, select, [contenteditable="true"]')) e.preventDefault();
+      lastEnd = now;
+    }, { passive: false });
+  })();
+</script>
 </body>
 </html>
