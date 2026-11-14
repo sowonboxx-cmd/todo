@@ -2088,6 +2088,16 @@
   .v-bulkmenu button.muted { color: #8b8b8b; }
   .v-bulkmenu button.danger { color: #C8342B; font-weight: 600; }
   .v-bulk-msep { border-top: 1px solid #EFEEEA; margin: 4px 0; }
+  .v-bulk-cal { padding: 4px 6px 0; }
+  .v-bulk-cal .cal-head { margin: 4px 0 6px; }
+  .v-bulk-cal .cal-month { font-size: 14px; }
+  .v-bulkmenu .v-bulk-cal .cal-nav { width: 30px; height: 30px; padding: 0; justify-content: center; color: #8b8a85; background: transparent; }
+  .v-bulkmenu .v-bulk-cal .cal-nav:hover { background: #F3F2EE; color: #1f1f1f; }
+  .v-bulkmenu .v-bulk-cal .cal-nav svg { width: 16px; height: 16px; color: inherit; stroke: currentColor; margin: 0; }
+  .v-bulk-cal .cal-grid { margin-bottom: 4px; }
+  .v-bulk-cal .cal-cell { padding: 2px 0; font-size: 13px; }
+  .v-bulk-cal .cal-cell span { width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; }
+  .v-bulkmenu:has(.v-bulk-cal) { width: 280px; max-height: calc(100vh - 24px); overflow-y: auto; }
   .v-bulk-pick { display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 10px; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; }
   .v-bulk-pick input { flex: 1; border: 1px solid #E4E2DC; border-radius: 8px; padding: 5px 7px; font: 13px 'Inter', sans-serif; }
   .v-bulk-pick button { padding: 6px 10px !important; background: #1f1f1f !important; color: #fff !important; border-radius: 8px; font-weight: 600 !important; }
@@ -10846,7 +10856,7 @@
     if (kind === 'date') {
       const nextMonth = (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return isoFromDate(d); })();
       const nextMon = (() => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return isoFromDate(d); })();
-      const { m, close } = floatMenu(anchor, `
+      const { m, close, place } = floatMenu(anchor, `
         <button type="button" data-d="${todayISO()}"><span>Aujourd’hui</span><small>${formatDateShort(todayISO())}</small></button>
         <button type="button" data-d="${isoPlusDays(1)}"><span>Demain</span><small>${formatDateShort(isoPlusDays(1))}</small></button>
         <button type="button" data-d="${nextMon}"><span>Lundi prochain</span><small>${formatDateShort(nextMon)}</small></button>
@@ -10856,12 +10866,32 @@
         <button type="button" data-shift="1"><span>Décaler de +1 jour</span></button>
         <button type="button" data-shift="7"><span>Décaler de +7 jours</span></button>
         <div class="v-bulk-msep"></div>
-        <label class="v-bulk-pick"><span>Choisir</span><input type="date" data-pick value="${todayISO()}"><button type="button" data-pickok>OK</button></label>
+        <div class="v-bulk-cal" data-bcal></div>
         <div class="v-bulk-msep"></div>
         <button type="button" data-d="" class="muted"><span>Retirer la date</span></button>`, 'v-bulkmenu');
+      // petit calendrier de l'app (pas celui du navigateur) : un clic sur un jour applique la date
+      let cy = new Date().getFullYear(), cm = new Date().getMonth();
+      const drawCal = () => {
+        const first = new Date(cy, cm, 1), off = (first.getDay() + 6) % 7, n = new Date(cy, cm + 1, 0).getDate(), today = todayISO();
+        let cells = '';
+        for (let i = 0; i < off; i++) cells += '<div class="cal-cell empty"></div>';
+        for (let dd = 1; dd <= n; dd++) {
+          const iso = `${cy}-${String(cm + 1).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+          cells += `<div class="cal-cell${iso === today ? ' today' : ''}${iso < today ? ' past' : ''}" data-bday="${iso}"><span>${dd}</span></div>`;
+        }
+        m.querySelector('[data-bcal]').innerHTML = `
+          <div class="cal-head"><button type="button" class="cal-nav" data-bnav="-1" aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
+          <div class="cal-month">${MONTHS_FULL_FR[cm]} ${cy}</div>
+          <button type="button" class="cal-nav" data-bnav="1" aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button></div>
+          <div class="cal-grid">${['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(x => `<div class="cal-dow">${x}</div>`).join('')}${cells}</div>`;
+      };
+      drawCal(); place();
       m.addEventListener('click', (ev) => {
-        const b = ev.target.closest('[data-d],[data-shift],[data-pickok]'); if (!b) return;
-        if ('pickok' in b.dataset) { const v = m.querySelector('[data-pick]').value; if (!v) return; close(); bulkPatch(() => ({ due_date: v }), 'Date : ' + formatDateShort(v)); return; }
+        const nav = ev.target.closest('[data-bnav]');
+        if (nav) { ev.stopPropagation(); cm += +nav.dataset.bnav; if (cm < 0) { cm = 11; cy--; } if (cm > 11) { cm = 0; cy++; } drawCal(); return; }
+        const day = ev.target.closest('[data-bday]');
+        if (day) { const v = day.dataset.bday; close(); bulkPatch(() => ({ due_date: v }), 'Date : ' + formatDateShort(v)); return; }
+        const b = ev.target.closest('[data-d],[data-shift]'); if (!b) return;
         close();
         if (b.dataset.shift) { const n = +b.dataset.shift; bulkPatch(t => ({ due_date: addDaysIso(t.due_date, n) }), `Décalées de +${n} j`); return; }
         const v = b.dataset.d || null;
