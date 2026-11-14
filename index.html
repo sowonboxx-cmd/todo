@@ -2046,6 +2046,37 @@
   .v-stmenu button svg { width: 13px; height: 13px; color: #2F9E5B; }
   .v-rep { display: inline-flex; vertical-align: -2px; margin-left: 5px; color: var(--v-faint); }
 
+
+  /* ---------- sélection multiple ---------- */
+  .v-selbox { width: 20px; height: 20px; border-radius: 6px; border: 1.5px solid #CFCDC6; background: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; color: #fff; justify-self: center; }
+  .v-selbox svg { width: 13px; height: 13px; }
+  .v-selbox.on { background: #2F62C9; border-color: #2F62C9; }
+  .v-row.v-selmode { cursor: pointer; user-select: none; }
+  .v-row.v-selmode > *:not(.v-selbox) { pointer-events: none; }
+  .v-row.sel { background: #EEF3FE; }
+  .v-tablewrap.v-selpad { padding-bottom: 76px; }
+  .v-row.sel:hover { background: #E6EDFD; }
+  .v-bulk { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 300; display: flex; align-items: center; gap: 4px; background: #1f1f1f; color: #fff; border-radius: 14px; padding: 7px 8px 7px 16px; box-shadow: 0 12px 40px rgba(0,0,0,.25); font: 500 13.5px 'Inter', sans-serif; white-space: nowrap; }
+  .v-bulk-n { margin-right: 8px; color: #cfcfcf; } .v-bulk-n b { color: #fff; }
+  .v-bulk button { display: inline-flex; align-items: center; gap: 6px; border: none; background: transparent; color: #fff; font: inherit; padding: 8px 11px; border-radius: 9px; cursor: pointer; }
+  .v-bulk button svg { width: 15px; height: 15px; }
+  .v-bulk button:hover:not(:disabled) { background: rgba(255,255,255,.12); }
+  .v-bulk button:disabled { opacity: .35; cursor: default; }
+  .v-bulk button.danger { color: #FF8A80; }
+  .v-bulk .v-bulk-x { padding: 8px; margin-left: 2px; }
+  .v-bulk-sep { width: 1px; height: 20px; background: rgba(255,255,255,.18); margin: 0 4px; }
+  .v-bulkmenu { min-width: 230px; padding: 6px; }
+  .v-bulkmenu button { justify-content: flex-start; gap: 10px; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 8px 10px; }
+  .v-bulkmenu button small { margin-left: auto; color: #8b8b8b; font-size: 12.5px; }
+  .v-bulkmenu button.muted { color: #8b8b8b; }
+  .v-bulkmenu button.danger { color: #C8342B; font-weight: 600; }
+  .v-bulk-msep { border-top: 1px solid #EFEEEA; margin: 4px 0; }
+  .v-bulk-pick { display: flex; align-items: center; gap: 8px; padding: 4px 6px 4px 10px; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; }
+  .v-bulk-pick input { flex: 1; border: 1px solid #E4E2DC; border-radius: 8px; padding: 5px 7px; font: 13px 'Inter', sans-serif; }
+  .v-bulk-pick button { padding: 6px 10px !important; background: #1f1f1f !important; color: #fff !important; border-radius: 8px; font-weight: 600 !important; }
+  .v-bulk-confirm { font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 8px 10px 6px; max-width: 240px; line-height: 1.4; }
+  .v-undo { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 310; display: flex; align-items: center; gap: 14px; background: #1f1f1f; color: #fff; padding: 10px 10px 10px 16px; border-radius: 11px; font: 500 13.5px 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
+  .v-undo button { border: none; background: rgba(255,255,255,.14); color: #fff; font: 600 13px 'Inter', sans-serif; padding: 6px 11px; border-radius: 8px; cursor: pointer; }
   /* ---------- catégories de tâches (par projet) ---------- */
   .v-tcat {
     display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 7px; font-size: 12.5px; font-weight: 500;
@@ -9774,6 +9805,12 @@
     bd.addEventListener('click', closeCatManager);
     if (!TC.missing && !catsOf(pid).length) setTimeout(() => box.querySelector('[data-tcm-new]')?.focus(), 0);
   }
+  document.addEventListener('keydown', (e) => {
+    if (!SEL.on || isMobile()) return;
+    if (e.target.closest?.('input, textarea, [contenteditable="true"]')) return;
+    if (e.key === 'Escape' && !document.querySelector('.v-stmenu, .v-tcm, [data-task-sheet].open')) { selToggleMode(false); }
+    else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'a') { e.preventDefault(); SEL.visible.forEach(x => SEL.ids.add(x)); v2Render(); }
+  });
   function closeCatManager() { document.querySelectorAll('.v-tcm, .v-tcm-bd').forEach(x => x.remove()); }
 
   // ---------------- filtres partagés ----------------
@@ -10028,8 +10065,9 @@
     const dueCls = !t.due_date ? 'none' : late ? 'late' : b === 't' ? 'today' : '';
     const pct = s && s.n ? Math.round((s.d / s.n) * 100) : 0;
     const inCtx = catOn(), prioCol = inCtx && !!V.page; // dans une page : Catégorie + Priorité à la place de Projet + Page
-    return `<div class="v-row${t.is_done ? ' is-done' : ''}" data-v-open="${t.id}">
-      ${chk(t)}
+    const isSel = SEL.on && SEL.ids.has(t.id);
+    return `<div class="v-row${t.is_done ? ' is-done' : ''}${SEL.on ? ' v-selmode' : ''}${isSel ? ' sel' : ''}" data-v-open="${t.id}">
+      ${SEL.on ? selBox(isSel, `data-v-sel="${t.id}"`) : chk(t)}
       <div class="v-tcell"><span class="v-ttl">${esc(t.title)}</span>${t.priority === 'high' && !t.is_done && !prioCol ? '<span class="v-pill prio">Prioritaire</span>' : ''}${s && s.n ? `<span class="v-sub"><span class="v-bar"><span style="width:${pct}%"></span></span>${s.d}/${s.n}</span>` : ''}</div>
       <span>${inCtx ? tcatBtn(t) : p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
       ${prioCol ? prioCell(t) : `<span class="v-pagecell">${esc(pg?.title || '')}</span>`}
@@ -10057,27 +10095,30 @@
     const rows = sortTasks(all.filter(t => inTab(t, V.dTab) && doneOk(t, V.dTab)), V.dTab, sKey, sRev);
     const th = (k, l) => `<button type="button" class="v-th${sKey === k ? ' on' : ''}" data-v-sort="${k}" title="Trier par ${l.toLowerCase()} (re-cliquer pour inverser)">${l}${sKey === k ? ` <span aria-hidden="true">${sRev ? '↑' : '↓'}</span>` : ''}</button>`;
     const inCtx = catOn();
-    const head = `<div class="v-row v-head${grp ? ' v-ghd' : ''}"><span></span>${th('title', 'Tâche')}${inCtx ? th('tcat', 'Catégorie') : th('cat', 'Projet')}${inCtx && V.page ? th('prio', 'Priorité') : th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>`;
+    const headFor = ids => `<div class="v-row v-head${grp ? ' v-ghd' : ''}">${SEL.on ? selBox(ids.length > 0 && ids.every(x => SEL.ids.has(x)), `data-v-selall="${ids.join(',')}" aria-label="Tout sélectionner"`) : '<span></span>'}${th('title', 'Tâche')}${inCtx ? th('tcat', 'Catégorie') : th('cat', 'Projet')}${inCtx && V.page ? th('prio', 'Priorité') : th('page', 'Page')}${th('status', 'Statut')}${th('due', 'Échéance')}</div>`;
     const groups = grp ? groupsOf(rows) : null;
+    SEL.visible = groups ? groups.flatMap(g => g.tasks.map(t => t.id)) : rows.map(t => t.id);
     const body = groups
       ? (groups.map(g => `<div class="v-ghead">${g.chip}<small>${g.tasks.length} tâche${g.tasks.length > 1 ? 's' : ''}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="v-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}Ajouter</button>` : ''}</div>
-          <div class="v-gtable">${head}${g.tasks.map(rowHtml).join('')}</div>`).join('') || '<div class="v-empty">Rien ici.</div>')
-      : `${head}${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}`;
+          <div class="v-gtable">${headFor(g.tasks.map(t => t.id))}${g.tasks.map(rowHtml).join('')}</div>`).join('') || '<div class="v-empty">Rien ici.</div>')
+      : `${headFor(rows.map(t => t.id))}${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}`;
     panel.innerHTML = `
       <div class="v-tools">
         <div class="v-seg" role="tablist" aria-label="Échéance">${DTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.dTab === k}" class="${V.dTab === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-dtab="${k}">${l} <small>${count(k)}</small></button>`).join('')}</div>
         ${catSelectHtml()}
         ${filterBtnHtml()}
+        ${selBtnHtml()}
         ${chipHtml()}
         ${groupBtnHtml(false)}${catOn() || (ctxProj() && TC.missing) ? manageBtnHtml() : ''}
         ${newBtnHtml()}
       </div>
       ${V.showFilters ? filtersHtml() : ''}
       <label class="v-quickadd"><input type="text" data-v-quickadd placeholder="Ajouter une tâche et appuyer sur Entrée…" aria-label="Ajouter une tâche"></label>
-      <div class="v-tablewrap" data-v-scroll="list-${V.dTab}"><div class="v-table${grp ? ' v-grouped' : ''}">
+      <div class="v-tablewrap${SEL.on ? ' v-selpad' : ''}" data-v-scroll="list-${V.dTab}"><div class="v-table${grp ? ' v-grouped' : ''}">
         ${body}
       </div></div>
-      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''}${grp ? ` · groupées par ${GROUP_LBL[effGroup()].toLowerCase()}` : ''} · triées par ${SORT_LABEL[sKey] || 'échéance'}${sRev ? ' (inversé)' : ''}</div>`;
+      <div class="v-foot">${rows.length} tâche${rows.length > 1 ? 's' : ''}${grp ? ` · groupées par ${GROUP_LBL[effGroup()].toLowerCase()}` : ''} · triées par ${SORT_LABEL[sKey] || 'échéance'}${sRev ? ' (inversé)' : ''}${SEL.on ? ' · Maj+clic pour sélectionner une plage' : ''}</div>
+      ${bulkBarHtml()}`;
   }
 
   // ---------------- kanban ----------------
@@ -10625,7 +10666,177 @@
     LS.set('sort', V.sort);
   }
 
+  // ---------------- sélection multiple (desktop, vue liste) : modifier plusieurs tâches d'un coup ----------------
+  const SEL = { on: false, ids: new Set(), last: null, visible: [] };
+  const SEL_SVG = svg('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/>');
+  const selBtnHtml = () => isMobile() ? '' : `<button type="button" class="v-tool${SEL.on ? ' on' : ''}" data-v-selmode aria-pressed="${SEL.on}">${SEL_SVG}<span>Sélectionner</span></button>`;
+  const selBox = (on, attr) => `<button type="button" class="v-selbox${on ? ' on' : ''}" ${attr} aria-pressed="${on}">${on ? I.check : ''}</button>`;
+  function selToggleMode(on = !SEL.on) {
+    SEL.on = on; SEL.ids.clear(); SEL.last = null;
+    document.querySelector('.v-stmenu')?.remove();
+    v2Render();
+  }
+  function selClick(id, shift) {
+    if (shift && SEL.last && SEL.visible.includes(SEL.last)) {
+      const a = SEL.visible.indexOf(SEL.last), b = SEL.visible.indexOf(id);
+      const [from, to] = a < b ? [a, b] : [b, a];
+      const add = true;
+      SEL.visible.slice(from, to + 1).forEach(x => add ? SEL.ids.add(x) : SEL.ids.delete(x));
+    } else if (SEL.ids.has(id)) SEL.ids.delete(id); else SEL.ids.add(id);
+    SEL.last = id;
+    v2Render();
+  }
+  function selSetMany(ids) {
+    const all = ids.length && ids.every(x => SEL.ids.has(x));
+    ids.forEach(x => all ? SEL.ids.delete(x) : SEL.ids.add(x));
+    v2Render();
+  }
+  const selTasks = () => [...SEL.ids].map(id => cachedTodos.find(t => t.id === id)).filter(Boolean);
+  function bulkBarHtml() {
+    if (!SEL.on || isMobile()) return '';
+    const ts = selTasks(), n = ts.length;
+    const pids = new Set(ts.map(t => projOf(t)?.id || ''));
+    const oneProj = pids.size === 1 && [...pids][0] && !TC.missing && TC.loaded;
+    const dis = n ? '' : ' disabled';
+    return `<div class="v-bulk" role="toolbar" aria-label="Modifier la sélection">
+      <span class="v-bulk-n"><b>${n}</b> sélectionnée${n > 1 ? 's' : ''}</span>
+      <button type="button" data-v-bulk="date"${dis}>${svg('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>')}Date</button>
+      <button type="button" data-v-bulk="prio"${dis}>${FLAG_SVG}Priorité</button>
+      <button type="button" data-v-bulk="status"${dis}>${svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>')}Statut</button>
+      ${oneProj ? `<button type="button" data-v-bulk="cat"${dis}>${I.vCats}Catégorie</button>` : ''}
+      <span class="v-bulk-sep"></span>
+      <button type="button" data-v-bulk="done"${dis}>${I.check}Terminer</button>
+      <button type="button" class="danger" data-v-bulk="del"${dis}>${svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>')}Supprimer</button>
+      <button type="button" class="v-bulk-x" data-v-selmode aria-label="Quitter la sélection">${I.x}</button>
+    </div>`;
+  }
+  // applique un même changement à toutes les tâches choisies (avec « Annuler » pendant quelques secondes)
+  async function bulkPatch(patchFor, label) {
+    const ts = selTasks(); if (!ts.length) return;
+    const before = ts.map(t => ({ t, prev: { due_date: t.due_date ?? null, due_time: t.due_time ?? null, priority: t.priority ?? 'none', status: t.status ?? null, category_id: t.category_id ?? null } }));
+    const changes = ts.map(t => ({ t, patch: patchFor(t) })).filter(c => c.patch);
+    changes.forEach(c => Object.assign(c.t, c.patch));
+    v2Render();
+    const res = await bulkWrite(changes);
+    if (res) undoToast(`${label} · ${changes.length} tâche${changes.length > 1 ? 's' : ''}`, async () => {
+      const back = before.filter(b => changes.some(c => c.t === b.t)).map(b => {
+        const keys = Object.keys(changes.find(c => c.t === b.t).patch);
+        const patch = Object.fromEntries(keys.map(k => [k, b.prev[k]]));
+        Object.assign(b.t, patch); return { t: b.t, patch };
+      });
+      v2Render(); await bulkWrite(back);
+    });
+  }
+  async function bulkWrite(changes) {
+    // regroupe les tâches qui reçoivent exactement le même changement → une seule requête par groupe
+    const byKey = new Map();
+    changes.forEach(c => { const k = JSON.stringify(c.patch); (byKey.get(k) || byKey.set(k, { patch: c.patch, ids: [] }).get(k)).ids.push(c.t.id); });
+    const out = await Promise.all([...byKey.values()].map(g => sb.from('todos').update(g.patch).in('id', g.ids)));
+    const err = out.find(r => r.error);
+    if (err) { console.error(err.error); alertBubble(/status/.test(err.error.message || '') ? 'Lance d’abord migration_statut.sql dans Supabase.' : 'Erreur de sauvegarde.'); loadData(); return false; }
+    return true;
+  }
+  function undoToast(msg, onUndo) {
+    document.querySelector('.v-undo')?.remove();
+    const el = document.createElement('div');
+    el.className = 'v-undo'; el.setAttribute('role', 'status');
+    el.innerHTML = `<span>${esc(msg)}</span><button type="button">Annuler</button>`;
+    document.body.appendChild(el);
+    const timer = setTimeout(() => el.remove(), 6000);
+    el.querySelector('button').addEventListener('click', () => { clearTimeout(timer); el.remove(); onUndo(); });
+  }
+  const addDaysIso = (iso, n) => { const d = new Date((iso || todayISO()) + 'T00:00:00'); d.setDate(d.getDate() + n); return isoFromDate(d); };
+  function bulkMenu(anchor, kind) {
+    const ts = selTasks(); if (!ts.length) return;
+    if (kind === 'date') {
+      const nextMonth = (() => { const d = new Date(); d.setMonth(d.getMonth() + 1); return isoFromDate(d); })();
+      const nextMon = (() => { const d = new Date(); d.setDate(d.getDate() + ((8 - d.getDay()) % 7 || 7)); return isoFromDate(d); })();
+      const { m, close } = floatMenu(anchor, `
+        <button type="button" data-d="${todayISO()}"><span>Aujourd’hui</span><small>${formatDateShort(todayISO())}</small></button>
+        <button type="button" data-d="${isoPlusDays(1)}"><span>Demain</span><small>${formatDateShort(isoPlusDays(1))}</small></button>
+        <button type="button" data-d="${nextMon}"><span>Lundi prochain</span><small>${formatDateShort(nextMon)}</small></button>
+        <button type="button" data-d="${isoPlusDays(7)}"><span>Dans 7 jours</span><small>${formatDateShort(isoPlusDays(7))}</small></button>
+        <button type="button" data-d="${nextMonth}"><span>Dans un mois</span><small>${formatDateShort(nextMonth)}</small></button>
+        <div class="v-bulk-msep"></div>
+        <button type="button" data-shift="1"><span>Décaler de +1 jour</span></button>
+        <button type="button" data-shift="7"><span>Décaler de +7 jours</span></button>
+        <div class="v-bulk-msep"></div>
+        <label class="v-bulk-pick"><span>Choisir</span><input type="date" data-pick value="${todayISO()}"><button type="button" data-pickok>OK</button></label>
+        <div class="v-bulk-msep"></div>
+        <button type="button" data-d="" class="muted"><span>Retirer la date</span></button>`, 'v-bulkmenu');
+      m.addEventListener('click', (ev) => {
+        const b = ev.target.closest('[data-d],[data-shift],[data-pickok]'); if (!b) return;
+        if ('pickok' in b.dataset) { const v = m.querySelector('[data-pick]').value; if (!v) return; close(); bulkPatch(() => ({ due_date: v }), 'Date : ' + formatDateShort(v)); return; }
+        close();
+        if (b.dataset.shift) { const n = +b.dataset.shift; bulkPatch(t => ({ due_date: addDaysIso(t.due_date, n) }), `Décalées de +${n} j`); return; }
+        const v = b.dataset.d || null;
+        bulkPatch(() => v ? { due_date: v } : { due_date: null, due_time: null }, v ? 'Date : ' + formatDateShort(v) : 'Date retirée');
+      });
+      return;
+    }
+    if (kind === 'prio') {
+      const opts = [['high', 'Haute'], ['med', 'Moyenne'], ['low', 'Basse'], ['none', 'Aucune']];
+      const { m, close } = floatMenu(anchor, opts.map(([k, l]) => `<button type="button" data-p="${k}">${k === 'none' ? '<span class="v-prio none">—</span>' : `<span class="v-prio" style="color:${PRIO_COL[k]}">${FLAG_SVG}</span>`}<span>${l}</span></button>`).join(''), 'v-bulkmenu');
+      m.addEventListener('click', (ev) => { const b = ev.target.closest('[data-p]'); if (!b) return; close(); const p = b.dataset.p; bulkPatch(() => ({ priority: p }), 'Priorité : ' + opts.find(o => o[0] === p)[1]); });
+      return;
+    }
+    if (kind === 'status') {
+      const { m, close } = floatMenu(anchor, ['todo', 'wip'].map(k => `<button type="button" data-s="${k}"><span class="v-pill st-${k}">${ST_LABEL[k]}</span></button>`).join(''), 'v-bulkmenu');
+      m.addEventListener('click', (ev) => { const b = ev.target.closest('[data-s]'); if (!b) return; close(); const k = b.dataset.s; bulkPatch(() => ({ status: k }), 'Statut : ' + ST_LABEL[k]); });
+      return;
+    }
+    if (kind === 'cat') {
+      const pid = projOf(ts[0])?.id; if (!pid) return;
+      const cats = catsOf(pid);
+      const { m, close } = floatMenu(anchor, cats.map(c => `<button type="button" data-c="${c.id}"><span class="v-tcm-dot" style="background:${catColors(c).dot}"></span><span>${esc(c.name)}</span></button>`).join('') + `<div class="v-bulk-msep"></div><button type="button" data-c="" class="muted"><span>Aucune catégorie</span></button>`, 'v-bulkmenu');
+      m.addEventListener('click', (ev) => { const b = ev.target.closest('[data-c]'); if (!b) return; close(); const cid = b.dataset.c || null; bulkPatch(() => ({ category_id: cid }), cid ? 'Catégorie : ' + (cats.find(c => c.id === cid)?.name || '') : 'Sans catégorie'); });
+    }
+  }
+  async function bulkDone() {
+    const ts = selTasks().filter(t => !t.is_done); if (!ts.length) return;
+    const now = new Date().toISOString();
+    const changes = ts.map(t => {
+      const next = t.repeat_rule ? computeNextOccurrence(t.repeat_rule, t.due_date) : null;   // tâche qui se répète : passe à la prochaine date
+      return { t, prevDue: t.due_date, patch: next ? { due_date: next, is_done: false, completed_at: null } : { is_done: true, completed_at: now } };
+    });
+    changes.forEach(c => Object.assign(c.t, c.patch));
+    SEL.ids.clear(); v2Render();
+    const ok = await bulkWrite(changes);
+    if (ok) undoToast(`${changes.length} tâche${changes.length > 1 ? 's' : ''} terminée${changes.length > 1 ? 's' : ''}`, async () => {
+      const back = changes.map(c => { const patch = c.patch.is_done ? { is_done: false, completed_at: null } : { due_date: c.prevDue }; Object.assign(c.t, patch); return { t: c.t, patch }; });
+      v2Render(); await bulkWrite(back);
+    });
+  }
+  function bulkDelete(anchor) {
+    const ts = selTasks(); if (!ts.length) return;
+    const { m, close } = floatMenu(anchor, `<div class="v-bulk-confirm">Supprimer ${ts.length} tâche${ts.length > 1 ? 's' : ''} ? C’est définitif.</div><button type="button" class="danger" data-yes><span>Supprimer</span></button><button type="button" data-no><span>Annuler</span></button>`, 'v-bulkmenu');
+    m.addEventListener('click', async (ev) => {
+      if (ev.target.closest('[data-no]')) { close(); return; }
+      if (!ev.target.closest('[data-yes]')) return;
+      close();
+      const ids = ts.map(t => t.id);
+      cachedTodos = cachedTodos.filter(t => !ids.includes(t.id));
+      SEL.ids.clear(); v2Render();
+      const { error } = await sb.from('todos').delete().in('id', ids);
+      if (error) { console.error(error); alertBubble('Suppression impossible.'); loadData(); }
+      else alertBubble(`${ids.length} tâche${ids.length > 1 ? 's' : ''} supprimée${ids.length > 1 ? 's' : ''}`);
+    });
+  }
   function onClick(e) {
+    // mode sélection : un clic sur une ligne la coche / décoche (Maj+clic = toute la plage)
+    if (SEL.on && !isMobile()) {
+      const sb2 = e.target.closest('[data-v-selmode],[data-v-selall],[data-v-bulk]');
+      if (sb2) {
+        e.stopPropagation();
+        if ('vSelmode' in sb2.dataset) { selToggleMode(false); return; }
+        if ('vSelall' in sb2.dataset) { selSetMany(sb2.dataset.vSelall ? sb2.dataset.vSelall.split(',') : []); return; }
+        const k = sb2.dataset.vBulk;
+        if (k === 'done') bulkDone(); else if (k === 'del') bulkDelete(sb2); else bulkMenu(sb2, k);
+        return;
+      }
+      const row = e.target.closest('#v2 .v-row[data-v-open]');
+      if (row) { e.preventDefault(); e.stopPropagation(); selClick(row.dataset.vOpen, e.shiftKey); return; }
+    } else if (e.target.closest('[data-v-selmode]')) { selToggleMode(true); return; }
     const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
