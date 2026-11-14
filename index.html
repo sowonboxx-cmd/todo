@@ -1388,6 +1388,23 @@
     position: fixed; z-index: 200; background: var(--card); border: 1px solid var(--line);
     border-radius: 16px; box-shadow: var(--shadow); padding: 14px; width: 260px;
   }
+  /* même design que le calendrier de la fiche, un peu plus grand sur ordi */
+  .quick-popover { width: 380px; padding: 16px 18px 4px; border-radius: 20px; }
+  .quick-popover .dp-chips { flex-wrap: nowrap; }
+  .quick-popover .dp-quick { padding: 0 0 12px; }
+  .quick-popover .dp-quick button { height: 40px; }
+  .quick-popover .cal-head { margin: 2px 0 8px; }
+  .quick-popover .cal-month { font-size: 15.5px; }
+  .quick-popover .cal-cell { padding: 3px 0; font-size: 14.5px; }
+  .quick-popover .cal-cell span { width: 36px; height: 36px; border-radius: 11px; }
+  .quick-popover .dp-chips { margin: 8px 0 10px; }
+  .quick-popover .time-wheel { margin: 0 0 10px; }
+  .quick-popover .qp-link { font-size: 14px; }
+  .quick-popover .qp-link:not(.danger) { color: #1f1f1f; }
+  .qp-optmenu { position: fixed; z-index: 260; background: #fff; border-radius: 13px; box-shadow: 0 14px 40px rgba(0,0,0,.18), 0 0 0 1px rgba(0,0,0,.05); padding: 5px; display: flex; flex-direction: column; min-width: 200px; }
+  .qp-optmenu button { border: none; background: none; text-align: left; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 9px 11px; border-radius: 8px; cursor: pointer; }
+  .qp-optmenu button:hover { background: #F3F2EE; }
+  .qp-optmenu button.on { font-weight: 600; background: #F3F2EE; }
   .quick-popover .quick-dates { margin-bottom: 16px; }
   .quick-popover .quick-priority { margin-bottom: 0; }
 
@@ -6338,14 +6355,22 @@
   // dans une liste, sans passer par la fiche détail complète — réutilise le composant calendrier
   // (renderCalendar/applyDuePatch) déjà utilisé dans la fiche tâche, donc même design system.
   function quickPopoverHtml() {
+    // mêmes icônes rapides, pastilles Heure / Rappel / Répéter et roue des heures que dans la fiche d'une tâche
+    const src = document.querySelector('[data-task-sheet] [data-view="date"]');
+    const quick = src?.querySelector('.dp-quick')?.innerHTML || '';
+    const chips = (src?.querySelector('.dp-chips')?.innerHTML || '')
+      .replace('data-goto="reminder"', 'data-qp-menu="reminder"').replace('data-goto="repeat"', 'data-qp-menu="repeat"');
+    const wheel = src?.querySelector('[data-time-wheel]')?.innerHTML || '';
     return `
+      <div class="dp-quick">${quick}</div>
       <div class="cal-head">
         <button type="button" class="cal-nav" data-cal-prev aria-label="Mois précédent"><svg viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"/></svg></button>
         <div class="cal-month" data-cal-month-label></div>
         <button type="button" class="cal-nav" data-cal-next aria-label="Mois suivant"><svg viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"/></svg></button>
       </div>
       <div class="cal-grid" data-cal-grid></div>
-      <div class="qp-time-grid" data-qp-time-grid></div>
+      <div class="dp-chips">${chips}</div>
+      <div class="time-wheel" data-time-wheel hidden>${wheel}</div>
       <div class="qp-cal-footer">
         <button type="button" class="qp-link danger" data-qp-clear-all>Effacer</button>
         <button type="button" class="qp-link" data-qp-validate>Valider</button>
@@ -6353,7 +6378,7 @@
   }
   let quickPopoverDirty = false;
   function closeQuickPopover() {
-    document.querySelectorAll('.quick-popover, .quick-popover-backdrop').forEach(el => el.remove());
+    document.querySelectorAll('.quick-popover, .quick-popover-backdrop, .qp-optmenu').forEach(el => el.remove());
     if (quickPopoverDirty) { quickPopoverDirty = false; loadData(); }
   }
   function renderQuickTimeGrid(pop) {
@@ -6376,6 +6401,47 @@
       });
     });
     grid.querySelector('.qp-time-btn.active')?.scrollIntoView({ block: 'nearest' });
+  }
+  // petit menu Rappel / Répéter accroché à la pastille (les mêmes choix que dans la fiche)
+  function qpOptionMenu(pop, chip, kind) {
+    document.querySelector('.qp-optmenu')?.remove();
+    const rec = cachedTodos.find(t => t.id === pop.dataset.recordId) || {};
+    const opts = kind === 'reminder'
+      ? [['', 'Aucun'], ['On time', 'À l’heure'], ['5 minutes early', '5 min avant'], ['30 minutes early', '30 min avant'], ['1 hour early', '1 h avant'], ['1 day early', '1 jour avant']]
+      : [['', 'Jamais'], ['Daily', 'Tous les jours'], ['Weekly', 'Toutes les semaines'], ['Monthly', 'Tous les mois'], ['Yearly', 'Tous les ans'], ['Every Weekday', 'En semaine (lun.–ven.)']];
+    const cur = kind === 'reminder' ? (rec.reminder || '') : (rec.repeat_rule || '');
+    const m = document.createElement('div');
+    m.className = 'qp-optmenu';
+    m.innerHTML = opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${(kind === 'reminder' ? cur === v : (v ? cur.startsWith(v === 'Every Weekday' ? 'Every Weekday' : v === 'Weekly' ? 'Every week' : v) : !cur)) ? 'on' : ''}">${l}</button>`).join('');
+    document.body.appendChild(m);
+    const r = chip.getBoundingClientRect();
+    m.style.left = Math.min(r.left, window.innerWidth - m.offsetWidth - 10) + 'px';
+    m.style.top = (r.bottom + 6 + m.offsetHeight > window.innerHeight ? r.top - m.offsetHeight - 6 : r.bottom + 6) + 'px';
+    const close = () => { m.remove(); document.removeEventListener('pointerdown', outside, true); };
+    const outside = ev => { if (!m.contains(ev.target)) close(); };
+    setTimeout(() => document.addEventListener('pointerdown', outside, true), 0);
+    m.addEventListener('click', async (ev) => {
+      const b = ev.target.closest('[data-v]'); if (!b) return;
+      const v = b.dataset.v; close();
+      if (kind === 'reminder') {
+        pop.querySelector('[data-td-reminder-val]').textContent = v || 'None';
+        await saveRecordField(pop, { reminder: v || null });
+      } else {
+        const dueDate = currentDueDate(pop);
+        const d = dueDate ? new Date(dueDate + 'T00:00:00') : new Date();
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        let label = '';
+        if (v === 'Daily') label = 'Daily';
+        else if (v === 'Weekly') label = `Every week, ${dayNames[d.getDay()]}`;
+        else if (v === 'Monthly') label = `Monthly (day ${d.getDate()})`;
+        else if (v === 'Yearly') label = `Yearly (${formatDateShort(dueDate || todayISO())})`;
+        else if (v === 'Every Weekday') label = 'Every Weekday (Mon\u2013Fri)';
+        updateRepeatDisplay(pop, label || null);
+        await saveRecordField(pop, { repeat_rule: label || null });
+        renderCalendar(pop);
+      }
+      quickPopoverDirty = true;
+    });
   }
   function openQuickDatePopover(anchorEl, todoId) {
     closeQuickPopover();
@@ -6419,15 +6485,39 @@
       renderCalendar(pop);
     });
 
-    // ---- heure ----
-    renderQuickTimeGrid(pop);
+    // ---- icônes rapides : la date change tout de suite et la fenêtre se ferme ----
+    pop.querySelectorAll('[data-quick]').forEach(btn => btn.addEventListener('click', async () => {
+      const patch = {};
+      const q = btn.dataset.quick;
+      if (q === 'today') patch.due_date = todayISO();
+      else if (q === 'tomorrow') patch.due_date = isoPlusDays(1);
+      else if (q === 'nextweek') patch.due_date = isoPlusDays(7);
+      else if (q === 'nextmonth') { const d = new Date(); d.setMonth(d.getMonth() + 1); patch.due_date = isoFromDate(d); }
+      await applyDuePatch(pop, patch);
+      quickPopoverDirty = true;
+      closeQuickPopover();
+    }));
+
+    // ---- heure (roue), rappel, répéter : mêmes pastilles que la fiche ----
+    const rec = cachedTodos.find(t => t.id === todoId) || {};
+    const tv = pop.querySelector('[data-td-time-val]'); if (tv) tv.textContent = (currentDueTime(pop) || '').slice(0, 5) || 'Aucune';
+    const rv = pop.querySelector('[data-td-reminder-val]'); if (rv) rv.textContent = rec.reminder || 'None';
+    updateRepeatDisplay(pop, rec.repeat_rule || null);
+    wireTimeWheel(pop);
+    twSyncRow(pop);
+    dpSync(pop);
+    new MutationObserver(() => { quickPopoverDirty = true; dpSync(pop); }).observe(pop.querySelector('.dp-chips'), { childList: true, characterData: true, subtree: true });
+    pop.querySelectorAll('[data-qp-menu]').forEach(chip => chip.addEventListener('click', (e) => {
+      e.stopPropagation();
+      qpOptionMenu(pop, chip, chip.dataset.qpMenu);
+    }));
 
     // ---- effacer / valider ----
     pop.querySelector('[data-qp-clear-all]').addEventListener('click', async () => {
       await applyDuePatch(pop, { due_date: null, due_time: null });
       quickPopoverDirty = true;
       jumpCalendarTo('');
-      renderQuickTimeGrid(pop);
+      updateDueLabelFromCache(pop); twClose(pop);
     });
     pop.querySelector('[data-qp-validate]').addEventListener('click', closeQuickPopover);
 
@@ -6441,6 +6531,11 @@
     if (top + popRect.height > window.innerHeight - 8) top = rect.top - popRect.height - 6;
     pop.style.top = `${Math.max(8, top)}px`;
     pop.style.left = `${left}px`;
+    // quand la roue des heures s'ouvre, la fenêtre grandit : on la remonte pour qu'elle reste dans l'écran
+    new ResizeObserver(() => {
+      const r = pop.getBoundingClientRect();
+      if (r.bottom > window.innerHeight - 8) pop.style.top = `${Math.max(8, window.innerHeight - 8 - r.height)}px`;
+    }).observe(pop);
   }
 
   function wireProjectBlock(block) {
