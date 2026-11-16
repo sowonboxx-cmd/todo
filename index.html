@@ -3016,6 +3016,28 @@
   .lb-mob .lb-hero2 .lb-big { font-size: 40px; }
   .lb-mob .lb-prio { justify-content: space-between; flex-wrap: wrap; }
   .lb-mob .lb-nxl { grid-template-columns: 1fr; }
+  .lb-psec small { color: #b0aea7; font-weight: 600; margin-left: 4px; }
+  .lb-pvs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .lb-pv { aspect-ratio: 3/4; border: none; padding: 0; border-radius: 7px; background-size: cover; background-position: center top; background-color: #F3F2EE; cursor: zoom-in; box-shadow: 0 1px 4px rgba(0,0,0,.12); }
+  .lb-pv:hover { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
+  .lb-pvadd { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; }
+  .lb-pvadd svg { width: 14px; height: 14px; }
+  .lb-viewer { position: fixed; inset: 0; z-index: 3200; background: rgba(14,14,13,.97); display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; color: #fff; }
+  .lb-viewer img { height: calc(100vh - 170px); width: auto; max-width: calc(100vw - 180px); object-fit: contain; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.5); background: #fff; }
+  .lb-vw-top { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 14px; padding: 14px 18px 14px 24px; font-size: 14px; color: #d6d4ce; }
+  .lb-vw-top span { flex: 1; }
+  .lb-vw-top b { color: #fff; font-variant-numeric: tabular-nums; }
+  .lb-vw-b, .lb-vw-nav { border: none; background: rgba(255,255,255,.1); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .lb-vw-b { width: 38px; height: 38px; }
+  .lb-vw-b svg, .lb-vw-nav svg { width: 20px; height: 20px; }
+  .lb-vw-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; }
+  .lb-vw-nav.prev { left: 22px; } .lb-vw-nav.next { right: 22px; }
+  .lb-vw-nav:disabled { opacity: .2; cursor: default; }
+  .lb-vw-b:hover, .lb-vw-nav:hover:not(:disabled) { background: rgba(255,255,255,.2); }
+  .lb-vw-strip { position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; max-width: calc(100vw - 40px); overflow-x: auto; padding: 4px; }
+  .lb-vw-strip button { flex: none; width: 38px; height: 50px; border: none; border-radius: 5px; background-size: cover; background-position: center top; opacity: .45; cursor: pointer; }
+  .lb-vw-strip button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
+  @media (max-width: 760px) { .lb-viewer img { width: 100vw; height: auto; max-height: calc(100vh - 150px); border-radius: 0; } .lb-vw-nav { display: none; } }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12505,6 +12527,7 @@
     trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
     pen2: svg('<path d="M12 19l7-7-3-3-7 7v3z"/><path d="M5 21h4"/>'),
     expand: svg('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
+    img: svg('<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8"/>'),
     shrink: svg('<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>'),
     stack: svg('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
   };
@@ -12781,6 +12804,7 @@
             <button type="button" class="lb-pill${top ? ' gold' : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
             <button type="button" class="lb-pill" data-lb-srate>Ma note <b>${s.rating || '–'}</b>/10</button>
             ${s.source_url ? `<a class="lb-pill" href="${esc(s.source_url)}" target="_blank" rel="noopener">${LBI.link}Fiche</a>` : ''}
+            ${(() => { const pv = all.find(v => Array.isArray(v.previews) && v.previews.length); return pv ? `<button type="button" class="lb-pill" data-lb-planches="${pv.id}">${LBI.img}Planches <b>${pv.previews.length}</b></button>` : ''; })()}
           </div>
           ${lbPrioHtml(s)}
         </div>
@@ -12805,6 +12829,45 @@
   function lbPrioHtml(s) {
     const cur = +s.next_prio || 0;
     return `<div class="lb-prio"><span>À lire prochainement</span><div class="v-seg sm">${[[0, 'Non'], [1, 'P1'], [2, 'P2'], [3, 'P3']].map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}${cur === k && k ? ' p' + k : ''}" data-lb-prio="${k}">${l}</button>`).join('')}</div></div>`;
+  }
+  // ---------- planches (aperçus) ----------
+  async function lbStoreImage(blob, base) {
+    const ext = /png/.test(blob.type) ? 'png' : /webp/.test(blob.type) ? 'webp' : 'jpg';
+    const path = `${base}-${Date.now().toString(36)}.${ext}`;
+    const { error } = await sb.storage.from('bibliotheque').upload(path, blob, { contentType: blob.type || 'image/jpeg', upsert: true });
+    if (error) throw new Error(/bucket/i.test(error.message || '') ? 'lancez library_previews.sql' : (error.message || 'envoi impossible'));
+    return sb.storage.from('bibliotheque').getPublicUrl(path).data.publicUrl;
+  }
+  function lbPreviewsHtml(v) {
+    const p = Array.isArray(v.previews) ? v.previews : [];
+    return `<div class="lb-psec">PLANCHES${p.length ? ` <small>${p.length}</small>` : ''}</div>
+      ${p.length ? `<div class="lb-pvs">${p.map((u, i) => `<button type="button" class="lb-pv" data-lbv-pv="${i}" style="background-image:url('${esc(u)}')" aria-label="Planche ${i + 1}"></button>`).join('')}</div>` : ''}
+      <button type="button" class="lb-link sm lb-pvadd" data-lbv-pvadd>${I.plus}Ajouter des planches</button>`;
+  }
+  // visionneuse plein écran : flèches, Échap, compteur
+  function lbViewer(urls, start, title) {
+    document.querySelector('.lb-viewer')?.remove();
+    let i = start || 0;
+    const el = document.createElement('div'); el.className = 'lb-viewer'; el.setAttribute('role', 'dialog');
+    const draw = () => { el.innerHTML = `<div class="lb-vw-top"><span>${esc(title || '')}</span><b>${i + 1} / ${urls.length}</b><button type="button" class="lb-vw-b" data-x aria-label="Fermer">${I.x}</button></div>
+      <button type="button" class="lb-vw-nav prev" data-d="-1" ${i ? '' : 'disabled'} aria-label="Précédente">${LBI.back}</button>
+      <img src="${esc(urls[i])}" alt="Planche ${i + 1}">
+      <button type="button" class="lb-vw-nav next" data-d="1" ${i < urls.length - 1 ? '' : 'disabled'} aria-label="Suivante">${I.chev}</button>
+      <div class="lb-vw-strip">${urls.map((u, k) => `<button type="button" class="${k === i ? 'on' : ''}" data-k="${k}" style="background-image:url('${esc(u)}')"></button>`).join('')}</div>`;
+      el.querySelector('.lb-vw-strip .on')?.scrollIntoView({ block: 'nearest', inline: 'center' }); };
+    const go = d => { const n = i + d; if (n >= 0 && n < urls.length) { i = n; draw(); } };
+    const key = e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } else if (e.key === 'ArrowRight') go(1); else if (e.key === 'ArrowLeft') go(-1); };
+    const close = () => { el.remove(); document.removeEventListener('keydown', key, true); };
+    el.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) { if (e.target === el) close(); return; }
+      if ('x' in b.dataset) close(); else if (b.dataset.d) go(+b.dataset.d); else if (b.dataset.k) { i = +b.dataset.k; draw(); }
+    });
+    let sx = null;
+    el.addEventListener('touchstart', e => { sx = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener('touchend', e => { if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1); sx = null; });
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(el); draw();
   }
   // ---------- pop-up de la série / du tome (ordi) ----------
   function lbModal() {
@@ -12839,7 +12902,8 @@
     const kick = [lbKindLbl(s), s.genre, s.publisher, s.edition].filter(Boolean).join(' · ');
     const two = s.artist && s.artist !== s.authors;
     return `<div class="lb-tview">
-      <div class="lb-tleft"><button type="button" class="lb-pcover big" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'big')}<span class="lb-cvhint">Chercher la couverture</span></button></div>
+      <div class="lb-tleft"><button type="button" class="lb-pcover big" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'big')}<span class="lb-cvhint">Chercher la couverture</span></button>
+        ${'previews' in v ? lbPreviewsHtml(v) : ''}</div>
       <div class="lb-tright">
         ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
         <h2 class="lb-ttitle">${esc(s.title)} <span>Tome ${esc(String(v.number))}</span></h2>
@@ -12947,6 +13011,7 @@
         <span>ISBN</span><input type="text" class="lb-in" data-lbv-isbn value="${esc(v.isbn || '')}" placeholder="—">
       </div>
       ${v.summary ? `<div class="lb-psec">RÉSUMÉ</div><p class="lb-sum sm">${esc(v.summary)}</p>` : ''}
+      ${'previews' in v ? lbPreviewsHtml(v) : ''}
       <div class="lb-psec">MON EXEMPLAIRE</div>
       <div class="lb-rows">
         <div class="lb-r"><span>Je l'ai</span><span class="vm-switch${v.owned ? ' on' : ''}" data-lbv-tog="owned" role="switch" aria-checked="${!!v.owned}"></span></div>
@@ -13352,6 +13417,7 @@
       if ((el = d('[data-lb-delseries]'))) { lbDeleteSeries(s, el); return; }
       if ((el = d('[data-lb-sfmt]'))) { s.format = lbFmtToggle(s.format, el.dataset.lbSfmt); v2Render(); await lbUpd('lib_series', s.id, { format: s.format }); return; }
       if ((el = d('[data-lb-sync]'))) { el.disabled = true; el.textContent = 'Recherche…'; await lbSync(s); return; }
+      if ((el = d('[data-lb-planches]'))) { const pv = lbVol(el.dataset.lbPlanches); if (pv) lbViewer(pv.previews, 0, `${s.title} · T.${pv.number}`); return; }
       if ((el = d('[data-lb-prio]'))) {
         if (!LB.hasPrio) { alertBubble('Lancez d’abord library_summary.sql dans Supabase (colonne « priorité »).'); return; }
         const k = +el.dataset.lbPrio || null; s.next_prio = k; v2Render(); await lbUpd('lib_series', s.id, { next_prio: k }); return;
@@ -13404,6 +13470,16 @@
       if ((el = d('[data-lbv-fmt]'))) { await lbVolSet(v, { format: lbFmtToggle(v.format || lbSer(v.series_id)?.format, el.dataset.lbvFmt) }); return; }
       if ((el = d('[data-lbv-rate]'))) { const r = +el.dataset.lbvRate; await lbVolSet(v, { rating: v.rating === r ? null : r }); return; }
       if ((el = d('[data-lbv-date]'))) { const k = el.dataset.lbvDate; lbPickDate(el, v[k], iso => lbVolSet(v, { [k]: iso })); return; }
+      if ((el = d('[data-lbv-pv]'))) { lbViewer(v.previews || [], +el.dataset.lbvPv, `${lbSer(v.series_id)?.title || ''} · T.${v.number}`); return; }
+      if ((el = d('[data-lbv-pvadd]'))) {
+        const files = (await pickImageFiles()).filter(f => /^image\//.test(f.type)); if (!files.length) return;
+        el.textContent = 'Envoi…';
+        try {
+          const urls = []; for (const [i, f] of files.entries()) urls.push(await lbStoreImage(f, `planches/${v.series_id}/t${v.number}-${String((v.previews || []).length + i + 1).padStart(2, '0')}`));
+          await lbVolSet(v, { previews: [...(v.previews || []), ...urls] });
+        } catch (err) { alertBubble(/library_previews/.test(err.message) ? 'Lancez d’abord library_previews.sql dans Supabase.' : 'Envoi impossible : ' + err.message); v2Render(); }
+        return;
+      }
       if (d('[data-lbv-cover]')) { const s2 = lbSer(v.series_id); lbCoverModal(`${s2?.title || ''} tome ${v.number}`, r => lbVolSet(v, { cover_url: r.cover, ...(r.isbn && !v.isbn ? { isbn: r.isbn } : {}) })); return; }
       if ((el = d('[data-lbv-del]'))) { lbConfirm(el, `Supprimer le tome ${esc(String(v.number))} ?`, 'Supprimer', async () => { LB.vols = LB.vols.filter(x => x.id !== v.id); LB.vol = null; lbVolPanel(); v2Render(); await sb.from('lib_volumes').delete().eq('id', v.id); }); return; }
     }
@@ -13463,6 +13539,7 @@
       const sd = d.series || {};
       if (CI.hasSum === undefined) CI.hasSum = !(await sb.from('lib_series').select('summary').limit(1)).error;
       if (!CI.hasSum) { delete sd.summary; (d.volumes || []).forEach(v => delete v.summary); } // colonne pas encore créée
+      if ((d.volumes || []).some(v => v.previews_data || v.previews) && (await sb.from('lib_volumes').select('previews').limit(1)).error) throw new Error('lancez library_previews.sql');
       const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
       const { data: found } = await sb.from('lib_series').select('*');
       let ser = (found || []).find(x => tn(x.title) === tn(sd.title));
@@ -13480,7 +13557,14 @@
       const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
       for (const v of d.volumes || []) {
         const ex = (have || []).find(x => +x.number === +v.number);
-        const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title', 'summary'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
+        // planches envoyées en images (data:…) → stockage Supabase, puis liens dans « previews »
+        if (Array.isArray(v.previews_data) && v.previews_data.length) {
+          const urls = [];
+          for (const [i, du] of v.previews_data.entries()) urls.push(await lbStoreImage(await (await fetch(du)).blob(), `planches/${ser.id}/t${v.number}-${String(i + 1).padStart(2, '0')}`));
+          v.previews = [...((ex && ex.previews) || []), ...urls];
+        }
+        delete v.previews_data;
+        const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title', 'summary', 'previews'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
       }
