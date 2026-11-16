@@ -13478,7 +13478,7 @@
   }
   const lbSeriesName = t => (t || '').replace(/\s*[-–—:,(]?\s*(tome|vol\.?|volume|t\.?)\s*\d+.*$/i, '').replace(/\s+\d+\s*$/, '').replace(/\s*\(.*?\)\s*$/, '').trim();
   // ---------- Librairies indépendantes, via la fonction Supabase « livres » (supabase/functions/livres) ----------
-  const LBF = { off: false, names: ['livres', 'hyper-worker'], i: 0 }; // nom de la fonction dans Supabase (le 1er qui répond)
+  const LBF = { off: false, names: ['hyper-worker', 'livres'], i: 0, ok: false }; // nom de la fonction dans Supabase (le 1er qui répond)
   const lbCap = x => (x || '').toLowerCase().replace(/(^|[\s\-'’.])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
   // la 1re catégorie (« Bandes Dessinées, Comics, Mangas ») est commune à tout : on regarde les suivantes
   const lbKindOf = g => { const t = (g || []).filter(x => !x.includes(',')).join(' | '); return /manga/i.test(t) ? 'manga' : /comics/i.test(t) ? 'comics' : 'bd'; };
@@ -13488,9 +13488,11 @@
     try {
       const { data, error } = await sb.functions.invoke(LBF.names[LBF.i], { body });
       if (error) {
-        if (error.context?.status === 404) { if (++LBF.i < LBF.names.length) return lbLib(body); LBF.off = true; }
+        // fonction absente : selon le navigateur, 404 ou échec CORS du pré-vol → on essaie l'autre nom
+        if (!LBF.ok && (error.context?.status === 404 || error.name === 'FunctionsFetchError')) { if (++LBF.i < LBF.names.length) return lbLib(body); LBF.off = true; }
         console.info('livres', error); return null;
       }
+      LBF.ok = true;
       return Array.isArray(data?.items) ? data.items : null;
     } catch (e) { console.info('livres', e); return null; }
   }
