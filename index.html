@@ -12743,7 +12743,20 @@
     </button>`;
   }
   // ---------- tableau de bord de la collection ----------
+  // images de fond choisies pour les carrés (stockage Supabase « bibliotheque/fonds/… ») ; sinon une couverture de la collection
+  LB.bg = {};
+  async function lbLoadBg() {
+    if (LB.bgChecked) return; LB.bgChecked = true;
+    const next = {};
+    await Promise.all(['own', 'series', 'read', 'buy', 'out'].map(async k => {
+      const url = sb.storage?.from('bibliotheque').getPublicUrl(`fonds/${k}.jpg`).data?.publicUrl; if (!url) return;
+      try { const r = await fetch(url, { method: 'HEAD', cache: 'no-store' }); if (r.ok) next[k] = url + '?v=' + encodeURIComponent(r.headers.get('etag') || r.headers.get('last-modified') || Date.now()); } catch (e) {}
+    }));
+    const changed = JSON.stringify(next) !== JSON.stringify(LB.bg);
+    LB.bg = next; if (changed) v2Render();
+  }
   function lbDashHtml() {
+    lbLoadBg();
     const today = lbToday();
     const owned = LB.vols.filter(v => v.owned && lbSer(v.series_id)), read = owned.filter(v => v.read).length;
     const total = LB.series.reduce((n, s) => n + Math.max(s.total_volumes || 0, lbVolsOf(s.id).length), 0);
@@ -12763,6 +12776,7 @@
     bgs.read = pick([...owned].filter(v => v.read).sort((a, b) => String(b.read_at || '').localeCompare(String(a.read_at || ''))));
     bgs.own = pick([...owned].sort((a, b) => lbAcq(b).localeCompare(lbAcq(a))));
     bgs.series = pick(srs.map(s => ({ cover_url: s.cover_url, series_id: s.id })));
+    Object.assign(bgs, LB.bg);
     const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><span class="lb-sq-ic">${ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
     const row = (n, p, l, tot, w) => `<div class="lb-mc-row"><div class="lb-mc-top"><b>${n}</b><span class="lb-mc-pct">${p}</span><span class="lb-mc-l">${l}</span><span class="lb-mc-tot">${tot}</span></div><i class="lb-mc-bar"><i style="width:${Math.min(100, w)}%"></i></i></div>`;
     return `<div class="lb-dash">
@@ -13589,6 +13603,16 @@
       const { error } = await sb.from('todos').insert({ page_id: pg.id, title: d.title, notes: d.notes || null, due_date: d.due_date || null, due_time: d.due_time || null, priority: d.priority || 'none' });
       if (error) throw error;
       return 'tâche';
+    }
+    if (row.kind === 'lib' && d.bg) { // image de fond d'un carré de la collection
+      const ok = ['own', 'series', 'read', 'buy', 'out'];
+      if (!ok.includes(d.bg.slot)) throw new Error('carré inconnu');
+      if (d.bg.remove) { await sb.storage.from('bibliotheque').remove([`fonds/${d.bg.slot}.jpg`]); return 'livre'; }
+      const blob = await (await fetch(d.bg.data)).blob();
+      const { error } = await sb.storage.from('bibliotheque').upload(`fonds/${d.bg.slot}.jpg`, blob, { contentType: 'image/jpeg', upsert: true, cacheControl: '60' });
+      if (error) throw error;
+      LB.bgChecked = false;
+      return 'livre';
     }
     if (row.kind === 'lib') {
       const sd = d.series || {};
