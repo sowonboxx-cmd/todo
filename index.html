@@ -2970,8 +2970,9 @@
   .lb-sqs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
   .lb-sq { position: relative; text-align: left; background: #F7F6F3; border: 1px solid #EFEEEA; border-radius: 18px; padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; font-family: 'Inter', sans-serif; color: #1f1f1f; min-width: 0; }
   .lb-sq:hover { background: #F1F0EC; }
-  .lb-sq-ic { width: 34px; height: 34px; border-radius: 11px; background: #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #24508F; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
-  .lb-sq-ic svg { width: 18px; height: 18px; }
+  .lb-sq-ic { width: 32px; height: 32px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 14px; }
+  .lb-sq-ic svg { width: 30px; height: 30px; }
+  .lb-sq.img .lb-sq-ic svg { filter: drop-shadow(0 1px 3px rgba(0,0,0,.45)); }
   .lb-sq.blue .lb-sq-ic { color: #2F62C9; } .lb-sq.amber .lb-sq-ic { color: #B4541A; } .lb-sq.orange .lb-sq-ic { color: #E8590C; }
   .lb-sq b { font-size: 36px; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
   .lb-sq-l { font-size: 14px; font-weight: 600; margin-top: 6px; }
@@ -12755,6 +12756,14 @@
       <div class="lb-cm"><span class="lb-bar"><i style="width:${pct}%"></i></span>${st.own}/${st.total || '?'}</div>
     </button>`;
   }
+  // icônes flat (pleines, deux tons, sans cadre) des carrés de la collection
+  const LB_FLAT = {
+    own: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="4.5" height="15" rx="1.2" fill="#9ED8B4"/><rect x="8.5" y="3" width="5" height="17" rx="1.2" fill="#2F9E5B"/><rect x="15" y="6.2" width="4.5" height="14" rx="1.2" transform="rotate(-12 17 13)" fill="#9ED8B4"/><rect x="9.6" y="6" width="2.8" height="1.4" rx=".6" fill="#fff" opacity=".8"/></svg>',
+    series: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2" fill="#6A44B8"/><rect x="13" y="3" width="8" height="8" rx="2.2" fill="#C7B5EC"/><rect x="3" y="13" width="8" height="8" rx="2.2" fill="#C7B5EC"/><rect x="13" y="13" width="8" height="8" rx="2.2" fill="#6A44B8"/></svg>',
+    read: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6.5c3-1.6 6.3-1.6 9.4.3V20c-3.1-1.9-6.4-1.9-9.4-.3z" fill="#A9C1F0"/><path d="M22 6.5c-3-1.6-6.3-1.6-9.4.3V20c3.1-1.9 6.4-1.9 9.4-.3z" fill="#2F62C9"/><path d="M15 11.5l1.6 1.6 3-3.2" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    buy: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z" fill="#D9822B"/><path d="M8.5 9V7a3.5 3.5 0 0 1 7 0v2" stroke="#D9822B" stroke-width="1.8" fill="none" stroke-linecap="round"/><rect x="5" y="8" width="14" height="3" fill="#F3C994" opacity=".55"/></svg>',
+    out: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="3.5" fill="#F4B0B2"/><path d="M3 8a3.5 3.5 0 0 1 3.5-3.5h11A3.5 3.5 0 0 1 21 8v2H3z" fill="#E0484E"/><rect x="7" y="2.5" width="2" height="4" rx="1" fill="#E0484E"/><rect x="15" y="2.5" width="2" height="4" rx="1" fill="#E0484E"/><circle cx="12" cy="15" r="2.3" fill="#E0484E"/></svg>',
+  };
   // ---------- tableau de bord de la collection ----------
   // images de fond choisies pour les carrés (stockage Supabase « bibliotheque/fonds/… ») ; sinon une couverture de la collection
   LB.bg = {};
@@ -12790,7 +12799,7 @@
     bgs.own = pick([...owned].sort((a, b) => lbAcq(b).localeCompare(lbAcq(a))));
     bgs.series = pick(srs.map(s => ({ cover_url: s.cover_url, series_id: s.id })));
     Object.assign(bgs, LB.bg);
-    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><span class="lb-sq-ic">${ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
+    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><span class="lb-sq-ic">${LB_FLAT[k] || ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
     const row = (n, p, l, tot, w) => `<div class="lb-mc-row"><div class="lb-mc-top"><b>${n}</b><span class="lb-mc-pct">${p}</span><span class="lb-mc-l">${l}</span><span class="lb-mc-tot">${tot}</span></div><i class="lb-mc-bar"><i style="width:${Math.min(100, w)}%"></i></i></div>`;
     return `<div class="lb-dash">
       <div class="lb-sqs">
