@@ -14089,7 +14089,7 @@
       return 'livre';
     }
     if (row.kind === 'lib' && (d.absorb || d.delete_series)) { // ranger une série dans une autre (coffret, hors-série) / supprimer un doublon
-      const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
+      const tn = x => (x || '').toLowerCase().replace(/œ/g, 'oe').replace(/æ/g, 'ae').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
       const { data: all } = await sb.from('lib_series').select('*');
       const one = (q, label) => { const c = (all || []).filter(x => q.title ? tn(x.title) === tn(q.title) : tn(x.title).includes(tn(q.like)) && !(q.not || []).some(n => tn(x.title) === tn(n))); if (c.length !== 1) throw new Error(`${label} : ${c.length ? 'plusieurs séries' : 'série introuvable'} (${q.title || q.like})`); return c[0]; };
       if (d.absorb) {
