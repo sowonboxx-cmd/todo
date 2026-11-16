@@ -1,0 +1,3 @@
+-- Bibliothèque : nombre de tomes et statut dans le pays d'origine (Japon). Supabase → SQL Editor → Run.
+alter table public.lib_series add column if not exists jp_volumes int;
+alter table public.lib_series add column if not exists jp_status text;   -- « En cours », « Terminé »…
