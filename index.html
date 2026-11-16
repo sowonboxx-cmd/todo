@@ -13753,6 +13753,10 @@
           if (!f.authors && x.serie?.auteurs) f.authors = x.serie.auteurs;
           if (x.resume) f.summary = x.resume; // résumé de la fiche FuryoGang
           draw(); });
+        // la première recherche ne montre souvent qu'une partie de la série : on recompte les tomes avec le titre exact
+        if (r.src === 'lib' && r.title) lbLib({ q: r.title, pages: 3 }).then(d => { if (!d || st.pick !== idx || !box.isConnected) return; readFields();
+          const mx = Math.max(0, ...d.filter(it => it.number && lbNorm(it.series) === lbNorm(r.title)).map(it => +it.number));
+          if (mx > (+f.total || 0)) { if (+f.to === +f.total) f.to = mx; f.total = mx; draw(); } });
         if (r.src === 'lib' && r.isbn) lbLib({ eans: [r.isbn] }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields(); f.kind = lbKindOf(x.genres); if (!f.genre) f.genre = lbGenre(x.genres); if (!f.date) f.date = x.date || ''; if (!f.summary && x.summary) f.summary = x.summary; draw(); });
         return;
       }
