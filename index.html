@@ -14066,6 +14066,11 @@
       if (!ser && sd.like) { const c = (found || []).filter(x => tn(x.title).includes(tn(sd.like))); if (c.length === 1) ser = c[0]; else if (c.length > 1) throw new Error(`plusieurs séries contiennent « ${sd.like} »`); } // like : série dont le titre contient ce texte
       if (!ser && sd.only_existing) throw new Error(`série introuvable : ${sd.like || sd.title}`); // ne pas créer de série
       if (ser && !sd.title) sd.title = ser.title;
+      if (sd.cover_data) { // couverture de la série envoyée en image : remplace l'ancienne
+        if (!ser) throw new Error('série introuvable pour la couverture');
+        sd.cover_url = await lbStoreImage(await (await fetch(sd.cover_data)).blob(), `couvertures/${ser.id}/serie`);
+        sd.force = [...(sd.force || []), 'cover_url']; delete sd.cover_data;
+      }
       const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes', 'summary', 'jp_volumes', 'jp_status'];
       if (sd.jp_volumes != null || sd.jp_status != null) { if ((await sb.from('lib_series').select('jp_volumes').limit(1)).error) { delete sd.jp_volumes; delete sd.jp_status; } }
       if (!ser) {
