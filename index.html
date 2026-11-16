@@ -13143,7 +13143,7 @@
           ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
           <div class="lb-htitle"><h2>${esc(s.title)}</h2>${mobile ? `<button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button>` : ''}</div>
           ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
-          ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''}
+          ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : LB.hasSummary ? '<button type="button" class="lb-btn sm lb-findsum" data-lb-findsum>Chercher le résumé</button>' : ''}
           <div class="lb-pills">
             <button type="button" class="lb-pill${top ? ' gold' : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
             <button type="button" class="lb-pill lb-rate${s.rating ? ' set' + (s.rating >= 8 ? ' hi' : '') : ''}" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : 'Noter'}</button>
@@ -13230,7 +13230,7 @@
       const sum = s.summary || all.find(v => v.summary)?.summary;
       const tags = [lbKindLbl(s), ...(s.genre || '').split(/\s*[,·]\s*/), s.edition].filter(Boolean);
       const rows = [[s.artist && s.artist !== s.authors ? 'Scénario' : 'Auteur', s.authors], ['Dessin', s.artist && s.artist !== s.authors ? s.artist : ''], ['Éditeur', s.publisher], ['Collection', s.edition], ['Genre', s.genre], ['Titre original', s.title_original]].filter(r => r[1]);
-      body = `<div class="lb-mcard">${sum ? `<p class="lb-msum">${esc(sum)}</p>` : '<p class="lb-msum lb-mmut">Pas encore de résumé.</p>'}${tags.length ? `<div class="lb-mtags">${tags.map((t, i) => `<span class="${i ? '' : 'k'}">${esc(t)}</span>`).join('')}</div>` : ''}</div>
+      body = `<div class="lb-mcard">${sum ? `<p class="lb-msum">${esc(sum)}</p>` : `<p class="lb-msum lb-mmut">Pas encore de résumé.</p>${LB.hasSummary ? '<button type="button" class="lb-btn sm" data-lb-findsum>Chercher le résumé</button>' : ''}`}${tags.length ? `<div class="lb-mtags">${tags.map((t, i) => `<span class="${i ? '' : 'k'}">${esc(t)}</span>`).join('')}</div>` : ''}</div>
         ${rows.length ? `<div class="lb-mcard lb-mrows">${rows.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}`;
     } else {
       const wish = all.filter(v => !v.owned && v.wish), own = all.filter(v => v.owned), read = own.filter(v => v.read);
@@ -13732,8 +13732,9 @@
           Object.assign(f, { title_original: f.title_original || r.title_original, publisher: ed.pub || '', edition: ed.label || '', status: ed.statut || '', total: (ed.tomes || []).length || ed.nb || f.total, to: (ed.tomes || []).length || ed.nb || f.to, fgVols: (ed.tomes || []).map(t => ({ number: t.n, release_date: t.date || null, cover_url: t.cover || null })), jp_volumes: jp ? (jp.nb || (jp.tomes || []).length) : null, jp_status: jp ? jp.statut : null, source_url: `https://furyogang.com/ma-collection/${x.serie?.slug || ''}` });
           if (!f.cover_url && ed.tomes?.[0]?.cover) f.cover_url = ed.tomes[0].cover;
           if (!f.authors && x.serie?.auteurs) f.authors = x.serie.auteurs;
+          if (x.resume) f.summary = x.resume; // résumé de la fiche FuryoGang
           draw(); });
-        if (r.src === 'lib' && r.isbn) lbLib({ eans: [r.isbn] }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields(); f.kind = lbKindOf(x.genres); if (!f.genre) f.genre = lbGenre(x.genres); if (!f.date) f.date = x.date || ''; draw(); });
+        if (r.src === 'lib' && r.isbn) lbLib({ eans: [r.isbn] }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields(); f.kind = lbKindOf(x.genres); if (!f.genre) f.genre = lbGenre(x.genres); if (!f.date) f.date = x.date || ''; if (!f.summary && x.summary) f.summary = x.summary; draw(); });
         return;
       }
       if (t.closest('[data-lbm-manual]')) { st.pick = -1; f.title = f.title || (lbIsbn(st.q) ? '' : st.q); draw(); return; }
@@ -13774,9 +13775,24 @@
   }
   const lbAddLabel = f => { const n = f.to >= f.from && f.from > 0 ? f.to - f.from + 1 : 0; return f.have === 'buy' ? `Ajouter à « À acheter »${n > 1 ? ` (${n} tomes)` : ''}` : `Ajouter${n ? ` ${n} tome${n > 1 ? 's' : ''}` : ''}`; };
   function lbCloseModal() { document.querySelectorAll('.lb-modal, .lb-mbd').forEach(x => x.remove()); }
+  // résumé manquant : fiche FuryoGang (même titre), sinon fiche libraire du premier tome qui a un ISBN
+  async function lbFindSummary(s, btn) {
+    if (btn) { btn.disabled = true; btn.textContent = 'Recherche…'; }
+    const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+    let sum = '';
+    try {
+      const hits = await lbLib({ fg: s.title }) || [];
+      const h = hits.find(x => [x.t, x.fr, x.jp].some(t => tn(t) === tn(s.title)) || (s.title_original && tn(x.jp) === tn(s.title_original)));
+      if (h) { const d = await lbLib({ fgId: h.id }); sum = d?.[0]?.resume || ''; }
+      if (!sum) { const e = lbVolsOf(s.id).map(v => v.isbn).filter(x => /^\d{13}$/.test(x || '')).slice(0, 3); if (e.length) { const d = await lbLib({ eans: e }); sum = (d || []).find(x => x.summary)?.summary || ''; } }
+    } catch (e) { console.info('résumé', e); }
+    if (!sum) { if (btn) { btn.disabled = false; btn.textContent = 'Chercher le résumé'; } alertBubble('Aucun résumé trouvé (pas de fiche FuryoGang ni de fiche libraire).'); return; }
+    s.summary = sum; v2Render(); await lbUpd('lib_series', s.id, { summary: sum });
+  }
   async function lbCreateSeries(f) {
     const total = Math.max(f.total || 0, f.to || 0, 1);
     const row = { title: f.title, title_original: f.title_original || null, authors: f.authors || null, artist: f.artist || null, publisher: f.publisher || null, edition: f.edition || null, genre: f.genre || null, status: f.status || null, total_volumes: total, kind: f.kind || 'manga', cover_url: f.cover_url || null, source_url: f.source_url || null, format: f.format || 'paper', follow: !!f.follow };
+    if (LB.hasSummary && f.summary) row.summary = f.summary;
     if (f.jp_volumes || f.jp_status) { const t = await sb.from('lib_series').select('jp_volumes').limit(1); if (!t.error) Object.assign(row, { jp_volumes: f.jp_volumes || null, jp_status: f.jp_status || null }); }
     const { data: s, error } = await sb.from('lib_series').insert(row).select().single();
     if (error || !s) { console.error(error); alertBubble(LB.err ? 'Lancez d’abord library_schema.sql dans Supabase.' : 'Ajout impossible.'); return; }
@@ -13917,6 +13933,7 @@
     if ((el = d('[data-lb-tab]'))) { LB.tab = el.dataset.lbTab; LS.set('lb_tab', LB.tab); LB.open = null; LB.vol = null; v2Render(); return; }
     if (d('[data-lb-add]')) { lbAddModal(); return; }
     if (d('[data-lb-filters]')) { lbFilterSheet(true); return; }
+    if ((el = d('[data-lb-findsum]'))) { const s = lbSer(LB.open); if (s) lbFindSummary(s, el); return; }
     if ((el = d('[data-lb-kind]'))) { LB.kind = el.dataset.lbKind; LS.set('lb_kind', LB.kind); v2Render(); lbFilterSheet(); return; }
     if ((el = d('[data-lb-fmt]'))) { LB.fmt = el.dataset.lbFmt; LS.set('lb_fmt', LB.fmt); v2Render(); lbFilterSheet(); return; }
     if ((el = d('[data-lb-topf]'))) { LB.topf = el.dataset.lbTopf; v2Render(); lbFilterSheet(); return; }

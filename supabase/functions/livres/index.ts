@@ -82,7 +82,13 @@ async function fgSearch(q: string) {
     return { x, score };
   }).filter((r: any) => r.score).sort((a: any, b: any) => b.score - a.score).slice(0, 8).map((r: any) => r.x);
 }
-async function fgSerie(id: string) { return JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`)); }
+async function fgSerie(id: string) {
+  const x = JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`));
+  // résumé : seulement pour les séries dont la fiche est en ligne sur FuryoGang
+  const slug = x?.serie?.slug;
+  if (slug) { try { const f = JSON.parse(await get(`${FG}/api/serie?s=${encodeURIComponent(slug)}`)); if (f?.serie?.resume) x.resume = f.serie.resume; } catch (_) { /* pas de fiche */ } }
+  return x;
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
