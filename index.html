@@ -2142,6 +2142,20 @@
   .v-cpg { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .v-ccard .v-pill { font-size: 11.5px; padding: 2px 7px; }
   .v-col-head .v-tcat { max-width: 160px; }
+
+  .v-tcedit { width: 26px; height: 26px; border: none; background: transparent; border-radius: 8px; color: var(--v-faint, #8b8b8b); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; opacity: 0; transition: opacity .12s; flex-shrink: 0; }
+  .v-tcedit svg { width: 14px; height: 14px; }
+  .v-tcedit:hover { background: #F3F2EE; color: #1f1f1f; }
+  .v-ghead:hover .v-tcedit, .v-col-head:hover .v-tcedit, .v-tcedit:focus-visible { opacity: 1; }
+  .vm-ghead .v-tcedit { opacity: .7; width: 24px; height: 22px; margin-left: auto; color: inherit; align-self: center; }
+  .v-tceditmenu { width: 310px; max-width: calc(100vw - 24px); padding: 8px; gap: 2px; }
+  .v-tceditmenu .v-tcm-q { margin-bottom: 8px; }
+  .v-ce-sw { display: flex; flex-wrap: wrap; gap: 7px; padding: 2px 4px 6px; }
+  .v-ce-sw button { width: 22px !important; height: 22px; border-radius: 50% !important; padding: 0 !important; border: none; cursor: pointer; }
+  .v-ce-sw button.on { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
+  .v-tceditmenu > button { justify-content: flex-start; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 8px 9px; }
+  .v-tceditmenu .v-ce-del { color: #C8342B; }
+  .v-tceditmenu .v-ce-del.on { background: #FBECEC; font-weight: 600; }
   /* menu catégorie */
   .v-tcmenu { width: 260px; padding: 8px; gap: 1px; }
   .v-tcm-q { border: none; background: #F5F5F3; border-radius: 9px; padding: 8px 10px; font: 13px 'Inter', sans-serif; margin-bottom: 4px; outline: none; color: var(--v-ink, #1f1f1f); }
@@ -9780,6 +9794,46 @@
     btn.textContent = c ? c.name : '+ Catégorie';
     btn.setAttribute('aria-label', c ? `Catégorie : ${c.name} — changer` : 'Choisir une catégorie');
   }
+  // petit crayon à côté d'une catégorie : renommer, changer la couleur, supprimer, sans passer par la fenêtre de gestion
+  const tcEditBtn = c => `<button type="button" class="v-tcedit" data-v-tcedit="${c.id}" aria-label="Modifier la catégorie ${esc(c.name)}" title="Modifier">${svg('<path d="M14.5 5.5l4 4L8.5 19.5H4.5v-4z"/><path d="M12.5 7.5l4 4"/>')}</button>`;
+  function openCatEdit(anchor, id) {
+    const c = TC.list.find(x => x.id === id); if (!c) return;
+    let confirmDel = false;
+    const { m, close, place } = floatMenu(anchor, '', 'v-tceditmenu');
+    const save = async (patch) => {
+      Object.assign(c, patch); v2Render();
+      const { error } = await sb.from('task_categories').update(patch).eq('id', id);
+      if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); }
+    };
+    const draw = () => {
+      m.innerHTML = `
+        <input type="text" class="v-tcm-q" data-ce-name value="${esc(c.name)}" aria-label="Nom de la catégorie">
+        <div class="v-ce-sw">${TC_COLORS.map(h => `<button type="button" data-ce-sw="${h}" class="${c.color === h ? 'on' : ''}" style="background:${h}" aria-label="Couleur ${h}"></button>`).join('')}</div>
+        <div class="v-tcm-sep"></div>
+        <button type="button" data-ce-del class="v-ce-del${confirmDel ? ' on' : ''}"><span>${confirmDel ? 'Confirmer la suppression' : 'Supprimer la catégorie'}</span></button>
+        <button type="button" data-ce-all><span>Toutes les catégories…</span></button>`;
+      place();
+    };
+    draw();
+    setTimeout(() => { const i = m.querySelector('[data-ce-name]'); if (i && !isMobile()) { i.focus(); i.select(); } }, 0);
+    const commitName = () => { const i = m.querySelector('[data-ce-name]'); const v = i?.value.trim(); if (v && v !== c.name) save({ name: v }); };
+    m.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.matches('[data-ce-name]')) { ev.preventDefault(); commitName(); close(); } });
+    m.addEventListener('focusout', (ev) => { if (ev.target.matches?.('[data-ce-name]')) commitName(); });
+    m.addEventListener('click', async (ev) => {
+      const sw = ev.target.closest('[data-ce-sw]');
+      if (sw) { commitName(); await save({ color: sw.dataset.ceSw }); draw(); return; }
+      if (ev.target.closest('[data-ce-all]')) { commitName(); close(); openCatManager(); return; }
+      if (ev.target.closest('[data-ce-del]')) {
+        if (!confirmDel) { confirmDel = true; draw(); return; }
+        close();
+        TC.list = TC.list.filter(x => x.id !== id);
+        cachedTodos.forEach(t => { if (t.category_id === id) t.category_id = null; });
+        v2Render();
+        const { error } = await sb.from('task_categories').delete().eq('id', id);
+        if (error) { console.error(error); alertBubble('Suppression impossible.'); tcLoad(); }
+      }
+    });
+  }
   window.openTaskCatMenu = openCatMenu;
   window.tcLoad = tcLoad;
   window.tcatSheetSync = tcatSheetSync;
@@ -10204,7 +10258,7 @@
     const groups = grp ? groupsOf(rows) : null;
     SEL.visible = groups ? groups.flatMap(g => g.tasks.map(t => t.id)) : rows.map(t => t.id);
     const body = groups
-      ? (groups.map(g => `<div class="v-ghead">${g.chip}<small>${g.tasks.length} tâche${g.tasks.length > 1 ? 's' : ''}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="v-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}Ajouter</button>` : ''}</div>
+      ? (groups.map(g => `<div class="v-ghead">${g.chip}${g.cat ? tcEditBtn(g.cat) : ''}<small>${g.tasks.length} tâche${g.tasks.length > 1 ? 's' : ''}</small><span class="v-gsp"></span>${effGroup() === 'cat' ? `<button type="button" class="v-gadd" data-v-gadd="${g.key}" aria-label="Ajouter une tâche${g.cat ? ' dans ' + esc(g.cat.name) : ''}">${I.plus}Ajouter</button>` : ''}</div>
           <div class="v-gtable">${headFor(g.tasks.map(t => t.id))}${g.tasks.map(rowHtml).join('')}</div>`).join('') || '<div class="v-empty">Rien ici.</div>')
       : `${headFor(rows.map(t => t.id))}${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}`;
     panel.innerHTML = `
@@ -10295,7 +10349,7 @@
         <div class="v-board" data-v-scroll="board-cat">${cols.map(col => {
           const tasks = sorted(all.filter(t => col.match(t) && (V.done || !t.is_done)));
           return `<div class="v-col" data-v-dropcol="${col.key}">
-            <div class="v-col-head">${tcatChip(col.cat)}<span class="v-col-n">${tasks.length}</span>
+            <div class="v-col-head">${tcatChip(col.cat)}${col.cat ? tcEditBtn(col.cat) : ''}<span class="v-col-n">${tasks.length}</span>
               <button type="button" class="v-icon-btn" data-v-gadd="${col.cat ? col.cat.id : ''}" aria-label="Ajouter une tâche : ${esc(col.cat ? col.cat.name : 'Sans catégorie')}">${I.plus}</button></div>
             <div class="v-col-body" data-v-scroll="col-${col.key}">${tasks.map(catCardHtml).join('') || '<div class="v-empty" style="padding:28px 0">Aucune tâche</div>'}</div>
           </div>`;
@@ -10477,7 +10531,7 @@
         }
         if (effGroup() !== 'none') {
           const groups = groupsOf(sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k, V.gsort, V.gsortRev));
-          return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? `<div class="vm-gcard">${groups.map(g => `<div class="vm-ghead" style="color:${g.cat ? catColors(g.cat).fg : '#6b6b6b'}">${g.cat ? esc(g.cat.name) : g.key === '' ? 'Sans catégorie' : g.chip}<small>${g.tasks.length}</small></div>${g.tasks.map(t => mRowHtml(t, k, true)).join('')}`).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
+          return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? `<div class="vm-gcard">${groups.map(g => `<div class="vm-ghead" style="color:${g.cat ? catColors(g.cat).fg : '#6b6b6b'}">${g.cat ? esc(g.cat.name) : g.key === '' ? 'Sans catégorie' : g.chip}<small>${g.tasks.length}</small>${g.cat ? tcEditBtn(g.cat) : ''}</div>${g.tasks.map(t => mRowHtml(t, k, true)).join('')}`).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
         }
         const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
@@ -10962,12 +11016,13 @@
       const row = e.target.closest('#v2 .v-row[data-v-open]');
       if (row) { e.preventDefault(); e.stopPropagation(); selClick(row.dataset.vOpen, e.shiftKey); return; }
     } else if (e.target.closest('[data-v-selmode]')) { selToggleMode(true); return; }
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-vm-group],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
     if (d.vSt) { e.stopPropagation(); openStatusMenu(el, d.vSt); return; }
     if (d.vTcat) { e.stopPropagation(); openCatMenu(el, d.vTcat); return; }
+    if (d.vTcedit) { e.stopPropagation(); openCatEdit(el, d.vTcedit); return; }
     if (d.vGroup) { openGroupMenu(el, d.vGroup === 'k'); return; }
     if ('vmGroup' in d) { V.group = effGroup() === 'cat' ? 'none' : 'cat'; LS.set('group', V.group); v2Render(); return; }
     if ('vGadd' in d) { openNew(contextDate(), null, null, d.vGadd || null); return; }
