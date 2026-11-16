@@ -12742,7 +12742,7 @@
   const LB = {
     loaded: false, loading: false, err: null,
     series: [], vols: [], prepub: [],
-    tab: LS.get('lb_tab', 'col'),          // col | read | buy | out | pre
+    tab: (t => t === 'pre' ? 'col' : t)(LS.get('lb_tab', 'col')), // col | read | buy | out
     kind: LS.get('lb_kind', 'all'),        // all | manga | bd | comics | magazine | livre
     fmt: LS.get('lb_fmt', 'all'),          // all | paper | digital
     sort: LS.get('lb_sort', 'az'),         // az | recent | note (vue par série)
@@ -12755,7 +12755,7 @@
     stab: 'all',                           // onglet de la fiche série : all | read | toread | buy
     vol: null,                             // tome ouvert (panneau)
   };
-  const LB_TABS = [['col', 'Collection'], ['read', 'À lire'], ['buy', 'À acheter'], ['out', 'Sorties'], ['pre', 'Prépublication']];
+  const LB_TABS = [['col', 'Collection'], ['read', 'À lire'], ['buy', 'À acheter'], ['out', 'Sorties']]; // « Prépublication » retirée : suivie dans les tâches
   const LB_KINDS = [['manga', 'Manga'], ['bd', 'BD'], ['comics', 'Comics'], ['magazine', 'Magazines'], ['livre', 'Livres']];
   const LB_TOPS = [['indispensable', 'Indispensable'], ['prefere', 'Préféré']];
   const LBI = {
@@ -12852,7 +12852,7 @@
     const it = (k, ic, l) => `<button type="button" class="v-page${V.space === 'lib' && LB.tab === k ? ' on' : ''}" data-lb-go="${k}">${ic}<span>${l}</span><span class="v-page-count">${LB.loaded && n[k] ? n[k] : ''}</span></button>`;
     return `<section class="v-cat open${V.space === 'lib' ? ' active-cat' : ''}" style="--c-bg:#EAF0FB;--c-fg:#24508F">
       <div class="v-cat-head"><button type="button" class="v-cat-name" data-lb-go="${LB.tab || 'col'}">Bibliothèque</button></div>
-      <div class="v-cat-pages">${it('col', LBI.grid, 'Collection')}${it('read', LBI.eye, 'À lire')}${it('buy', LBI.cart, 'À acheter')}${it('out', LBI.cal, 'Sorties')}${it('pre', LBI.news, 'Prépublication')}</div>
+      <div class="v-cat-pages">${it('col', LBI.grid, 'Collection')}${it('read', LBI.eye, 'À lire')}${it('buy', LBI.cart, 'À acheter')}${it('out', LBI.cal, 'Sorties')}</div>
     </section>`;
   }
   function lbCounts() {
@@ -12884,7 +12884,7 @@
     if (LB.tab === 'read') return bar() + lbReadHtml();
     if (LB.tab === 'buy') return bar() + lbBuyHtml();
     if (LB.tab === 'out') return lbBdgestHtml() + bar() + lbOutHtml(mobile);
-    if (LB.tab === 'pre') return lbPreHtml();
+    if (LB.tab === 'pre') LB.tab = 'col'; // onglet retiré (ancienne page mémorisée)
     return lbCollectionHtml(mobile);
   }
   // ---------- Collection ----------
