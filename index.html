@@ -14089,7 +14089,7 @@
         let ex = (have || []).find(x => +x.number === +v.number);
         if (v.title_like) { const c = (have || []).filter(x => tn(x.title).includes(tn(v.title_like))); if (c.length === 1) ex = c[0]; } // tome dont le titre contient ce texte
         if (!ex && v.number === 'last' && (have || []).length) ex = [...have].sort((a, b) => +b.number - +a.number)[0]; // le dernier tome de la série
-        if (ex) v.number = ex.number; else if (v.number === 'last') throw new Error('aucun tome dans cette série');
+        if (ex) v.number = ex.number; else if (v.number === 'last') continue; // pas de tome : rien à faire
         delete v.title_like;
         if (v.delete) { if (ex) await sb.from('lib_volumes').delete().eq('id', ex.id); continue; } // retirer un tome
         // planches envoyées en images (data:…) → stockage Supabase, puis liens dans « previews »
