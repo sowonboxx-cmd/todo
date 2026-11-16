@@ -13650,7 +13650,10 @@
       const fg = await lbLib({ fg: q });
       if (fg && fg.length) fg.slice(0, 4).forEach(x => out.push({ title: x.fr || x.t, title_original: x.jp || '', authors: (x.au || []).join(', '), cover: x.cover || '', genre: [x.type, ...(x.genres || [])].filter(Boolean).join(', '), kind: 'manga', date: x.y1 ? '' : '', src: 'fg', fgId: x.id, sub: [(x.pays || []).join(' · '), x.y1].filter(Boolean).join(' · ') }));
     }
-    const lib = await lbLib({ q: isbn || q });
+    let lib = await lbLib({ q: isbn || q });
+    // le site des libraires indexe souvent sans accents (« Affaires d'Etat ») : on cherche aussi la version sans accents
+    const qa = !isbn && q ? q.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : '';
+    if (qa && qa !== q) { const l2 = await lbLib({ q: qa }) || []; const seen = new Set((lib || []).map(x => x.ean)); lib = [...l2.filter(x => !seen.has(x.ean)), ...(lib || [])]; }
     if (lib && lib.length) {
       if (rawItems) return lib.filter(it => it.cover).slice(0, max).map(it => ({ title: it.series, vtitle: it.title, cover: it.cover, isbn: it.ean, authors: it.authors, publisher: lbCap(it.publisher) }));
       const groups = new Map();
