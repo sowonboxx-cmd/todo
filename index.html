@@ -3231,6 +3231,18 @@
   .lb-tbd em { font-style: normal; color: #B4541A; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; line-height: 1.2; }
   .lb-cv.xs.lb-tbd span, .lb-cv.xs.lb-tbd em, .lb-cv.sm.lb-tbd span, .lb-cv.sm.lb-tbd em { display: none; }
   .lb-cv.xs.lb-tbd b, .lb-cv.sm.lb-tbd b { font-size: 10px; }
+  .lb-tm.unrd .lb-cv { filter: grayscale(1) opacity(.5); }
+  .lb-tm.unrd .lb-cv.lb-tbd { opacity: .5 !important; }
+  .lb-tck.rdck { background: rgba(255,255,255,.92); border: 1.5px dashed #9a9890; }
+  .lb-tm.rd .lb-tck.rdck { background: #2F62C9; border: none; color: #fff; }
+  .lb-tm.unrd .lb-tck.rdck:hover { border-color: #2F62C9; }
+  .lb-legend i.rd { background: #2F62C9; }
+  .lb-readall { color: #24508F; background: #EAF0FB; }
+  .lb-readall:hover { background: #DCE6F8; }
+  .lb-tools .lb-readall { margin-left: 8px; }
+  .lb-mwide.lb-readall { background: #EAF0FB; border-color: #D5E1F7; color: #24508F; margin-bottom: -2px; }
+  .lb-ramenu button span { display: flex; flex-direction: column; align-items: flex-start; }
+  .lb-ra-sub { font-size: 11.5px; color: #8b8b8b; font-weight: 400; margin-top: 1px; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12746,7 +12758,7 @@
     if (v) {
       const url = v.cover_url || (+v.number === 1 ? s?.cover_url : '');
       return url ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(url)}')"></div>`
-        : `<div class="lb-cv ${cls} lb-tbd"><span>${esc(s?.title_original || s?.title || '')}</span><b>T.${esc(String(v.number))}</b><em>Couverture à venir</em></div>`;
+        : `<div class="lb-cv ${cls} lb-tbd"><span>${esc(s?.title_original || s?.title || '')}</span><b>T.${esc(String(v.number))}</b><em>${v.release_date && v.release_date <= lbToday() ? 'Pas de couverture' : 'Couverture à venir'}</em></div>`;
     }
     const url = s?.cover_url;
     return url
@@ -13029,7 +13041,7 @@
     const st = lbStats(s), all = lbVolsOf(s.id);
     const nextMiss = all.find(v => !v.owned && !v.wish && (!v.release_date || v.release_date <= lbToday()));
     const wishN = all.filter(v => !v.owned && v.wish).length;
-    const vs = LB.stab === 'read' ? all.filter(v => v.owned && v.read) : LB.stab === 'toread' ? all.filter(v => v.owned && !v.read) : LB.stab === 'buy' ? all.filter(v => !v.owned && v.wish) : LB.stab === 'miss' ? all.filter(v => !v.owned && !v.wish) : all;
+    const vs = LB.stab === 'read' ? all.filter(v => v.owned) : LB.stab === 'toread' ? all.filter(v => v.owned && !v.read) : LB.stab === 'buy' ? all.filter(v => !v.owned && v.wish) : LB.stab === 'miss' ? all.filter(v => !v.owned && !v.wish) : all;
     const sc = { all: all.length, read: all.filter(v => v.owned && v.read).length, toread: all.filter(v => v.owned && !v.read).length, buy: all.filter(v => !v.owned && v.wish).length, miss: all.filter(v => !v.owned && !v.wish).length };
     const top = LB_TOPS.find(([k]) => k === s.top);
     const meta = [
@@ -13067,13 +13079,14 @@
           <div class="lb-sub">${st.read} lu${st.read > 1 ? 's' : ''}${st.own - st.read > 0 ? ` · ${st.own - st.read} à lire` : ''}${wishN ? ` · ${wishN} à acheter` : ''}${st.missing - wishN > 0 ? ` · ${st.missing - wishN} manquant${st.missing - wishN > 1 ? 's' : ''}` : ''}</div>
           ${nextOut ? `<div class="lb-nextout">${LBI.cal}<div><b>T.${esc(String(nextOut.number))} · ${lbFmtDate(nextOut.release_date)}</b><small>${days === 0 ? 'aujourd’hui' : days === 1 ? 'demain' : `dans ${days} jours`}</small></div></div>` : ''}
           ${nextMiss ? `<button type="button" class="lb-btn sm" data-lb-wish="${nextMiss.id}">${LBI.cart}Ajouter T.${esc(String(nextMiss.number))} à « À acheter »</button>` : ''}
+          ${all.some(v => !v.read && (v.owned || !v.release_date || v.release_date <= lbToday())) ? `<button type="button" class="lb-btn sm lb-readall" data-lb-readall>${I.check}J’ai lu toute la série</button>` : ''}
           <button type="button" class="lb-btn sm ghost" data-lb-sync>${LBI.cal}Chercher les nouveaux tomes</button>
           <label class="lb-follow"><span>Suivre les sorties</span><span class="vm-switch${s.follow ? ' on' : ''}" data-lb-follow role="switch" aria-checked="${!!s.follow}"></span></label>
         </div>
       </div>
       <div class="lb-tools"><div class="lb-stabs" role="tablist">${[['all', 'Tomes'], ['read', 'Lus'], ['toread', 'À lire'], ['buy', 'Panier'], ['miss', 'Manquants']].filter(([k]) => k !== 'miss' || sc.miss).map(([k, l]) => `<button type="button" role="tab" aria-selected="${LB.stab === k}" class="${LB.stab === k ? 'on' : ''}" data-lb-stab="${k}"><span>${l}</span><em>${sc[k]}</em></button>`).join('')}</div>
-        <span class="lb-legend"><i class="own"></i>Possédé <i class="miss"></i>Manquant</span></div>
-      <div class="lb-tomes">${vs.map(v => lbTomeHtml(s, v)).join('')}
+        ${LB.stab === 'read' ? `<span class="lb-legend"><i class="rd"></i>Lu <i class="miss"></i>Pas encore lu</span>${vs.some(v => !v.read) ? `<button type="button" class="lb-btn sm lb-readall" data-lb-readall>${I.check}Tout marquer lu</button>` : ''}` : '<span class="lb-legend"><i class="own"></i>Possédé <i class="miss"></i>Manquant</span>'}</div>
+      <div class="lb-tomes${LB.stab === 'read' ? ' rdmode' : ''}">${vs.map(v => lbTomeHtml(s, v)).join('')}
         ${LB.stab === 'all' ? `<button type="button" class="lb-tadd" data-lb-addvol>${I.plus}<span>Tome</span></button>` : ''}</div>
       ${!vs.length && LB.stab !== 'all' ? '<div class="lb-empty sm"><p>Aucun tome ici.</p></div>' : ''}
       <button type="button" class="lb-del" data-lb-delseries>${LBI.trash}Supprimer cette série</button>`;
@@ -13143,6 +13156,7 @@
             <div class="lb-mprio"><span>À lire prochainement</span>${lbPrioHtml(s).replace(/<span>À lire prochainement<\/span>/, '')}</div>
             <div><span>Top</span><button type="button" class="lb-mtop${top ? ' on' : ''}" data-lb-top>${top ? top[1] : 'Aucun'}</button></div>
           </div>
+          ${all.some(v => !v.read && (v.owned || !v.release_date || v.release_date <= lbToday())) ? `<button type="button" class="lb-mwide lb-readall" data-lb-readall>J’ai lu toute la série</button>` : ''}
           <button type="button" class="lb-mwide" data-lb-sync>Chercher les nouveaux tomes</button></div>
         <button type="button" class="lb-del" data-lb-delseries>${LBI.trash}Supprimer cette série</button>`;
     }
@@ -13270,6 +13284,12 @@
   }
   function lbTomeHtml(s, v) {
     const up = v.release_date && v.release_date > lbToday() && !v.owned;
+    if (LB.stab === 'read') { // onglet Lus : tous les tomes possédés, le rond bleu coche / décoche « lu »
+      return `<div class="lb-tm${v.read ? ' rd' : ' unrd'}">
+      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
+      <button type="button" class="lb-tck rdck" data-lb-rd="${v.id}" aria-label="${v.read ? 'Lu — décocher' : 'Marquer comme lu'}">${v.read ? I.check : ''}</button>
+      <div class="lb-tl"><b>T.${esc(String(v.number))}</b><span>${v.read ? (v.read_at ? lbFmtDate(v.read_at) : 'Lu') : 'Pas lu'}</span></div></div>`;
+    }
     const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}</button>
@@ -13401,6 +13421,30 @@
       const { error } = await sb.from('lib_series').delete().eq('id', s.id);
       if (error) { console.error(error); alertBubble('Suppression impossible.'); lbLoad(true); } else alertBubble(`${s.title} supprimé`);
     });
+  }
+  // « J'ai lu toute la série » : tous les tomes possédés d'un coup (ou toute la série parue, qui entre alors dans la collection)
+  function lbReadAll(anchor, s) {
+    if (!s) return;
+    const all = lbVolsOf(s.id), today = lbToday();
+    const ownUnread = all.filter(v => v.owned && !v.read);
+    const notOwned = all.filter(v => !v.owned && !v.read && (!v.release_date || v.release_date <= today));
+    const run = async list => {
+      if (!list.length) return;
+      const ids = list.map(v => v.id), rd = { read: true, read_at: today };
+      list.forEach(v => { Object.assign(v, rd); if (!v.owned) Object.assign(v, { owned: true, wish: false, bought_at: v.bought_at || today }); });
+      v2Render(); lbVolPanel();
+      const a = list.filter(v => ownUnread.includes(v)).map(v => v.id), b = ids.filter(id => !a.includes(id));
+      if (a.length) await sb.from('lib_volumes').update({ ...rd, updated_at: new Date().toISOString() }).in('id', a);
+      if (b.length) await sb.from('lib_volumes').update({ ...rd, owned: true, wish: false, bought_at: today, updated_at: new Date().toISOString() }).in('id', b);
+      alertBubble(`${list.length} tome${list.length > 1 ? 's' : ''} marqué${list.length > 1 ? 's' : ''} lu${list.length > 1 ? 's' : ''}`);
+    };
+    const opts = [];
+    if (ownUnread.length) opts.push(['own', `Mes tomes (${ownUnread.length})`, 'ceux que j’ai déjà']);
+    if (notOwned.length) opts.push(['all', `Toute la série parue (${ownUnread.length + notOwned.length})`, 'les tomes manquants entrent aussi dans ma collection']);
+    if (!opts.length) { alertBubble('Tout est déjà lu.'); return; }
+    if (opts.length === 1 && opts[0][0] === 'own') { run(ownUnread); return; }
+    const { m, close } = floatMenu(anchor, `<div class="v-bulk-confirm">Marquer comme lus :</div>${opts.map(([k, l, sub]) => `<button type="button" data-k="${k}"><span>${l}<small class="lb-ra-sub">${sub}</small></span></button>`).join('')}<button type="button" class="muted" data-k=""><span>Annuler</span></button>`, 'v-bulkmenu lb-ramenu');
+    m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); if (b.dataset.k === 'own') run(ownUnread); else if (b.dataset.k === 'all') run([...ownUnread, ...notOwned]); });
   }
   function lbConfirm(anchor, text, label, onYes) {
     const { m, close } = floatMenu(anchor, `<div class="v-bulk-confirm">${text}</div><button type="button" class="danger" data-yes><span>${label}</span></button><button type="button" data-no><span>Annuler</span></button>`, 'v-bulkmenu');
@@ -13819,6 +13863,8 @@
       else { LB.vol = id; LB.open = lbVol(id)?.series_id || LB.open; document.querySelector('#v2m .lb-mob')?.scrollTo(0, 0); }
       v2Render(); return;
     }
+    if ((el = d('[data-lb-rd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbRd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
+    if ((el = d('[data-lb-readall]'))) { lbReadAll(el, lbSer(LB.open)); return; }
     if ((el = d('[data-lb-readnext]'))) { const v = lbVol(el.dataset.lbReadnext); if (v) await lbVolSet(v, { read: true, read_at: lbToday() }); return; }
     if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: true }); return; }
     if ((el = d('[data-lb-preread]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPreread); if (p) { p.read = !p.read; v2Render(); await lbUpd('lib_prepub', p.id, { read: p.read }); } return; }
