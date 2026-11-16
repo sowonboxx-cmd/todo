@@ -2163,6 +2163,13 @@
   .v-tcm-list { display: flex; flex-direction: column; gap: 1px; max-height: 300px; overflow: auto; }
   .v-tcmenu button { justify-content: flex-start; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 8px 9px; text-align: left; }
   .v-tcmenu button > svg { margin-left: auto; }
+  .v-tcm-row { display: flex; align-items: center; border-radius: 8px; }
+  .v-tcm-row > button[data-c] { flex: 1; min-width: 0; }
+  .v-tcmenu .v-tcm-pen { width: 28px; height: 28px; padding: 0; justify-content: center; color: #9a9890; opacity: 0; flex-shrink: 0; }
+  .v-tcm-row:hover .v-tcm-pen, .v-tcm-pen:focus-visible { opacity: 1; }
+  .v-tcmenu .v-tcm-pen:hover { color: #1f1f1f; background: #F3F2EE; }
+  .v-tcmenu .v-tcm-pen svg { width: 14px; height: 14px; margin: 0; color: inherit; }
+  @media (hover: none) { .v-tcmenu .v-tcm-pen { opacity: .8; } }
   .v-tcm-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .v-tcm-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .v-tcm-sep { border-top: 1px solid #EFEEEA; margin: 4px 0; }
@@ -9729,7 +9736,7 @@
     const draw = () => {
       const s = q.value.trim().toLowerCase();
       const list = catsOf(p.id).filter(c => !s || c.name.toLowerCase().includes(s));
-      m.querySelector('.v-tcm-list').innerHTML = list.map(c => `<button type="button" role="menuitemradio" aria-checked="${cur === c.id}" data-c="${c.id}"><span class="v-tcm-dot" style="background:${catColors(c).dot}"></span><span class="v-tcm-name">${esc(c.name)}</span>${cur === c.id ? I.check : ''}</button>`).join('')
+      m.querySelector('.v-tcm-list').innerHTML = list.map(c => `<div class="v-tcm-row"><button type="button" role="menuitemradio" aria-checked="${cur === c.id}" data-c="${c.id}"><span class="v-tcm-dot" style="background:${catColors(c).dot}"></span><span class="v-tcm-name">${esc(c.name)}</span>${cur === c.id ? I.check : ''}</button><button type="button" class="v-tcm-pen" data-c-edit="${c.id}" aria-label="Modifier ${esc(c.name)}" title="Renommer / couleur">${svg('<path d="M14.5 5.5l4 4L8.5 19.5H4.5v-4z"/><path d="M12.5 7.5l4 4"/>')}</button></div>`).join('')
         || (s ? '' : '<div class="v-tcm-empty">Aucune catégorie dans ce projet.</div>');
       m.querySelector('.v-tcm-new span').textContent = s ? `+ Créer « ${q.value.trim()} »` : '+ Nouvelle catégorie';
       place();
@@ -9744,6 +9751,8 @@
     });
     setTimeout(() => { if (!isMobile()) q.focus(); }, 0);
     m.addEventListener('click', async (ev) => {
+      const pen = ev.target.closest('[data-c-edit]');
+      if (pen) { ev.stopPropagation(); close(); openCatEdit(anchor, pen.dataset.cEdit); return; }
       const b = ev.target.closest('[data-c]'); if (!b) return;
       let cid = b.dataset.c;
       if (cid === '+') {
