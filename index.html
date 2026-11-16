@@ -3229,6 +3229,8 @@
   .lb-mkv { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 4px 8px; font-size: 13px; margin-top: 4px; }
   .lb-mkv span { color: #8b8b8b; }
   .lb-mkv b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-mkv.w { margin-top: 0; grid-template-columns: 58px minmax(0, 1fr); }
+  .lb-mkv.w b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
   .lb-macts { display: flex; gap: 8px; }
   .lb-mac { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 12px; padding: 11px 4px; font: 600 14px 'Inter', sans-serif; background: #F7F6F3; color: #6b6b6b; }
   .lb-mac .lb-sf, .lb-mac svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -12933,7 +12935,7 @@
   function lbTomeCardHtml(v) {
     const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
     return `<button type="button" class="lb-card" data-lb-vol="${v.id}">
-      <div class="lb-cvw">${lbCover(s, v)}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}</div>
+      <div class="lb-cvw">${lbCover(s, v)}</div>
       <div class="lb-ct">${esc(s.title)}</div>
       <div class="lb-cm"><b>${esc(lbTn(v))}</b>${lbAcq(v) ? `<span class="lb-cmd">${lbFmtDate(lbAcq(v))}</span>` : ''}</div>
     </button>`;
@@ -13183,6 +13185,16 @@
   const lbDaysTxt = n => n === 0 ? 'aujourd’hui' : n === 1 ? 'demain' : n > 0 ? `dans ${n} jours` : `il y a ${-n} jours`;
   const lbDmy = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '';
   const lbStatusTxt = st => { const t = (st || '').toLowerCase(); return /termin|fini|complet/.test(t) ? ['Terminé', ''] : /pause|arr[eê]t/.test(t) ? [st, 'warn'] : t ? ['En cours', 'g'] : ['', '']; };
+  // auteurs en lignes : Scénario / Dessin / Autres (ou Auteur s'il n'y en a qu'un)
+  function lbPeopleKv(s) {
+    const names = x => (x || '').split(/\s*[,;·]\s*/).map(n => n.trim()).filter(Boolean);
+    const au = names(s.authors), ar = names(s.artist).filter(n => !au.includes(n));
+    if (!ar.length) return au.length ? [[au.length > 1 ? 'Auteurs' : 'Auteur', au.join(', ')]] : [];
+    const out = [['Scénario', au[0] || ''], ['Dessin', ar.join(', ')]];
+    if (au.length > 1) out.push(['Autres', au.slice(1).join(', ')]);
+    return out.filter(([, v]) => v);
+  }
+  const lbKvHtml = rows => rows.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join('');
   function lbSeriesMobHtml(s) {
     const all = lbVolsOf(s.id), st = lbStats(s);
     const people = [s.authors, s.artist && s.artist !== s.authors ? s.artist : ''].filter(Boolean).join(' · ');
@@ -13193,8 +13205,9 @@
     const hero = `<div class="lb-mcard lb-mhero">
         <button type="button" class="lb-mhcv" ${s.cover_url ? `data-lb-zoom="${esc(s.cover_url)}"` : 'data-lb-cover'}>${lbCover(s, null, 'big')}</button>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1>${s.title_original ? `<div class="lb-mjp">${esc(s.title_original)}</div>` : ''}
-          ${people ? `<div class="lb-mau"><span>Auteurs</span><b>${esc(people)}</b></div>` : ''}
-          <div class="lb-msrs">${statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr)}${statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div></div>
+          ${lbPeopleKv(s).length ? `<div class="lb-mkv w">${lbKvHtml(lbPeopleKv(s))}</div>` : ''}
+          <div class="lb-msrs">${statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr)}${statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div>
+          ${s.publisher ? `<div class="lb-mkv w"><span>Éditeur</span><b>${esc(s.publisher)}</b></div>` : ''}</div>
         <button type="button" class="lb-mrate" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : '<span>Noter</span>'}</button>
       </div>`;
     let body = '';
@@ -13208,7 +13221,7 @@
         <div class="lb-mtg">${vs.map(v => { const has = v.cover_url || (+v.number === 1 && s.cover_url);
           return `<button type="button" class="lb-mtm ${v.owned ? 'own' : v.wish ? 'buy' : 'miss'}" data-lb-vol="${v.id}">
             ${lbCover(s, v)}
-            ${v.owned ? `<span class="lb-mtb own">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}${v.owned && v.read ? '<span class="lb-mlu">Lu</span>' : ''}
+            ${v.owned ? `<span class="lb-mtb own">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}
             <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbDmy(v.release_date)}</small></button>`; }).join('')}
           <button type="button" class="lb-mtm lb-madd" data-lb-addvol><div class="lb-cv">${I.plus}<span>Tome</span></div></button></div></div>`;
     } else if (tab === 'syn') {
@@ -13244,7 +13257,7 @@
     return `<div class="lb-mser">
       <div class="lb-mcard lb-mhero t"><div class="lb-mhcv big"><button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}"` : 'data-lbv-cover'}>${lbCover(s, v, 'big')}</button><button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer' : 'Chercher la couverture'}</button></div>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1><div class="lb-mtno">${esc(lbTome(v))}</div>
-          <div class="lb-mkv">${v.release_date ? `<span>Sortie</span><b>${lbDmy(v.release_date)}</b>` : ''}${s.publisher ? `<span>Éditeur</span><b>${esc(s.publisher)}</b>` : ''}${people ? `<span>Auteurs</span><b>${esc(people)}</b>` : ''}</div></div></div>
+          <div class="lb-mkv">${v.release_date ? `<span>Sortie</span><b>${lbDmy(v.release_date)}</b>` : ''}${lbKvHtml(lbPeopleKv(s))}${s.publisher ? `<span>Éditeur</span><b>${esc(s.publisher)}</b>` : ''}</div></div></div>
       <div class="lb-mcard">
         <div class="lb-macts"><button type="button" class="lb-mac g${v.owned ? ' on' : ''}" data-lbv-tog="owned">${LB_SF.books}Possédé</button><button type="button" class="lb-mac b${v.read ? ' on' : ''}" data-lbv-tog="read">${LB_SF.book}Lu</button><button type="button" class="lb-mac o${!v.owned && v.wish ? ' on' : ''}" ${v.owned ? 'disabled' : ''} data-lbv-tog="wish">${LB_SF.cart}Panier</button></div>
         ${v.owned ? `<div class="lb-mrows in"><div><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbDmy(v.bought_at) : 'Choisir'}</button></div>${v.read ? `<div><span>Lu le</span><button type="button" class="lb-link" data-lbv-date="read_at">${v.read_at ? lbDmy(v.read_at) : 'Choisir'}</button></div>` : ''}<div><span>Format</span>${lbFmtSeg(fmt, 'data-lbv-fmt')}</div></div>` : ''}
@@ -13367,7 +13380,7 @@
     }
     const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
-      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}</button>
+      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
       <button type="button" class="lb-tck" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
       <div class="lb-tl"><b>${esc(lbTn(v))}</b><span>${lab}</span></div></div>`;
   }
