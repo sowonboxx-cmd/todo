@@ -13561,9 +13561,9 @@
         if (Array.isArray(v.previews_data) && v.previews_data.length) {
           const urls = [];
           for (const [i, du] of v.previews_data.entries()) urls.push(await lbStoreImage(await (await fetch(du)).blob(), `planches/${ser.id}/t${v.number}-${String(i + 1).padStart(2, '0')}`));
-          v.previews = [...((ex && ex.previews) || []), ...urls];
+          v.previews = v.previews_replace ? urls : [...((ex && ex.previews) || []), ...urls]; // previews_replace : remplace les anciennes planches
         }
-        delete v.previews_data;
+        delete v.previews_data; delete v.previews_replace;
         const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title', 'summary', 'previews'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
