@@ -3231,8 +3231,11 @@
   .lb-mkv { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 4px 8px; font-size: 13px; margin-top: 4px; }
   .lb-mkv span { color: #8b8b8b; }
   .lb-mkv b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lb-mkv.w { margin-top: 0; grid-template-columns: 58px minmax(0, 1fr); }
-  .lb-mkv.w b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+  /* « Label : valeur » serrés, une ligne par info */
+  .lb-mkv { display: flex; flex-direction: column; gap: 4px; }
+  .lb-mkv > div { min-width: 0; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .lb-mkv.w { margin-top: 0; }
+  .lb-mkv > div b { white-space: normal; }
   .lb-macts { display: flex; gap: 8px; }
   .lb-mac { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border: none; border-radius: 12px; padding: 11px 4px; font: 600 14px 'Inter', sans-serif; background: #F7F6F3; color: #6b6b6b; }
   .lb-mac .lb-sf, .lb-mac svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
@@ -13197,7 +13200,7 @@
     if (au.length > 1) out.push(['Autres', au.slice(1).join(', ')]);
     return out.filter(([, v]) => v);
   }
-  const lbKvHtml = rows => rows.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join('');
+  const lbKvHtml = rows => rows.map(([k, v]) => `<div><span>${k} :</span> <b>${esc(v)}</b></div>`).join('');
   function lbSeriesMobHtml(s) {
     const all = lbVolsOf(s.id), st = lbStats(s);
     const people = [s.authors, s.artist && s.artist !== s.authors ? s.artist : ''].filter(Boolean).join(' · ');
@@ -13210,7 +13213,7 @@
         <div class="lb-mhi"><h1>${esc(s.title)}</h1>${s.title_original ? `<div class="lb-mjp">${esc(s.title_original)}</div>` : ''}
           ${lbPeopleKv(s).length ? `<div class="lb-mkv w">${lbKvHtml(lbPeopleKv(s))}</div>` : ''}
           <div class="lb-msrs">${s.kind === 'bd' ? statusRow('', s.total_volumes || lbReg(all).length, fr) /* BD : pas de drapeau, pas de Japon */ : (s.status || !(s.jp_volumes || s.jp_status) ? statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr) : '') /* pas d'édition française : seulement la ligne Japon */ + statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div>
-          ${s.publisher ? `<div class="lb-mkv w"><span>Éditeur</span><b>${esc(s.publisher)}</b></div>` : ''}</div>
+          ${s.publisher ? `<div class="lb-mkv w">${lbKvHtml([['Éditeur', s.publisher]])}</div>` : ''}</div>
         <button type="button" class="lb-mrate" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : '<span>Noter</span>'}</button>
       </div>`;
     let body = '';
@@ -13260,7 +13263,7 @@
     return `<div class="lb-mser">
       <div class="lb-mcard lb-mhero t"><div class="lb-mhcv big"><button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}"` : 'data-lbv-cover'}>${lbCover(s, v, 'big')}</button><button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer' : 'Chercher la couverture'}</button></div>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1><div class="lb-mtno">${esc(lbTome(v))}</div>
-          <div class="lb-mkv">${v.release_date ? `<span>Sortie</span><b>${lbDmy(v.release_date)}</b>` : ''}${lbKvHtml(lbPeopleKv(s))}${s.publisher ? `<span>Éditeur</span><b>${esc(s.publisher)}</b>` : ''}</div></div></div>
+          <div class="lb-mkv">${lbKvHtml([v.release_date ? ['Sortie', lbDmy(v.release_date)] : null, ...lbPeopleKv(s), s.publisher ? ['Éditeur', s.publisher] : null].filter(Boolean))}</div></div></div>
       <div class="lb-mcard">
         <div class="lb-macts"><button type="button" class="lb-mac g${v.owned ? ' on' : ''}" data-lbv-tog="owned">${LB_SF.books}Possédé</button><button type="button" class="lb-mac b${v.read ? ' on' : ''}" data-lbv-tog="read">${LB_SF.book}Lu</button><button type="button" class="lb-mac o${!v.owned && v.wish ? ' on' : ''}" ${v.owned ? 'disabled' : ''} data-lbv-tog="wish">${LB_SF.cart}Panier</button></div>
         ${v.owned ? `<div class="lb-mrows in"><div><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbDmy(v.bought_at) : 'Choisir'}</button></div>${v.read ? `<div><span>Lu le</span><button type="button" class="lb-link" data-lbv-date="read_at">${v.read_at ? lbDmy(v.read_at) : 'Choisir'}</button></div>` : ''}<div><span>Format</span>${lbFmtSeg(fmt, 'data-lbv-fmt')}</div></div>` : ''}
