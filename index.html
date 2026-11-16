@@ -2470,6 +2470,10 @@
   #v2m button, #v2m a { touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
   .vm-head, .vm-tabs, .vm-chiprow, .vm-nav { touch-action: none; }
   .vm-page, .vm-drawer .v-side, .vm-sheet, .vm-search-results { overscroll-behavior: contain; }
+  /* tiroir (sidebar gauche) : fixe sous le doigt, seul le défilement vertical de la liste est permis */
+  .vm-drawer { touch-action: pan-y; overscroll-behavior: none; }
+  .vm-drawer-bd, .vm-drawer-foot { touch-action: none; }
+  .vm-drawer .v-side { overflow-x: hidden; overscroll-behavior: none; touch-action: pan-y; }
   .vm-page { padding-bottom: 96px; }
   .vm-edge { position: fixed; left: 0; top: 0; bottom: 0; width: 16px; z-index: 40; touch-action: none; }
   .vm-tabs .v-seg button { min-height: 38px; }
