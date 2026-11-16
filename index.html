@@ -13655,13 +13655,14 @@
     return (pageName && pages.find(p => ciNorm(p.title) === ciNorm(pageName))) || (!pageName && ciNorm(proj.name) === 'inbox' && pages.find(p => ciNorm(p.title) === 'bordel')) || pages[0] || null;
   }
   // regroupe les doublons d'une série (même titre, aux accents / apostrophes près) et les tomes en double
-  async function ciMergeSeries(title) {
+  async function ciMergeSeries(title, others = [], like = null) {
     const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
     const { data: all } = await sb.from('lib_series').select('*');
-    const same = (all || []).filter(x => tn(x.title) === tn(title));
+    const keys = [title, ...others].map(tn);
+    const same = (all || []).filter(x => keys.includes(tn(x.title)) || (like && tn(x.title).includes(tn(like))));
     if (!same.length) return;
     const score = x => (x.cover_url ? 4 : 0) + ['authors', 'publisher', 'genre', 'kind', 'top', 'rating'].filter(k => x[k]).length;
-    same.sort((a, b) => score(b) - score(a) || String(a.created_at || '').localeCompare(String(b.created_at || '')));
+    same.sort((a, b) => (tn(b.title) === tn(title)) - (tn(a.title) === tn(title)) || score(b) - score(a) || String(a.created_at || '').localeCompare(String(b.created_at || '')));
     const keep = same[0];
     const ids = same.map(x => x.id);
     const { data: vols } = await sb.from('lib_volumes').select('*').in('series_id', ids);
@@ -13690,6 +13691,10 @@
       const { error } = await sb.from('todos').insert({ page_id: pg.id, title: d.title, notes: d.notes || null, due_date: d.due_date || null, due_time: d.due_time || null, priority: d.priority || 'none' });
       if (error) throw error;
       return 'tâche';
+    }
+    if (row.kind === 'lib' && d.merge) { // regrouper des séries : { merge: { into: "Titre gardé", from: ["Autre titre", …] } }
+      await ciMergeSeries(d.merge.into, d.merge.from || [], d.merge.like || null); // like : tous les titres qui contiennent ce texte
+      return 'livre';
     }
     if (row.kind === 'lib' && d.bg) { // image de fond d'un carré de la collection
       const ok = ['own', 'series', 'read', 'buy', 'out'];
