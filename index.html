@@ -13196,9 +13196,8 @@
     const names = x => (x || '').split(/\s*[,;·]\s*/).map(n => n.trim()).filter(Boolean);
     const au = names(s.authors), ar = names(s.artist).filter(n => !au.includes(n));
     if (!ar.length) return au.length ? [[au.length > 1 ? 'Auteurs' : 'Auteur', au.join(', ')]] : [];
-    const out = [['Scénario', au[0] || ''], ['Dessin', ar.join(', ')]];
-    if (au.length > 1) out.push(['Autres', au.slice(1).join(', ')]);
-    return out.filter(([, v]) => v);
+    const join = l => l.length === 2 ? l.join(' & ') : l.join(', ');
+    return [['Scénario', join(au)], ['Dessin', join(ar)]].filter(([, v]) => v); // tous les scénaristes sur la même ligne
   }
   const lbKvHtml = rows => rows.map(([k, v]) => `<div><span>${k} :</span> <b>${esc(v)}</b></div>`).join('');
   function lbSeriesMobHtml(s) {
