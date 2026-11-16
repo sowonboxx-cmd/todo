@@ -3079,6 +3079,19 @@
   .lb-sq.img .lb-sq-go { color: rgba(255,255,255,.7); }
   .lb-sq.img .lb-sq-bar { background: rgba(255,255,255,.25); }
   .lb-sq.img b { text-shadow: 0 2px 10px rgba(0,0,0,.35); }
+  .lb-qe { border: none; background: transparent; padding: 4px 8px; margin: -4px -8px; border-radius: 8px; cursor: pointer; font: inherit; color: inherit; display: inline-flex; align-items: center; gap: 2px; max-width: 100%; }
+  .lb-qe:hover { background: #F1F0EC; }
+  .lb-qph { color: #B5B3AC; font-size: 12.5px; }
+  .lb-qe:hover .lb-qph { color: #6b6b6b; }
+  .lb-tnote.hi { color: #C98A06; }
+  .lb-qfmenu { min-width: 170px; }
+  .lb-qfmenu .lb-qf { gap: 8px; }
+  .lb-qfmenu .lb-qf svg { width: 15px; height: 15px; color: #9A9890; }
+  .lb-qfmenu .lb-qf .lb-fck { display: none; margin-left: auto; width: 16px; height: 16px; border-radius: 50%; background: #2F9E5B; color: #fff; align-items: center; justify-content: center; }
+  .lb-qfmenu .lb-qf .lb-fck svg { width: 10px; height: 10px; color: #fff; }
+  .lb-qfmenu .lb-qf.on { color: #1E6B3D; font-weight: 600; }
+  .lb-qfmenu .lb-qf.on > svg:first-child { color: #2F9E5B; }
+  .lb-qfmenu .lb-qf.on .lb-fck { display: inline-flex; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12714,9 +12727,9 @@
       <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
       <span class="lb-tprog"><span class="lb-bar"><i style="width:${pct}%"></i></span><b>${st.own}/${st.total || '?'}</b></span>
       <span class="lb-tch lb-tmut">${st.read} lu${st.read > 1 ? 's' : ''}</span>
-      <span class="lb-tch">${lbFmtIcons(s.format || 'paper')}</span>
-      <span class="lb-tch lb-tmut">${s.rating ? `<b class="lb-tnote">${s.rating}</b>/10` : ''}</span>
-      <span class="lb-tch">${top ? `<span class="lb-ribbon static">${top[1]}</span>` : ''}</span>
+      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qfmt="s:${s.id}" title="Changer le format">${lbFmtIcons(s.format || 'paper')}</button></span>
+      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qrate="s:${s.id}" title="Changer la note">${s.rating ? `<b class="lb-tnote${s.rating >= 8 ? ' hi' : ''}">${s.rating}</b><span class="lb-tmut">/10</span>` : '<span class="lb-qph">Noter</span>'}</button></span>
+      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qtop="${s.id}" title="Changer le top">${top ? `<span class="lb-ribbon static">${top[1]}</span>` : '<span class="lb-qph">+ Top</span>'}</button></span>
     </div>`;
   }
   function lbTomeRowHtml(v) {
@@ -12726,9 +12739,9 @@
       <span class="lb-tch"><span class="lb-kpill">${lbKindLbl(s)}</span></span>
       <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
       <span class="lb-tch lb-tmut">${lbAcq(v) ? lbFmtDate(lbAcq(v)) : '—'}</span>
-      <span class="lb-tch">${lbFmtIcons(fmt)}</span>
+      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qfmt="v:${v.id}" title="Changer le format">${lbFmtIcons(fmt)}</button></span>
       <span class="lb-tch"><span class="vm-switch${v.read ? ' on' : ''}" data-lb-trd="${v.id}" role="switch" aria-checked="${!!v.read}" aria-label="Lu"></span></span>
-      <span class="lb-tch lb-tmut">${v.rating ? `<b class="lb-tnote">${v.rating}</b>/10` : ''}</span>
+      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qrate="v:${v.id}" title="Changer la note">${v.rating ? `<b class="lb-tnote${v.rating >= 8 ? ' hi' : ''}">${v.rating}</b><span class="lb-tmut">/10</span>` : '<span class="lb-qph">Noter</span>'}</button></span>
     </div>`;
   }
   function lbCardHtml(s) {
@@ -13453,6 +13466,26 @@
     if (t.closest('[data-lbm-back]')) { LB.vol = null; v2Render(); return; }
     if (t.closest('[data-lbm-full]')) { LB.full = !LB.full; LS.set('lb_full', LB.full); lbModal(); return; }
     { const st = t.closest('[data-lbm-step]'); if (st && !st.disabled) { const vs = lbVolsOf(LB.open), i = vs.findIndex(x => x.id === LB.vol), n = vs[i + +st.dataset.lbmStep]; if (n) { LB.vol = n.id; v2Render(); } return; } }
+    // modification rapide depuis la liste : format, note, top (sans ouvrir la fiche)
+    { const q = t.closest('[data-lb-qfmt],[data-lb-qrate],[data-lb-qtop]');
+      if (q) {
+        e.stopPropagation();
+        if (q.dataset.lbQtop) {
+          const s = lbSer(q.dataset.lbQtop); if (!s) return;
+          const { m, close } = floatMenu(q, [...LB_TOPS, ['', 'Aucun']].map(([k, l]) => `<button type="button" data-k="${k}"${k ? '' : ' class="muted"'}><span>${l}</span>${(s.top || '') === k ? I.check : ''}</button>`).join(''));
+          m.addEventListener('click', async ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); s.top = b.dataset.k || null; v2Render(); await lbUpd('lib_series', s.id, { top: s.top }); });
+          return;
+        }
+        const [kind, id] = (q.dataset.lbQfmt || q.dataset.lbQrate).split(':');
+        const obj = kind === 's' ? lbSer(id) : lbVol(id); if (!obj) return;
+        const save = async patch => { Object.assign(obj, patch); v2Render(); await lbUpd(kind === 's' ? 'lib_series' : 'lib_volumes', obj.id, patch); };
+        if (q.dataset.lbQrate) { lbRateMenu(q, obj.rating, r => save({ rating: r })); return; }
+        const cur = () => obj.format || (kind === 'v' ? lbSer(obj.series_id)?.format : null) || 'paper';
+        const html = () => [['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" data-k="${k}" class="lb-qf${lbHas(cur(), k) ? ' on' : ''}">${ic}<span>${l}</span><span class="lb-fck">${I.check}</span></button>`).join('');
+        const { m } = floatMenu(q, html(), 'lb-qfmenu');
+        m.addEventListener('click', async ev => { const b = ev.target.closest('[data-k]'); if (!b) return; const f = lbFmtToggle(cur(), b.dataset.k); m.innerHTML = (Object.assign(obj, { format: f }), html()); v2Render(); await lbUpd(kind === 's' ? 'lib_series' : 'lib_volumes', obj.id, { format: f }); });
+        return;
+      } }
     { const sq = t.closest('[data-lb-stat]'); if (sq) { const k = sq.dataset.lbStat;
         if (k === 'own') { LB.mode = 'tomes'; LB.tsort = 'recent'; LS.set('lb_mode', 'tomes'); LS.set('lb_tsort', 'recent'); }
         else if (k === 'series') { LB.mode = 'series'; LS.set('lb_mode', 'series'); }
