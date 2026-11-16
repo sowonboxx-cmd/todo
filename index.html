@@ -13595,7 +13595,7 @@
     }
     if ((el = d('[data-lb-own]'))) {
       const v = lbVol(el.dataset.lbOwn); if (!v) return;
-      const patch = v.owned ? { owned: false, read: false } : { owned: true, wish: false, bought_at: v.bought_at || lbToday() };
+      const patch = v.owned ? { owned: false, read: false, read_at: null, bought_at: null, wish: true } : { owned: true, wish: false, bought_at: v.bought_at || lbToday() }; // décoché = repasse « à acheter »
       await lbVolSet(v, patch); return;
     }
     if ((el = d('[data-lb-vol]'))) {
@@ -13620,7 +13620,7 @@
         const k = el.dataset.lbvTog, val = !v[k];
         const patch = { [k]: val };
         if (k === 'read') patch.read_at = val ? lbToday() : null;
-        if (k === 'owned') { if (val) { patch.wish = false; if (!v.bought_at) patch.bought_at = lbToday(); } else patch.read = false; }
+        if (k === 'owned') { if (val) { patch.wish = false; if (!v.bought_at) patch.bought_at = lbToday(); } else Object.assign(patch, { read: false, read_at: null, bought_at: null, wish: true }); } // décoché = repasse « à acheter »
         await lbVolSet(v, patch); return;
       }
       if ((el = d('[data-lbv-fmt]'))) { await lbVolSet(v, { format: lbFmtToggle(v.format || lbSer(v.series_id)?.format, el.dataset.lbvFmt) }); return; }
