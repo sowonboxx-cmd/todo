@@ -2842,7 +2842,6 @@
   .lb-fmt { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; color: #1f1f1f; }
   .lb-fmt svg { width: 14px; height: 14px; }
   .lb-fmt.both { width: auto; padding: 0 5px; gap: 2px; }
-  .lb-fmtseg button.on { background: #fff; color: #1f1f1f; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.08); }
   .lb-ct { font-size: 14px; font-weight: 600; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-cm { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6b6b6b; margin-top: 3px; font-variant-numeric: tabular-nums; }
   .lb-bar { flex: 1; height: 4px; border-radius: 2px; background: #ECEAE4; overflow: hidden; display: block; }
@@ -3038,6 +3037,48 @@
   .lb-vw-strip button { flex: none; width: 38px; height: 50px; border: none; border-radius: 5px; background-size: cover; background-position: center top; opacity: .45; cursor: pointer; }
   .lb-vw-strip button.on { opacity: 1; box-shadow: 0 0 0 2px #fff; }
   @media (max-width: 760px) { .lb-viewer img { width: 100vw; height: auto; max-height: calc(100vh - 150px); border-radius: 0; } .lb-vw-nav { display: none; } }
+  /* priorité P1-P3 : pastilles colorées */
+  .lb-prio .v-seg { background: transparent; padding: 0; gap: 6px; }
+  .lb-prio .v-seg button { border-radius: 9px; padding: 6px 12px; font-weight: 700; box-shadow: none; background: #F3F2EE; color: #8b8b8b; }
+  .lb-prio .v-seg button[data-lb-prio="1"] { background: #FBECEC; color: #C8342B; }
+  .lb-prio .v-seg button[data-lb-prio="2"] { background: #FBF1D9; color: #946200; }
+  .lb-prio .v-seg button[data-lb-prio="3"] { background: #EEF3FE; color: #2F62C9; }
+  .lb-prio .v-seg button.on { box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .lb-prio .v-seg button.on[data-lb-prio="0"] { background: #1f1f1f; color: #fff; }
+  .lb-prio .v-seg button.on.p1 { background: #C8342B; color: #fff; }
+  .lb-prio .v-seg button.on.p2 { background: #D99A0B; color: #fff; }
+  .lb-prio .v-seg button.on.p3 { background: #2F62C9; color: #fff; }
+  .lb-prio .v-seg button:not(.on):hover { filter: brightness(.96); }
+  /* papier / digital : vert + coche quand présent */
+  .lb-fmtseg { display: inline-flex; gap: 6px; }
+  .lb-fbtn { display: inline-flex; align-items: center; gap: 6px; border: 1px dashed #D9D7D0; background: #fff; color: #9A9890; border-radius: 9px; padding: 5px 10px; font: 500 13px 'Inter', sans-serif; cursor: pointer; white-space: nowrap; }
+  .lb-fbtn svg { width: 14px; height: 14px; }
+  .lb-fbtn .lb-fck { display: none; width: 16px; height: 16px; border-radius: 50%; background: #2F9E5B; color: #fff; align-items: center; justify-content: center; margin-left: 2px; }
+  .lb-fbtn .lb-fck svg { width: 10px; height: 10px; }
+  .lb-fbtn.on { border: 1px solid #BFE3CB; background: #E7F5EC; color: #1E6B3D; font-weight: 600; }
+  .lb-fbtn.on .lb-fck { display: inline-flex; }
+  .lb-fbtn:not(.on):hover { border-color: #B5B3AC; color: #6b6b6b; }
+  .lb-fbtn.pill { padding: 6px 11px; }
+  /* statut dans « Ajouter » */
+  .lb-have button.on.own { background: #E7F5EC; color: #1E6B3D; }
+  .lb-have button.on.buy { background: #FBF1D9; color: #946200; }
+  .lb-have button svg { width: 13px; height: 13px; }
+  /* note : plus visible */
+  .lb-rate svg { width: 15px; height: 15px; color: #B5B3AC; }
+  .lb-rate.set { background: #FFF6DD; border-color: #F1D58A; color: #6E4A00; }
+  .lb-rate.set svg { color: #E8B339; fill: #E8B339; }
+  .lb-rate.hi { background: linear-gradient(135deg, #F7C948, #E8A317); border-color: #E8A317; color: #3d2600; box-shadow: 0 2px 8px rgba(232,163,23,.35); }
+  .lb-rate.hi svg { color: #fff; fill: #fff; }
+  .lb-rate b { font-size: 16px; }
+  .lb-notes button.on { background: linear-gradient(135deg, #F7C948, #E8A317); color: #3d2600; }
+  .lb-notes button.cur { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #E8A317; }
+  /* carrés de la collection : couverture en fond */
+  .lb-sq.img { background-image: linear-gradient(180deg, rgba(18,18,17,.25) 0%, rgba(18,18,17,.55) 45%, rgba(18,18,17,.9) 100%), var(--sq-bg); background-size: cover; background-position: center 30%; border-color: transparent; color: #fff; }
+  .lb-sq.img:hover { background-image: linear-gradient(180deg, rgba(18,18,17,.15) 0%, rgba(18,18,17,.45) 45%, rgba(18,18,17,.88) 100%), var(--sq-bg); }
+  .lb-sq.img small { color: rgba(255,255,255,.78); }
+  .lb-sq.img .lb-sq-go { color: rgba(255,255,255,.7); }
+  .lb-sq.img .lb-sq-bar { background: rgba(255,255,255,.25); }
+  .lb-sq.img b { text-shadow: 0 2px 10px rgba(0,0,0,.35); }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12527,6 +12568,7 @@
     trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
     pen2: svg('<path d="M12 19l7-7-3-3-7 7v3z"/><path d="M5 21h4"/>'),
     expand: svg('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
+    star: svg('<path d="M12 3.8l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z"/>'),
     img: svg('<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8"/>'),
     shrink: svg('<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>'),
     stack: svg('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
@@ -12537,7 +12579,7 @@
   const lbHas = (f, k) => (f || 'paper') === k || f === 'both';
   const lbFmtToggle = (f, k) => { const on = new Set(['paper', 'digital'].filter(x => lbHas(f, x))); on.has(k) ? on.delete(k) : on.add(k); if (!on.size) on.add(k); return on.size === 2 ? 'both' : [...on][0]; };
   const lbFmtLabel = f => f === 'both' ? 'Papier + digital' : f === 'digital' ? 'Digital' : 'Papier';
-  const lbFmtSeg = (f, attr) => `<div class="v-seg sm lb-fmtseg">${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${lbHas(f, k) ? 'on' : ''}" aria-pressed="${lbHas(f, k)}" ${attr}="${k}">${ic}${l}</button>`).join('')}</div>`;
+  const lbFmtSeg = (f, attr) => `<div class="lb-fmtseg">${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="lb-fbtn${lbHas(f, k) ? ' on' : ''}" aria-pressed="${lbHas(f, k)}" ${attr}="${k}">${ic}${l}<span class="lb-fck">${I.check}</span></button>`).join('')}</div>`;
   const lbSer = id => LB.series.find(s => s.id === id);
   const lbVol = id => LB.vols.find(v => v.id === id);
   const lbVolsOf = sid => LB.vols.filter(v => v.series_id === sid).sort((a, b) => (+a.number || 0) - (+b.number || 0));
@@ -12711,7 +12753,17 @@
     const outs = LB.vols.filter(v => v.release_date && v.release_date >= today && !v.owned && lbSer(v.series_id)).sort((a, b) => a.release_date.localeCompare(b.release_date));
     const pc = (a, b) => b ? Math.round(a / b * 1000) / 10 : 0;
     const pct = (a, b) => (b ? pc(a, b) : 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
-    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}" data-lb-stat="${k}"><span class="lb-sq-ic">${ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
+    const cvOf = v => v && (v.cover_url || lbSer(v.series_id)?.cover_url);
+    // une couverture différente par carré quand c'est possible
+    const used = new Set(), pick = list => { const all = list.map(cvOf).filter(Boolean); const u = all.find(x => !used.has(x)) || all[0]; if (u) used.add(u); return u; };
+    const srs = [...LB.series].sort((a, b) => (b.top === 'indispensable') - (a.top === 'indispensable') || (!!b.top - !!a.top));
+    const bgs = {};
+    bgs.out = pick(outs);
+    bgs.buy = pick(buy);
+    bgs.read = pick([...owned].filter(v => v.read).sort((a, b) => String(b.read_at || '').localeCompare(String(a.read_at || ''))));
+    bgs.own = pick([...owned].sort((a, b) => lbAcq(b).localeCompare(lbAcq(a))));
+    bgs.series = pick(srs.map(s => ({ cover_url: s.cover_url, series_id: s.id })));
+    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><span class="lb-sq-ic">${ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
     const row = (n, p, l, tot, w) => `<div class="lb-mc-row"><div class="lb-mc-top"><b>${n}</b><span class="lb-mc-pct">${p}</span><span class="lb-mc-l">${l}</span><span class="lb-mc-tot">${tot}</span></div><i class="lb-mc-bar"><i style="width:${Math.min(100, w)}%"></i></i></div>`;
     return `<div class="lb-dash">
       <div class="lb-sqs">
@@ -12799,10 +12851,10 @@
           ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
           ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''}
           <div class="lb-pills">
-            <button type="button" class="lb-pill${lbHas(s.format, 'paper') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'paper')}" data-lb-sfmt="paper">${LBI.book}Papier</button>
-            <button type="button" class="lb-pill${lbHas(s.format, 'digital') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'digital')}" data-lb-sfmt="digital">${LBI.tablet}Digital</button>
+            <button type="button" class="lb-fbtn pill${lbHas(s.format, 'paper') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'paper')}" data-lb-sfmt="paper">${LBI.book}Papier<span class="lb-fck">${I.check}</span></button>
+            <button type="button" class="lb-fbtn pill${lbHas(s.format, 'digital') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'digital')}" data-lb-sfmt="digital">${LBI.tablet}Digital<span class="lb-fck">${I.check}</span></button>
             <button type="button" class="lb-pill${top ? ' gold' : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
-            <button type="button" class="lb-pill" data-lb-srate>Ma note <b>${s.rating || '–'}</b>/10</button>
+            <button type="button" class="lb-pill lb-rate${s.rating ? ' set' + (s.rating >= 8 ? ' hi' : '') : ''}" data-lb-srate>${LBI.star}Ma note <b>${s.rating || '–'}</b>/10</button>
             ${s.source_url ? `<a class="lb-pill" href="${esc(s.source_url)}" target="_blank" rel="noopener">${LBI.link}Fiche</a>` : ''}
             ${(() => { const pv = all.find(v => Array.isArray(v.previews) && v.previews.length); return pv ? `<button type="button" class="lb-pill" data-lb-planches="${pv.id}">${LBI.img}Planches <b>${pv.previews.length}</b></button>` : ''; })()}
           </div>
@@ -13194,7 +13246,7 @@
   // ---------- Fenêtre « Ajouter » ----------
   function lbAddModal(prefill) {
     lbCloseModal();
-    const st = { step: 'search', q: prefill || '', results: [], busy: false, pick: null, f: { title: '', title_original: '', authors: '', artist: '', publisher: '', edition: '', genre: '', status: 'En cours', total: 1, kind: 'manga', cover_url: '', source_url: '', format: 'paper', from: 1, to: 1, readTo: 0, follow: true, isbn: '', date: '' } };
+    const st = { step: 'search', q: prefill || '', results: [], busy: false, pick: null, f: { title: '', title_original: '', authors: '', artist: '', publisher: '', edition: '', genre: '', status: 'En cours', total: 1, kind: 'manga', cover_url: '', source_url: '', format: 'paper', from: 1, to: 1, readTo: 0, have: 'own', follow: true, isbn: '', date: '' } };
     const bd = document.createElement('div'); bd.className = 'v-tcm-bd lb-mbd';
     const box = document.createElement('div'); box.className = 'v-tcm lb-modal'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Ajouter à la bibliothèque');
     document.body.append(bd, box);
@@ -13211,12 +13263,13 @@
           <div class="lb-found">${f.cover_url ? `<span class="lb-rescv big" style="background-image:url('${esc(f.cover_url)}')"></span>` : `<span class="lb-rescv big ph" style="background:${lbGrad(f.title)}"><i>${esc(f.title)}</i></span>`}
             <div class="lb-fgrid">${field('title', 'Titre')}${field('title_original', 'Titre original', 'facultatif')}${field('authors', 'Scénario / auteur')}${field('artist', 'Dessin', 'si différent')}${field('publisher', 'Éditeur')}${field('genre', 'Genre', 'Seinen, Furyō…')}${field('total', 'Nombre de tomes', '', 'number')}
               <label class="lb-fl"><span>Type</span><div class="v-seg sm">${LB_KINDS.slice(0, 4).map(([k, l]) => `<button type="button" class="${f.kind === k ? 'on' : ''}" data-lbf-kind="${k}">${l}</button>`).join('')}</div></label></div></div>
-          <div class="lb-psec">J'AI</div>
+          <div class="lb-psec">CE LIVRE</div>
+          <div class="lb-q"><span>Statut</span><div class="v-seg sm lb-have">${[['own', 'Je l’ai'], ['buy', 'À acheter']].map(([k, l]) => `<button type="button" class="${f.have === k ? 'on ' + k : ''}" data-lbf-have="${k}">${k === 'own' ? I.check : LBI.cart}${l}</button>`).join('')}</div></div>
           <div class="lb-q"><span>Format</span>${lbFmtSeg(f.format, 'data-lbf-fmt')}</div>
-          <div class="lb-q"><span>Tomes possédés</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="from" value="${f.from}"> → <input type="text" inputmode="numeric" data-lbf="to" value="${f.to}"></div></div>
-          <div class="lb-q"><span>Lus jusqu'au tome</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="readTo" value="${f.readTo}"></div></div>
+          <div class="lb-q"><span>${f.have === 'buy' ? 'Tomes à acheter' : 'Tomes possédés'}</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="from" value="${f.from}"> → <input type="text" inputmode="numeric" data-lbf="to" value="${f.to}"></div></div>
+          ${f.have === 'buy' ? '' : `<div class="lb-q"><span>Lus jusqu'au tome</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="readTo" value="${f.readTo}"></div></div>`}
           <div class="lb-q"><span>Suivre les sorties</span><span class="vm-switch${f.follow ? ' on' : ''}" data-lbf-follow role="switch" aria-checked="${f.follow}"></span></div>
-          <div class="lb-mf"><button type="button" class="lb-btn" data-lbm-close>Annuler</button><button type="button" class="lb-btn dark" data-lbm-save>Ajouter${f.to >= f.from && f.from > 0 ? ` ${f.to - f.from + 1} tome${f.to - f.from ? 's' : ''}` : ''}</button></div>` : ''}`;
+          <div class="lb-mf"><button type="button" class="lb-btn" data-lbm-close>Annuler</button><button type="button" class="lb-btn dark" data-lbm-save>${lbAddLabel(f)}</button></div>` : ''}`;
     };
     const readFields = () => box.querySelectorAll('[data-lbf]').forEach(i => { const k = i.dataset.lbf; f[k] = i.inputMode === 'numeric' ? Math.max(0, parseInt(i.value || '0', 10) || 0) : i.value.trim(); });
     const search = async () => {
@@ -13229,7 +13282,7 @@
       draw();
     };
     box.addEventListener('submit', e => { e.preventDefault(); search(); });
-    box.addEventListener('input', e => { if (e.target.matches('[data-lbf]')) { readFields(); const b = box.querySelector('[data-lbm-save]'); if (b) b.textContent = `Ajouter${f.to >= f.from && f.from > 0 ? ` ${f.to - f.from + 1} tome${f.to - f.from ? 's' : ''}` : ''}`; } });
+    box.addEventListener('input', e => { if (e.target.matches('[data-lbf]')) { readFields(); const b = box.querySelector('[data-lbm-save]'); if (b) b.textContent = lbAddLabel(f); } });
     box.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); lbCloseModal(); } });
     box.addEventListener('click', async e => {
       const t = e.target;
@@ -13246,6 +13299,7 @@
       if (t.closest('[data-lbm-manual]')) { st.pick = -1; f.title = f.title || (lbIsbn(st.q) ? '' : st.q); draw(); return; }
       const kd = t.closest('[data-lbf-kind]'); if (kd) { readFields(); f.kind = kd.dataset.lbfKind; draw(); return; }
       const fm = t.closest('[data-lbf-fmt]'); if (fm) { readFields(); f.format = lbFmtToggle(f.format, fm.dataset.lbfFmt); draw(); return; }
+      const hv = t.closest('[data-lbf-have]'); if (hv) { readFields(); f.have = hv.dataset.lbfHave; if (f.have === 'buy') f.readTo = 0; draw(); return; }
       if (t.closest('[data-lbf-follow]')) { readFields(); f.follow = !f.follow; draw(); return; }
       if (t.closest('[data-lbm-save]')) { readFields(); if (!f.title) { box.querySelector('[data-lbf="title"]')?.focus(); return; } lbCreateSeries(f); return; }
     });
@@ -13277,13 +13331,14 @@
     });
     draw(); search();
   }
+  const lbAddLabel = f => { const n = f.to >= f.from && f.from > 0 ? f.to - f.from + 1 : 0; return f.have === 'buy' ? `Ajouter à « À acheter »${n > 1 ? ` (${n} tomes)` : ''}` : `Ajouter${n ? ` ${n} tome${n > 1 ? 's' : ''}` : ''}`; };
   function lbCloseModal() { document.querySelectorAll('.lb-modal, .lb-mbd').forEach(x => x.remove()); }
   async function lbCreateSeries(f) {
     const total = Math.max(f.total || 0, f.to || 0, 1);
     const row = { title: f.title, title_original: f.title_original || null, authors: f.authors || null, artist: f.artist || null, publisher: f.publisher || null, edition: f.edition || null, genre: f.genre || null, status: f.status || null, total_volumes: total, kind: f.kind || 'manga', cover_url: f.cover_url || null, source_url: f.source_url || null, format: f.format || 'paper', follow: !!f.follow };
     const { data: s, error } = await sb.from('lib_series').insert(row).select().single();
     if (error || !s) { console.error(error); alertBubble(LB.err ? 'Lancez d’abord library_schema.sql dans Supabase.' : 'Ajout impossible.'); return; }
-    const vols = Array.from({ length: total }, (_, i) => i + 1).map(n => ({ series_id: s.id, number: n, owned: n >= f.from && n <= f.to && f.from > 0, read: n <= (f.readTo || 0) && n >= f.from && n <= f.to, format: f.format || 'paper', isbn: n === 1 && f.isbn ? f.isbn : null, release_date: n === 1 && f.date ? f.date : null }));
+    const vols = Array.from({ length: total }, (_, i) => i + 1).map(n => ({ series_id: s.id, number: n, owned: f.have !== 'buy' && n >= f.from && n <= f.to && f.from > 0, wish: f.have === 'buy' && n >= f.from && n <= f.to && f.from > 0, read: f.have !== 'buy' && n <= (f.readTo || 0) && n >= f.from && n <= f.to, format: f.format || 'paper', isbn: n === 1 && f.isbn ? f.isbn : null, release_date: n === 1 && f.date ? f.date : null }));
     const { data: vs, error: e2 } = await sb.from('lib_volumes').insert(vols).select();
     if (e2) console.error(e2);
     LB.series.push(s); LB.vols.push(...(vs || []));
