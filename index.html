@@ -2926,6 +2926,8 @@
   .lb-tm.sel .lb-tcv { box-shadow: 0 0 0 2px #F3F1EC, 0 0 0 4px #1f1f1f; }
   .lb-tck { position: absolute; top: 5px; right: 5px; width: 22px; height: 22px; border-radius: 50%; background: #2F9E5B; color: #fff; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; padding: 0; }
   .lb-tck svg { width: 12px; height: 12px; }
+  /* possédé mais pas lu : pastille moitié verte (gauche), moitié grise ; lu : verte pleine */
+  .lb-tck.half, .lb-mtb.own.half { background: linear-gradient(90deg, #2F9E5B 50%, #B9B7B0 50%); }
   .lb-tm.miss .lb-tck { background: rgba(255,255,255,.92); border: 1.5px dashed #9a9890; }
   .lb-tm.miss .lb-tck:hover { border-color: #2F9E5B; }
   .lb-tread, .lb-tsig { position: absolute; top: 6px; left: 5px; background: #fff; color: #2F62C9; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 5px; }
@@ -13221,7 +13223,7 @@
         <div class="lb-mtg">${vs.map(v => { const has = v.cover_url || (+v.number === 1 && s.cover_url);
           return `<button type="button" class="lb-mtm ${v.owned ? 'own' : v.wish ? 'buy' : 'miss'}" data-lb-vol="${v.id}">
             ${lbCover(s, v)}
-            ${v.owned ? `<span class="lb-mtb own">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}
+            ${v.owned ? `<span class="lb-mtb own${v.read ? '' : ' half'}">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}
             <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbDmy(v.release_date)}</small></button>`; }).join('')}
           <button type="button" class="lb-mtm lb-madd" data-lb-addvol><div class="lb-cv">${I.plus}<span>Tome</span></div></button></div></div>`;
     } else if (tab === 'syn') {
@@ -13381,7 +13383,7 @@
     const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
-      <button type="button" class="lb-tck" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
+      <button type="button" class="lb-tck${v.owned && !v.read ? ' half' : ''}" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
       <div class="lb-tl"><b>${esc(lbTn(v))}</b><span>${lab}</span></div></div>`;
   }
   // ---------- À lire / À acheter / Sorties / Prépublication ----------
