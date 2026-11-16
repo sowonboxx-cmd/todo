@@ -2056,6 +2056,10 @@
   .v-due.late { color: var(--v-red); }
   .v-due.today { color: var(--v-green); }
   .v-stbtn { border: none; cursor: pointer; font-family: inherit; }
+  .v-priobtn { border: none; background: transparent; cursor: pointer; font-family: inherit; padding: 4px 8px; margin: -4px -8px; border-radius: 8px; }
+  .v-priobtn:hover { background: #F3F2EE; }
+  .v-priomenu button > svg { margin-left: auto; }
+  .v-stmenu.v-priomenu .v-prio svg { color: inherit; width: 14px; height: 14px; }
   .v-stbtn:hover { filter: brightness(.96); box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
   .v-stmenu { position: fixed; z-index: 3000; background: #fff; border-radius: 12px; padding: 5px; box-shadow: 0 12px 32px rgba(0,0,0,.14), 0 0 0 1px rgba(0,0,0,.05); display: flex; flex-direction: column; min-width: 150px; font-family: 'Inter', sans-serif; }
   .v-stmenu button { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: none; background: transparent; padding: 7px 8px; border-radius: 8px; cursor: pointer; }
@@ -10461,7 +10465,7 @@
       ${SEL.on ? selBox(isSel, `data-v-sel="${t.id}"`) : chk(t)}
       <div class="v-tcell"><span class="v-ttl">${esc(t.title)}</span>${t.priority === 'high' && !t.is_done && !prioCol ? '<span class="v-pill prio">Prioritaire</span>' : ''}${s && s.n ? `<span class="v-sub"><span class="v-bar"><span style="width:${pct}%"></span></span>${s.d}/${s.n}</span>` : ''}</div>
       <span>${inCtx ? tcatBtn(t) : p ? `<button type="button" class="v-pill" style="background:${c.pill};color:${c.fg}" data-v-proj="${p.id}">${esc(p.name)}</button>` : ''}</span>
-      ${prioCol ? prioCell(t) : `<span class="v-pagecell">${esc(pg?.title || '')}</span>`}
+      ${prioCol ? `<span><button type="button" class="v-priobtn" data-v-prio="${t.id}" aria-label="Changer la priorité" aria-haspopup="menu">${prioCell(t)}</button></span>` : `<span class="v-pagecell">${esc(pg?.title || '')}</span>`}
       <span><button type="button" class="v-pill st-${st} v-stbtn" data-v-st="${t.id}" aria-label="Changer le statut" aria-haspopup="menu">${ST_LABEL[st]}</button></span>
       <span><button type="button" class="v-due ${dueCls}" data-v-due="${t.id}" aria-label="Changer l'échéance">${t.due_date ? dateTime(t) : 'Ajouter'}${repIcon(t)}</button></span>
     </div>`;
@@ -11018,6 +11022,22 @@
     if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); loadData(); }
   }
   // menu de statut (clic sur « À faire / En cours / Terminée » dans la liste)
+  // priorité modifiée directement depuis la liste (sans ouvrir la fiche)
+  function openPrioMenu(anchor, id) {
+    const t = cachedTodos.find(x => x.id === id); if (!t) return;
+    const cur = PRIO_LBL[t.priority] ? t.priority : 'none';
+    const opts = [['high', 'Haute'], ['med', 'Moyenne'], ['low', 'Basse'], ['none', 'Aucune']];
+    const { m, close } = floatMenu(anchor, opts.map(([k, l]) => `<button type="button" role="menuitemradio" aria-checked="${cur === k}" class="${cur === k ? 'on' : ''}" data-p="${k}">${k === 'none' ? '<span class="v-prio none">—</span>' : `<span class="v-prio" style="color:${PRIO_COL[k]}">${FLAG_SVG}</span>`}<span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''), 'v-bulkmenu v-priomenu');
+    m.addEventListener('click', async (ev) => {
+      const b = ev.target.closest('[data-p]'); if (!b) return;
+      close();
+      const k = b.dataset.p; if (k === cur) return;
+      const before = t.priority;
+      t.priority = k; v2Render();
+      const { error } = await sb.from('todos').update({ priority: k }).eq('id', id);
+      if (error) { console.error(error); t.priority = before; v2Render(); alertBubble('Priorité non enregistrée.'); }
+    });
+  }
   function openStatusMenu(anchor, id) {
     document.querySelector('.v-stmenu')?.remove();
     const t = cachedTodos.find(x => x.id === id); if (!t) return;
@@ -11250,11 +11270,12 @@
       const row = e.target.closest('#v2 .v-row[data-v-open]');
       if (row) { e.preventDefault(); e.stopPropagation(); selClick(row.dataset.vOpen, e.shiftKey); return; }
     } else if (e.target.closest('[data-v-selmode]')) { selToggleMode(true); return; }
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-prio],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
     if (d.vSt) { e.stopPropagation(); openStatusMenu(el, d.vSt); return; }
+    if (d.vPrio) { e.stopPropagation(); openPrioMenu(el, d.vPrio); return; }
     if (d.vTcat) { e.stopPropagation(); openCatMenu(el, d.vTcat); return; }
     if (d.vTcedit) { e.stopPropagation(); openCatEdit(el, d.vTcedit); return; }
     if (d.vGroup) { openGroupMenu(el, d.vGroup === 'k'); return; }
