@@ -13209,7 +13209,7 @@
         <button type="button" class="lb-mhcv" ${s.cover_url ? `data-lb-zoom="${esc(s.cover_url)}"` : 'data-lb-cover'}>${lbCover(s, null, 'big')}</button>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1>${s.title_original ? `<div class="lb-mjp">${esc(s.title_original)}</div>` : ''}
           ${lbPeopleKv(s).length ? `<div class="lb-mkv w">${lbKvHtml(lbPeopleKv(s))}</div>` : ''}
-          <div class="lb-msrs">${statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr)}${statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div>
+          <div class="lb-msrs">${s.kind === 'bd' ? statusRow('', s.total_volumes || lbReg(all).length, fr) /* BD : pas de drapeau, pas de Japon */ : (s.status || !(s.jp_volumes || s.jp_status) ? statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr) : '') /* pas d'édition française : seulement la ligne Japon */ + statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div>
           ${s.publisher ? `<div class="lb-mkv w"><span>Éditeur</span><b>${esc(s.publisher)}</b></div>` : ''}</div>
         <button type="button" class="lb-mrate" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : '<span>Noter</span>'}</button>
       </div>`;
@@ -13730,7 +13730,7 @@
         if (r.src === 'fg') lbLib({ fgId: r.fgId }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields();
           const eds = x.editions || [], fr = eds.find(e => e.pays === 'France'), jp = eds.filter(e => e.pays === 'Japon').sort((a, b) => (a.tomes || []).length - (b.tomes || []).length).pop();
           const ed = fr || jp; if (!ed) return;
-          Object.assign(f, { title_original: f.title_original || r.title_original, publisher: ed.pub || '', edition: ed.label || '', status: ed.statut || '', total: (ed.tomes || []).length || ed.nb || f.total, to: (ed.tomes || []).length || ed.nb || f.to, fgVols: (ed.tomes || []).map(t => ({ number: t.n, release_date: t.date || null, cover_url: t.cover || null })), jp_volumes: jp ? (jp.nb || (jp.tomes || []).length) : null, jp_status: jp ? jp.statut : null, source_url: `https://furyogang.com/ma-collection/${x.serie?.slug || ''}` });
+          Object.assign(f, { title_original: f.title_original || r.title_original, publisher: ed.pub || '', edition: ed.label || '', status: fr ? (fr.statut || '') : '', total: (ed.tomes || []).length || ed.nb || f.total, to: (ed.tomes || []).length || ed.nb || f.to, fgVols: (ed.tomes || []).map(t => ({ number: t.n, release_date: t.date || null, cover_url: t.cover || null })), jp_volumes: jp ? (jp.nb || (jp.tomes || []).length) : null, jp_status: jp ? jp.statut : null, source_url: `https://furyogang.com/ma-collection/${x.serie?.slug || ''}` });
           if (!f.cover_url && ed.tomes?.[0]?.cover) f.cover_url = ed.tomes[0].cover;
           if (!f.authors && x.serie?.auteurs) f.authors = x.serie.auteurs;
           if (x.resume) f.summary = x.resume; // résumé de la fiche FuryoGang
@@ -14150,6 +14150,7 @@
         const maxN = Math.max(0, ...(d.volumes || []).map(v => +v.number || 0).filter(n => n < 100));
         if (maxN > (ser.total_volumes || 0)) patch.total_volumes = maxN;
         if (sd.rename) patch.title = sd.rename; // renommer la série
+        (sd.clear || []).filter(k => fields.includes(k)).forEach(k => { patch[k] = null; }); // vider des champs
         if (Object.keys(patch).length) await sb.from('lib_series').update(patch).eq('id', ser.id);
       }
       const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
