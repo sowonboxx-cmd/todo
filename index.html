@@ -3243,6 +3243,9 @@
   .lb-mwide.lb-readall { background: #EAF0FB; border-color: #D5E1F7; color: #24508F; margin-bottom: -2px; }
   .lb-ramenu button span { display: flex; flex-direction: column; align-items: flex-start; }
   .lb-ra-sub { font-size: 11.5px; color: #8b8b8b; font-weight: 400; margin-top: 1px; }
+  .lb-res small .lb-fgtag { display: inline; font-size: 10.5px; }
+  .lb-sq { min-height: 150px; }
+  .lb-fgtag { background: #FBECEC; color: #C8342B; font-size: 10.5px; font-weight: 700; padding: 1px 6px; border-radius: 5px; margin-right: 2px; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -13544,6 +13547,11 @@
     let q = raw, isbn = lbIsbn(raw);
     if (/^https?:\/\//i.test(raw)) { const r = lbFromUrl(raw); isbn = r.isbn ? lbIsbn(r.isbn) : null; q = r.q || ''; }
     const out = [];
+    // 1) FuryoGang (mangas furyō / yakuza : éditions FR et JP, couvertures, dates)
+    if (!isbn && !rawItems && q) {
+      const fg = await lbLib({ fg: q });
+      if (fg && fg.length) fg.slice(0, 4).forEach(x => out.push({ title: x.fr || x.t, title_original: x.jp || '', authors: (x.au || []).join(', '), cover: x.cover || '', genre: [x.type, ...(x.genres || [])].filter(Boolean).join(', '), kind: 'manga', date: x.y1 ? '' : '', src: 'fg', fgId: x.id, sub: [(x.pays || []).join(' · '), x.y1].filter(Boolean).join(' · ') }));
+    }
     const lib = await lbLib({ q: isbn || q });
     if (lib && lib.length) {
       if (rawItems) return lib.filter(it => it.cover).slice(0, max).map(it => ({ title: it.series, vtitle: it.title, cover: it.cover, isbn: it.ean, authors: it.authors, publisher: lbCap(it.publisher) }));
@@ -13556,6 +13564,7 @@
       }
       return out.slice(0, max);
     }
+    if (out.length) return out.slice(0, max);
     try {
       if (isbn && /^9784/.test(isbn)) {
         const j = await (await fetch(`https://api.openbd.jp/v1/get?isbn=${isbn}`)).json();
@@ -13592,7 +13601,7 @@
       box.innerHTML = `
         <div class="v-tcm-head"><b>Ajouter à la bibliothèque</b><button type="button" class="v-tcm-x" data-lbm-close aria-label="Fermer">${I.x}</button></div>
         <form class="lb-search-in" data-lbm-form>${LBI.link}<input type="text" data-lbm-q value="${esc(st.q)}" placeholder="Nom, ISBN ou lien (BDGest, Amazon…)" autocomplete="off"><button type="submit" class="lb-btn sm dark">${st.busy ? '…' : 'Chercher'}</button></form>
-        ${st.results.length && st.pick === null ? `<div class="lb-results">${st.results.map((r, i) => `<button type="button" class="lb-res" data-lbm-pick="${i}">${r.cover ? `<span class="lb-rescv" style="background-image:url('${esc(r.cover)}')"></span>` : `<span class="lb-rescv ph" style="background:${lbGrad(r.title)}"></span>`}<span><b>${esc(r.title)}</b><small>${esc([r.authors, r.publisher, r.count > 1 ? `${r.total} tomes` : '', r.date ? r.date.slice(0, 4) : ''].filter(Boolean).join(' · '))}</small></span></button>`).join('')}<button type="button" class="lb-res manual" data-lbm-manual><span><b>Aucun ne correspond</b><small>Remplir à la main</small></span></button></div>` : ''}
+        ${st.results.length && st.pick === null ? `<div class="lb-results">${st.results.map((r, i) => `<button type="button" class="lb-res" data-lbm-pick="${i}">${r.cover ? `<span class="lb-rescv" style="background-image:url('${esc(r.cover)}')"></span>` : `<span class="lb-rescv ph" style="background:${lbGrad(r.title)}"></span>`}<span><b>${esc(r.title)}</b><small>${r.src === 'fg' ? '<b class="lb-fgtag">FuryoGang</b> ' : ''}${esc([r.authors, r.publisher, r.count > 1 ? `${r.total} tomes` : '', r.date ? r.date.slice(0, 4) : '', r.sub].filter(Boolean).join(' · '))}</small></span></button>`).join('')}<button type="button" class="lb-res manual" data-lbm-manual><span><b>Aucun ne correspond</b><small>Remplir à la main</small></span></button></div>` : ''}
         ${!st.results.length && st.step === 'none' ? `<div class="lb-note">Rien trouvé automatiquement. Remplissez la fiche à la main, ou essayez avec l'ISBN du tome 1.</div>` : ''}
         ${st.pick !== null ? `
           <div class="lb-found">${f.cover_url ? `<span class="lb-rescv big" style="background-image:url('${esc(f.cover_url)}')"></span>` : `<span class="lb-rescv big ph" style="background:${lbGrad(f.title)}"><i>${esc(f.title)}</i></span>`}
@@ -13625,9 +13634,16 @@
       const pk = t.closest('[data-lbm-pick]');
       if (pk) {
         const idx = +pk.dataset.lbmPick, r = st.results[idx]; st.pick = idx;
-        Object.assign(f, { title: r.title, authors: r.authors || '', publisher: r.publisher || '', genre: r.genre || '', cover_url: r.cover || '', kind: r.kind || f.kind || 'manga', isbn: r.isbn || '', date: r.date || '' });
+        Object.assign(f, { title: r.title, title_original: r.title_original || '', authors: r.authors || '', publisher: r.publisher || '', genre: r.genre || '', cover_url: r.cover || '', kind: r.kind || f.kind || 'manga', isbn: r.isbn || '', date: r.date || '', fgVols: null, jp_volumes: null, jp_status: null });
         if (r.total) { f.total = r.total; f.to = r.total; }
         draw();
+        if (r.src === 'fg') lbLib({ fgId: r.fgId }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields();
+          const eds = x.editions || [], fr = eds.find(e => e.pays === 'France'), jp = eds.filter(e => e.pays === 'Japon').sort((a, b) => (a.tomes || []).length - (b.tomes || []).length).pop();
+          const ed = fr || jp; if (!ed) return;
+          Object.assign(f, { title_original: f.title_original || r.title_original, publisher: ed.pub || '', edition: ed.label || '', status: ed.statut || '', total: (ed.tomes || []).length || ed.nb || f.total, to: (ed.tomes || []).length || ed.nb || f.to, fgVols: (ed.tomes || []).map(t => ({ number: t.n, release_date: t.date || null, cover_url: t.cover || null })), jp_volumes: jp ? (jp.nb || (jp.tomes || []).length) : null, jp_status: jp ? jp.statut : null, source_url: `https://furyogang.com/ma-collection/${x.serie?.slug || ''}` });
+          if (!f.cover_url && ed.tomes?.[0]?.cover) f.cover_url = ed.tomes[0].cover;
+          if (!f.authors && x.serie?.auteurs) f.authors = x.serie.auteurs;
+          draw(); });
         if (r.src === 'lib' && r.isbn) lbLib({ eans: [r.isbn] }).then(d => { const x = d && d[0]; if (!x || st.pick !== idx || !box.isConnected) return; readFields(); f.kind = lbKindOf(x.genres); if (!f.genre) f.genre = lbGenre(x.genres); if (!f.date) f.date = x.date || ''; draw(); });
         return;
       }
@@ -13671,9 +13687,11 @@
   async function lbCreateSeries(f) {
     const total = Math.max(f.total || 0, f.to || 0, 1);
     const row = { title: f.title, title_original: f.title_original || null, authors: f.authors || null, artist: f.artist || null, publisher: f.publisher || null, edition: f.edition || null, genre: f.genre || null, status: f.status || null, total_volumes: total, kind: f.kind || 'manga', cover_url: f.cover_url || null, source_url: f.source_url || null, format: f.format || 'paper', follow: !!f.follow };
+    if (f.jp_volumes || f.jp_status) { const t = await sb.from('lib_series').select('jp_volumes').limit(1); if (!t.error) Object.assign(row, { jp_volumes: f.jp_volumes || null, jp_status: f.jp_status || null }); }
     const { data: s, error } = await sb.from('lib_series').insert(row).select().single();
     if (error || !s) { console.error(error); alertBubble(LB.err ? 'Lancez d’abord library_schema.sql dans Supabase.' : 'Ajout impossible.'); return; }
-    const vols = Array.from({ length: total }, (_, i) => i + 1).map(n => ({ series_id: s.id, number: n, owned: f.have !== 'buy' && n >= f.from && n <= f.to && f.from > 0, wish: f.have === 'buy' && n >= f.from && n <= f.to && f.from > 0, read: f.have !== 'buy' && n <= (f.readTo || 0) && n >= f.from && n <= f.to, format: f.format || 'paper', isbn: n === 1 && f.isbn ? f.isbn : null, release_date: n === 1 && f.date ? f.date : null }));
+    const vols = Array.from({ length: total }, (_, i) => i + 1).map(n => ({ series_id: s.id, number: n, owned: f.have !== 'buy' && n >= f.from && n <= f.to && f.from > 0, wish: f.have === 'buy' && n >= f.from && n <= f.to && f.from > 0, read: f.have !== 'buy' && n <= (f.readTo || 0) && n >= f.from && n <= f.to, format: f.format || 'paper', isbn: n === 1 && f.isbn ? f.isbn : null, release_date: n === 1 && f.date ? f.date : null, ...(() => { const fv = (f.fgVols || []).find(x => +x.number === n); return fv ? { release_date: fv.release_date, cover_url: fv.cover_url } : {}; })() }));
+    vols.forEach(v => { if (v.owned) v.wish = false; if (v.read) v.owned = true; if (v.release_date && v.release_date > lbToday() && f.have === 'buy') v.wish = false; });
     const { data: vs, error: e2 } = await sb.from('lib_volumes').insert(vols).select();
     if (e2) console.error(e2);
     LB.series.push(s); LB.vols.push(...(vs || []));
@@ -13681,7 +13699,7 @@
     LB.tab = 'col'; LB.open = s.id; LB.vol = null;
     v2Render();
     alertBubble(`${s.title} ajouté`);
-    lbSync(s, true); // complète ISBN, couvertures et dates des tomes en arrière-plan
+    if (!f.fgVols) lbSync(s, true); // complète ISBN, couvertures et dates des tomes en arrière-plan (sauf si FuryoGang a déjà tout donné)
   }
   // ---------- Modifier la fiche d'une série ----------
   function lbEditSeries(s) {

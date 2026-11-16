@@ -67,11 +67,30 @@ async function detail(ean: string) {
   };
 }
 
+// ---------- FuryoGang (furyogang.com) : séries manga furyō / yakuza, éditions FR et JP ----------
+const FG = 'https://furyogang.com';
+let fgIndex: any = null, fgAt = 0;
+const fgNorm = (x = '') => x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\u3040-\u30ff\u4e00-\u9fff]+/g, ' ').trim();
+async function fgSearch(q: string) {
+  if (!fgIndex || Date.now() - fgAt > 3600e3) { fgIndex = JSON.parse(await get(`${FG}/api/biblio`)); fgAt = Date.now(); }
+  const n = fgNorm(q); if (!n) return [];
+  const words = n.split(' ');
+  return (fgIndex.items || []).map((x: any) => {
+    const hay = fgNorm([x.t, x.fr, x.jp, (x.au || []).join(' ')].join(' '));
+    const t = fgNorm(x.fr || x.t);
+    const score = t === n ? 3 : t.startsWith(n) ? 2 : words.every((w: string) => hay.includes(w)) ? 1 : 0;
+    return { x, score };
+  }).filter((r: any) => r.score).sort((a: any, b: any) => b.score - a.score).slice(0, 8).map((r: any) => r.x);
+}
+async function fgSerie(id: string) { return JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`)); }
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : Object.fromEntries(new URL(req.url).searchParams);
     let items: any[] = [];
+    if (body.fg) return new Response(JSON.stringify({ items: await fgSearch(String(body.fg)) }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
+    if (body.fgId) return new Response(JSON.stringify({ items: [await fgSerie(String(body.fgId))] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (Array.isArray(body.eans) && body.eans.length) {
       const eans = body.eans.filter((e: string) => /^\d{13}$/.test(e)).slice(0, 40);
       const out = await Promise.allSettled(eans.map(detail));
