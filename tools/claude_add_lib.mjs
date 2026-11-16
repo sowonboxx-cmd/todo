@@ -5,7 +5,7 @@
 //   CLAUDE_INBOX_TOKEN=… node tools/claude_add_lib.mjs "The Strange House" --owned 1-4 --read 3 [--format paper|digital|both] [--kind manga|bd|comics] [--wish 5] [--dry]
 //
 // --owned 1-4 : tomes possédés (ou « 1,2,5 »), --read 3 : lus jusqu'au tome 3, --wish 5 : tomes à acheter,
-// --dry : affiche seulement ce qui serait envoyé. La clé n'est jamais dans le dépôt (variable d'environnement).
+// --genre "Fantastique" : genre à la place de celui du site, --dry : affiche seulement ce qui serait envoyé. La clé n'est jamais dans le dépôt (variable d'environnement).
 
 const SUPA = 'https://pjjpsvohzeueoivtbenp.supabase.co';
 const KEY = 'sb_publishable_xjpR5VbYJssJTcSSiSma_w_cfyEqJll';
@@ -43,7 +43,7 @@ async function detail(ean) {
   return {
     ean, genres: [...h.matchAll(/<li><a href="\/product\/category\/\d+\/">([^<]+)<\/a><\/li>/g)].map(x => decode(x[1])),
     date: dm && MONTHS[dm[2]] ? `${dm[3]}-${MONTHS[dm[2]]}-${dm[1].padStart(2, '0')}` : null,
-    cover: (h.match(/data-src="([^"]+-cover-full\.[a-z]+)"/) || [])[1] || null, publisher: dd('Éditeur'), series: dd('Série'),
+    cover: (h.match(/data-src="([^"]+-cover-full\.[a-z]+)"/) || [])[1] || null, publisher: dd('Éditeur'), series: dd('Série'), collection: dd('Collection') || null,
     summary: decode(((h.match(/<blockquote>([\s\S]*?)<\/blockquote>/) || [])[1] || '').replace(/<br\s*\/?>/gi, '\n')) || null,
   };
 }
@@ -58,12 +58,12 @@ const det = await Promise.all(list.map(([, x]) => detail(x.ean).catch(() => ({})
 const genres = det.find(d => d.genres?.length)?.genres || [];
 const g = genres.filter(x => !x.includes(',')).join(' | '); // la 1re catégorie est commune à tout
 const kind = opt('kind') || (/manga/i.test(g) ? 'manga' : /comics/i.test(g) ? 'comics' : 'bd');
-const genre = genres.filter(x => !/^(bandes dessinées, comics, mangas|manga|comics|bandes dessinées)$/i.test(x)).slice(-1)[0] || null;
+const genre = opt('genre') || genres.filter(x => !/^(bandes dessinées, comics, mangas|manga|comics|bandes dessinées|bandes dessinées de genre)$/i.test(x)).slice(-1)[0] || null;
 const owned = range(opt('owned')), wish = range(opt('wish')), readTo = +opt('read') || 0;
 const fmt = opt('format') || 'paper';
 const first = list[0][1];
 const payload = {
-  series: { title: list[0][1].series, kind, authors: first.authors, publisher: cap(det[0]?.publisher || first.publisher), genre, total_volumes: list.length > 1 || list[0][0] > 1 ? Math.max(...list.map(([n]) => n)) : 1, cover_url: det[0]?.cover || null, summary: det[0]?.summary || null, format: fmt, follow: true, status: list.length === 1 && !list[0][1].number ? 'Récit complet' : null },
+  series: { title: list[0][1].series, kind, authors: first.authors, publisher: cap(det[0]?.publisher || first.publisher), genre, total_volumes: list.length > 1 || list[0][0] > 1 ? Math.max(...list.map(([n]) => n)) : 1, cover_url: det[0]?.cover || null, edition: det[0]?.collection || null, summary: det[0]?.summary || null, format: fmt, follow: true, status: list.length === 1 && !list[0][1].number ? 'Récit complet' : null },
   volumes: list.map(([n, x], i) => ({ number: n, isbn: x.ean, cover_url: det[i]?.cover || null, release_date: det[i]?.date || null, summary: det[i]?.summary || null, owned: owned.includes(n) || null, read: (owned.includes(n) && n <= readTo) || null, wish: wish.includes(n) || null, format: owned.includes(n) ? fmt : null })),
 };
 Object.keys(payload.series).forEach(k => payload.series[k] == null && delete payload.series[k]);
