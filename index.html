@@ -2914,6 +2914,108 @@
   .lb-tadd:hover { border-color: #1f1f1f; color: #1f1f1f; }
   /* listes (à lire, à acheter, sorties, prépublication) */
   .lb-syncall { align-self: flex-start; }
+  /* --- pop-up série / tome (ordi) --- */
+  .lb-smod-bd { position: fixed; inset: 0; z-index: 2700; background: rgba(24,24,22,.45); backdrop-filter: blur(2px); }
+  .lb-smod { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1320px, calc(100vw - 64px)); height: min(960px, calc(100vh - 48px)); z-index: 2750; background: #fff; border-radius: 24px; box-shadow: 0 40px 100px rgba(0,0,0,.35); display: flex; flex-direction: column; overflow: hidden; font-family: 'Inter', sans-serif; color: #1f1f1f; --v-card: #fff; --v-soft: #F5F5F3; }
+  .lb-smod.full { width: calc(100vw - 32px); height: calc(100vh - 32px); border-radius: 20px; }
+  .lb-smod svg { width: 16px; height: 16px; }
+  .lb-smod-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px 12px 24px; border-bottom: 1px solid #F0EFEB; flex-shrink: 0; }
+  .lb-crumb { flex: 1; font-size: 13.5px; color: #8b8b8b; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-crumb b { color: #1f1f1f; }
+  .lb-mb { width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; color: #8b8a85; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
+  .lb-mb:hover:not(:disabled) { background: #F3F2EE; color: #1f1f1f; }
+  .lb-mb:disabled { opacity: .3; cursor: default; }
+  .lb-mb.x { background: #EFEEEA; color: #1f1f1f; }
+  .lb-smod-in { flex: 1; overflow-y: auto; padding: 26px 32px 30px; }
+  .lb-inmod { display: flex; flex-direction: column; gap: 18px; }
+  .lb-hero2 { display: grid; grid-template-columns: 210px minmax(0, 1fr) 300px; gap: 28px; align-items: start; }
+  .lb-hero2 .lb-hcv { width: 100%; }
+  .lb-cv.big { border-radius: 14px; box-shadow: 0 14px 36px rgba(0,0,0,.25); }
+  .lb-cv.big.ph span { font-size: 22px; }
+  .lb-kick { font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #24508F; text-transform: uppercase; }
+  .lb-hero2 .lb-htitle h2 { font-size: 42px; letter-spacing: -.03em; margin: 4px 0 2px; }
+  .lb-hero2 .lb-jp { margin-top: 2px; }
+  .lb-hero2 .lb-sum { font-size: 15px; line-height: 1.6; -webkit-line-clamp: 8; max-width: 780px; }
+  .lb-sum.full { -webkit-line-clamp: unset; display: block; }
+  .lb-prio { display: flex; align-items: center; gap: 12px; margin-top: 14px; font-size: 13.5px; color: #6b6b6b; font-weight: 500; }
+  .lb-prio .v-seg button.on.p1 { background: #C8342B; color: #fff; }
+  .lb-prio .v-seg button.on.p2 { background: #946200; color: #fff; }
+  .lb-prio .v-seg button.on.p3 { background: #2F62C9; color: #fff; }
+  .lb-hero2 .lb-side { width: auto; border-radius: 16px; padding: 18px; }
+  .lb-hero2 .lb-big { font-size: 52px; }
+  .lb-nextout { display: flex; gap: 10px; align-items: center; background: #fff; border-radius: 12px; padding: 10px 12px; color: #E8590C; }
+  .lb-nextout svg { width: 18px; height: 18px; }
+  .lb-nextout b { display: block; font-size: 13.5px; color: #1f1f1f; }
+  .lb-nextout small { font-size: 12px; color: #8b8b8b; }
+  .lb-inmod .lb-tomes { grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 16px 14px; }
+  .lb-smod.full .lb-inmod .lb-tomes { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
+  /* tome dans le pop-up */
+  .lb-tview { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 36px; max-width: 1180px; margin: 0 auto; }
+  .lb-pcover.big { width: 100%; }
+  .lb-pcover.big .lb-cv { width: 100%; }
+  .lb-ttitle { font-size: 38px; letter-spacing: -.03em; margin: 6px 0 14px; line-height: 1.1; }
+  .lb-ttitle span { color: #8b8b8b; font-weight: 600; }
+  .lb-kv.big { grid-template-columns: 110px 1fr; font-size: 14px; gap: 8px 12px; }
+  .lb-tview .lb-psec { margin: 22px 0 10px; }
+  .lb-tview .lb-sum.full { font-size: 15px; line-height: 1.6; margin: 0; max-width: 760px; }
+  .lb-tcols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .lb-tview .lb-rows .lb-r { font-size: 14px; }
+  .lb-minis { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lb-tmini { width: 52px; padding: 0; border: none; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; font: 600 11px 'Inter', sans-serif; color: #8b8b8b; }
+  .lb-tmini .lb-cv.xs { width: 52px; border-radius: 6px; }
+  .lb-tmini.miss .lb-cv { filter: grayscale(1) opacity(.45); }
+  .lb-tmini.on .lb-cv { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
+  .lb-tmini.on small { color: #1f1f1f; }
+  /* tableau de bord de la collection */
+  .lb-dash { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 14px; }
+  .lb-sqs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+  .lb-sq { position: relative; text-align: left; background: #F7F6F3; border: 1px solid #EFEEEA; border-radius: 18px; padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; font-family: 'Inter', sans-serif; color: #1f1f1f; min-width: 0; }
+  .lb-sq:hover { background: #F1F0EC; }
+  .lb-sq-ic { width: 34px; height: 34px; border-radius: 11px; background: #fff; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; color: #24508F; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .lb-sq-ic svg { width: 18px; height: 18px; }
+  .lb-sq.blue .lb-sq-ic { color: #2F62C9; } .lb-sq.amber .lb-sq-ic { color: #B4541A; } .lb-sq.orange .lb-sq-ic { color: #E8590C; }
+  .lb-sq b { font-size: 36px; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+  .lb-sq-l { font-size: 14px; font-weight: 600; margin-top: 6px; }
+  .lb-sq small { font-size: 12.5px; color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-sq-go { position: absolute; top: 16px; right: 14px; color: #B5B3AC; }
+  .lb-sq-go svg { width: 15px; height: 15px; }
+  .lb-sq-bar { display: block; height: 4px; border-radius: 2px; background: #E6E5E0; margin-top: 12px; overflow: hidden; }
+  .lb-sq-bar i { display: block; height: 100%; background: #2F9E5B; border-radius: 2px; }
+  .lb-sq.blue .lb-sq-bar i { background: #2F62C9; }
+  .lb-mc { background: #1f1f1f; color: #fff; border-radius: 18px; padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; justify-content: center; }
+  .lb-mc-h { display: flex; justify-content: space-between; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; }
+  .lb-mc-h span:first-child { color: #E8B339; } .lb-mc-h span:last-child { color: #9a9890; }
+  .lb-mc-top { display: flex; align-items: flex-end; gap: 10px; }
+  .lb-mc-top b { font-size: 34px; color: #E8B339; letter-spacing: -.03em; line-height: .95; min-width: 72px; font-variant-numeric: tabular-nums; }
+  .lb-mc-pct { font-size: 12.5px; font-weight: 600; position: relative; top: -20px; width: 0; white-space: nowrap; }
+  .lb-mc-l { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #d6d4ce; flex: 1; }
+  .lb-mc-tot { font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .lb-mc-bar { display: block; height: 5px; border-radius: 3px; background: #3a3a38; margin-top: 6px; overflow: hidden; }
+  .lb-mc-bar i { display: block; height: 100%; background: #E8B339; border-radius: 3px; }
+  .lb-nxb { background: #F7F6F3; border: 1px solid #EFEEEA; border-radius: 18px; padding: 12px 14px; }
+  .lb-nxh { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .lb-nxh span { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #9a9890; }
+  .lb-nxh small { font-size: 12px; color: #b0aea7; }
+  .lb-nxl { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .lb-nx { display: flex; gap: 12px; align-items: center; background: #fff; border: none; border-radius: 13px; padding: 8px; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; color: #1f1f1f; min-width: 0; }
+  .lb-nx:hover { box-shadow: 0 0 0 1px #E6E4DE; }
+  .lb-nx .lb-cv.xs { width: 44px; }
+  .lb-nx-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .lb-nx-t b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-nx-t small { font-size: 12px; color: #8b8b8b; }
+  .lb-pr { align-self: flex-start; font-size: 10.5px; font-weight: 800; padding: 2px 7px; border-radius: 6px; }
+  .lb-pr.p1 { background: #FBECEC; color: #C8342B; } .lb-pr.p2 { background: #FBF1D9; color: #946200; } .lb-pr.p3 { background: #EEF3FE; color: #2F62C9; }
+  @media (max-width: 1500px) { .lb-dash { grid-template-columns: 1fr; } .lb-sq b { font-size: 30px; } }
+  @media (max-width: 1180px) { .lb-hero2 { grid-template-columns: 170px minmax(0, 1fr); } .lb-hero2 .lb-side { grid-column: 1 / -1; } .lb-tview { grid-template-columns: 240px minmax(0, 1fr); } }
+  /* téléphone : la fiche série garde la pleine page */
+  .lb-mob .lb-hero2 { display: flex; flex-direction: column; gap: 14px; background: var(--v-card); border-radius: 18px; padding: 16px; }
+  .lb-mob .lb-hero2 .lb-hcv { width: 120px; }
+  .lb-mob .lb-hero2 .lb-cvhint { display: none; }
+  .lb-mob .lb-hero2 .lb-htitle h2 { font-size: 26px; }
+  .lb-mob .lb-hero2 .lb-side { background: #F7F6F3; }
+  .lb-mob .lb-hero2 .lb-big { font-size: 40px; }
+  .lb-mob .lb-prio { justify-content: space-between; flex-wrap: wrap; }
+  .lb-mob .lb-nxl { grid-template-columns: 1fr; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -3043,7 +3145,6 @@
     .lb-modal input { font-size: 16px; }
     .lb-rng input { font-size: 16px; }
   }
-  .lb-desk.withp { padding-right: 356px; }
   .cz-mob { padding: 0 16px 120px; overflow-y: auto; }
   .cz-mob .cz-search { background: var(--v-card); }
   /* mobile : tout visible d'un coup, sans défiler sur le côté — « À acheter / Tous » en haut, les filtres en dessous */
@@ -10982,7 +11083,8 @@
     const scope = mobile ? mroot : root;
     const saved = saveScroll(scope);
     if (mobile) renderMobile(); else renderDesktop();
-    if (V.space !== 'lib') document.querySelectorAll('.lb-panel, .lb-panel-bd').forEach(x => x.remove());
+    if (V.space !== 'lib') document.querySelectorAll('.lb-panel, .lb-panel-bd, .lb-smod, .lb-smod-bd').forEach(x => x.remove());
+    else if (mobile) document.querySelectorAll('.lb-smod, .lb-smod-bd').forEach(x => x.remove());
     restoreScroll(scope, saved);
     if (mobile) alignTrack();
     if (sheetOpen()) renderFilterSheet();
@@ -12380,6 +12482,7 @@
     mode: LS.get('lb_mode', 'tomes'),      // tomes (derniers acquis) | series
     tsort: LS.get('lb_tsort', 'recent'),   // recent | az | note (vue par tome)
     disp: LS.get('lb_disp', 'grid'),       // grid | list
+    full: LS.get('lb_full', false),        // pop-up de la série en plein écran
     topf: '', q: '',
     open: (LS.get('loc', null) || {}).lbOpen || null, // série ouverte (gardée au rechargement)
     stab: 'all',                           // onglet de la fiche série : all | read | toread | buy
@@ -12401,6 +12504,9 @@
     back: svg('<path d="M15 18l-6-6 6-6"/>'),
     trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
     pen2: svg('<path d="M12 19l7-7-3-3-7 7v3z"/><path d="M5 21h4"/>'),
+    expand: svg('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
+    shrink: svg('<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>'),
+    stack: svg('<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/>'),
   };
   const LB_GRAD = ['#C8342B,#2a1210', '#2F62C9,#0f1c3a', '#B4541A,#2b1408', '#237A45,#0c2716', '#6A44B8,#1d1236', '#946200,#2a1c00', '#1F7A8C,#082a30', '#B23A6E,#2e0f1d', '#4a4a4a,#111111'];
   const lbGrad = s => { let h = 0; for (const c of s || '') h = (h * 31 + c.charCodeAt(0)) >>> 0; return `linear-gradient(160deg,${LB_GRAD[h % LB_GRAD.length]})`; };
@@ -12442,6 +12548,7 @@
     LB.series = (r[0].data || []).filter(s => !s.is_archived); LB.vols = r[1].data || []; LB.prepub = r[2].data || [];
     // colonne « summary » présente ? (ajoutée par library_summary.sql)
     if (!('hasSummary' in LB)) { const t = await sb.from('lib_series').select('summary').limit(1); LB.hasSummary = !t.error; }
+    if (!('hasPrio' in LB)) { const t = await sb.from('lib_series').select('next_prio').limit(1); LB.hasPrio = !t.error; }
     v2Render();
   }
   async function lbUpd(table, id, patch) {
@@ -12487,7 +12594,7 @@
   function lbBodyHtml(mobile) {
     if (!LB.loaded) return '<div class="v-empty">Chargement…</div>';
     if (LB.err) return `<div class="cz-install"><b>L'espace Bibliothèque n'est pas encore installé.</b><p>Ouvrez Supabase → SQL Editor, collez le fichier <code>library_schema.sql</code> et lancez-le, puis rechargez la page.</p><p class="cz-err">${esc(LB.err)}</p></div>`;
-    if (LB.open && lbSer(LB.open)) return lbSeriesHtml(lbSer(LB.open), mobile);
+    if (mobile && LB.open && lbSer(LB.open)) return lbSeriesHtml(lbSer(LB.open), mobile);
     if (LB.tab === 'read') return lbKindBar(mobile) + lbReadHtml();
     if (LB.tab === 'buy') return lbKindBar(mobile) + lbBuyHtml();
     if (LB.tab === 'out') return lbBdgestHtml() + lbKindBar(mobile) + lbOutHtml(mobile);
@@ -12570,6 +12677,45 @@
       <div class="lb-cm"><span class="lb-bar"><i style="width:${pct}%"></i></span>${st.own}/${st.total || '?'}</div>
     </button>`;
   }
+  // ---------- tableau de bord de la collection ----------
+  function lbDashHtml() {
+    const today = lbToday();
+    const owned = LB.vols.filter(v => v.owned && lbSer(v.series_id)), read = owned.filter(v => v.read).length;
+    const total = LB.series.reduce((n, s) => n + Math.max(s.total_volumes || 0, lbVolsOf(s.id).length), 0);
+    const complete = LB.series.filter(s => { const st = lbStats(s); return st.total && st.own >= st.total; }).length;
+    const follow = LB.series.filter(s => s.follow).length;
+    const buy = lbBuyList(), buyOut = buy.filter(v => !v.release_date || v.release_date <= today).length;
+    const outs = LB.vols.filter(v => v.release_date && v.release_date >= today && !v.owned && lbSer(v.series_id)).sort((a, b) => a.release_date.localeCompare(b.release_date));
+    const pc = (a, b) => b ? Math.round(a / b * 1000) / 10 : 0;
+    const pct = (a, b) => (b ? pc(a, b) : 0).toLocaleString('fr-FR', { maximumFractionDigits: 1 }) + ' %';
+    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}" data-lb-stat="${k}"><span class="lb-sq-ic">${ic}</span><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : ''}<span class="lb-sq-go">${I.chev}</span></button>`;
+    const row = (n, p, l, tot, w) => `<div class="lb-mc-row"><div class="lb-mc-top"><b>${n}</b><span class="lb-mc-pct">${p}</span><span class="lb-mc-l">${l}</span><span class="lb-mc-tot">${tot}</span></div><i class="lb-mc-bar"><i style="width:${Math.min(100, w)}%"></i></i></div>`;
+    return `<div class="lb-dash">
+      <div class="lb-sqs">
+        ${sq('own', LBI.stack, owned.length, 'tomes possédés', total ? `sur ${total} au total` : 'dans la collection', '', pc(owned.length, total))}
+        ${sq('series', LBI.grid, LB.series.length, 'séries', `${follow} suivie${follow > 1 ? 's' : ''} · ${complete} complète${complete > 1 ? 's' : ''}`)}
+        ${sq('read', LBI.eye, read, 'tomes lus', `${owned.length - read} à lire`, 'blue', pc(read, owned.length))}
+        ${sq('buy', LBI.cart, buy.length, 'à acheter', buyOut ? `dont ${buyOut} déjà sorti${buyOut > 1 ? 's' : ''}` : 'rien de sorti', 'amber')}
+        ${sq('out', LBI.cal, outs.length, 'sorties à venir', outs[0] ? `prochaine : ${lbFmtDate(outs[0].release_date)}` : 'aucune date connue', 'orange')}
+      </div>
+      <div class="lb-mc"><div class="lb-mc-h"><span>MA COLLECTION</span><span>TOTAL</span></div>
+        ${row(owned.length, pct(owned.length, total), 'tomes possédés', total, pc(owned.length, total))}
+        ${row(read, pct(read, owned.length), 'tomes lus', owned.length, pc(read, owned.length))}
+        ${row(complete, pct(complete, LB.series.length), 'séries complètes', LB.series.length, pc(complete, LB.series.length))}
+      </div>
+    </div>`;
+  }
+  // séries taguées « À lire prochainement » P1 / P2 / P3
+  function lbNextHtml(mobile) {
+    const list = LB.series.filter(s => +s.next_prio > 0 && lbKindOk(s)).sort((a, b) => a.next_prio - b.next_prio || a.title.localeCompare(b.title, 'fr'));
+    if (!list.length) return '';
+    const items = list.slice(0, mobile ? 4 : 10).map(s => {
+      const vs = lbVolsOf(s.id), nv = vs.find(v => v.owned && !v.read) || vs.find(v => !v.owned);
+      const sub = nv ? `T.${nv.number} · ${nv.owned ? 'à lire' : 'à acheter'}` : 'tout est lu';
+      return `<button type="button" class="lb-nx" data-lb-open="${s.id}">${lbCover(s, nv && nv.cover_url ? nv : null, 'xs')}<span class="lb-nx-t"><span class="lb-pr p${s.next_prio}">P${s.next_prio}</span><b>${esc(s.title)}</b><small>${sub}</small></span></button>`;
+    }).join('');
+    return `<div class="lb-nxb"><div class="lb-nxh"><span>PROCHAINEMENT À LIRE</span><small>priorité 1 → 3</small></div><div class="lb-nxl">${items}</div></div>`;
+  }
   function lbCollectionHtml(mobile) {
     const vols = LB.vols, owned = vols.filter(v => v.owned);
     const read = owned.filter(v => v.read).length;
@@ -12581,7 +12727,7 @@
     return `
       <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
         ${mobile ? '' : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
-      ${mobile ? '' : `<div class="lb-stats"><div><b>${owned.length}</b><span>tomes possédés</span></div><div><b>${LB.series.length}</b><span>séries</span></div><div><b>${read}</b><span>tomes lus</span><i class="lb-mini"><i style="width:${owned.length ? Math.round(read / owned.length * 100) : 0}%"></i></i></div><div><b>${n.buy}</b><span>à acheter</span></div><div><b>${LB.vols.filter(v => v.release_date && v.release_date >= lbToday() && !v.owned && lbSer(v.series_id)).length}</b><span>sorties à venir</span></div></div>`}
+      ${mobile ? lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
       ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${lbSortLabel()}${I.down}</button></div>` : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
         <div class="v-seg">${[['all', 'Tous formats', ''], ['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${k}">${ic}${l}</button>`).join('')}</div>
@@ -12615,15 +12761,20 @@
       ['Genre', s.genre],
       ['Parution', [s.status, s.total_volumes ? s.total_volumes + ' tomes' : ''].filter(Boolean).join(' · ')],
     ].filter(([k, v]) => k && v);
+    const sum = s.summary || all.find(v => v.summary)?.summary;
+    const nextOut = all.filter(v => v.release_date && v.release_date >= lbToday() && !v.owned).sort((a, b) => a.release_date.localeCompare(b.release_date))[0];
+    const days = nextOut ? Math.round((new Date(nextOut.release_date + 'T00:00:00') - new Date(lbToday() + 'T00:00:00')) / 864e5) : 0;
+    const kick = [lbKindLbl(s), s.genre, s.publisher, s.edition].filter(Boolean).join(' · ');
+    const people = s.authors && s.artist && s.authors !== s.artist ? `${s.authors} (scénario) · ${s.artist} (dessin)` : (s.authors || s.artist || '');
     return `
-      <button type="button" class="lb-back" data-lb-close>${LBI.back}${LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection'}</button>
-      <div class="lb-hero">
-        <button type="button" class="lb-hcv" data-lb-cover title="Chercher la couverture">${lbCover(s)}<span class="lb-cvhint">${s.cover_url ? 'Changer la couverture' : 'Chercher la couverture'}</span></button>
+      ${mobile ? `<button type="button" class="lb-back" data-lb-close>${LBI.back}${LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection'}</button>` : ''}
+      <div class="lb-hero2">
+        <button type="button" class="lb-hcv" data-lb-cover title="Chercher la couverture">${lbCover(s, null, 'big')}<span class="lb-cvhint">${s.cover_url ? 'Changer la couverture' : 'Chercher la couverture'}</span></button>
         <div class="lb-hi">
-          <div class="lb-htitle"><h2>${esc(s.title)}</h2><button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button></div>
-          ${s.title_original ? `<div class="lb-jp">${esc(s.title_original)}</div>` : ''}
-          <div class="lb-meta">${meta.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join('')}</div>
-          ${(() => { const sum = s.summary || lbVolsOf(s.id).find(v => v.summary)?.summary; return sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''; })()}
+          ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
+          <div class="lb-htitle"><h2>${esc(s.title)}</h2>${mobile ? `<button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button>` : ''}</div>
+          ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
+          ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''}
           <div class="lb-pills">
             <button type="button" class="lb-pill${lbHas(s.format, 'paper') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'paper')}" data-lb-sfmt="paper">${LBI.book}Papier</button>
             <button type="button" class="lb-pill${lbHas(s.format, 'digital') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'digital')}" data-lb-sfmt="digital">${LBI.tablet}Digital</button>
@@ -12631,11 +12782,13 @@
             <button type="button" class="lb-pill" data-lb-srate>Ma note <b>${s.rating || '–'}</b>/10</button>
             ${s.source_url ? `<a class="lb-pill" href="${esc(s.source_url)}" target="_blank" rel="noopener">${LBI.link}Fiche</a>` : ''}
           </div>
+          ${lbPrioHtml(s)}
         </div>
         <div class="lb-side">
           <div class="lb-big">${st.own}<span>/ ${st.total || '?'} tome${st.total > 1 ? 's' : ''}</span></div>
           <div class="lb-bar w"><i style="width:${st.total ? Math.round(st.own / st.total * 100) : 0}%"></i></div>
-          <div class="lb-sub">${st.read} lu${st.read > 1 ? 's' : ''}${st.missing ? ` · ${st.missing} manquant${st.missing > 1 ? 's' : ''}` : ''}</div>
+          <div class="lb-sub">${st.read} lu${st.read > 1 ? 's' : ''}${st.own - st.read > 0 ? ` · ${st.own - st.read} à lire` : ''}${st.missing ? ` · ${st.missing} manquant${st.missing > 1 ? 's' : ''}` : ''}</div>
+          ${nextOut ? `<div class="lb-nextout">${LBI.cal}<div><b>T.${esc(String(nextOut.number))} · ${lbFmtDate(nextOut.release_date)}</b><small>${days === 0 ? 'aujourd’hui' : days === 1 ? 'demain' : `dans ${days} jours`}</small></div></div>` : ''}
           ${nextMiss ? `<button type="button" class="lb-btn sm" data-lb-wish="${nextMiss.id}">${LBI.cart}Ajouter T.${esc(String(nextMiss.number))} à « À acheter »</button>` : ''}
           <button type="button" class="lb-btn sm ghost" data-lb-sync>${LBI.cal}Chercher les nouveaux tomes</button>
           <label class="lb-follow"><span>Suivre les sorties</span><span class="vm-switch${s.follow ? ' on' : ''}" data-lb-follow role="switch" aria-checked="${!!s.follow}"></span></label>
@@ -12647,6 +12800,73 @@
         ${LB.stab === 'all' ? `<button type="button" class="lb-tadd" data-lb-addvol>${I.plus}<span>Tome</span></button>` : ''}</div>
       ${!vs.length && LB.stab !== 'all' ? '<div class="lb-empty sm"><p>Aucun tome ici.</p></div>' : ''}
       <button type="button" class="lb-del" data-lb-delseries>${LBI.trash}Supprimer cette série</button>`;
+  }
+  const LB_PRIO_C = { 1: '#C8342B', 2: '#946200', 3: '#2F62C9' };
+  function lbPrioHtml(s) {
+    const cur = +s.next_prio || 0;
+    return `<div class="lb-prio"><span>À lire prochainement</span><div class="v-seg sm">${[[0, 'Non'], [1, 'P1'], [2, 'P2'], [3, 'P3']].map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}${cur === k && k ? ' p' + k : ''}" data-lb-prio="${k}">${l}</button>`).join('')}</div></div>`;
+  }
+  // ---------- pop-up de la série / du tome (ordi) ----------
+  function lbModal() {
+    let m = document.querySelector('.lb-smod');
+    const s = LB.open && lbSer(LB.open);
+    if (isMobile() || V.space !== 'lib' || !s) { m?.remove(); document.querySelector('.lb-smod-bd')?.remove(); return; }
+    if (!m) {
+      const bd = document.createElement('div'); bd.className = 'lb-smod-bd';
+      bd.addEventListener('click', () => { LB.open = null; LB.vol = null; v2Render(); });
+      m = document.createElement('div'); m.className = 'lb-smod'; m.setAttribute('role', 'dialog'); m.setAttribute('aria-modal', 'true');
+      document.body.append(bd, m);
+    }
+    m.classList.toggle('full', !!LB.full);
+    const v = LB.vol && lbVol(LB.vol);
+    const key = v ? 'v' + v.id : 's' + s.id;
+    const prev = m.querySelector('.lb-smod-in'), top = prev && m.dataset.key === key ? prev.scrollTop : 0;
+    const vs = lbVolsOf(s.id), i = v ? vs.findIndex(x => x.id === v.id) : -1;
+    const tabL = LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection';
+    m.innerHTML = `<div class="lb-smod-bar">
+        ${v ? `<button type="button" class="lb-mb" data-lbm-back title="Retour à la série">${LBI.back}</button><span class="lb-crumb">${esc(s.title)} › <b>Tome ${esc(String(v.number))}</b></span>
+          <button type="button" class="lb-mb" data-lbm-step="-1" ${i > 0 ? '' : 'disabled'} title="Tome précédent">${LBI.back}</button><button type="button" class="lb-mb" data-lbm-step="1" ${i < vs.length - 1 ? '' : 'disabled'} title="Tome suivant">${I.chev}</button>`
+        : `<span class="lb-crumb">Bibliothèque › ${tabL} › <b>${esc(s.title)}</b></span><button type="button" class="lb-mb" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button>`}
+        <button type="button" class="lb-mb" data-lbm-full title="${LB.full ? 'Réduire' : 'Plein écran'}">${LB.full ? LBI.shrink : LBI.expand}</button>
+        <button type="button" class="lb-mb x" data-lbm-x aria-label="Fermer">${I.x}</button>
+      </div>
+      <div class="lb-smod-in">${v ? lbTomeViewHtml(v) : `<div class="lb lb-inmod">${lbSeriesHtml(s, false)}</div>`}</div>`;
+    m.dataset.key = key;
+    if (top) m.querySelector('.lb-smod-in').scrollTop = top;
+  }
+  function lbTomeViewHtml(v) {
+    const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper', vs = lbVolsOf(s.id);
+    const kick = [lbKindLbl(s), s.genre, s.publisher, s.edition].filter(Boolean).join(' · ');
+    const two = s.artist && s.artist !== s.authors;
+    return `<div class="lb-tview">
+      <div class="lb-tleft"><button type="button" class="lb-pcover big" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'big')}<span class="lb-cvhint">Chercher la couverture</span></button></div>
+      <div class="lb-tright">
+        ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
+        <h2 class="lb-ttitle">${esc(s.title)} <span>Tome ${esc(String(v.number))}</span></h2>
+        <div class="lb-kv big">
+          ${s.authors ? `<span>${two ? 'Scénario' : 'Auteur'}</span><b>${esc(s.authors)}</b>` : ''}
+          ${two ? `<span>Dessin</span><b>${esc(s.artist)}</b>` : ''}
+          <span>Sortie</span><button type="button" class="lb-link" data-lbv-date="release_date">${v.release_date ? lbFmtDate(v.release_date) + (v.release_date.slice(0, 4) === lbToday().slice(0, 4) ? ' ' + v.release_date.slice(0, 4) : '') : 'Ajouter'}</button>
+          <span>ISBN</span><input type="text" class="lb-in" data-lbv-isbn value="${esc(v.isbn || '')}" placeholder="—">
+        </div>
+        ${v.summary ? `<div class="lb-psec">RÉSUMÉ</div><p class="lb-sum full">${esc(v.summary)}</p>` : ''}
+        <div class="lb-tcols">
+          <div><div class="lb-psec">MON EXEMPLAIRE</div>
+            <div class="lb-rows">
+              <div class="lb-r"><span>Je l'ai</span><span class="vm-switch${v.owned ? ' on' : ''}" data-lbv-tog="owned" role="switch" aria-checked="${!!v.owned}"></span></div>
+              ${v.owned ? `<div class="lb-r"><span>Format</span>${lbFmtSeg(fmt, 'data-lbv-fmt')}</div>
+              <div class="lb-r"><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbFmtDate(v.bought_at) + ' ' + v.bought_at.slice(0, 4) : 'Choisir'}</button></div>
+              <div class="lb-r"><span>Lu</span><span class="lb-rr">${v.read && v.read_at ? `<small>${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${v.read ? ' on' : ''}" data-lbv-tog="read" role="switch" aria-checked="${!!v.read}"></span></span></div>`
+              : `<div class="lb-r"><span>À acheter</span><span class="vm-switch${v.wish ? ' on' : ''}" data-lbv-tog="wish" role="switch" aria-checked="${!!v.wish}"></span></div>`}
+            </div>
+            <button type="button" class="lb-del" data-lbv-del>${LBI.trash}Supprimer ce tome</button></div>
+          <div><div class="lb-psec">MA NOTE</div>
+            <div class="lb-notes">${Array.from({ length: 10 }, (_, i) => i + 1).map(k => `<button type="button" class="${v.rating && k <= v.rating ? 'on' : ''}${v.rating === k ? ' cur' : ''}" data-lbv-rate="${k}">${k}</button>`).join('')}</div>
+            ${vs.length > 1 ? `<div class="lb-psec">AUTRES TOMES</div><div class="lb-minis">${vs.map(x => `<button type="button" class="lb-tmini${x.id === v.id ? ' on' : ''}${x.owned ? '' : ' miss'}" data-lb-vol="${x.id}" title="Tome ${esc(String(x.number))}">${lbCover(s, x.cover_url ? x : { number: x.number }, 'xs')}<small>${esc(String(x.number))}</small></button>`).join('')}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`;
   }
   function lbTomeHtml(s, v) {
     const up = v.release_date && v.release_date > lbToday() && !v.owned;
@@ -12706,6 +12926,7 @@
   // ---------- Panneau d'un tome ----------
   function lbVolPanel() {
     let pnl = document.querySelector('.lb-panel');
+    if (!isMobile()) { pnl?.remove(); document.querySelector('.lb-panel-bd')?.remove(); lbModal(); return; } // ordi : tout se passe dans le pop-up
     const v = lbVol(LB.vol), s = v && lbSer(v.series_id);
     if (!v || !s || V.space !== 'lib') { pnl?.remove(); document.querySelector('.lb-panel-bd')?.remove(); return; }
     if (!pnl) {
@@ -13056,9 +13277,10 @@
     root.querySelector('[data-v-title]').textContent = 'Bibliothèque';
     root.querySelector('[data-v-views]').innerHTML = '';
     const q = document.activeElement?.matches?.('[data-lb-q]') ? document.activeElement.selectionStart : null;
-    panel.innerHTML = `<div class="cz cz-desk lb lb-desk${LB.vol ? ' withp' : ''}" data-v-scroll="lb-${LB.tab}-${LB.open || ''}"><div class="cz-head">${LB.open ? '' : lbTabsHtml()}</div>${lbBodyHtml(false)}</div>`;
+    panel.innerHTML = `<div class="cz cz-desk lb lb-desk" data-v-scroll="lb-${LB.tab}"><div class="cz-head">${lbTabsHtml()}</div>${lbBodyHtml(false)}</div>`;
     if (q !== null) { const i = panel.querySelector('[data-lb-q]'); if (i) { i.focus(); i.setSelectionRange(q, q); } }
     lbVolPanel();
+    lbModal();
   }
   function lbRenderMobile() {
     if (!LB.loaded && !LB.loading) lbLoad();
@@ -13081,6 +13303,7 @@
   document.addEventListener('keydown', async e => {
     if (e.key === 'Enter' && e.target.matches?.('[data-lb-preadd]')) { const v = e.target.value.trim(); if (!v) return; e.target.value = ''; await lbAddPrepub(v); document.querySelector('[data-lb-preadd]')?.focus(); }
     if (e.key === 'Escape' && document.querySelector('.lb-modal') && !document.querySelector('.v-stmenu')) { lbCloseModal(); return; }
+    if (e.key === 'Escape' && V.space === 'lib' && document.querySelector('.lb-smod') && !document.querySelector('.v-stmenu, .lb-modal')) { if (LB.vol) LB.vol = null; else LB.open = null; v2Render(); return; }
     if (e.key === 'Escape' && V.space === 'lib' && LB.vol && !document.querySelector('.v-stmenu, .lb-modal')) { LB.vol = null; lbVolPanel(); v2Render(); }
   });
   document.addEventListener('change', async e => {
@@ -13091,7 +13314,16 @@
     const t = e.target;
     const go = t.closest('[data-lb-go]');
     if (go) { e.preventDefault(); lbGo(go.dataset.lbGo); return; }
-    if (V.space !== 'lib' && !t.closest('.lb-panel')) return;
+    if (V.space !== 'lib' && !t.closest('.lb-panel, .lb-smod')) return;
+    if (t.closest('[data-lbm-x]')) { LB.open = null; LB.vol = null; v2Render(); return; }
+    if (t.closest('[data-lbm-back]')) { LB.vol = null; v2Render(); return; }
+    if (t.closest('[data-lbm-full]')) { LB.full = !LB.full; LS.set('lb_full', LB.full); lbModal(); return; }
+    { const st = t.closest('[data-lbm-step]'); if (st && !st.disabled) { const vs = lbVolsOf(LB.open), i = vs.findIndex(x => x.id === LB.vol), n = vs[i + +st.dataset.lbmStep]; if (n) { LB.vol = n.id; v2Render(); } return; } }
+    { const sq = t.closest('[data-lb-stat]'); if (sq) { const k = sq.dataset.lbStat;
+        if (k === 'own') { LB.mode = 'tomes'; LB.tsort = 'recent'; LS.set('lb_mode', 'tomes'); LS.set('lb_tsort', 'recent'); }
+        else if (k === 'series') { LB.mode = 'series'; LS.set('lb_mode', 'series'); }
+        else { LB.tab = k; LS.set('lb_tab', k); }
+        LB.open = null; LB.vol = null; v2Render(); return; } }
     const d = (sel) => t.closest(sel);
     let el;
     if ((el = d('[data-lb-tab]'))) { LB.tab = el.dataset.lbTab; LS.set('lb_tab', LB.tab); LB.open = null; LB.vol = null; v2Render(); return; }
@@ -13112,7 +13344,7 @@
     if ((el = d('[data-lb-trd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbTrd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
     if ((el = d('[data-lb-syncall]'))) { lbSyncAll(el); return; }
     if ((el = d('[data-lb-stab]'))) { LB.stab = el.dataset.lbStab; v2Render(); return; }
-    if ((el = d('[data-lb-open]'))) { LB.open = el.dataset.lbOpen; LB.vol = null; LB.stab = 'all'; v2Render(); document.querySelector(isMobile() ? '#v2m .lb-mob' : '#v2 .lb-desk')?.scrollTo(0, 0); return; }
+    if ((el = d('[data-lb-open]'))) { LB.open = el.dataset.lbOpen; LB.vol = null; LB.stab = 'all'; v2Render(); if (isMobile()) document.querySelector('#v2m .lb-mob')?.scrollTo(0, 0); return; }
     if (d('[data-lb-close]')) { LB.open = null; LB.vol = null; v2Render(); return; }
     const s = lbSer(LB.open);
     if (s) {
@@ -13120,6 +13352,10 @@
       if ((el = d('[data-lb-delseries]'))) { lbDeleteSeries(s, el); return; }
       if ((el = d('[data-lb-sfmt]'))) { s.format = lbFmtToggle(s.format, el.dataset.lbSfmt); v2Render(); await lbUpd('lib_series', s.id, { format: s.format }); return; }
       if ((el = d('[data-lb-sync]'))) { el.disabled = true; el.textContent = 'Recherche…'; await lbSync(s); return; }
+      if ((el = d('[data-lb-prio]'))) {
+        if (!LB.hasPrio) { alertBubble('Lancez d’abord library_summary.sql dans Supabase (colonne « priorité »).'); return; }
+        const k = +el.dataset.lbPrio || null; s.next_prio = k; v2Render(); await lbUpd('lib_series', s.id, { next_prio: k }); return;
+      }
       if (d('[data-lb-follow]')) { s.follow = !s.follow; v2Render(); await lbUpd('lib_series', s.id, { follow: s.follow }); return; }
       if ((el = d('[data-lb-top]'))) {
         const { m, close } = floatMenu(el, [...LB_TOPS, ['', 'Aucun']].map(([k, l]) => `<button type="button" data-k="${k}"${k ? '' : ' class="muted"'}><span>${l}</span>${(s.top || '') === k ? I.check : ''}</button>`).join(''));
@@ -13140,7 +13376,12 @@
       const patch = v.owned ? { owned: false, read: false } : { owned: true, wish: false, bought_at: v.bought_at || lbToday() };
       await lbVolSet(v, patch); return;
     }
-    if ((el = d('[data-lb-vol]'))) { LB.vol = LB.vol === el.dataset.lbVol ? null : el.dataset.lbVol; v2Render(); return; }
+    if ((el = d('[data-lb-vol]'))) {
+      const id = el.dataset.lbVol;
+      if (!isMobile()) { LB.vol = id; LB.open = lbVol(id)?.series_id || LB.open; } // ordi : le tome s'ouvre dans le pop-up de sa série
+      else LB.vol = LB.vol === id ? null : id;
+      v2Render(); return;
+    }
     if ((el = d('[data-lb-readnext]'))) { const v = lbVol(el.dataset.lbReadnext); if (v) await lbVolSet(v, { read: true, read_at: lbToday() }); return; }
     if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: true }); return; }
     if ((el = d('[data-lb-preread]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPreread); if (p) { p.read = !p.read; v2Render(); await lbUpd('lib_prepub', p.id, { read: p.read }); } return; }
@@ -13151,7 +13392,7 @@
     if ((el = d('[data-lb-predel]'))) { const id = el.dataset.lbPredel; lbConfirm(el, 'Supprimer ce suivi ?', 'Supprimer', async () => { LB.prepub = LB.prepub.filter(x => x.id !== id); v2Render(); await sb.from('lib_prepub').delete().eq('id', id); }); return; }
     // panneau du tome
     const v = lbVol(LB.vol);
-    if (v && t.closest('.lb-panel')) {
+    if (v && t.closest('.lb-panel, .lb-smod')) {
       if (d('[data-lbv-close]')) { LB.vol = null; lbVolPanel(); v2Render(); return; }
       if ((el = d('[data-lbv-tog]'))) {
         const k = el.dataset.lbvTog, val = !v[k];
