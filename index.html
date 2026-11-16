@@ -3093,6 +3093,20 @@
   .lb-qfmenu .lb-qf.on { color: #1E6B3D; font-weight: 600; }
   .lb-qfmenu .lb-qf.on > svg:first-child { color: #2F9E5B; }
   .lb-qfmenu .lb-qf.on .lb-fck { display: inline-flex; }
+  .lb-ms { background: #fff; border-radius: 18px; padding: 4px 4px 2px; }
+  .lb-ms-segs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lb-ms-seg { display: flex; align-items: center; gap: 6px; padding: 12px 10px; border: none; background: none; border-left: 1px solid #F0EFEB; font-family: 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; min-width: 0; }
+  .lb-ms-seg:first-child { border-left: none; }
+  .lb-sf { display: inline-flex; width: 17px; height: 17px; flex: none; }
+  .lb-sf svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+  .lb-ms-l { font-size: 13px; color: #6b6b6b; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-ms-seg b { margin-left: auto; font-size: 17px; font-variant-numeric: tabular-nums; }
+  .lb-ms-bar { display: flex; align-items: center; gap: 12px; padding: 10px 10px 12px; border-top: 1px solid #F0EFEB; }
+  .lb-ms-tr { flex: 1; display: block; height: 8px; border-radius: 5px; background: #ECEAE4; overflow: hidden; }
+  .lb-ms-tr i { display: block; height: 100%; border-radius: 5px; background: #2F62C9; }
+  .lb-ms-bar span { font-size: 13.5px; font-weight: 600; white-space: nowrap; }
+  .lb-ms-bar b { color: #2F62C9; }
+  .lb-ms-bar em { font-style: normal; color: #8b8b8b; font-weight: 500; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12816,6 +12830,19 @@
       </div>
     </div>`;
   }
+  // téléphone : une carte, trois compteurs (Tomes · À lire · Panier) + barre de lecture
+  const LB_SF = {
+    books: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="4" width="4" height="16" rx="1.2"/><rect x="9" y="4" width="4" height="16" rx="1.2"/><path d="M13 6.2l3.7-1.1a1 1 0 0 1 1.2.7l3.7 12.7a1 1 0 0 1-.7 1.2l-3.7 1.1a1 1 0 0 1-1.2-.7L12.4 7.4a1 1 0 0 1 .6-1.2z"/></svg>',
+    book: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13.5c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5V20"/></svg>',
+    cart: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 3.5h2.2l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.1l1.8-7.3H5.8"/><circle cx="9.5" cy="19.6" r="1.4"/><circle cx="17" cy="19.6" r="1.4"/></svg>',
+  };
+  function lbMobStatsHtml() {
+    const owned = LB.vols.filter(v => v.owned && lbSer(v.series_id)), read = owned.filter(v => v.read).length;
+    const pct = owned.length ? Math.round(read / owned.length * 100) : 0;
+    const seg = (k, ic, col, l, n) => `<button type="button" class="lb-ms-seg" data-lb-stat="${k}"><span class="lb-sf" style="color:${col}">${LB_SF[ic]}</span><span class="lb-ms-l">${l}</span><b>${n}</b></button>`;
+    return `<div class="lb-ms"><div class="lb-ms-segs">${seg('own', 'books', '#2F9E5B', 'Tomes', owned.length)}${seg('read', 'book', '#2F62C9', 'À lire', owned.length - read)}${seg('buy', 'cart', '#D9822B', 'Panier', lbBuyList().length)}</div>
+      <div class="lb-ms-bar"><i class="lb-ms-tr"><i style="width:${pct}%"></i></i><span><b>${pct} %</b> lus <em>(${read})</em></span></div></div>`;
+  }
   // séries taguées « À lire prochainement » P1 / P2 / P3
   function lbNextHtml(mobile) {
     const list = LB.series.filter(s => +s.next_prio > 0 && lbKindOk(s)).sort((a, b) => a.next_prio - b.next_prio || a.title.localeCompare(b.title, 'fr'));
@@ -12838,7 +12865,7 @@
     return `
       <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
         ${mobile ? '' : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
-      ${mobile ? lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
+      ${mobile ? lbMobStatsHtml() + lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
       ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${lbSortLabel()}${I.down}</button></div>` : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
         <div class="v-seg">${[['all', 'Tous formats', ''], ['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${k}">${ic}${l}</button>`).join('')}</div>
