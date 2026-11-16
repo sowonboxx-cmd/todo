@@ -2868,6 +2868,14 @@
   .lb-tadd { aspect-ratio: 2/3; border-radius: 10px; border: 1.5px dashed #CFCDC6; background: transparent; color: #8b8b8b; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 600 12.5px 'Inter', sans-serif; cursor: pointer; }
   .lb-tadd:hover { border-color: #1f1f1f; color: #1f1f1f; }
   /* listes (à lire, à acheter, sorties, prépublication) */
+  .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
+  .lb-ext:hover { background: #F1F0EC; }
+  .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
+  .lb-ext > svg:last-child { margin-left: auto; color: #9A9890; }
+  .lb-ext span { display: flex; flex-direction: column; gap: 2px; }
+  .lb-ext b { font-size: 14px; }
+  .lb-ext small { font-size: 12.5px; color: #6b6b6b; }
+  .lb-mob .lb-ext { background: #fff; }
   .lb-sec { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: #9a9890; margin-top: 6px; }
   .lb-list { background: var(--v-card); border-radius: 16px; overflow: hidden; }
   .lb-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-bottom: 1px solid #F0EFEB; }
@@ -12412,9 +12420,9 @@
     if (!LB.loaded) return '<div class="v-empty">Chargement…</div>';
     if (LB.err) return `<div class="cz-install"><b>L'espace Bibliothèque n'est pas encore installé.</b><p>Ouvrez Supabase → SQL Editor, collez le fichier <code>library_schema.sql</code> et lancez-le, puis rechargez la page.</p><p class="cz-err">${esc(LB.err)}</p></div>`;
     if (LB.open && lbSer(LB.open)) return lbSeriesHtml(lbSer(LB.open), mobile);
-    if (LB.tab === 'read') return lbReadHtml();
-    if (LB.tab === 'buy') return lbBuyHtml();
-    if (LB.tab === 'out') return lbOutHtml(mobile);
+    if (LB.tab === 'read') return lbKindBar(mobile) + lbReadHtml();
+    if (LB.tab === 'buy') return lbKindBar(mobile) + lbBuyHtml();
+    if (LB.tab === 'out') return lbBdgestHtml() + lbKindBar(mobile) + lbOutHtml(mobile);
     if (LB.tab === 'pre') return lbPreHtml();
     return lbCollectionHtml(mobile);
   }
@@ -12509,7 +12517,7 @@
     const up = v.release_date && v.release_date > lbToday() && !v.owned;
     const lab = v.owned ? (v.format || s.format) === 'digital' ? 'Digital' : 'Papier' : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
-      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v.cover_url ? v : { number: v.number })}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}${v.signed ? '<span class="lb-tsig">Dédicacé</span>' : ''}</button>
+      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v.cover_url ? v : { number: v.number })}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}</button>
       <button type="button" class="lb-tck" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
       <div class="lb-tl"><b>T.${esc(String(v.number))}</b><span>${lab}</span></div></div>`;
   }
@@ -12518,23 +12526,35 @@
     return `<div class="lb-row" ${attrs}><button type="button" class="lb-rcv" data-lb-open="${s.id}">${lbCover(s, null, 'sm')}</button><div class="lb-rt"><b>${title}</b><small>${sub}</small></div>${right}</div>`;
   }
   const lbRange = nums => { const out = []; let a = null, b = null; nums.forEach(n => { if (a === null) { a = b = n; } else if (n === b + 1) b = n; else { out.push(a === b ? `T.${a}` : `T.${a} à ${b}`); a = b = n; } }); if (a !== null) out.push(a === b ? `T.${a}` : `T.${a} à ${b}`); return out.join(', '); };
+  const lbKindOk = s => !!s && (LB.kind === 'all' || (s.kind || 'manga') === LB.kind);
+  // filtre Manga / BD / Comics, partagé par Collection, À lire, À acheter et Sorties
+  function lbKindBar(mobile) {
+    const kinds = [['all', 'Tout'], ...LB_KINDS].filter(([k]) => k === 'all' || LB.series.some(s => (s.kind || 'manga') === k));
+    if (kinds.length < 3) return '';
+    return mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}</div>`
+      : `<div class="lb-tools"><div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}</div></div>`;
+  }
+  // lien vers le calendrier des sorties de BDGest (le site ne se laisse pas lire depuis l'app)
+  function lbBdgestHtml() {
+    return `<a class="lb-ext" href="https://www.bdgest.com/sorties_bd" target="_blank" rel="noopener">${LBI.cal}<span><b>Calendrier des sorties en France</b><small>BDGest · Franco-Belge, Manga, Comics, par mois et par éditeur</small></span>${LBI.link}</a>`;
+  }
   function lbReadHtml() {
-    const rows = LB.series.map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
+    const rows = LB.series.filter(lbKindOk).map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
     if (!rows.length) return '<div class="lb-empty"><b>Rien à lire.</b><p>Tous vos tomes possédés sont lus.</p></div>';
     return `<div class="lb-list">${rows.map(({ s, vs }) => lbRowHtml(s, esc(s.title), `${lbRange(vs.map(v => +v.number))} · ${vs.length} tome${vs.length > 1 ? 's' : ''}`, `<button type="button" class="lb-btn sm" data-lb-readnext="${vs[0].id}">${I.check}T.${esc(String(vs[0].number))} lu</button>`)).join('')}</div>`;
   }
   function lbBuyHtml() {
-    const list = lbBuyList();
+    const list = lbBuyList().filter(v => lbKindOk(lbSer(v.series_id)));
     if (!list.length) return '<div class="lb-empty"><b>Rien à acheter.</b><p>Marquez un tome « À acheter » depuis sa fiche, ou suivez une série pour voir ses tomes manquants ici.</p></div>';
     return `<div class="lb-list">${list.map(v => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, [v.release_date ? lbFmtDate(v.release_date) : '', v.wish ? 'souhaité' : 'manquant'].filter(Boolean).join(' · '), `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>`); }).join('')}</div>`;
   }
   function lbOutHtml(mobile) {
     const today = lbToday();
-    const dated = LB.vols.filter(v => v.release_date && !v.owned && lbSer(v.series_id));
+    const dated = LB.vols.filter(v => v.release_date && !v.owned && lbKindOk(lbSer(v.series_id)));
     const up = dated.filter(v => v.release_date >= today).sort((a, b) => a.release_date.localeCompare(b.release_date));
     const past = dated.filter(v => v.release_date < today).sort((a, b) => b.release_date.localeCompare(a.release_date));
     const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, `<button type="button" class="lb-link sm" data-lb-reldate="${v.id}">${lbFmtDate(v.release_date)}</button> · ${(v.format || s.format) === 'digital' ? 'Digital' : 'Papier'}`,
-      (isPast ? `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>` : '') + (v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`)); };
+      isPast ? `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>` : (v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`)); };
     const out = up.length ? `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`
       : '<div class="lb-empty sm"><p>Aucune sortie à venir. Ajoutez la date d’un prochain tome dans sa fiche (bouton « + Tome »).</p></div>';
     return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div><div class="lb-list">${past.map(v => row(v, true)).join('')}</div>` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
@@ -12575,7 +12595,7 @@
         ${v.owned ? `<div class="lb-r"><span>Format</span><div class="v-seg sm"><button type="button" class="${fmt === 'paper' ? 'on' : ''}" data-lbv-fmt="paper">${LBI.book}Papier</button><button type="button" class="${fmt === 'digital' ? 'on' : ''}" data-lbv-fmt="digital">${LBI.tablet}Digital</button></div></div>
         <div class="lb-r"><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbFmtDate(v.bought_at) + ' ' + v.bought_at.slice(0, 4) : 'Choisir'}</button></div>
         <div class="lb-r"><span>Lu</span><span class="lb-rr">${v.read && v.read_at ? `<small>${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${v.read ? ' on' : ''}" data-lbv-tog="read" role="switch" aria-checked="${!!v.read}"></span></span></div>
-        <div class="lb-r"><span>Dédicacé</span><span class="vm-switch${v.signed ? ' on' : ''}" data-lbv-tog="signed" role="switch" aria-checked="${!!v.signed}"></span></div>`
+        `
         : `<div class="lb-r"><span>À acheter</span><span class="vm-switch${v.wish ? ' on' : ''}" data-lbv-tog="wish" role="switch" aria-checked="${!!v.wish}"></span></div>`}
       </div>
       <div class="lb-psec">MA NOTE</div>
