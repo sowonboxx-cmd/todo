@@ -2808,7 +2808,18 @@
   /* fiche série */
   .lb-back { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; background: none; border: none; color: #2F62C9; font-weight: 600; font-size: 14px; cursor: pointer; padding: 4px 0; }
   .lb-hero { display: flex; gap: 22px; background: var(--v-card); border-radius: 18px; padding: 18px; }
-  .lb-hcv { width: 150px; flex-shrink: 0; }
+  .lb-hcv { width: 150px; flex-shrink: 0; padding: 0; border: none; background: none; cursor: pointer; position: relative; align-self: flex-start; }
+  .lb-cvhint { position: absolute; left: 6px; right: 6px; bottom: 6px; background: rgba(31,31,31,.82); color: #fff; font: 600 11.5px 'Inter', sans-serif; padding: 5px 6px; border-radius: 7px; text-align: center; opacity: 0; transition: opacity .15s; }
+  .lb-hcv:hover .lb-cvhint, .lb-pcover:hover .lb-cvhint, .lb-hcv:focus-visible .lb-cvhint { opacity: 1; }
+  @media (hover: none) { .lb-cvhint { opacity: .9; font-size: 10.5px; } }
+  .lb-covers { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 12px; }
+  .lb-covpick { display: flex; flex-direction: column; gap: 5px; padding: 0; border: none; background: none; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; color: #6b6b6b; }
+  .lb-covpick small { font-size: 11.5px; line-height: 1.3; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .lb-covpick:hover .lb-cv { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1f1f1f; }
+  .lb-link.sm { font-size: 12.5px; color: #6b6b6b; }
+  .lb-link.sm:hover { color: #2F62C9; }
+  .lb-link.late { color: #C8342B; }
+  .lb-row .lb-btn + .lb-tag, .lb-row .lb-btn + .lb-btn { margin-left: -4px; }
   .lb-hi { flex: 1; min-width: 0; }
   .lb-htitle { display: flex; align-items: center; gap: 8px; }
   .lb-htitle h2 { font-size: 34px; letter-spacing: -.02em; margin: 0; line-height: 1.1; }
@@ -2877,7 +2888,8 @@
   .lb-panel svg { width: 15px; height: 15px; }
   .lb-ph { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 15px; }
   .lb-xb { width: 30px; height: 30px; border-radius: 9px; background: #F3F2EE; display: flex; align-items: center; justify-content: center; border: none; cursor: pointer; flex-shrink: 0; }
-  .lb-pcover .lb-cv { width: 120px; margin: 0 auto; }
+  .lb-pcover { position: relative; width: 120px; margin: 0 auto; padding: 0; border: none; background: none; cursor: pointer; display: block; }
+  .lb-pcover .lb-cv { width: 120px; }
   .lb-pcover .lb-cv.ph span { font-size: 18px; }
   .lb-kv { display: grid; grid-template-columns: 80px 1fr; gap: 6px 10px; font-size: 13px; align-items: center; }
   .lb-kv span { color: #8b8b8b; }
@@ -12306,7 +12318,7 @@
   const lbVol = id => LB.vols.find(v => v.id === id);
   const lbVolsOf = sid => LB.vols.filter(v => v.series_id === sid).sort((a, b) => (+a.number || 0) - (+b.number || 0));
   const lbToday = () => todayISO();
-  const lbFmtDate = iso => iso ? formatDateShort(iso) : '';
+  const lbFmtDate = iso => iso ? formatDateShort(iso) + (iso.slice(0, 4) !== lbToday().slice(0, 4) ? ' ' + iso.slice(0, 4) : '') : '';
   const lbNorm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
   function lbCover(s, v, cls = '') {
     const url = (v && v.cover_url) || s?.cover_url;
@@ -12361,7 +12373,7 @@
       col: LB.vols.filter(v => v.owned).length,
       read: LB.vols.filter(v => v.owned && !v.read).length,
       buy: lbBuyList().length,
-      out: LB.vols.filter(v => v.release_date && v.release_date >= today && !v.owned).length,
+      out: LB.vols.filter(v => v.release_date && !v.owned && lbSer(v.series_id)).length,
       pre: LB.prepub.filter(p => !p.read).length,
     };
   }
@@ -12445,7 +12457,7 @@
     return `
       <button type="button" class="lb-back" data-lb-close>${LBI.back}${LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection'}</button>
       <div class="lb-hero">
-        <div class="lb-hcv">${lbCover(s)}</div>
+        <button type="button" class="lb-hcv" data-lb-cover title="Chercher la couverture">${lbCover(s)}<span class="lb-cvhint">${s.cover_url ? 'Changer la couverture' : 'Chercher la couverture'}</span></button>
         <div class="lb-hi">
           <div class="lb-htitle"><h2>${esc(s.title)}</h2><button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button></div>
           ${s.title_original ? `<div class="lb-jp">${esc(s.title_original)}</div>` : ''}
@@ -12497,15 +12509,19 @@
   }
   function lbOutHtml(mobile) {
     const today = lbToday();
-    const list = LB.vols.filter(v => v.release_date && v.release_date >= today && !v.owned).sort((a, b) => a.release_date.localeCompare(b.release_date));
-    const out = list.length ? `<div class="lb-list">${list.map(v => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s?.title || '')} · T.${esc(String(v.number))}`, `${lbFmtDate(v.release_date)} · ${(v.format || s?.format) === 'digital' ? 'Digital' : 'Papier'}`, v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`); }).join('')}</div>`
+    const dated = LB.vols.filter(v => v.release_date && !v.owned && lbSer(v.series_id));
+    const up = dated.filter(v => v.release_date >= today).sort((a, b) => a.release_date.localeCompare(b.release_date));
+    const past = dated.filter(v => v.release_date < today).sort((a, b) => b.release_date.localeCompare(a.release_date));
+    const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, `<button type="button" class="lb-link sm" data-lb-reldate="${v.id}">${lbFmtDate(v.release_date)}</button> · ${(v.format || s.format) === 'digital' ? 'Digital' : 'Papier'}`,
+      (isPast ? `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>` : '') + (v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`)); };
+    const out = up.length ? `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`
       : '<div class="lb-empty sm"><p>Aucune sortie à venir. Ajoutez la date d’un prochain tome dans sa fiche (bouton « + Tome »).</p></div>';
-    return `<div class="lb-sec">À VENIR</div>${out}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
+    return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div><div class="lb-list">${past.map(v => row(v, true)).join('')}</div>` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
   }
   function lbPreHtml() {
-    const list = [...LB.prepub].sort((a, b) => (a.read - b.read) || String(b.updated_at || '').localeCompare(String(a.updated_at || '')));
+    const list = [...LB.prepub].sort((a, b) => (a.read - b.read) || String(a.issue_date || '9999').localeCompare(String(b.issue_date || '9999')) || String(a.magazine || '').localeCompare(String(b.magazine || ''), 'fr'));
     return `<label class="cz-search lb-preadd">${I.plus}<input type="text" data-lb-preadd placeholder="Magazine · série · chapitre (Entrée) — ex. Young Magazine · Ushijima · ch. 48" autocomplete="off"></label>
-      ${list.length ? `<div class="lb-list">${list.map(p => `<div class="lb-row"><div class="lb-pcv" style="background:${lbGrad(p.magazine)}"><span>${esc((p.magazine || '').slice(0, 14))}</span></div><div class="lb-rt"><b>${esc(p.series_title || '')}${p.chapter ? ' · ' + esc(p.chapter) : ''}</b><small>${esc(p.magazine || '')}${p.issue_date ? ' · ' + lbFmtDate(p.issue_date) : ''}</small></div>
+      ${list.length ? `<div class="lb-list">${list.map(p => `<div class="lb-row"><div class="lb-pcv" style="background:${lbGrad(p.magazine)}"><span>${esc((p.magazine || '').slice(0, 14))}</span></div><div class="lb-rt"><b>${esc(p.series_title || p.magazine || '')}${p.chapter ? ' · ' + esc(p.chapter) : ''}</b><small>${p.series_title && p.magazine ? esc(p.magazine) + ' · ' : ''}<button type="button" class="lb-link sm${p.issue_date && p.issue_date < lbToday() && !p.read ? ' late' : ''}" data-lb-predate="${p.id}">${p.issue_date ? lbFmtDate(p.issue_date) : 'Date'}</button></small></div>
         <button type="button" class="lb-tag${p.read ? ' ok' : ''}" data-lb-preread="${p.id}">${p.read ? 'Lu' : 'À lire'}</button>
         <button type="button" class="lb-ib" data-lb-prenext="${p.id}" title="Chapitre suivant">${I.plus}</button>
         <button type="button" class="lb-ib" data-lb-predel="${p.id}" title="Supprimer">${LBI.trash}</button></div>`).join('')}</div>` : ''}`;
@@ -12523,7 +12539,7 @@
     const fmt = v.format || s.format || 'paper';
     pnl.innerHTML = `
       <div class="lb-ph"><b>${esc(s.title)} · Tome ${esc(String(v.number))}</b><button type="button" class="lb-xb" data-lbv-close aria-label="Fermer">${I.x}</button></div>
-      <div class="lb-pcover">${lbCover(s, v.cover_url ? v : { number: v.number })}</div>
+      <button type="button" class="lb-pcover" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v.cover_url ? v : { number: v.number })}<span class="lb-cvhint">Chercher la couverture</span></button>
       <div class="lb-kv">
         ${s.publisher ? `<span>Édition</span><b>${esc([s.publisher, s.edition].filter(Boolean).join(' · '))}</b>` : ''}
         ${s.authors ? `<span>${s.artist && s.artist !== s.authors ? 'Scénario' : 'Auteur'}</span><b>${esc(s.authors)}</b>` : ''}
@@ -12594,7 +12610,7 @@
     } catch (e) { return { q: u }; }
   }
   const lbSeriesName = t => (t || '').replace(/\s*[-–—:,(]?\s*(tome|vol\.?|volume|t\.?)\s*\d+.*$/i, '').replace(/\s+\d+\s*$/, '').replace(/\s*\(.*?\)\s*$/, '').trim();
-  async function lbLookup(raw) {
+  async function lbLookup(raw, max = 6) {
     raw = (raw || '').trim(); if (!raw) return [];
     let q = raw, isbn = lbIsbn(raw);
     if (/^https?:\/\//i.test(raw)) { const r = lbFromUrl(raw); isbn = r.isbn ? lbIsbn(r.isbn) : null; q = r.q || ''; }
@@ -12607,7 +12623,7 @@
       }
       if (!out.length) {
         const gq = isbn ? `isbn:${isbn}` : q;
-        const j = await (await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(gq)}&maxResults=12&printType=books`)).json();
+        const j = await (await fetch(`https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(gq)}&maxResults=20&printType=books`)).json();
         const seen = new Set();
         (j.items || []).forEach(it => {
           const vi = it.volumeInfo || {};
@@ -12619,7 +12635,7 @@
         });
       }
     } catch (e) { console.info('Recherche impossible', e); }
-    return out.slice(0, 6);
+    return out.slice(0, max);
   }
   // ---------- Fenêtre « Ajouter » ----------
   function lbAddModal(prefill) {
@@ -12674,6 +12690,31 @@
     });
     draw();
     setTimeout(() => { const i = box.querySelector('[data-lbm-q]'); i?.focus(); if (prefill) search(); }, 0);
+  }
+  // choisir une couverture parmi les résultats (ou coller un lien d'image)
+  function lbCoverModal(query, onPick) {
+    lbCloseModal();
+    const bd = document.createElement('div'); bd.className = 'v-tcm-bd lb-mbd';
+    const box = document.createElement('div'); box.className = 'v-tcm lb-modal'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-label', 'Couverture');
+    document.body.append(bd, box);
+    bd.addEventListener('click', lbCloseModal);
+    let res = [], busy = false, q = query;
+    const draw = () => {
+      box.innerHTML = `<div class="v-tcm-head"><b>Couverture</b><button type="button" class="v-tcm-x" data-lbm-close aria-label="Fermer">${I.x}</button></div>
+        <form class="lb-search-in" data-lbc-form>${I.search}<input type="text" data-lbc-q value="${esc(q)}" placeholder="Titre, ISBN…" autocomplete="off"><button type="submit" class="lb-btn sm dark">${busy ? '…' : 'Chercher'}</button></form>
+        ${busy ? '' : res.length ? `<div class="lb-covers">${res.map((r, i) => `<button type="button" class="lb-covpick" data-lbc-pick="${i}"><span class="lb-cv" style="background-image:url('${esc(r.cover)}')"></span><small>${esc(r.vtitle || r.title)}</small></button>`).join('')}</div>` : '<div class="lb-note">Aucune couverture trouvée. Essayez avec l’ISBN, ou collez le lien d’une image ci-dessous.</div>'}
+        <label class="lb-fl"><span>Ou collez le lien d’une image</span><input type="text" data-lbc-url placeholder="https://…" autocomplete="off"></label>
+        <div class="lb-mf"><button type="button" class="lb-btn" data-lbm-close>Annuler</button><button type="button" class="lb-btn dark" data-lbc-use>Utiliser ce lien</button></div>`;
+    };
+    const search = async () => { q = box.querySelector('[data-lbc-q]')?.value.trim() || q; busy = true; draw(); res = (await lbLookup(q, 12)).filter(r => r.cover); busy = false; draw(); };
+    box.addEventListener('submit', e => { e.preventDefault(); search(); });
+    box.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); lbCloseModal(); } });
+    box.addEventListener('click', e => {
+      if (e.target.closest('[data-lbm-close]')) { lbCloseModal(); return; }
+      const pk = e.target.closest('[data-lbc-pick]'); if (pk) { const r = res[+pk.dataset.lbcPick]; lbCloseModal(); onPick(r); return; }
+      if (e.target.closest('[data-lbc-use]')) { const u = box.querySelector('[data-lbc-url]').value.trim(); if (!/^https?:\/\//i.test(u)) { box.querySelector('[data-lbc-url]').focus(); return; } lbCloseModal(); onPick({ cover: u }); }
+    });
+    draw(); search();
   }
   function lbCloseModal() { document.querySelectorAll('.lb-modal, .lb-mbd').forEach(x => x.remove()); }
   async function lbCreateSeries(f) {
@@ -12818,6 +12859,9 @@
     if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: true }); return; }
     if ((el = d('[data-lb-preread]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPreread); if (p) { p.read = !p.read; v2Render(); await lbUpd('lib_prepub', p.id, { read: p.read }); } return; }
     if ((el = d('[data-lb-prenext]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPrenext); if (p) { p.chapter = lbNextChapter(p.chapter || 'ch. 0'); p.read = false; v2Render(); await lbUpd('lib_prepub', p.id, { chapter: p.chapter, read: false }); } return; }
+    if ((el = d('[data-lb-predate]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPredate); if (p) lbPickDate(el, p.issue_date, async iso => { p.issue_date = iso; v2Render(); await lbUpd('lib_prepub', p.id, { issue_date: iso }); }); return; }
+    if ((el = d('[data-lb-reldate]'))) { const v = lbVol(el.dataset.lbReldate); if (v) lbPickDate(el, v.release_date, iso => lbVolSet(v, { release_date: iso })); return; }
+    if ((el = d('[data-lb-cover]'))) { lbCoverModal(s ? `${s.title} ${s.authors || ''}`.trim() : '', async r => { const patch = { cover_url: r.cover }; ['authors', 'publisher', 'genre'].forEach(k => { if (!s[k] && r[k]) patch[k] = r[k]; }); Object.assign(s, patch); v2Render(); await lbUpd('lib_series', s.id, patch); }); return; }
     if ((el = d('[data-lb-predel]'))) { const id = el.dataset.lbPredel; lbConfirm(el, 'Supprimer ce suivi ?', 'Supprimer', async () => { LB.prepub = LB.prepub.filter(x => x.id !== id); v2Render(); await sb.from('lib_prepub').delete().eq('id', id); }); return; }
     // panneau du tome
     const v = lbVol(LB.vol);
@@ -12833,6 +12877,7 @@
       if ((el = d('[data-lbv-fmt]'))) { await lbVolSet(v, { format: el.dataset.lbvFmt }); return; }
       if ((el = d('[data-lbv-rate]'))) { const r = +el.dataset.lbvRate; await lbVolSet(v, { rating: v.rating === r ? null : r }); return; }
       if ((el = d('[data-lbv-date]'))) { const k = el.dataset.lbvDate; lbPickDate(el, v[k], iso => lbVolSet(v, { [k]: iso })); return; }
+      if (d('[data-lbv-cover]')) { const s2 = lbSer(v.series_id); lbCoverModal(`${s2?.title || ''} tome ${v.number}`, r => lbVolSet(v, { cover_url: r.cover, ...(r.isbn && !v.isbn ? { isbn: r.isbn } : {}) })); return; }
       if ((el = d('[data-lbv-del]'))) { lbConfirm(el, `Supprimer le tome ${esc(String(v.number))} ?`, 'Supprimer', async () => { LB.vols = LB.vols.filter(x => x.id !== v.id); LB.vol = null; lbVolPanel(); v2Render(); await sb.from('lib_volumes').delete().eq('id', v.id); }); return; }
     }
   });
