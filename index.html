@@ -13715,7 +13715,7 @@
         const r = await sb.from('lib_series').insert(ins).select().single();
         if (r.error) throw r.error; ser = r.data;
       } else {
-        const patch = {}; fields.forEach(k => { if (sd[k] != null && (ser[k] == null || ser[k] === '')) patch[k] = sd[k]; });
+        const patch = {}; fields.forEach(k => { if (sd[k] != null && (ser[k] == null || ser[k] === '' || (sd.force || []).includes(k))) patch[k] = sd[k]; }); // force : champs à remplacer même s'ils sont remplis
         const maxN = Math.max(0, ...(d.volumes || []).map(v => +v.number || 0));
         if (maxN > (ser.total_volumes || 0)) patch.total_volumes = maxN;
         if (Object.keys(patch).length) await sb.from('lib_series').update(patch).eq('id', ser.id);
