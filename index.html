@@ -2943,6 +2943,13 @@
   .lb-smod-bd { position: fixed; inset: 0; z-index: 2700; background: rgba(24,24,22,.45); backdrop-filter: blur(2px); }
   .lb-smod { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(1320px, calc(100vw - 64px)); height: min(960px, calc(100vh - 48px)); z-index: 2750; background: #fff; border-radius: 24px; box-shadow: 0 40px 100px rgba(0,0,0,.35); display: flex; flex-direction: column; overflow: hidden; font-family: 'Inter', sans-serif; color: #1f1f1f; --v-card: #fff; --v-soft: #F5F5F3; }
   .lb-smod.full { width: calc(100vw - 32px); height: calc(100vh - 32px); border-radius: 20px; }
+  /* iPad / Safari : 100vh compte les barres du navigateur → on prend la hauteur réellement visible */
+  @supports (height: 100dvh) {
+    .lb-smod { height: min(960px, calc(100dvh - 48px)); }
+    .lb-smod.full { height: calc(100dvh - 32px); }
+    .lb-viewer img { height: calc(100dvh - 170px); }
+    .lb-modal { max-height: 84dvh; top: 8dvh; }
+  }
   .lb-smod svg { width: 16px; height: 16px; }
   .lb-smod-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px 12px 24px; border-bottom: 1px solid #F0EFEB; flex-shrink: 0; }
   .lb-crumb { flex: 1; font-size: 13.5px; color: #8b8b8b; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
