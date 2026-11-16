@@ -3349,6 +3349,14 @@
   .lb-mob { gap: 12px; display: flex; flex-direction: column; }
   .lb-mob .lb-tools { gap: 6px; }
   .lb-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .lb-fbtn { display: inline-flex; align-items: center; gap: 5px; border: none; background: #fff; border-radius: 9px; padding: 0 10px; height: 28px; font: 500 13px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; flex-shrink: 0; }
+  .lb-fbtn svg { width: 15px; height: 15px; }
+  .lb-fbtn b { min-width: 18px; height: 18px; border-radius: 9px; background: #1f1f1f; color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
+  .lb-fbtn.on { box-shadow: inset 0 0 0 1.5px #1f1f1f; }
+  .lb-fchips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .lb-fchips button { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 10px; background: var(--v-soft2); padding: 9px 13px; font: 500 14px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; }
+  .lb-fchips button svg { width: 15px; height: 15px; }
+  .lb-fchips button.on { background: #1f1f1f; color: #fff; }
   .lb-chips button { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: none; border-radius: 9px; padding: 6px 10px; font: 500 13px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; }
   .lb-chips button.on { background: #1f1f1f; color: #fff; }
   .lb-chips svg { width: 13px; height: 13px; }
@@ -11335,7 +11343,7 @@
     else if (mobile) document.querySelectorAll('.lb-smod, .lb-smod-bd').forEach(x => x.remove());
     restoreScroll(scope, saved);
     if (mobile) alignTrack();
-    if (sheetOpen()) renderFilterSheet();
+    if (sheetOpen()) { if (V.space === 'lib' && mroot.querySelector('[data-vm-sheet] [data-lb-freset]')) lbFilterSheet(); else renderFilterSheet(); }
     if (!V.loaded) {
       V.loaded = true;
       root.classList.remove('v-loading');
@@ -12749,6 +12757,7 @@
   const LB_KINDS = [['manga', 'Manga'], ['bd', 'BD'], ['comics', 'Comics'], ['magazine', 'Magazines'], ['livre', 'Livres']];
   const LB_TOPS = [['indispensable', 'Indispensable'], ['prefere', 'Préféré']];
   const LBI = {
+    filter: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
     book: svg('<path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/>'),
     tablet: svg('<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M11 18h2"/>'),
     grid: svg('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
@@ -13035,6 +13044,26 @@
     }).join('');
     return `<div class="lb-nxb"><div class="lb-nxh"><span>PROCHAINEMENT À LIRE</span><small>priorité 1 → 3</small></div><div class="lb-nxl">${items}</div></div>`;
   }
+  // ---------- Filtres (mobile) : type, format, tops, tri dans une feuille ----------
+  function lbFilterCount() { return (LB.kind && LB.kind !== 'all' ? 1 : 0) + (LB.fmt && LB.fmt !== 'all' ? 1 : 0) + (LB.topf ? 1 : 0); }
+  function lbFilterSheetHtml() {
+    const kinds = [['all', 'Tout'], ...LB_KINDS].filter(([k]) => k === 'all' || LB.series.some(s => (s.kind || 'manga') === k));
+    const tm = LB.mode === 'tomes', cur = tm ? LB.tsort : LB.sort;
+    const row = (attr, items, curv) => `<div class="lb-fchips">${items.map(([k, l, ic]) => `<button type="button" class="${curv === k ? 'on' : ''}" ${attr}="${k}">${ic || ''}${l}</button>`).join('')}</div>`;
+    return `<div class="vm-grab"></div>
+      <h3>Filtres</h3>
+      <div class="vm-field"><span>Type</span>${row('data-lb-kind', kinds, LB.kind || 'all')}</div>
+      <div class="vm-field"><span>Format</span>${row('data-lb-fmt', [['all', 'Tous'], ['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]], LB.fmt || 'all')}</div>
+      <div class="vm-field"><span>Tops</span>${row('data-lb-topf', [['', 'Toutes les séries'], ...LB_TOPS], LB.topf || '')}</div>
+      <div class="vm-field"><span>Trier par</span>${row('data-lb-sortk', LB_SORTS[tm ? 'tomes' : 'series'], cur)}</div>
+      <div class="vm-sheet-actions"><button type="button" data-lb-freset>Réinitialiser</button><button type="button" class="main" data-vm-sheet-close>OK</button></div>`;
+  }
+  function lbFilterSheet(open) {
+    const sh = document.querySelector('#v2m [data-vm-sheet]'), bd = document.querySelector('#v2m [data-vm-sheet-bd]'); if (!sh) return;
+    if (!open && !(sh.classList.contains('open') && sh.querySelector('[data-lb-freset]'))) return;
+    sh.innerHTML = lbFilterSheetHtml();
+    if (open) { sh.classList.add('open'); bd?.classList.add('open'); }
+  }
   function lbCollectionHtml(mobile) {
     const vols = LB.vols, owned = vols.filter(v => v.owned);
     const read = owned.filter(v => v.read).length;
@@ -13047,7 +13076,7 @@
       <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
         ${mobile ? `<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button>` : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
       ${mobile ? lbMobStatsHtml() + lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
-      ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${lbSortLabel()}${I.down}</button></div>` : `<div class="lb-tools">
+      ${mobile ? '' : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
         <div class="v-seg">${[['all', 'Tous formats', ''], ['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${k}">${ic}${l}</button>`).join('')}</div>
         <button type="button" class="v-tool${LB.topf ? ' on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button>
@@ -13055,6 +13084,7 @@
       </div>`}
       <div class="lb-tools lb-modebar">
         <div class="v-seg">${[['tomes', 'Par tome'], ['series', 'Par série']].map(([k, l]) => `<button type="button" class="${LB.mode === k ? 'on' : ''}" data-lb-mode="${k}">${l}</button>`).join('')}</div>
+        ${mobile ? (() => { const nf = lbFilterCount(); return `<button type="button" class="lb-fbtn${nf ? ' on' : ''}" data-lb-filters>${LBI.filter}<span>Filtres</span>${nf ? `<b>${nf}</b>` : ''}</button>`; })() : ''}
         <span class="lb-modehint">${LB.mode === 'tomes' ? `${tomes.length} tome${tomes.length > 1 ? 's' : ''}${LB.tsort === 'recent' ? ' · derniers acquis en premier' : ''}` : `${list.length} série${list.length > 1 ? 's' : ''}`}</span>
         ${lbDispHtml()}
       </div>
@@ -13855,8 +13885,12 @@
     let el;
     if ((el = d('[data-lb-tab]'))) { LB.tab = el.dataset.lbTab; LS.set('lb_tab', LB.tab); LB.open = null; LB.vol = null; v2Render(); return; }
     if (d('[data-lb-add]')) { lbAddModal(); return; }
-    if ((el = d('[data-lb-kind]'))) { LB.kind = el.dataset.lbKind; LS.set('lb_kind', LB.kind); v2Render(); return; }
-    if ((el = d('[data-lb-fmt]'))) { LB.fmt = el.dataset.lbFmt; LS.set('lb_fmt', LB.fmt); v2Render(); return; }
+    if (d('[data-lb-filters]')) { lbFilterSheet(true); return; }
+    if ((el = d('[data-lb-kind]'))) { LB.kind = el.dataset.lbKind; LS.set('lb_kind', LB.kind); v2Render(); lbFilterSheet(); return; }
+    if ((el = d('[data-lb-fmt]'))) { LB.fmt = el.dataset.lbFmt; LS.set('lb_fmt', LB.fmt); v2Render(); lbFilterSheet(); return; }
+    if ((el = d('[data-lb-topf]'))) { LB.topf = el.dataset.lbTopf; v2Render(); lbFilterSheet(); return; }
+    if ((el = d('[data-lb-sortk]'))) { const k = el.dataset.lbSortk; if (LB.mode === 'tomes') { LB.tsort = k; LS.set('lb_tsort', k); } else { LB.sort = k; LS.set('lb_sort', k); } v2Render(); lbFilterSheet(); return; }
+    if (d('[data-lb-freset]')) { LB.kind = 'all'; LB.fmt = 'all'; LB.topf = ''; LS.set('lb_kind', 'all'); LS.set('lb_fmt', 'all'); v2Render(); lbFilterSheet(); return; }
     if ((el = d('[data-lb-topsmenu]'))) {
       const { m, close } = floatMenu(el, [['', 'Toutes les séries'], ...LB_TOPS].map(([k, l]) => `<button type="button" data-k="${k}"><span>${l}</span>${LB.topf === k ? I.check : ''}</button>`).join(''));
       m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LB.topf = b.dataset.k; v2Render(); }); return;
