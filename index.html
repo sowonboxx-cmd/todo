@@ -12521,7 +12521,8 @@
         <span class="lb-legend"><i class="own"></i>Possédé <i class="miss"></i>Manquant</span></div>
       <div class="lb-tomes">${vs.map(v => lbTomeHtml(s, v)).join('')}
         ${LB.stab === 'all' ? `<button type="button" class="lb-tadd" data-lb-addvol>${I.plus}<span>Tome</span></button>` : ''}</div>
-      ${!vs.length && LB.stab !== 'all' ? '<div class="lb-empty sm"><p>Aucun tome ici.</p></div>' : ''}`;
+      ${!vs.length && LB.stab !== 'all' ? '<div class="lb-empty sm"><p>Aucun tome ici.</p></div>' : ''}
+      <button type="button" class="lb-del" data-lb-delseries>${LBI.trash}Supprimer cette série</button>`;
   }
   function lbTomeHtml(s, v) {
     const up = v.release_date && v.release_date > lbToday() && !v.owned;
@@ -12638,6 +12639,15 @@
       if (ev.target.closest('[data-clear]')) { close(); cb(null); }
     });
   }
+  function lbDeleteSeries(s, anchor) {
+    lbConfirm(anchor, `Supprimer « ${esc(s.title)} » et tous ses tomes ? C’est définitif.`, 'Supprimer', async () => {
+      lbCloseModal();
+      LB.series = LB.series.filter(x => x.id !== s.id); LB.vols = LB.vols.filter(v => v.series_id !== s.id);
+      LB.open = null; LB.vol = null; v2Render(); lbVolPanel();
+      const { error } = await sb.from('lib_series').delete().eq('id', s.id);
+      if (error) { console.error(error); alertBubble('Suppression impossible.'); lbLoad(true); } else alertBubble(`${s.title} supprimé`);
+    });
+  }
   function lbConfirm(anchor, text, label, onYes) {
     const { m, close } = floatMenu(anchor, `<div class="v-bulk-confirm">${text}</div><button type="button" class="danger" data-yes><span>${label}</span></button><button type="button" data-no><span>Annuler</span></button>`, 'v-bulkmenu');
     m.addEventListener('click', ev => { if (ev.target.closest('[data-no]')) close(); else if (ev.target.closest('[data-yes]')) { close(); onYes(); } });
@@ -12665,7 +12675,8 @@
   // ---------- Librairies indépendantes, via la fonction Supabase « livres » (supabase/functions/livres) ----------
   const LBF = { off: false };
   const lbCap = x => (x || '').toLowerCase().replace(/(^|[\s\-'’.])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
-  const lbKindOf = g => { const t = (g || []).join(' | '); return /manga/i.test(t) ? 'manga' : /comics?\b/i.test(t) && !/bandes dessin/i.test((g || [])[1] || '') ? 'comics' : 'bd'; };
+  // la 1re catégorie (« Bandes Dessinées, Comics, Mangas ») est commune à tout : on regarde les suivantes
+  const lbKindOf = g => { const t = (g || []).filter(x => !x.includes(',')).join(' | '); return /manga/i.test(t) ? 'manga' : /comics/i.test(t) ? 'comics' : 'bd'; };
   const lbGenre = g => (g || []).filter(x => !/^(bandes dessinées, comics, mangas|manga|mangas|comics|bandes? dessinées?|bd)$/i.test(x)).slice(-1)[0] || '';
   async function lbLib(body) {
     if (LBF.off || !sb.functions) return null;
@@ -12884,7 +12895,7 @@
       const t = e.target;
       if (t.closest('[data-lbm-close]')) { lbCloseModal(); return; }
       const kd = t.closest('[data-lbe-kind]'); if (kd) { kind = kd.dataset.lbeKind; box.querySelectorAll('[data-lbe-kind]').forEach(b => b.classList.toggle('on', b === kd)); return; }
-      if (t.closest('[data-lbe-del]')) { lbConfirm(t.closest('[data-lbe-del]'), `Supprimer « ${esc(s.title)} » et tous ses tomes ? C’est définitif.`, 'Supprimer', async () => { lbCloseModal(); LB.series = LB.series.filter(x => x.id !== s.id); LB.vols = LB.vols.filter(v => v.series_id !== s.id); LB.open = null; LB.vol = null; v2Render(); lbVolPanel(); const { error } = await sb.from('lib_series').delete().eq('id', s.id); if (error) { console.error(error); alertBubble('Suppression impossible.'); lbLoad(true); } }); return; }
+      if (t.closest('[data-lbe-del]')) { lbDeleteSeries(s, t.closest('[data-lbe-del]')); return; }
       if (t.closest('[data-lbe-save]')) {
         const patch = { kind };
         box.querySelectorAll('[data-lbe]').forEach(i => { const k = i.dataset.lbe; patch[k] = i.inputMode === 'numeric' ? (parseInt(i.value, 10) || null) : (i.value.trim() || null); });
@@ -12970,6 +12981,7 @@
     const s = lbSer(LB.open);
     if (s) {
       if (d('[data-lb-editseries]')) { lbEditSeries(s); return; }
+      if ((el = d('[data-lb-delseries]'))) { lbDeleteSeries(s, el); return; }
       if ((el = d('[data-lb-sfmt]'))) { s.format = lbFmtToggle(s.format, el.dataset.lbSfmt); v2Render(); await lbUpd('lib_series', s.id, { format: s.format }); return; }
       if ((el = d('[data-lb-sync]'))) { el.disabled = true; el.textContent = 'Recherche…'; await lbSync(s); return; }
       if (d('[data-lb-follow]')) { s.follow = !s.follow; v2Render(); await lbUpd('lib_series', s.id, { follow: s.follow }); return; }
@@ -13044,8 +13056,9 @@
     }
     if (row.kind === 'lib') {
       const sd = d.series || {};
-      let { data: found } = await sb.from('lib_series').select('*').ilike('title', sd.title);
-      let ser = (found || []).find(x => ciNorm(x.title) === ciNorm(sd.title));
+      const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
+      const { data: found } = await sb.from('lib_series').select('*');
+      let ser = (found || []).find(x => tn(x.title) === tn(sd.title));
       const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes'];
       if (!ser) {
         const ins = { title: sd.title }; fields.forEach(k => { if (sd[k] != null) ins[k] = sd[k]; });
