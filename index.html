@@ -1871,6 +1871,12 @@
   }
   .v-brand-name { font-size: 14.5px; font-weight: 700; line-height: 1.2; }
   .v-brand-sub { font-size: 12px; color: var(--v-faint); margin-top: 2px; }
+  /* bouton « synchroniser » (mobile) : recharge toute l'app */
+  .v-sync { margin-left: auto; flex-shrink: 0; width: 34px; height: 34px; border: none; border-radius: 50%; background: #E3F5E9; color: #1E9E55; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .v-sync svg { width: 18px; height: 18px; }
+  .v-sync:active { background: #CDEEDA; }
+  .v-sync.busy svg { animation: v-sync-pulse .7s ease-in-out infinite alternate; }
+  @keyframes v-sync-pulse { from { opacity: 1; } to { opacity: .3; } }
   .v-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .v-quick button {
     display: flex; flex-direction: column; align-items: flex-start; gap: 7px; padding: 10px 11px;
@@ -10728,6 +10734,7 @@
       <div class="v-brand">
         <div class="v-brand-mark">${esc(Array.from(appTitle)[0] || '天')}</div>
         <div style="min-width:0"><div class="v-brand-name" data-app-title-text>${esc(appTitle)}</div><div class="v-brand-sub">${esc(computeSidebarDateLabel())}</div></div>
+        ${isMobile() ? `<button type="button" class="v-sync" data-v-sync aria-label="Synchroniser l'app" title="Synchroniser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>` : ''}
       </div>
       <div class="v-quick">
         <button type="button" data-v-quick="today">${I.clock}<span>Aujourd'hui</span></button>
@@ -11751,6 +11758,15 @@
   }
   root.addEventListener('click', onClick);
   mroot.addEventListener('click', onClick);
+  // bouton vert du tiroir : recharge toute l'app depuis le serveur (code + données)
+  mroot.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-v-sync]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation(); b.classList.add('busy');
+    const u = new URL(location.href); u.searchParams.set('sync', Date.now().toString(36));
+    setTimeout(() => location.replace(u.toString()), 120);
+  }, true);
+  // après une synchro, on retire le paramètre de l'adresse
+  if (/[?&]sync=/.test(location.search)) { const u = new URL(location.href); u.searchParams.delete('sync'); history.replaceState(history.state, '', u.toString()); }
   [root, mroot].forEach(r => {
     r.addEventListener('change', (e) => {
       const sel = e.target.closest('[data-v-catsel]');
