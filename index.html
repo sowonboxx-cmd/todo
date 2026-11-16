@@ -14076,7 +14076,10 @@
       if (!ser && sd.only_existing) throw new Error(`série introuvable : ${sd.like || sd.title}`); // ne pas créer de série
       if (ser && !sd.title) sd.title = ser.title;
       if (sd.cover_data) { // couverture de la série envoyée en image : remplace l'ancienne
-        if (!ser) throw new Error('série introuvable pour la couverture');
+        if (!ser) { // nouvelle série : on la crée d'abord pour avoir son identifiant
+          const r = await sb.from('lib_series').insert({ title: sd.title }).select().single();
+          if (r.error) throw r.error; ser = r.data;
+        }
         sd.cover_url = await lbStoreImage(await (await fetch(sd.cover_data)).blob(), `couvertures/${ser.id}/serie`);
         sd.force = [...(sd.force || []), 'cover_url']; delete sd.cover_data;
       }
