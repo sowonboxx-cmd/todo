@@ -12810,7 +12810,8 @@
   const lbHS = v => +v.number >= 100;
   const lbCode = v => ((v.title || '').split(' · ')[0] || 'HS').trim();
   const lbTn = v => lbHS(v) ? lbCode(v) : 'T.' + v.number;
-  const lbTome = v => lbHS(v) ? lbCode(v) : 'Tome ' + v.number;
+  const lbSub = v => lbHS(v) ? (v.title || '').split(' · ').slice(1).join(' · ').trim() : '';
+  const lbTome = v => lbHS(v) ? [lbCode(v), lbSub(v)].filter(Boolean).join(' · ') : 'Tome ' + v.number;
   const lbReg = vs => vs.filter(v => !lbHS(v));
   function lbCover(s, v, cls = '') {
     if (v) {
@@ -13224,7 +13225,7 @@
           return `<button type="button" class="lb-mtm ${v.owned ? 'own' : v.wish ? 'buy' : 'miss'}" data-lb-vol="${v.id}">
             ${lbCover(s, v)}
             ${v.owned ? `<span class="lb-mtb own${v.read ? '' : ' half'}">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}
-            <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbDmy(v.release_date)}</small></button>`; }).join('')}
+            <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbSub(v) ? esc(lbSub(v)) : lbDmy(v.release_date)}</small></button>`; }).join('')}
           <button type="button" class="lb-mtm lb-madd" data-lb-addvol><div class="lb-cv">${I.plus}<span>Tome</span></div></button></div></div>`;
     } else if (tab === 'syn') {
       const sum = s.summary || all.find(v => v.summary)?.summary;
@@ -13378,13 +13379,13 @@
       return `<div class="lb-tm${v.read ? ' rd' : ' unrd'}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
       <button type="button" class="lb-tck rdck" data-lb-rd="${v.id}" aria-label="${v.read ? 'Lu — décocher' : 'Marquer comme lu'}">${v.read ? I.check : ''}</button>
-      <div class="lb-tl"><b>${esc(lbTn(v))}</b><span>${v.read ? (v.read_at ? lbFmtDate(v.read_at) : 'Lu') : 'Pas lu'}</span></div></div>`;
+      <div class="lb-tl"><b title="${esc(lbTome(v))}">${esc(lbTn(v))}</b><span>${v.read ? (v.read_at ? lbFmtDate(v.read_at) : 'Lu') : 'Pas lu'}</span></div></div>`;
     }
     const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
       <button type="button" class="lb-tck${v.owned && !v.read ? ' half' : ''}" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
-      <div class="lb-tl"><b>${esc(lbTn(v))}</b><span>${lab}</span></div></div>`;
+      <div class="lb-tl"><b title="${esc(lbTome(v))}">${esc(lbTn(v))}</b><span>${lab}</span></div></div>`;
   }
   // ---------- À lire / À acheter / Sorties / Prépublication ----------
   function lbRowHtml(s, title, sub, right = '', attrs = '') {
@@ -14085,6 +14086,28 @@
     }
     if (row.kind === 'lib' && d.merge) { // regrouper des séries : { merge: { into: "Titre gardé", from: ["Autre titre", …] } }
       await ciMergeSeries(d.merge.into, d.merge.from || [], d.merge.like || null); // like : tous les titres qui contiennent ce texte
+      return 'livre';
+    }
+    if (row.kind === 'lib' && (d.absorb || d.delete_series)) { // ranger une série dans une autre (coffret, hors-série) / supprimer un doublon
+      const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
+      const { data: all } = await sb.from('lib_series').select('*');
+      const one = (q, label) => { const c = (all || []).filter(x => q.title ? tn(x.title) === tn(q.title) : tn(x.title).includes(tn(q.like)) && !(q.not || []).some(n => tn(x.title) === tn(n))); if (c.length !== 1) throw new Error(`${label} : ${c.length ? 'plusieurs séries' : 'série introuvable'} (${q.title || q.like})`); return c[0]; };
+      if (d.absorb) {
+        const into = one(d.absorb.into, 'destination');
+        for (const it of d.absorb.items || []) {
+          const from = (all || []).find(x => tn(x.title) === tn(it.title)); if (!from || from.id === into.id) continue; // déjà rangé
+          const { data: vs } = await sb.from('lib_volumes').select('*').eq('series_id', from.id).order('number');
+          const v = (vs || [])[0] || {};
+          const nv = { series_id: into.id, number: it.number, title: it.label, owned: !!v.owned, read: !!v.read, wish: !!v.wish && !v.owned, format: v.format || from.format || null, cover_url: v.cover_url || from.cover_url || null, isbn: v.isbn || null, release_date: v.release_date || null, bought_at: v.bought_at || null, read_at: v.read_at || null };
+          if (CI.hasSum === undefined) CI.hasSum = !(await sb.from('lib_series').select('summary').limit(1)).error;
+          if (CI.hasSum && (v.summary || from.summary)) nv.summary = v.summary || from.summary;
+          const { data: ex } = await sb.from('lib_volumes').select('id').eq('series_id', into.id).eq('number', it.number);
+          const r = ex && ex.length ? await sb.from('lib_volumes').update(nv).eq('id', ex[0].id) : await sb.from('lib_volumes').insert(nv);
+          if (r.error) throw r.error;
+          const del = await sb.from('lib_series').delete().eq('id', from.id); if (del.error) throw del.error;
+        }
+      }
+      if (d.delete_series) { const x = one(d.delete_series, 'doublon'); const del = await sb.from('lib_series').delete().eq('id', x.id); if (del.error) throw del.error; }
       return 'livre';
     }
     if (row.kind === 'lib' && d.bg) { // image de fond d'un carré de la collection
