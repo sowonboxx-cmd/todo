@@ -8188,6 +8188,7 @@
     revealApp();
     if (window.tcLoad) window.tcLoad(); // catégories de tâches (rechargées en arrière-plan)
     if (typeof v2Render === 'function') v2Render();
+    if (window.claudeInbox) window.claudeInbox();
   }
 
   // ================================================================
@@ -12922,6 +12923,81 @@
       if ((el = d('[data-lbv-del]'))) { lbConfirm(el, `Supprimer le tome ${esc(String(v.number))} ?`, 'Supprimer', async () => { LB.vols = LB.vols.filter(x => x.id !== v.id); LB.vol = null; lbVolPanel(); v2Render(); await sb.from('lib_volumes').delete().eq('id', v.id); }); return; }
     }
   });
+
+  // =====================================================================
+  // BOÎTE D'ENVOI DE CLAUDE (table claude_inbox)
+  // Claude dépose ici des tâches / livres / prépublications depuis le chat ;
+  // l'app (connectée) les range à leur place au chargement puis les marque « appliqués ».
+  // =====================================================================
+  const CI = { running: false, missing: false };
+  const ciNorm = x => (x || '').toString().trim().toLowerCase();
+  function ciPage(projName, pageName) {
+    const proj = cachedProjects.find(p => ciNorm(p.name) === ciNorm(projName || 'Inbox')) || cachedProjects.find(p => ciNorm(p.name) === 'inbox');
+    if (!proj) return null;
+    const pages = cachedPages.filter(p => p.project_id === proj.id && !p.is_archived && p.page_type !== 'doc');
+    return (pageName && pages.find(p => ciNorm(p.title) === ciNorm(pageName))) || (!pageName && ciNorm(proj.name) === 'inbox' && pages.find(p => ciNorm(p.title) === 'bordel')) || pages[0] || null;
+  }
+  async function ciApply(row) {
+    const d = row.payload || {};
+    if (row.kind === 'task') {
+      const pg = ciPage(d.project, d.page);
+      if (!pg) throw new Error('page introuvable');
+      const { error } = await sb.from('todos').insert({ page_id: pg.id, title: d.title, notes: d.notes || null, due_date: d.due_date || null, due_time: d.due_time || null, priority: d.priority || 'none' });
+      if (error) throw error;
+      return 'tâche';
+    }
+    if (row.kind === 'lib') {
+      const sd = d.series || {};
+      let { data: found } = await sb.from('lib_series').select('*').ilike('title', sd.title);
+      let ser = (found || []).find(x => ciNorm(x.title) === ciNorm(sd.title));
+      const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes'];
+      if (!ser) {
+        const ins = { title: sd.title }; fields.forEach(k => { if (sd[k] != null) ins[k] = sd[k]; });
+        const r = await sb.from('lib_series').insert(ins).select().single();
+        if (r.error) throw r.error; ser = r.data;
+      } else {
+        const patch = {}; fields.forEach(k => { if (sd[k] != null && (ser[k] == null || ser[k] === '')) patch[k] = sd[k]; });
+        const maxN = Math.max(0, ...(d.volumes || []).map(v => +v.number || 0));
+        if (maxN > (ser.total_volumes || 0)) patch.total_volumes = maxN;
+        if (Object.keys(patch).length) await sb.from('lib_series').update(patch).eq('id', ser.id);
+      }
+      const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
+      for (const v of d.volumes || []) {
+        const ex = (have || []).find(x => +x.number === +v.number);
+        const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
+        if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
+        else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
+      }
+      return 'livre';
+    }
+    if (row.kind === 'prepub') {
+      const { error } = await sb.from('lib_prepub').insert({ magazine: d.magazine || null, series_title: d.series_title || null, chapter: d.chapter || null, issue_date: d.issue_date || null, read: !!d.read });
+      if (error) throw error;
+      return 'prépublication';
+    }
+    throw new Error('type inconnu : ' + row.kind);
+  }
+  window.claudeInbox = async function () {
+    if (CI.running || CI.missing) return;
+    CI.running = true;
+    try {
+      const { data, error } = await sb.from('claude_inbox').select('*').is('applied_at', null).order('created_at');
+      if (error) { if (/does not exist|schema cache|relation/i.test(error.message || '')) CI.missing = true; return; }
+      const rows = (data || []).filter(r => !r.applied_at);
+      if (!rows.length) return;
+      const done = { tâche: 0, livre: 0, prépublication: 0 };
+      for (const r of rows) {
+        try { const k = await ciApply(r); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); }
+        catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
+      }
+      const parts = Object.entries(done).filter(([, n]) => n).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`);
+      if (parts.length) alertBubble('Ajouté par Claude : ' + parts.join(', '));
+      if (done.livre || done.prépublication) lbLoad(true);
+      if (done.tâche && typeof loadData === 'function') { CI.running = false; await loadData(); }
+    } finally { CI.running = false; }
+  };
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && cachedProjects.length) window.claudeInbox(); });
+  if (cachedProjects.length) window.claudeInbox();
 
   if (!document.getElementById('app-desktop')?.classList.contains('app-loading')) v2Render();
 })();
