@@ -2797,6 +2797,47 @@
   .lb-cv.ph span { color: rgba(255,255,255,.92); font-weight: 800; font-size: 16px; line-height: 1.05; letter-spacing: -.01em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
   .lb-cv.sm { padding: 3px; border-radius: 6px; }
   .lb-cv.sm.ph span { font-size: 7px; }
+  .lb-ribbon.blue { background: #fff; color: #2F62C9; }
+  .lb-ribbon.static { position: static; display: inline-block; }
+  .lb-cmd { margin-left: auto; color: #9A9890; }
+  .lb-modebar { justify-content: flex-start; }
+  .lb-modehint { font-size: 12.5px; color: #8b8b8b; }
+  .lb-disp { margin-left: auto; }
+  .lb-disp button { padding: 6px 9px; }
+  .lb-disp svg { width: 16px; height: 16px; display: block; }
+  .lb-table { background: var(--v-card); border: 1px solid #EFEEEA; border-radius: 14px; overflow: hidden; margin-bottom: 30px; }
+  .lb-th, .lb-tr { display: grid; align-items: center; gap: 12px; padding: 0 16px; }
+  .lb-table.series .lb-th, .lb-table.series .lb-tr { grid-template-columns: minmax(220px, 3fr) 90px minmax(80px, 1fr) minmax(140px, 1.3fr) 60px 64px 64px 110px; }
+  .lb-table.tomes .lb-th, .lb-table.tomes .lb-tr { grid-template-columns: minmax(240px, 3fr) 90px minmax(80px, 1fr) 100px 64px 56px 64px; }
+  .lb-th { background: #F7F6F3; height: 40px; font-size: 12px; color: #8b8b8b; font-weight: 600; }
+  .lb-tr { min-height: 64px; border-top: 1px solid #F0EFEB; cursor: pointer; font-size: 13.5px; }
+  .lb-tr:hover { background: #FAFAF8; }
+  .lb-tr.sel { background: #F3F2EE; }
+  .lb-tc1 { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px 0; }
+  .lb-cv.xs { width: 34px; flex-shrink: 0; padding: 2px; border-radius: 5px; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+  .lb-cv.xs.ph span { font-size: 6px; }
+  .lb-tt { display: flex; flex-direction: column; min-width: 0; }
+  .lb-tt b { font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-tt small em { font-style: normal; color: #1f1f1f; font-weight: 700; }
+  .lb-tt small { font-size: 12.5px; color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-tch { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-tmut { color: #6b6b6b; }
+  .lb-kpill { display: inline-block; background: #F1F0EC; color: #4a4a4a; font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 8px; }
+  .lb-tprog { display: flex; align-items: center; gap: 10px; }
+  .lb-tprog b { font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .lb-fmtic { display: inline-flex; gap: 4px; color: #6b6b6b; }
+  .lb-fmtic svg { width: 15px; height: 15px; }
+  .lb-tnote { color: #1f1f1f; font-size: 14px; }
+  .lb-tr .vm-switch { display: inline-block; vertical-align: middle; margin-left: 0; cursor: pointer; }
+  @media (max-width: 760px) {
+    .lb-table { border-radius: 16px; border: none; }
+    .lb-th { display: none; }
+    .lb-table.series .lb-tr, .lb-table.tomes .lb-tr { grid-template-columns: minmax(0, 1fr) auto; padding: 0 12px; }
+    .lb-table .lb-tr > :not(:first-child) { display: none; }
+    .lb-table.series .lb-tr > :nth-child(4), .lb-table.tomes .lb-tr > :nth-child(6) { display: flex; }
+    .lb-table.series .lb-tprog .lb-bar { width: 50px; flex: none; }
+    .lb-modehint { display: none; }
+  }
   .lb-ribbon { position: absolute; top: 8px; left: 8px; background: #E8B339; color: #1f1f1f; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 6px; }
   .lb-fmt { position: absolute; top: 8px; right: 8px; width: 26px; height: 26px; border-radius: 8px; background: rgba(255,255,255,.92); display: flex; align-items: center; justify-content: center; color: #1f1f1f; }
   .lb-fmt svg { width: 14px; height: 14px; }
@@ -12333,7 +12374,10 @@
     tab: LS.get('lb_tab', 'col'),          // col | read | buy | out | pre
     kind: LS.get('lb_kind', 'all'),        // all | manga | bd | comics | magazine | livre
     fmt: LS.get('lb_fmt', 'all'),          // all | paper | digital
-    sort: LS.get('lb_sort', 'az'),         // az | recent | note
+    sort: LS.get('lb_sort', 'az'),         // az | recent | note (vue par série)
+    mode: LS.get('lb_mode', 'tomes'),      // tomes (derniers acquis) | series
+    tsort: LS.get('lb_tsort', 'recent'),   // recent | az | note (vue par tome)
+    disp: LS.get('lb_disp', 'grid'),       // grid | list
     topf: '', q: '',
     open: (LS.get('loc', null) || {}).lbOpen || null, // série ouverte (gardée au rechargement)
     stab: 'all',                           // onglet de la fiche série : all | read | toread | buy
@@ -12458,6 +12502,59 @@
     else list.sort((a, b) => a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' }));
     return list;
   }
+  const LB_SORTS = { series: [['az', 'A → Z'], ['recent', 'Ajoutées récemment'], ['note', 'Ma note']], tomes: [['recent', 'Derniers acquis'], ['az', 'A → Z'], ['note', 'Ma note']] };
+  const lbSortLabel = () => { const m = LB.mode === 'tomes' ? 'tomes' : 'series'; const k = m === 'tomes' ? LB.tsort : LB.sort; return (LB_SORTS[m].find(x => x[0] === k) || LB_SORTS[m][0])[1]; };
+  const lbAcq = v => v.bought_at || String(v.created_at || '').slice(0, 10);
+  // vue par tome : tous les tomes possédés, les derniers acquis d'abord
+  function lbTomesFiltered() {
+    const q = lbNorm(LB.q);
+    const list = LB.vols.filter(v => {
+      if (!v.owned) return false;
+      const s = lbSer(v.series_id); if (!s) return false;
+      return (LB.kind === 'all' || (s.kind || 'manga') === LB.kind) && (LB.fmt === 'all' || lbHas(v.format || s.format, LB.fmt)) && (!LB.topf || s.top === LB.topf)
+        && (!q || lbNorm(`${s.title} ${s.title_original || ''} ${s.authors || ''} ${s.artist || ''} ${s.publisher || ''}`).includes(q));
+    });
+    const byTitle = (a, b) => lbSer(a.series_id).title.localeCompare(lbSer(b.series_id).title, 'fr', { sensitivity: 'base' }) || (+a.number - +b.number);
+    if (LB.tsort === 'az') list.sort(byTitle);
+    else if (LB.tsort === 'note') list.sort((a, b) => (b.rating || 0) - (a.rating || 0) || byTitle(a, b));
+    else list.sort((a, b) => lbAcq(b).localeCompare(lbAcq(a)) || String(b.created_at || '').localeCompare(String(a.created_at || '')) || (+b.number - +a.number));
+    return list;
+  }
+  function lbTomeCardHtml(v) {
+    const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
+    return `<button type="button" class="lb-card" data-lb-vol="${v.id}">
+      <div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}<span class="lb-fmt${fmt === 'both' ? ' both' : ''}" title="${lbFmtLabel(fmt)}">${lbHas(fmt, 'paper') ? LBI.book : ''}${lbHas(fmt, 'digital') ? LBI.tablet : ''}</span></div>
+      <div class="lb-ct">${esc(s.title)}</div>
+      <div class="lb-cm"><b>T.${esc(String(v.number))}</b>${lbAcq(v) ? `<span class="lb-cmd">${lbFmtDate(lbAcq(v))}</span>` : ''}</div>
+    </button>`;
+  }
+  const lbKindLbl = s => (LB_KINDS.find(k => k[0] === (s.kind || 'manga')) || ['', 'Manga'])[1].replace(/s$/, '');
+  const lbFmtIcons = f => `<span class="lb-fmtic" title="${lbFmtLabel(f)}">${lbHas(f, 'paper') ? LBI.book : ''}${lbHas(f, 'digital') ? LBI.tablet : ''}</span>`;
+  function lbSeriesRowHtml(s) {
+    const st = lbStats(s), pct = st.total ? Math.round(st.own / st.total * 100) : 0, top = LB_TOPS.find(([k]) => k === s.top);
+    return `<div class="lb-tr" data-lb-open="${s.id}" role="button" tabindex="0">
+      <span class="lb-tc1">${lbCover(s, null, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small>${esc(s.title_original || s.authors || '')}</small></span></span>
+      <span class="lb-tch"><span class="lb-kpill">${lbKindLbl(s)}</span></span>
+      <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
+      <span class="lb-tprog"><span class="lb-bar"><i style="width:${pct}%"></i></span><b>${st.own}/${st.total || '?'}</b></span>
+      <span class="lb-tch lb-tmut">${st.read} lu${st.read > 1 ? 's' : ''}</span>
+      <span class="lb-tch">${lbFmtIcons(s.format || 'paper')}</span>
+      <span class="lb-tch lb-tmut">${s.rating ? `<b class="lb-tnote">${s.rating}</b>/10` : ''}</span>
+      <span class="lb-tch">${top ? `<span class="lb-ribbon static">${top[1]}</span>` : ''}</span>
+    </div>`;
+  }
+  function lbTomeRowHtml(v) {
+    const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
+    return `<div class="lb-tr${LB.vol === v.id ? ' sel' : ''}" data-lb-vol="${v.id}" role="button" tabindex="0">
+      <span class="lb-tc1">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small><em>T.${esc(String(v.number))}</em>${s.authors || s.title_original ? ' · ' + esc(s.authors || s.title_original) : ''}</small></span></span>
+      <span class="lb-tch"><span class="lb-kpill">${lbKindLbl(s)}</span></span>
+      <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
+      <span class="lb-tch lb-tmut">${lbAcq(v) ? lbFmtDate(lbAcq(v)) : '—'}</span>
+      <span class="lb-tch">${lbFmtIcons(fmt)}</span>
+      <span class="lb-tch"><span class="vm-switch${v.read ? ' on' : ''}" data-lb-trd="${v.id}" role="switch" aria-checked="${!!v.read}" aria-label="Lu"></span></span>
+      <span class="lb-tch lb-tmut">${v.rating ? `<b class="lb-tnote">${v.rating}</b>/10` : ''}</span>
+    </div>`;
+  }
   function lbCardHtml(s) {
     const st = lbStats(s);
     const pct = st.total ? Math.round(st.own / st.total * 100) : 0;
@@ -12474,19 +12571,30 @@
     const read = owned.filter(v => v.read).length;
     const n = lbCounts();
     const list = lbFiltered();
+    const tomes = LB.mode === 'tomes' ? lbTomesFiltered() : [];
     const kinds = [['all', 'Tout'], ...LB_KINDS].filter(([k]) => k === 'all' || LB.series.some(s => (s.kind || 'manga') === k));
     const kCount = k => k === 'all' ? LB.series.length : LB.series.filter(s => (s.kind || 'manga') === k).length;
     return `
       <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
         ${mobile ? '' : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
       ${mobile ? '' : `<div class="lb-stats"><div><b>${owned.length}</b><span>tomes possédés</span></div><div><b>${LB.series.length}</b><span>séries</span></div><div><b>${read}</b><span>tomes lus</span><i class="lb-mini"><i style="width:${owned.length ? Math.round(read / owned.length * 100) : 0}%"></i></i></div><div><b>${n.buy}</b><span>à acheter</span></div><div><b>${LB.vols.filter(v => v.release_date && v.release_date >= lbToday() && !v.owned && lbSer(v.series_id)).length}</b><span>sorties à venir</span></div></div>`}
-      ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${{ az: 'A → Z', recent: 'Récents', note: 'Ma note' }[LB.sort]}${I.down}</button></div>` : `<div class="lb-tools">
+      ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${lbSortLabel()}${I.down}</button></div>` : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
         <div class="v-seg">${[['all', 'Tous formats', ''], ['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${k}">${ic}${l}</button>`).join('')}</div>
         <button type="button" class="v-tool${LB.topf ? ' on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button>
-        <button type="button" class="v-tool" data-lb-sortmenu>${{ az: 'A → Z', recent: 'Récents', note: 'Ma note' }[LB.sort]}${I.down}</button>
+        <button type="button" class="v-tool" data-lb-sortmenu>${lbSortLabel()}${I.down}</button>
       </div>`}
-      ${list.length ? `<div class="lb-grid">${list.map(lbCardHtml).join('')}</div>`
+      <div class="lb-tools lb-modebar">
+        <div class="v-seg">${[['tomes', 'Par tome'], ['series', 'Par série']].map(([k, l]) => `<button type="button" class="${LB.mode === k ? 'on' : ''}" data-lb-mode="${k}">${l}</button>`).join('')}</div>
+        <span class="lb-modehint">${LB.mode === 'tomes' ? `${tomes.length} tome${tomes.length > 1 ? 's' : ''}${LB.tsort === 'recent' ? ' · derniers acquis en premier' : ''}` : `${list.length} série${list.length > 1 ? 's' : ''}`}</span>
+        <div class="v-seg lb-disp">${[['grid', LBI.grid, 'Grille'], ['list', I.vList, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}">${ic}</button>`).join('')}</div>
+      </div>
+      ${LB.mode === 'tomes' && tomes.length ? (LB.disp === 'list'
+          ? `<div class="lb-table tomes"><div class="lb-th"><span>Tome</span><span>Type</span><span>Éditeur</span><span>Acquis le</span><span>Format</span><span>Lu</span><span>Note</span></div>${tomes.map(lbTomeRowHtml).join('')}</div>`
+          : `<div class="lb-grid">${tomes.map(lbTomeCardHtml).join('')}</div>`)
+        : LB.mode !== 'tomes' && list.length ? (LB.disp === 'list'
+          ? `<div class="lb-table series"><div class="lb-th"><span>Série</span><span>Type</span><span>Éditeur</span><span>Tomes</span><span>Lus</span><span>Format</span><span>Note</span><span>Top</span></div>${list.map(lbSeriesRowHtml).join('')}</div>`
+          : `<div class="lb-grid">${list.map(lbCardHtml).join('')}</div>`)
         : `<div class="lb-empty"><b>${LB.series.length ? 'Rien avec ces filtres.' : 'Votre bibliothèque est vide.'}</b>${LB.series.length ? '' : `<p>Ajoutez une série avec son nom, un ISBN ou un lien BDGest.</p><button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter une série</button>`}</div>`}`;
   }
   // ---------- Fiche série ----------
@@ -12987,9 +13095,13 @@
       m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LB.topf = b.dataset.k; v2Render(); }); return;
     }
     if ((el = d('[data-lb-sortmenu]'))) {
-      const { m, close } = floatMenu(el, [['az', 'A → Z'], ['recent', 'Ajoutés récemment'], ['note', 'Ma note']].map(([k, l]) => `<button type="button" data-k="${k}"><span>${l}</span>${LB.sort === k ? I.check : ''}</button>`).join(''));
-      m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LB.sort = b.dataset.k; LS.set('lb_sort', LB.sort); v2Render(); }); return;
+      const tm = LB.mode === 'tomes', cur = tm ? LB.tsort : LB.sort;
+      const { m, close } = floatMenu(el, LB_SORTS[tm ? 'tomes' : 'series'].map(([k, l]) => `<button type="button" data-k="${k}"><span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''));
+      m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); if (tm) { LB.tsort = b.dataset.k; LS.set('lb_tsort', LB.tsort); } else { LB.sort = b.dataset.k; LS.set('lb_sort', LB.sort); } v2Render(); }); return;
     }
+    if ((el = d('[data-lb-mode]'))) { LB.mode = el.dataset.lbMode; LS.set('lb_mode', LB.mode); LB.vol = null; v2Render(); return; }
+    if ((el = d('[data-lb-disp]'))) { LB.disp = el.dataset.lbDisp; LS.set('lb_disp', LB.disp); v2Render(); return; }
+    if ((el = d('[data-lb-trd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbTrd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
     if ((el = d('[data-lb-syncall]'))) { lbSyncAll(el); return; }
     if ((el = d('[data-lb-stab]'))) { LB.stab = el.dataset.lbStab; v2Render(); return; }
     if ((el = d('[data-lb-open]'))) { LB.open = el.dataset.lbOpen; LB.vol = null; LB.stab = 'all'; v2Render(); document.querySelector(isMobile() ? '#v2m .lb-mob' : '#v2 .lb-desk')?.scrollTo(0, 0); return; }
@@ -13017,7 +13129,7 @@
     }
     if ((el = d('[data-lb-own]'))) {
       const v = lbVol(el.dataset.lbOwn); if (!v) return;
-      const patch = v.owned ? { owned: false, read: false } : { owned: true, wish: false, bought_at: v.bought_at || (LB.tab === 'buy' ? lbToday() : null) };
+      const patch = v.owned ? { owned: false, read: false } : { owned: true, wish: false, bought_at: v.bought_at || lbToday() };
       await lbVolSet(v, patch); return;
     }
     if ((el = d('[data-lb-vol]'))) { LB.vol = LB.vol === el.dataset.lbVol ? null : el.dataset.lbVol; v2Render(); return; }
@@ -13037,7 +13149,7 @@
         const k = el.dataset.lbvTog, val = !v[k];
         const patch = { [k]: val };
         if (k === 'read') patch.read_at = val ? lbToday() : null;
-        if (k === 'owned') { if (val) patch.wish = false; else patch.read = false; }
+        if (k === 'owned') { if (val) { patch.wish = false; if (!v.bought_at) patch.bought_at = lbToday(); } else patch.read = false; }
         await lbVolSet(v, patch); return;
       }
       if ((el = d('[data-lbv-fmt]'))) { await lbVolSet(v, { format: lbFmtToggle(v.format || lbSer(v.series_id)?.format, el.dataset.lbvFmt) }); return; }
@@ -13060,6 +13172,34 @@
     if (!proj) return null;
     const pages = cachedPages.filter(p => p.project_id === proj.id && !p.is_archived && p.page_type !== 'doc');
     return (pageName && pages.find(p => ciNorm(p.title) === ciNorm(pageName))) || (!pageName && ciNorm(proj.name) === 'inbox' && pages.find(p => ciNorm(p.title) === 'bordel')) || pages[0] || null;
+  }
+  // regroupe les doublons d'une série (même titre, aux accents / apostrophes près) et les tomes en double
+  async function ciMergeSeries(title) {
+    const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
+    const { data: all } = await sb.from('lib_series').select('*');
+    const same = (all || []).filter(x => tn(x.title) === tn(title));
+    if (!same.length) return;
+    const score = x => (x.cover_url ? 4 : 0) + ['authors', 'publisher', 'genre', 'kind', 'top', 'rating'].filter(k => x[k]).length;
+    same.sort((a, b) => score(b) - score(a) || String(a.created_at || '').localeCompare(String(b.created_at || '')));
+    const keep = same[0];
+    const ids = same.map(x => x.id);
+    const { data: vols } = await sb.from('lib_volumes').select('*').in('series_id', ids);
+    const byNum = new Map();
+    for (const v of (vols || []).sort((a, b) => (a.series_id === keep.id ? -1 : 0) - (b.series_id === keep.id ? -1 : 0))) {
+      const k = String(+v.number);
+      const k0 = byNum.get(k);
+      if (!k0) { byNum.set(k, v); if (v.series_id !== keep.id) await sb.from('lib_volumes').update({ series_id: keep.id }).eq('id', v.id); continue; }
+      // même numéro deux fois : on garde un seul tome avec le meilleur des deux
+      const patch = {};
+      ['owned', 'read', 'wish'].forEach(f => { if (v[f] && !k0[f]) patch[f] = true; });
+      ['isbn', 'cover_url', 'release_date', 'bought_at', 'read_at', 'rating', 'format'].forEach(f => { if (v[f] && !k0[f]) patch[f] = v[f]; });
+      if (Object.keys(patch).length) { Object.assign(k0, patch); await sb.from('lib_volumes').update(patch).eq('id', k0.id); }
+      await sb.from('lib_volumes').delete().eq('id', v.id);
+    }
+    const sp = {};
+    same.slice(1).forEach(o => ['title_original', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'top', 'rating'].forEach(f => { if (o[f] && !keep[f] && !sp[f]) sp[f] = o[f]; }));
+    if (Object.keys(sp).length) await sb.from('lib_series').update(sp).eq('id', keep.id);
+    for (const o of same.slice(1)) await sb.from('lib_series').delete().eq('id', o.id);
   }
   async function ciApply(row) {
     const d = row.payload || {};
@@ -13093,6 +13233,7 @@
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
       }
+      await ciMergeSeries(sd.title);
       return 'livre';
     }
     if (row.kind === 'prepub') {

@@ -63,7 +63,7 @@ const fmt = opt('format') || 'paper';
 const first = list[0][1];
 const payload = {
   series: { title: list[0][1].series, kind, authors: first.authors, publisher: cap(det[0]?.publisher || first.publisher), genre, total_volumes: list.length > 1 || list[0][0] > 1 ? Math.max(...list.map(([n]) => n)) : 1, cover_url: det[0]?.cover || null, format: fmt, follow: true, status: list.length === 1 && !list[0][1].number ? 'Récit complet' : null },
-  volumes: list.map(([n, x], i) => ({ number: n, isbn: x.ean, cover_url: det[i]?.cover || null, release_date: det[i]?.date || null, owned: owned.includes(n), read: owned.includes(n) && n <= readTo, wish: wish.includes(n) || null, format: owned.includes(n) ? fmt : null })),
+  volumes: list.map(([n, x], i) => ({ number: n, isbn: x.ean, cover_url: det[i]?.cover || null, release_date: det[i]?.date || null, owned: owned.includes(n) || null, read: (owned.includes(n) && n <= readTo) || null, wish: wish.includes(n) || null, format: owned.includes(n) ? fmt : null })),
 };
 Object.keys(payload.series).forEach(k => payload.series[k] == null && delete payload.series[k]);
 payload.volumes.forEach(v => Object.keys(v).forEach(k => v[k] == null && delete v[k]));
