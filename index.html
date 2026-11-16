@@ -13588,6 +13588,13 @@
     const mine = items.filter(it => it.number && lbNorm(it.series) === lbNorm(s.title)).sort((a, b) => a.number - b.number);
     if (!mine.length) { if (!quiet) alertBubble(`Rien trouvé pour « ${s.title} ».`); return { upd: 0, add: 0 }; }
     const vs = lbVolsOf(s.id);
+    // la recherche du libraire s'arrête à ~24 résultats : on va chercher un par un les tomes de la fiche qui n'en sont pas sortis
+    const gaps = vs.filter(v => !lbHS(v) && (!v.cover_url || !v.isbn) && !mine.some(it => it.number === +v.number)).map(v => +v.number).slice(0, 40);
+    for (let i = 0; i < gaps.length; i += 4) {
+      const res = await Promise.all(gaps.slice(i, i + 4).map(n => lbLib({ q: `${s.title} ${n}`, pages: 1 }).then(r => (r || []).find(it => it.number === n && lbNorm(it.series) === lbNorm(s.title)))));
+      res.filter(Boolean).forEach(it => { if (!mine.some(x => x.number === it.number)) mine.push(it); });
+    }
+    mine.sort((a, b) => a.number - b.number);
     const lastHave = Math.max(0, ...vs.map(v => +v.number || 0));
     const want = mine.filter(it => { const v = vs.find(x => +x.number === it.number); return v ? (!v.release_date || !v.isbn || (LB.hasSummary && !v.summary)) : it.number > lastHave; });
     const det = want.length ? (await lbLib({ eans: want.map(it => it.ean) })) || [] : [];
