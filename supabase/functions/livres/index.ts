@@ -1,7 +1,7 @@
 // Supabase Edge Function « livres » : recherche de livres chez les librairies indépendantes
 // (librairiesindependantes.com) pour la Bibliothèque du dashboard.
 //   POST { q: "the strange house", pages?: 1..3 }  → { items: [{ ean, title, series, number, authors, publisher, cover }] }
-//   POST { eans: ["978…", …] }                      → { items: [{ ean, title, series, number, authors, publisher, date, genres, collection, cover }] }
+//   POST { eans: ["978…", …] }                      → { items: [{ ean, title, series, number, authors, publisher, date, genres, collection, cover, summary }] }
 // Déploiement : Supabase → Edge Functions → Deploy a new function → Via Editor, nom « livres », coller ce fichier.
 
 const BASE = 'https://www.librairiesindependantes.com';
@@ -19,7 +19,7 @@ const decode = (s = '') => s
 const tag = (html: string, t: string) => decode((html.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1] || '');
 // « The Strange House - Tome 4 » → série + numéro
 function splitTitle(title: string) {
-  const m = title.match(/^(.*?)\s*[-–—:,]?\s*(?:tome|t\.|vol\.?|volume)\s*(\d+(?:[.,]\d+)?)\b.*$/i);
+  const m = title.match(/^(.*?)(?:\s*[-–—:,]\s*|\s+)(?:tome|t\.?|vol\.?|volume)\s*(\d+(?:[.,]\d+)?)\b.*$/i);
   return m ? { series: m[1].trim(), number: +m[2].replace(',', '.') } : { series: title, number: null };
 }
 function frDate(s: string) {
@@ -63,6 +63,7 @@ async function detail(ean: string) {
     ean, title, series: dd('Série') || st.series, number: st.number,
     authors: tag(html, 'h2'), publisher: dd('Éditeur') || tag(html, 'h3'),
     date: frDate(dd('Date de publication')), collection: dd('Collection') || null, genres, cover: full,
+    summary: decode((html.match(/<blockquote>([\s\S]*?)<\/blockquote>/) || [])[1]?.replace(/<br\s*\/?>/gi, '\n') || '') || null,
   };
 }
 

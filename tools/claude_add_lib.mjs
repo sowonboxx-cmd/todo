@@ -22,7 +22,7 @@ if (!title) { console.error('Titre manquant'); process.exit(1); }
 const decode = (s = '') => s.replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;|&#x27;|&rsquo;/g, "'").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n)).replace(/\s+/g, ' ').trim();
 const tag = (h, t) => decode((h.match(new RegExp(`<${t}[^>]*>([\\s\\S]*?)</${t}>`)) || [])[1] || '');
 const norm = x => (x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
-const split = t => { const m = t.match(/^(.*?)\s*[-–—:,]?\s*(?:tome|t\.|vol\.?|volume)\s*(\d+(?:[.,]\d+)?)\b.*$/i); return m ? { series: m[1].trim(), number: +m[2].replace(',', '.') } : { series: t, number: null }; };
+const split = t => { const m = t.match(/^(.*?)(?:\s*[-–—:,]\s*|\s+)(?:tome|t\.?|vol\.?|volume)\s*(\d+(?:[.,]\d+)?)\b.*$/i); return m ? { series: m[1].trim(), number: +m[2].replace(',', '.') } : { series: t, number: null }; };
 const cap = x => (x || '').toLowerCase().replace(/(^|[\s\-'’.])(\p{L})/gu, (m, a, b) => a + b.toUpperCase());
 const get = async u => { const r = await fetch(u, { headers: { 'User-Agent': UA, 'Accept-Language': 'fr-FR' } }); if (!r.ok) throw new Error(`HTTP ${r.status} ${u}`); return r.text(); };
 
@@ -44,6 +44,7 @@ async function detail(ean) {
     ean, genres: [...h.matchAll(/<li><a href="\/product\/category\/\d+\/">([^<]+)<\/a><\/li>/g)].map(x => decode(x[1])),
     date: dm && MONTHS[dm[2]] ? `${dm[3]}-${MONTHS[dm[2]]}-${dm[1].padStart(2, '0')}` : null,
     cover: (h.match(/data-src="([^"]+-cover-full\.[a-z]+)"/) || [])[1] || null, publisher: dd('Éditeur'), series: dd('Série'),
+    summary: decode(((h.match(/<blockquote>([\s\S]*?)<\/blockquote>/) || [])[1] || '').replace(/<br\s*\/?>/gi, '\n')) || null,
   };
 }
 
@@ -62,8 +63,8 @@ const owned = range(opt('owned')), wish = range(opt('wish')), readTo = +opt('rea
 const fmt = opt('format') || 'paper';
 const first = list[0][1];
 const payload = {
-  series: { title: list[0][1].series, kind, authors: first.authors, publisher: cap(det[0]?.publisher || first.publisher), genre, total_volumes: list.length > 1 || list[0][0] > 1 ? Math.max(...list.map(([n]) => n)) : 1, cover_url: det[0]?.cover || null, format: fmt, follow: true, status: list.length === 1 && !list[0][1].number ? 'Récit complet' : null },
-  volumes: list.map(([n, x], i) => ({ number: n, isbn: x.ean, cover_url: det[i]?.cover || null, release_date: det[i]?.date || null, owned: owned.includes(n) || null, read: (owned.includes(n) && n <= readTo) || null, wish: wish.includes(n) || null, format: owned.includes(n) ? fmt : null })),
+  series: { title: list[0][1].series, kind, authors: first.authors, publisher: cap(det[0]?.publisher || first.publisher), genre, total_volumes: list.length > 1 || list[0][0] > 1 ? Math.max(...list.map(([n]) => n)) : 1, cover_url: det[0]?.cover || null, summary: det[0]?.summary || null, format: fmt, follow: true, status: list.length === 1 && !list[0][1].number ? 'Récit complet' : null },
+  volumes: list.map(([n, x], i) => ({ number: n, isbn: x.ean, cover_url: det[i]?.cover || null, release_date: det[i]?.date || null, summary: det[i]?.summary || null, owned: owned.includes(n) || null, read: (owned.includes(n) && n <= readTo) || null, wish: wish.includes(n) || null, format: owned.includes(n) ? fmt : null })),
 };
 Object.keys(payload.series).forEach(k => payload.series[k] == null && delete payload.series[k]);
 payload.volumes.forEach(v => Object.keys(v).forEach(k => v[k] == null && delete v[k]));

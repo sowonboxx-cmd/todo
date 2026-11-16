@@ -2875,6 +2875,8 @@
   .lb-jp { color: #8b8b8b; font-size: 15px; margin-top: 4px; }
   .lb-meta { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; font-size: 14px; margin-top: 12px; }
   .lb-meta span { color: #8b8b8b; }
+  .lb-sum { margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: #3d3d3a; white-space: pre-line; max-width: 720px; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+  .lb-sum.sm { margin: 0; font-size: 13px; -webkit-line-clamp: 10; }
   .lb-meta b { font-weight: 500; }
   .lb-pills { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
   .lb-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border-radius: 9px; padding: 6px 11px; font: 500 13px 'Inter', sans-serif; border: 1px solid #EFEEEA; color: #1f1f1f; cursor: pointer; white-space: nowrap; text-decoration: none; }
@@ -12438,6 +12440,8 @@
     if (err) { LB.err = err.message || String(err); v2Render(); return; }
     LB.err = null;
     LB.series = (r[0].data || []).filter(s => !s.is_archived); LB.vols = r[1].data || []; LB.prepub = r[2].data || [];
+    // colonne « summary » présente ? (ajoutée par library_summary.sql)
+    if (!('hasSummary' in LB)) { const t = await sb.from('lib_series').select('summary').limit(1); LB.hasSummary = !t.error; }
     v2Render();
   }
   async function lbUpd(table, id, patch) {
@@ -12619,6 +12623,7 @@
           <div class="lb-htitle"><h2>${esc(s.title)}</h2><button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button></div>
           ${s.title_original ? `<div class="lb-jp">${esc(s.title_original)}</div>` : ''}
           <div class="lb-meta">${meta.map(([k, v]) => `<span>${k}</span><b>${esc(v)}</b>`).join('')}</div>
+          ${(() => { const sum = s.summary || lbVolsOf(s.id).find(v => v.summary)?.summary; return sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''; })()}
           <div class="lb-pills">
             <button type="button" class="lb-pill${lbHas(s.format, 'paper') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'paper')}" data-lb-sfmt="paper">${LBI.book}Papier</button>
             <button type="button" class="lb-pill${lbHas(s.format, 'digital') ? ' on' : ''}" aria-pressed="${lbHas(s.format, 'digital')}" data-lb-sfmt="digital">${LBI.tablet}Digital</button>
@@ -12720,6 +12725,7 @@
         ${s.genre ? `<span>Genre</span><b>${esc(s.genre)}</b>` : ''}
         <span>ISBN</span><input type="text" class="lb-in" data-lbv-isbn value="${esc(v.isbn || '')}" placeholder="—">
       </div>
+      ${v.summary ? `<div class="lb-psec">RÉSUMÉ</div><p class="lb-sum sm">${esc(v.summary)}</p>` : ''}
       <div class="lb-psec">MON EXEMPLAIRE</div>
       <div class="lb-rows">
         <div class="lb-r"><span>Je l'ai</span><span class="vm-switch${v.owned ? ' on' : ''}" data-lbv-tog="owned" role="switch" aria-checked="${!!v.owned}"></span></div>
@@ -12816,7 +12822,7 @@
     if (!mine.length) { if (!quiet) alertBubble(`Rien trouvé pour « ${s.title} ».`); return { upd: 0, add: 0 }; }
     const vs = lbVolsOf(s.id);
     const lastHave = Math.max(0, ...vs.map(v => +v.number || 0));
-    const want = mine.filter(it => { const v = vs.find(x => +x.number === it.number); return v ? (!v.release_date || !v.isbn) : it.number > lastHave; });
+    const want = mine.filter(it => { const v = vs.find(x => +x.number === it.number); return v ? (!v.release_date || !v.isbn || (LB.hasSummary && !v.summary)) : it.number > lastHave; });
     const det = want.length ? (await lbLib({ eans: want.map(it => it.ean) })) || [] : [];
     let upd = 0, add = 0;
     for (const it of mine) {
@@ -12827,9 +12833,10 @@
         if (!v.isbn) patch.isbn = it.ean;
         if (!v.cover_url && it.cover) patch.cover_url = it.cover;
         if (!v.release_date && d.date) patch.release_date = d.date;
+        if (LB.hasSummary && !v.summary && d.summary) patch.summary = d.summary;
         if (Object.keys(patch).length) { Object.assign(v, patch); await lbUpd('lib_volumes', v.id, patch); upd++; }
       } else if (it.number > lastHave) { // seulement les tomes après le dernier que vous avez dans la fiche
-        const { data, error } = await sb.from('lib_volumes').insert({ series_id: s.id, number: it.number, owned: false, isbn: it.ean, cover_url: it.cover || null, release_date: d.date || null, format: s.format || 'paper' }).select().single();
+        const { data, error } = await sb.from('lib_volumes').insert({ series_id: s.id, number: it.number, owned: false, isbn: it.ean, cover_url: it.cover || null, release_date: d.date || null, format: s.format || 'paper', ...(LB.hasSummary && d.summary ? { summary: d.summary } : {}) }).select().single();
         if (!error && data) { LB.vols.push(data); add++; }
       }
     }
@@ -12839,6 +12846,7 @@
     if (!s.publisher && mine[0].publisher) sp.publisher = lbCap(mine[0].publisher);
     if (!s.authors && mine[0].authors) sp.authors = mine[0].authors;
     if (!s.genre && det[0]) { const g = lbGenre(det[0].genres); if (g) sp.genre = g; }
+    if (LB.hasSummary && !s.summary) { const d1 = det.find(x => x.ean === mine[0].ean) || det[0]; if (d1?.summary) sp.summary = d1.summary; }
     if (Object.keys(sp).length) { Object.assign(s, sp); await lbUpd('lib_series', s.id, sp); }
     v2Render(); lbVolPanel();
     if (!quiet) alertBubble(add || upd ? `${s.title} : ${add} nouveau${add > 1 ? 'x' : ''} tome${add > 1 ? 's' : ''}, ${upd} complété${upd > 1 ? 's' : ''}` : `${s.title} est à jour`);
@@ -13212,10 +13220,12 @@
     }
     if (row.kind === 'lib') {
       const sd = d.series || {};
+      if (CI.hasSum === undefined) CI.hasSum = !(await sb.from('lib_series').select('summary').limit(1)).error;
+      if (!CI.hasSum) { delete sd.summary; (d.volumes || []).forEach(v => delete v.summary); } // colonne pas encore créée
       const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
       const { data: found } = await sb.from('lib_series').select('*');
       let ser = (found || []).find(x => tn(x.title) === tn(sd.title));
-      const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes'];
+      const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes', 'summary'];
       if (!ser) {
         const ins = { title: sd.title }; fields.forEach(k => { if (sd[k] != null) ins[k] = sd[k]; });
         const r = await sb.from('lib_series').insert(ins).select().single();
@@ -13229,7 +13239,7 @@
       const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
       for (const v of d.volumes || []) {
         const ex = (have || []).find(x => +x.number === +v.number);
-        const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
+        const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title', 'summary'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
       }
