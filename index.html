@@ -9661,13 +9661,13 @@
 
   const V = {
     view: LS.get('view', 'list'),        // list | kanban | cats
-    dTab: 'all',                         // onglet de la liste desktop : o all t d w — on ouvre toujours sur « Tout » (aujourd'hui, puis retard, puis la suite)
-    mTab: 'all',                          // onglet mobile (liste + catégories)
+    dTab: 't',                           // onglet de la liste desktop : all o t d w — on ouvre toujours sur « Today »
+    mTab: 't',                            // onglet mobile (liste + catégories)
     mKcol: 1,                            // colonne kanban mobile visible
     sort: LS.get('sort', 'due'),
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
     proj: null, page: null, fav: false,  // filtre catégorie / page / favoris
-    space: null,                         // null = tâches, 'cuisine' = espace Cuisine
+    space: null,                         // null = tâches, 'cuisine' = espace Cuisine, 'lib' = Bibliothèque
     cz: LS.get('cz_tab', 'courses'),     // onglet de l'espace Cuisine
     showFilters: false,
     prio: 'all', subs: 'all', done: false,
@@ -9679,6 +9679,11 @@
     focusQuickAdd: false,
   };
   if (!['list', 'kanban', 'cats'].includes(V.view)) V.view = 'list';
+  // on rouvre l'app là où on était (espace, projet / page, série ouverte…)
+  const LOC0 = LS.get('loc', null) || {};
+  if (['cuisine', 'lib'].includes(LOC0.space)) V.space = LOC0.space;
+  else if (LOC0.fav) V.fav = true;
+  else { V.proj = LOC0.proj || null; V.page = LOC0.page || null; }
 
   // ---------------- icônes ----------------
   const svg = (inner, extra = '') => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"${extra}>${inner}</svg>`;
@@ -10439,6 +10444,7 @@
     root.querySelector('[data-v-side]').innerHTML = sidebarHtml();
     if (V.space === 'lib') { lbRenderDesktop(root.querySelector('[data-v-panel]')); return; }
     if (V.space === 'cuisine') {
+      if (!CZ.loaded) czLoad();
       root.querySelector('[data-v-title]').textContent = 'Cuisine';
       root.querySelector('[data-v-views]').innerHTML = '';
       const panel = root.querySelector('[data-v-panel]');
@@ -10734,6 +10740,7 @@
     mroot.classList.toggle('cz-on', V.space === 'cuisine' || V.space === 'lib');
     if (V.space === 'lib') { lbRenderMobile(); return; }
     if (V.space === 'cuisine') {
+      if (!CZ.loaded) czLoad();
       mroot.querySelector('[data-vm-title]').textContent = 'Cuisine';
       mroot.querySelector('[data-vm-chips]').innerHTML = '';
       mroot.querySelector('[data-vm-views]').innerHTML = '';
@@ -10923,6 +10930,10 @@
   }
   function v2Render() {
     buildMaps();
+    // filtre vers un projet / une page supprimés → retour à toutes les tâches
+    if (V.page && cachedPages.length && !cachedPages.some(p => p.id === V.page)) V.page = null;
+    if (V.proj && cachedProjects.length && !cachedProjects.some(p => p.id === V.proj)) V.proj = null;
+    LS.set('loc', { space: V.space, proj: V.proj, page: V.page, fav: V.fav, lbOpen: typeof LB !== 'undefined' ? LB.open : null });
     if (!TC.loaded && !TC.loading) tcLoad();
     const mobile = isMobile();
     const scope = mobile ? mroot : root;
@@ -12324,7 +12335,7 @@
     fmt: LS.get('lb_fmt', 'all'),          // all | paper | digital
     sort: LS.get('lb_sort', 'az'),         // az | recent | note
     topf: '', q: '',
-    open: null,                            // série ouverte
+    open: (LS.get('loc', null) || {}).lbOpen || null, // série ouverte (gardée au rechargement)
     stab: 'all',                           // onglet de la fiche série : all | read | toread | buy
     vol: null,                             // tome ouvert (panneau)
   };
@@ -12925,6 +12936,7 @@
 
   // ---------- Rendu (desktop + mobile) ----------
   function lbRenderDesktop(panel) {
+    if (!LB.loaded && !LB.loading) lbLoad();
     root.querySelector('[data-v-title]').textContent = 'Bibliothèque';
     root.querySelector('[data-v-views]').innerHTML = '';
     const q = document.activeElement?.matches?.('[data-lb-q]') ? document.activeElement.selectionStart : null;
@@ -12933,6 +12945,7 @@
     lbVolPanel();
   }
   function lbRenderMobile() {
+    if (!LB.loaded && !LB.loading) lbLoad();
     mroot.querySelector('[data-vm-title]').textContent = 'Bibliothèque';
     mroot.querySelector('[data-vm-chips]').innerHTML = '';
     mroot.querySelector('[data-vm-views]').innerHTML = '';
