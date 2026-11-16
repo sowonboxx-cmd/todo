@@ -13211,8 +13211,7 @@
         <button type="button" class="lb-mhcv" ${s.cover_url ? `data-lb-zoom="${esc(s.cover_url)}"` : 'data-lb-cover'}>${lbCover(s, null, 'big')}</button>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1>${s.title_original ? `<div class="lb-mjp">${esc(s.title_original)}</div>` : ''}
           ${lbPeopleKv(s).length ? `<div class="lb-mkv w">${lbKvHtml(lbPeopleKv(s))}</div>` : ''}
-          <div class="lb-msrs">${s.kind === 'bd' ? statusRow('', s.total_volumes || lbReg(all).length, fr) /* BD : pas de drapeau, pas de Japon */ : (s.status || !(s.jp_volumes || s.jp_status) ? statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr) : '') /* pas d'édition française : seulement la ligne Japon */ + statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div>
-          ${s.publisher ? `<div class="lb-mkv w">${lbKvHtml([['Éditeur', s.publisher]])}</div>` : ''}</div>
+          <div class="lb-msrs">${s.kind === 'bd' ? statusRow('', s.total_volumes || lbReg(all).length, fr) /* BD : pas de drapeau, pas de Japon */ : (s.status || !(s.jp_volumes || s.jp_status) ? statusRow(LB_FLAG.fr, s.total_volumes || lbReg(all).length, fr) : '') /* pas d'édition française : seulement la ligne Japon */ + statusRow(LB_FLAG.jp, s.jp_volumes, jp)}</div></div>
         <button type="button" class="lb-mrate" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : '<span>Noter</span>'}</button>
       </div>`;
     let body = '';
