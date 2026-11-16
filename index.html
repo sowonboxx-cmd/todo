@@ -13700,7 +13700,7 @@
           <div class="lb-q"><span>Statut</span><div class="v-seg sm lb-have">${[['own', 'Je l’ai'], ['buy', 'À acheter']].map(([k, l]) => `<button type="button" class="${f.have === k ? 'on ' + k : ''}" data-lbf-have="${k}">${k === 'own' ? I.check : LBI.cart}${l}</button>`).join('')}</div></div>
           ${f.have === 'buy' ? '' : `<div class="lb-q"><span>Format</span>${lbFmtSeg(f.format, 'data-lbf-fmt')}</div>`}
           <div class="lb-q"><span>${f.have === 'buy' ? 'Tomes à acheter' : 'Tomes possédés'}</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="from" value="${f.from}"> → <input type="text" inputmode="numeric" data-lbf="to" value="${f.to}"></div></div>
-          ${f.have === 'buy' ? '' : `<div class="lb-q"><span>Lus jusqu'au tome</span><div class="lb-rng"><input type="text" inputmode="numeric" data-lbf="readTo" value="${f.readTo}"></div></div>`}
+          ${f.have === 'buy' ? '' : `<div class="lb-q"><span>Lus jusqu'au tome</span><div class="lb-rng">${(() => { const all = +f.to > 0 && +f.readTo >= +f.to; return `<button type="button" class="lb-fbtn${all ? ' on' : ''}" aria-pressed="${all}" data-lbf-allread>Tout lu<span class="lb-fck">${I.check}</span></button>`; })()}<input type="text" inputmode="numeric" data-lbf="readTo" value="${f.readTo}"></div></div>`}
           <div class="lb-q"><span>Suivre les sorties</span><span class="vm-switch${f.follow ? ' on' : ''}" data-lbf-follow role="switch" aria-checked="${f.follow}"></span></div>
           <div class="lb-mf"><button type="button" class="lb-btn" data-lbm-close>Annuler</button><button type="button" class="lb-btn dark" data-lbm-save>${lbAddLabel(f)}</button></div>` : ''}`;
     };
@@ -13715,7 +13715,7 @@
       draw();
     };
     box.addEventListener('submit', e => { e.preventDefault(); search(); });
-    box.addEventListener('input', e => { if (e.target.matches('[data-lbf]')) { readFields(); const b = box.querySelector('[data-lbm-save]'); if (b) b.textContent = lbAddLabel(f); } });
+    box.addEventListener('input', e => { if (e.target.matches('[data-lbf]')) { readFields(); const b = box.querySelector('[data-lbm-save]'); if (b) b.textContent = lbAddLabel(f); const ar = box.querySelector('[data-lbf-allread]'); if (ar) { const on = +f.to > 0 && +f.readTo >= +f.to; ar.classList.toggle('on', on); ar.setAttribute('aria-pressed', on); } } });
     box.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); lbCloseModal(); } });
     box.addEventListener('click', async e => {
       const t = e.target;
@@ -13741,6 +13741,7 @@
       const fm = t.closest('[data-lbf-fmt]'); if (fm) { readFields(); f.format = lbFmtToggle(f.format, fm.dataset.lbfFmt); draw(); return; }
       const hv = t.closest('[data-lbf-have]'); if (hv) { readFields(); f.have = hv.dataset.lbfHave; if (f.have === 'buy') f.readTo = 0; draw(); return; }
       if (t.closest('[data-lbf-follow]')) { readFields(); f.follow = !f.follow; draw(); return; }
+      if (t.closest('[data-lbf-allread]')) { readFields(); f.readTo = (+f.to > 0 && +f.readTo >= +f.to) ? 0 : f.to; draw(); return; } // tout lu d'un coup
       if (t.closest('[data-lbm-save]')) { readFields(); if (!f.title) { box.querySelector('[data-lbf="title"]')?.focus(); return; } lbCreateSeries(f); return; }
     });
     draw();
