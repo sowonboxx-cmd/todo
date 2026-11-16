@@ -3225,6 +3225,12 @@
   .lb-rate.set, .lb-rate.hi { background: #fff; border-color: #EFEEEA; color: #1f1f1f; box-shadow: none; }
   .lb-rate .lb-star { width: 16px; height: 16px; }
   .lb-qe .lb-star { width: 14px; height: 14px; margin-right: 3px; }
+  .lb-cv.lb-tbd { background: #F1F0EC !important; box-shadow: none !important; border: 1px dashed #D9D7D0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 8px; text-align: center; filter: none !important; opacity: 1 !important; }
+  .lb-tbd span { color: #B5B3AC; font-size: 11px; font-weight: 600; letter-spacing: .06em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-tbd b { color: #9A9890; font-size: 18px; font-weight: 800; }
+  .lb-tbd em { font-style: normal; color: #B4541A; font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; line-height: 1.2; }
+  .lb-cv.xs.lb-tbd span, .lb-cv.xs.lb-tbd em, .lb-cv.sm.lb-tbd span, .lb-cv.sm.lb-tbd em { display: none; }
+  .lb-cv.xs.lb-tbd b, .lb-cv.sm.lb-tbd b { font-size: 10px; }
   .lb-ext { display: flex; align-items: center; gap: 12px; background: #F7F6F3; border-radius: 14px; padding: 12px 14px; color: #1f1f1f; text-decoration: none; }
   .lb-ext:hover { background: #F1F0EC; }
   .lb-ext > svg:first-child { width: 20px; height: 20px; color: #E8590C; }
@@ -12735,12 +12741,17 @@
   const lbToday = () => todayISO();
   const lbFmtDate = iso => iso ? formatDateShort(iso) + (iso.slice(0, 4) !== lbToday().slice(0, 4) ? ' ' + iso.slice(0, 4) : '') : '';
   const lbNorm = s => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
+  // un tome sans couverture n'emprunte jamais celle de la série (sauf le tome 1) : « Couverture à venir »
   function lbCover(s, v, cls = '') {
-    const url = (v && v.cover_url) || s?.cover_url;
-    const label = v ? `T.${v.number}` : (s?.title || '');
+    if (v) {
+      const url = v.cover_url || (+v.number === 1 ? s?.cover_url : '');
+      return url ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(url)}')"></div>`
+        : `<div class="lb-cv ${cls} lb-tbd"><span>${esc(s?.title_original || s?.title || '')}</span><b>T.${esc(String(v.number))}</b><em>Couverture à venir</em></div>`;
+    }
+    const url = s?.cover_url;
     return url
       ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(url)}')"></div>`
-      : `<div class="lb-cv ${cls} ph" style="background:${lbGrad(s?.title || '')}"><span>${esc(label)}</span></div>`;
+      : `<div class="lb-cv ${cls} ph" style="background:${lbGrad(s?.title || '')}"><span>${esc(s?.title || '')}</span></div>`;
   }
   function lbStats(s) {
     const vs = lbVolsOf(s.id);
@@ -12835,7 +12846,7 @@
   const lbDispHtml = () => `<div class="lb-disp">${[['grid', LBI.vgrid, 'Grille'], ['list', LBI.vlist, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}" aria-pressed="${LB.disp === k}">${ic}</button>`).join('')}</div>`;
   // grille de tomes pour À lire / Panier / Sorties
   function lbVolGrid(vols, sub, action) {
-    return `<div class="lb-grid">${vols.map(v => { const s = lbSer(v.series_id); return `<div class="lb-card lb-vcard"><button type="button" class="lb-vcv" data-lb-vol="${v.id}"><div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}</div></button>
+    return `<div class="lb-grid">${vols.map(v => { const s = lbSer(v.series_id); return `<div class="lb-card lb-vcard"><button type="button" class="lb-vcv" data-lb-vol="${v.id}"><div class="lb-cvw">${lbCover(s, v)}</div></button>
       <div class="lb-ct">${esc(s.title)}</div><div class="lb-cm"><b>T.${esc(String(v.number))}</b><span class="lb-cmd">${sub(v)}</span></div>${action ? action(v) : ''}</div>`; }).join('')}</div>`;
   }
   // vue par tome : tous les tomes possédés, les derniers acquis d'abord
@@ -12856,7 +12867,7 @@
   function lbTomeCardHtml(v) {
     const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
     return `<button type="button" class="lb-card" data-lb-vol="${v.id}">
-      <div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}</div>
+      <div class="lb-cvw">${lbCover(s, v)}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}</div>
       <div class="lb-ct">${esc(s.title)}</div>
       <div class="lb-cm"><b>T.${esc(String(v.number))}</b>${lbAcq(v) ? `<span class="lb-cmd">${lbFmtDate(lbAcq(v))}</span>` : ''}</div>
     </button>`;
@@ -12878,7 +12889,7 @@
   function lbTomeRowHtml(v) {
     const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
     return `<div class="lb-tr${LB.vol === v.id ? ' sel' : ''}" data-lb-vol="${v.id}" role="button" tabindex="0">
-      <span class="lb-tc1">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small><em>T.${esc(String(v.number))}</em>${s.authors || s.title_original ? ' · ' + esc(s.authors || s.title_original) : ''}</small></span></span>
+      <span class="lb-tc1">${lbCover(s, v, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small><em>T.${esc(String(v.number))}</em>${s.authors || s.title_original ? ' · ' + esc(s.authors || s.title_original) : ''}</small></span></span>
       <span class="lb-tch"><span class="lb-kpill">${lbKindLbl(s)}</span></span>
       <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
       <span class="lb-tch lb-tmut">${lbAcq(v) ? lbFmtDate(lbAcq(v)) : '—'}</span>
@@ -13108,7 +13119,7 @@
         <div class="lb-med">${s.edition ? `<span class="lb-medl">${esc(s.edition)}</span>` : ''}<span>${esc(edLine)}</span></div>
         <div class="lb-mtg">${vs.map(v => { const has = v.cover_url || (+v.number === 1 && s.cover_url);
           return `<button type="button" class="lb-mtm ${v.owned ? 'own' : v.wish ? 'buy' : 'miss'}" data-lb-vol="${v.id}">
-            ${has ? lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }) : `<div class="lb-cv lb-mph"><span>${esc(s.title_original || s.title)}</span><b>Couverture à venir</b></div>`}
+            ${lbCover(s, v)}
             ${v.owned ? `<span class="lb-mtb own">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}${v.owned && v.read ? '<span class="lb-mlu">Lu</span>' : ''}
             <b>Tome ${String(v.number).padStart(2, '0')}</b><small>${lbDmy(v.release_date)}</small></button>`; }).join('')}
           <button type="button" class="lb-mtm lb-madd" data-lb-addvol><div class="lb-cv">${I.plus}<span>Tome</span></div></button></div></div>`;
@@ -13140,9 +13151,9 @@
   function lbTomeMobHtml(v) {
     const s = lbSer(v.series_id), vs = lbVolsOf(s.id), i = vs.findIndex(x => x.id === v.id), fmt = v.format || s.format || 'paper';
     const people = [s.authors, s.artist && s.artist !== s.authors ? s.artist : ''].filter(Boolean).join(' · ');
-    const prev = vs[i - 1], next = vs[i + 1], u = v.cover_url || s.cover_url;
+    const prev = vs[i - 1], next = vs[i + 1], u = v.cover_url || (+v.number === 1 ? s.cover_url : '');
     return `<div class="lb-mser">
-      <div class="lb-mcard lb-mhero t"><div class="lb-mhcv big"><button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}"` : 'data-lbv-cover'}>${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'big')}</button><button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer' : 'Chercher la couverture'}</button></div>
+      <div class="lb-mcard lb-mhero t"><div class="lb-mhcv big"><button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}"` : 'data-lbv-cover'}>${lbCover(s, v, 'big')}</button><button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer' : 'Chercher la couverture'}</button></div>
         <div class="lb-mhi"><h1>${esc(s.title)}</h1><div class="lb-mtno">Tome ${esc(String(v.number))}</div>
           <div class="lb-mkv">${v.release_date ? `<span>Sortie</span><b>${lbDmy(v.release_date)}</b>` : ''}${s.publisher ? `<span>Éditeur</span><b>${esc(s.publisher)}</b>` : ''}${people ? `<span>Auteurs</span><b>${esc(people)}</b>` : ''}</div></div></div>
       <div class="lb-mcard">
@@ -13227,7 +13238,7 @@
     const kick = [lbKindLbl(s), s.genre, s.publisher, s.edition].filter(Boolean).join(' · ');
     const two = s.artist && s.artist !== s.authors;
     return `<div class="lb-tview">
-      <div class="lb-tleft"><div class="lb-pcover big">${(() => { const u = v.cover_url || s.cover_url; return `<button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}" title="Agrandir"` : 'data-lbv-cover title="Chercher la couverture"'}>${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url }, 'big')}</button>`; })()}<button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer la couverture' : 'Chercher la couverture'}</button></div>
+      <div class="lb-tleft"><div class="lb-pcover big">${(() => { const u = v.cover_url || (+v.number === 1 ? s.cover_url : ''); return `<button type="button" class="lb-zoomcv" ${u ? `data-lb-zoom="${esc(u)}" title="Agrandir"` : 'data-lbv-cover title="Chercher la couverture"'}>${lbCover(s, v, 'big')}</button>`; })()}<button type="button" class="lb-cvhint" data-lbv-cover>${v.cover_url ? 'Changer la couverture' : 'Chercher la couverture'}</button></div>
         ${'previews' in v ? lbPreviewsHtml(v) : ''}</div>
       <div class="lb-tright">
         ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
@@ -13251,7 +13262,7 @@
             <button type="button" class="lb-del" data-lbv-del>${LBI.trash}Supprimer ce tome</button></div>
           <div><div class="lb-psec">MA NOTE</div>
             <div class="lb-notes">${Array.from({ length: 10 }, (_, i) => i + 1).map(k => `<button type="button" class="${v.rating && k <= v.rating ? 'on' : ''}${v.rating === k ? ' cur' : ''}" data-lbv-rate="${k}">${k}</button>`).join('')}</div>
-            ${vs.length > 1 ? `<div class="lb-psec">AUTRES TOMES</div><div class="lb-minis">${vs.map(x => `<button type="button" class="lb-tmini${x.id === v.id ? ' on' : ''}${x.owned ? '' : ' miss'}" data-lb-vol="${x.id}" title="Tome ${esc(String(x.number))}">${lbCover(s, x.cover_url ? x : { number: x.number }, 'xs')}<small>${esc(String(x.number))}</small></button>`).join('')}</div>` : ''}
+            ${vs.length > 1 ? `<div class="lb-psec">AUTRES TOMES</div><div class="lb-minis">${vs.map(x => `<button type="button" class="lb-tmini${x.id === v.id ? ' on' : ''}${x.owned ? '' : ' miss'}" data-lb-vol="${x.id}" title="Tome ${esc(String(x.number))}">${lbCover(s, x, 'xs')}<small>${esc(String(x.number))}</small></button>`).join('')}</div>` : ''}
           </div>
         </div>
       </div>
@@ -13261,7 +13272,7 @@
     const up = v.release_date && v.release_date > lbToday() && !v.owned;
     const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
     return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
-      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v.cover_url ? v : { number: v.number })}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}</button>
+      <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}${v.owned && v.read ? '<span class="lb-tread">Lu</span>' : ''}</button>
       <button type="button" class="lb-tck" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
       <div class="lb-tl"><b>T.${esc(String(v.number))}</b><span>${lab}</span></div></div>`;
   }
@@ -13331,7 +13342,7 @@
     const fmt = v.format || s.format || 'paper';
     pnl.innerHTML = `
       <div class="lb-ph"><b>${esc(s.title)} · Tome ${esc(String(v.number))}</b><button type="button" class="lb-xb" data-lbv-close aria-label="Fermer">${I.x}</button></div>
-      <button type="button" class="lb-pcover" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v.cover_url ? v : { number: v.number })}<span class="lb-cvhint">Chercher la couverture</span></button>
+      <button type="button" class="lb-pcover" data-lbv-cover title="Chercher la couverture de ce tome">${lbCover(s, v)}<span class="lb-cvhint">Chercher la couverture</span></button>
       <div class="lb-kv">
         ${s.publisher ? `<span>Édition</span><b>${esc([s.publisher, s.edition].filter(Boolean).join(' · '))}</b>` : ''}
         ${s.authors ? `<span>${s.artist && s.artist !== s.authors ? 'Scénario' : 'Auteur'}</span><b>${esc(s.authors)}</b>` : ''}
@@ -13929,6 +13940,7 @@
         const patch = {}; fields.forEach(k => { if (sd[k] != null && (ser[k] == null || ser[k] === '' || (sd.force || []).includes(k))) patch[k] = sd[k]; }); // force : champs à remplacer même s'ils sont remplis
         const maxN = Math.max(0, ...(d.volumes || []).map(v => +v.number || 0));
         if (maxN > (ser.total_volumes || 0)) patch.total_volumes = maxN;
+        if (sd.rename) patch.title = sd.rename; // renommer la série
         if (Object.keys(patch).length) await sb.from('lib_series').update(patch).eq('id', ser.id);
       }
       const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
