@@ -3387,6 +3387,12 @@
   }
   .cz-mob { padding: 0 16px 120px; overflow-y: auto; }
   .cz-mob .cz-search { background: var(--v-card); }
+  /* Bibliothèque mobile : le + à côté de la recherche, plus de bouton rond en bas */
+  #v2m.lb-on .vm-fab { display: none; }
+  #v2m .lb-bar-top { align-items: stretch; gap: 8px; }
+  .lb-mplus { flex-shrink: 0; width: 46px; border: none; border-radius: 12px; background: var(--v-card); color: var(--v-ink); display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+  .lb-mplus svg { width: 20px; height: 20px; }
+  .lb-mplus:active { background: #F5F4F1; }
   /* mobile : tout visible d'un coup, sans défiler sur le côté — « À acheter / Tous » en haut, les filtres en dessous */
   .cz-mob .cz-ctrls { flex-wrap: wrap; gap: 8px; }
   .cz-mob .cz-scope { flex: 1 1 100%; display: flex; }
@@ -11123,6 +11129,7 @@
         <button type="button" data-v-tcmanage>Gérer les catégories<span class="vm-dcount">${TC.missing ? '' : catsOf(ctxP).length}</span></button>` : ''}
       </div>`;
     mroot.classList.toggle('cz-on', V.space === 'cuisine' || V.space === 'lib');
+    mroot.classList.toggle('lb-on', V.space === 'lib');
     if (V.space === 'lib') { lbRenderMobile(); return; }
     if (V.space === 'cuisine') {
       if (!CZ.loaded) czLoad();
@@ -13038,7 +13045,7 @@
     const kCount = k => k === 'all' ? LB.series.length : LB.series.filter(s => (s.kind || 'manga') === k).length;
     return `
       <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
-        ${mobile ? '' : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
+        ${mobile ? `<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button>` : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
       ${mobile ? lbMobStatsHtml() + lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
       ${mobile ? `<div class="lb-chips">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l}</button>`).join('')}${[['paper', 'Papier', LBI.book], ['digital', 'Digital', LBI.tablet]].map(([k, l, ic]) => `<button type="button" class="${LB.fmt === k ? 'on' : ''}" data-lb-fmt="${LB.fmt === k ? 'all' : k}">${ic}${l}</button>`).join('')}<button type="button" class="${LB.topf ? 'on' : ''}" data-lb-topsmenu>${LB.topf ? LB_TOPS.find(t => t[0] === LB.topf)[1] : 'Tops'}${I.down}</button><button type="button" data-lb-sortmenu>${lbSortLabel()}${I.down}</button></div>` : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
