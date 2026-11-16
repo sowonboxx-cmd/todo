@@ -14063,6 +14063,9 @@
       const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
       const { data: found } = await sb.from('lib_series').select('*');
       let ser = (found || []).find(x => tn(x.title) === tn(sd.title));
+      if (!ser && sd.like) { const c = (found || []).filter(x => tn(x.title).includes(tn(sd.like))); if (c.length === 1) ser = c[0]; else if (c.length > 1) throw new Error(`plusieurs séries contiennent « ${sd.like} »`); } // like : série dont le titre contient ce texte
+      if (!ser && sd.only_existing) throw new Error(`série introuvable : ${sd.like || sd.title}`); // ne pas créer de série
+      if (ser && !sd.title) sd.title = ser.title;
       const fields = ['title_original', 'kind', 'authors', 'artist', 'publisher', 'edition', 'genre', 'status', 'cover_url', 'source_url', 'format', 'top', 'rating', 'follow', 'total_volumes', 'summary', 'jp_volumes', 'jp_status'];
       if (sd.jp_volumes != null || sd.jp_status != null) { if ((await sb.from('lib_series').select('jp_volumes').limit(1)).error) { delete sd.jp_volumes; delete sd.jp_status; } }
       if (!ser) {
@@ -14078,7 +14081,11 @@
       }
       const { data: have } = await sb.from('lib_volumes').select('*').eq('series_id', ser.id);
       for (const v of d.volumes || []) {
-        const ex = (have || []).find(x => +x.number === +v.number);
+        let ex = (have || []).find(x => +x.number === +v.number);
+        if (v.title_like) { const c = (have || []).filter(x => tn(x.title).includes(tn(v.title_like))); if (c.length === 1) ex = c[0]; } // tome dont le titre contient ce texte
+        if (!ex && v.number === 'last' && (have || []).length) ex = [...have].sort((a, b) => +b.number - +a.number)[0]; // le dernier tome de la série
+        if (ex) v.number = ex.number; else if (v.number === 'last') throw new Error('aucun tome dans cette série');
+        delete v.title_like;
         if (v.delete) { if (ex) await sb.from('lib_volumes').delete().eq('id', ex.id); continue; } // retirer un tome
         // planches envoyées en images (data:…) → stockage Supabase, puis liens dans « previews »
         if (Array.isArray(v.previews_data) && v.previews_data.length) {
@@ -14094,7 +14101,7 @@
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
       }
-      await ciMergeSeries(sd.title);
+      await ciMergeSeries(ser.title);
       return 'livre';
     }
     if (row.kind === 'prepub') {
