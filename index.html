@@ -2969,6 +2969,9 @@
   .lb-dash { display: grid; grid-template-columns: minmax(0, 1fr) 440px; gap: 14px; }
   .lb-sqs { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
   .lb-sq { justify-content: flex-end; }
+  .lb-sq-k { position: absolute; top: 16px; left: 16px; right: 34px; font-size: 11.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-sq.img .lb-sq-k { color: rgba(255,255,255,.92); text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .lb-sq b + small { margin-top: 4px; }
   .lb-sq { position: relative; text-align: left; background: #F7F6F3; border: 1px solid #EFEEEA; border-radius: 18px; padding: 16px 16px 18px; display: flex; flex-direction: column; gap: 2px; cursor: pointer; font-family: 'Inter', sans-serif; color: #1f1f1f; min-width: 0; }
   .lb-sq:hover { background: #F1F0EC; }
   .lb-sq-ic { width: 32px; height: 32px; display: flex; align-items: center; justify-content: flex-start; margin-bottom: 14px; }
@@ -12814,7 +12817,7 @@
     bgs.own = pick([...owned].sort((a, b) => lbAcq(b).localeCompare(lbAcq(a))));
     bgs.series = pick(srs.map(s => ({ cover_url: s.cover_url, series_id: s.id })));
     Object.assign(bgs, LB.bg);
-    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><b>${n}</b><span class="lb-sq-l">${l}</span><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : '<i class="lb-sq-bar" style="visibility:hidden"></i>'}<span class="lb-sq-go">${I.chev}</span></button>`;
+    const sq = (k, ic, n, l, sub, cls = '', bar = null) => `<button type="button" class="lb-sq ${cls}${bgs[k] ? ' img' : ''}" data-lb-stat="${k}"${bgs[k] ? ` style="--sq-bg:url('${esc(bgs[k])}')"` : ''}><span class="lb-sq-k">${l}</span><b>${n}</b><small>${sub}</small>${bar !== null ? `<i class="lb-sq-bar"><i style="width:${Math.min(100, bar)}%"></i></i>` : '<i class="lb-sq-bar" style="visibility:hidden"></i>'}<span class="lb-sq-go">${I.chev}</span></button>`;
     const row = (n, p, l, tot, w) => `<div class="lb-mc-row"><div class="lb-mc-top"><b>${n}</b><span class="lb-mc-pct">${p}</span><span class="lb-mc-l">${l}</span><span class="lb-mc-tot">${tot}</span></div><i class="lb-mc-bar"><i style="width:${Math.min(100, w)}%"></i></i></div>`;
     return `<div class="lb-dash">
       <div class="lb-sqs">
