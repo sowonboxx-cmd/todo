@@ -2802,12 +2802,21 @@
   .lb-cmd { margin-left: auto; color: #9A9890; }
   .lb-modebar { justify-content: flex-start; }
   .lb-modehint { font-size: 12.5px; color: #8b8b8b; }
-  .lb-disp { margin-left: auto; }
-  .lb-disp button { padding: 6px 9px; }
-  .lb-disp svg { width: 16px; height: 16px; display: block; }
+  .lb-disp { margin-left: auto; display: inline-flex; gap: 2px; }
+  .lb-disp button { border: none; background: transparent; padding: 6px; border-radius: 9px; color: #C4C2BB; cursor: pointer; display: flex; }
+  .lb-disp button:hover { color: #8b8b8b; }
+  .lb-disp button.on { color: #1f1f1f; }
+  .lb-disp svg { width: 22px; height: 22px; display: block; }
+  .lb-listbar { display: flex; align-items: center; gap: 10px; }
+  .lb-listbar > :first-child { min-width: 0; }
+  .lb-listbar .lb-tools { flex: 1; }
+  .lb-vcard { display: flex; flex-direction: column; cursor: default; }
+  .lb-vcv { padding: 0; border: none; background: none; cursor: pointer; display: block; width: 100%; }
+  .lb-vact { margin-top: 8px; align-self: flex-start; }
+  @media (max-width: 760px) { .lb-stabs { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; } .lb-stabs::-webkit-scrollbar { display: none; } .lb-stabs button { flex: none; padding: 7px 11px; } .lb-mob .lb-tools:has(.lb-stabs) .lb-legend { display: none; } }
   .lb-table { background: var(--v-card); border: 1px solid #EFEEEA; border-radius: 14px; overflow: hidden; margin-bottom: 30px; }
   .lb-th, .lb-tr { display: grid; align-items: center; gap: 12px; padding: 0 16px; }
-  .lb-table.series .lb-th, .lb-table.series .lb-tr { grid-template-columns: minmax(220px, 3fr) 90px minmax(80px, 1fr) minmax(140px, 1.3fr) 60px 64px 64px 110px; }
+  .lb-table.series .lb-th, .lb-table.series .lb-tr { grid-template-columns: minmax(220px, 3fr) 90px minmax(80px, 1fr) minmax(140px, 1.3fr) 60px 64px 110px; }
   .lb-table.tomes .lb-th, .lb-table.tomes .lb-tr { grid-template-columns: minmax(240px, 3fr) 90px minmax(80px, 1fr) 100px 64px 56px 64px; }
   .lb-th { background: #F7F6F3; height: 40px; font-size: 12px; color: #8b8b8b; font-weight: 600; }
   .lb-tr { min-height: 64px; border-top: 1px solid #F0EFEB; cursor: pointer; font-size: 13.5px; }
@@ -12612,6 +12621,8 @@
     trash: svg('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/>'),
     pen2: svg('<path d="M12 19l7-7-3-3-7 7v3z"/><path d="M5 21h4"/>'),
     expand: svg('<path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7"/>'),
+    vgrid: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx="2.2" fill="currentColor"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="2.2" fill="currentColor"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="2.2" fill="currentColor"/><rect x="13" y="13" width="7.5" height="7.5" rx="2.2" fill="currentColor"/></svg>',
+    vlist: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="4" height="4" rx="1.3" fill="currentColor"/><rect x="3" y="10" width="4" height="4" rx="1.3" fill="currentColor"/><rect x="3" y="15.5" width="4" height="4" rx="1.3" fill="currentColor"/><rect x="9" y="5.5" width="12" height="2" rx="1" fill="currentColor"/><rect x="9" y="11" width="12" height="2" rx="1" fill="currentColor"/><rect x="9" y="16.5" width="12" height="2" rx="1" fill="currentColor"/></svg>',
     star: svg('<path d="M12 3.8l2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8z"/>'),
     img: svg('<rect x="3.5" y="4.5" width="17" height="15" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 16l-5-5-8 8"/>'),
     shrink: svg('<path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/>'),
@@ -12704,9 +12715,10 @@
     if (!LB.loaded) return '<div class="v-empty">Chargement…</div>';
     if (LB.err) return `<div class="cz-install"><b>L'espace Bibliothèque n'est pas encore installé.</b><p>Ouvrez Supabase → SQL Editor, collez le fichier <code>library_schema.sql</code> et lancez-le, puis rechargez la page.</p><p class="cz-err">${esc(LB.err)}</p></div>`;
     if (mobile && LB.open && lbSer(LB.open)) return lbSeriesHtml(lbSer(LB.open), mobile);
-    if (LB.tab === 'read') return lbKindBar(mobile) + lbReadHtml();
-    if (LB.tab === 'buy') return lbKindBar(mobile) + lbBuyHtml();
-    if (LB.tab === 'out') return lbBdgestHtml() + lbKindBar(mobile) + lbOutHtml(mobile);
+    const bar = () => `<div class="lb-listbar">${lbKindBar(mobile)}${lbDispHtml()}</div>`;
+    if (LB.tab === 'read') return bar() + lbReadHtml();
+    if (LB.tab === 'buy') return bar() + lbBuyHtml();
+    if (LB.tab === 'out') return lbBdgestHtml() + bar() + lbOutHtml(mobile);
     if (LB.tab === 'pre') return lbPreHtml();
     return lbCollectionHtml(mobile);
   }
@@ -12725,6 +12737,12 @@
   const LB_SORTS = { series: [['az', 'A → Z'], ['recent', 'Ajoutées récemment'], ['note', 'Ma note']], tomes: [['recent', 'Derniers acquis'], ['az', 'A → Z'], ['note', 'Ma note']] };
   const lbSortLabel = () => { const m = LB.mode === 'tomes' ? 'tomes' : 'series'; const k = m === 'tomes' ? LB.tsort : LB.sort; return (LB_SORTS[m].find(x => x[0] === k) || LB_SORTS[m][0])[1]; };
   const lbAcq = v => v.bought_at || String(v.created_at || '').slice(0, 10);
+  const lbDispHtml = () => `<div class="lb-disp">${[['grid', LBI.vgrid, 'Grille'], ['list', LBI.vlist, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}" aria-pressed="${LB.disp === k}">${ic}</button>`).join('')}</div>`;
+  // grille de tomes pour À lire / Panier / Sorties
+  function lbVolGrid(vols, sub, action) {
+    return `<div class="lb-grid">${vols.map(v => { const s = lbSer(v.series_id); return `<div class="lb-card lb-vcard"><button type="button" class="lb-vcv" data-lb-vol="${v.id}"><div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}</div></button>
+      <div class="lb-ct">${esc(s.title)}</div><div class="lb-cm"><b>T.${esc(String(v.number))}</b><span class="lb-cmd">${sub(v)}</span></div>${action ? action(v) : ''}</div>`; }).join('')}</div>`;
+  }
   // vue par tome : tous les tomes possédés, les derniers acquis d'abord
   function lbTomesFiltered() {
     const q = lbNorm(LB.q);
@@ -12743,7 +12761,7 @@
   function lbTomeCardHtml(v) {
     const s = lbSer(v.series_id), fmt = v.format || s.format || 'paper';
     return `<button type="button" class="lb-card" data-lb-vol="${v.id}">
-      <div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}<span class="lb-fmt${fmt === 'both' ? ' both' : ''}" title="${lbFmtLabel(fmt)}">${lbHas(fmt, 'paper') ? LBI.book : ''}${lbHas(fmt, 'digital') ? LBI.tablet : ''}</span></div>
+      <div class="lb-cvw">${lbCover(s, v.cover_url ? v : { number: v.number, cover_url: s.cover_url })}${v.read ? '<span class="lb-ribbon blue">Lu</span>' : ''}</div>
       <div class="lb-ct">${esc(s.title)}</div>
       <div class="lb-cm"><b>T.${esc(String(v.number))}</b>${lbAcq(v) ? `<span class="lb-cmd">${lbFmtDate(lbAcq(v))}</span>` : ''}</div>
     </button>`;
@@ -12758,7 +12776,6 @@
       <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
       <span class="lb-tprog"><span class="lb-bar"><i style="width:${pct}%"></i></span><b>${st.own}/${st.total || '?'}</b></span>
       <span class="lb-tch lb-tmut">${st.read} lu${st.read > 1 ? 's' : ''}</span>
-      <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qfmt="s:${s.id}" title="Changer le format">${lbFmtIcons(s.format || 'paper')}</button></span>
       <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qrate="s:${s.id}" title="Changer la note">${s.rating ? `<b class="lb-tnote${s.rating >= 8 ? ' hi' : ''}">${s.rating}</b><span class="lb-tmut">/10</span>` : '<span class="lb-qph">Noter</span>'}</button></span>
       <span class="lb-tch"><button type="button" class="lb-qe" data-lb-qtop="${s.id}" title="Changer le top">${top ? `<span class="lb-ribbon static">${top[1]}</span>` : '<span class="lb-qph">+ Top</span>'}</button></span>
     </div>`;
@@ -12781,7 +12798,7 @@
     const fmt = s.format || 'paper';
     const top = LB_TOPS.find(([k]) => k === s.top);
     return `<button type="button" class="lb-card" data-lb-open="${s.id}">
-      <div class="lb-cvw">${lbCover(s)}${top ? `<span class="lb-ribbon">${top[1]}</span>` : ''}${st.own ? `<span class="lb-fmt${fmt === 'both' ? ' both' : ''}" title="${lbFmtLabel(fmt)}">${lbHas(fmt, 'paper') ? LBI.book : ''}${lbHas(fmt, 'digital') ? LBI.tablet : ''}</span>` : ''}</div>
+      <div class="lb-cvw">${lbCover(s)}${top ? `<span class="lb-ribbon">${top[1]}</span>` : ''}</div>
       <div class="lb-ct">${esc(s.title)}</div>
       <div class="lb-cm"><span class="lb-bar"><i style="width:${pct}%"></i></span>${st.own}/${st.total || '?'}</div>
     </button>`;
@@ -12891,13 +12908,13 @@
       <div class="lb-tools lb-modebar">
         <div class="v-seg">${[['tomes', 'Par tome'], ['series', 'Par série']].map(([k, l]) => `<button type="button" class="${LB.mode === k ? 'on' : ''}" data-lb-mode="${k}">${l}</button>`).join('')}</div>
         <span class="lb-modehint">${LB.mode === 'tomes' ? `${tomes.length} tome${tomes.length > 1 ? 's' : ''}${LB.tsort === 'recent' ? ' · derniers acquis en premier' : ''}` : `${list.length} série${list.length > 1 ? 's' : ''}`}</span>
-        <div class="v-seg lb-disp">${[['grid', LBI.grid, 'Grille'], ['list', I.vList, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}">${ic}</button>`).join('')}</div>
+        ${lbDispHtml()}
       </div>
       ${LB.mode === 'tomes' && tomes.length ? (LB.disp === 'list'
           ? `<div class="lb-table tomes"><div class="lb-th"><span>Tome</span><span>Type</span><span>Éditeur</span><span>Acquis le</span><span>Format</span><span>Lu</span><span>Note</span></div>${tomes.map(lbTomeRowHtml).join('')}</div>`
           : `<div class="lb-grid">${tomes.map(lbTomeCardHtml).join('')}</div>`)
         : LB.mode !== 'tomes' && list.length ? (LB.disp === 'list'
-          ? `<div class="lb-table series"><div class="lb-th"><span>Série</span><span>Type</span><span>Éditeur</span><span>Tomes</span><span>Lus</span><span>Format</span><span>Note</span><span>Top</span></div>${list.map(lbSeriesRowHtml).join('')}</div>`
+          ? `<div class="lb-table series"><div class="lb-th"><span>Série</span><span>Type</span><span>Éditeur</span><span>Tomes</span><span>Lus</span><span>Note</span><span>Top</span></div>${list.map(lbSeriesRowHtml).join('')}</div>`
           : `<div class="lb-grid">${list.map(lbCardHtml).join('')}</div>`)
         : `<div class="lb-empty"><b>${LB.series.length ? 'Rien avec ces filtres.' : 'Votre bibliothèque est vide.'}</b>${LB.series.length ? '' : `<p>Ajoutez une série avec son nom, un ISBN ou un lien BDGest.</p><button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter une série</button>`}</div>`}`;
   }
@@ -12931,8 +12948,6 @@
           ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
           ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : ''}
           <div class="lb-pills">
-            <button type="button" class="lb-fbtn pill${st.own && lbHas(s.format, 'paper') ? ' on' : ''}" aria-pressed="${!!st.own && lbHas(s.format, 'paper')}" data-lb-sfmt="paper">${LBI.book}Papier<span class="lb-fck">${I.check}</span></button>
-            <button type="button" class="lb-fbtn pill${st.own && lbHas(s.format, 'digital') ? ' on' : ''}" aria-pressed="${!!st.own && lbHas(s.format, 'digital')}" data-lb-sfmt="digital">${LBI.tablet}Digital<span class="lb-fck">${I.check}</span></button>
             <button type="button" class="lb-pill${top ? ' gold' : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
             <button type="button" class="lb-pill lb-rate${s.rating ? ' set' + (s.rating >= 8 ? ' hi' : '') : ''}" data-lb-srate>${LBI.star}Ma note <b>${s.rating || '–'}</b>/10</button>
             ${s.source_url ? `<a class="lb-pill" href="${esc(s.source_url)}" target="_blank" rel="noopener">${LBI.link}Fiche</a>` : ''}
@@ -12950,7 +12965,7 @@
           <label class="lb-follow"><span>Suivre les sorties</span><span class="vm-switch${s.follow ? ' on' : ''}" data-lb-follow role="switch" aria-checked="${!!s.follow}"></span></label>
         </div>
       </div>
-      <div class="lb-tools"><div class="lb-stabs" role="tablist">${[['all', 'Tomes'], ['read', 'Lus'], ['toread', 'À lire'], ['buy', 'À acheter'], ['miss', 'Manquants']].filter(([k]) => k !== 'miss' || sc.miss).map(([k, l]) => `<button type="button" role="tab" aria-selected="${LB.stab === k}" class="${LB.stab === k ? 'on' : ''}" data-lb-stab="${k}"><span>${l}</span><em>${sc[k]}</em></button>`).join('')}</div>
+      <div class="lb-tools"><div class="lb-stabs" role="tablist">${[['all', 'Tomes'], ['read', 'Lus'], ['toread', 'À lire'], ['buy', 'Panier'], ['miss', 'Manquants']].filter(([k]) => k !== 'miss' || sc.miss).map(([k, l]) => `<button type="button" role="tab" aria-selected="${LB.stab === k}" class="${LB.stab === k ? 'on' : ''}" data-lb-stab="${k}"><span>${l}</span><em>${sc[k]}</em></button>`).join('')}</div>
         <span class="lb-legend"><i class="own"></i>Possédé <i class="miss"></i>Manquant</span></div>
       <div class="lb-tomes">${vs.map(v => lbTomeHtml(s, v)).join('')}
         ${LB.stab === 'all' ? `<button type="button" class="lb-tadd" data-lb-addvol>${I.plus}<span>Tome</span></button>` : ''}</div>
@@ -13093,11 +13108,13 @@
   function lbReadHtml() {
     const rows = LB.series.filter(lbKindOk).map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
     if (!rows.length) return '<div class="lb-empty"><b>Rien à lire.</b><p>Tous vos tomes possédés sont lus.</p></div>';
+    if (LB.disp === 'grid') return lbVolGrid(rows.flatMap(x => x.vs), v => v.bought_at ? lbFmtDate(v.bought_at) : '', v => `<button type="button" class="lb-btn sm lb-vact" data-lb-readnext="${v.id}">${I.check}Lu</button>`);
     return `<div class="lb-list">${rows.map(({ s, vs }) => lbRowHtml(s, esc(s.title), `${lbRange(vs.map(v => +v.number))} · ${vs.length} tome${vs.length > 1 ? 's' : ''}`, `<button type="button" class="lb-btn sm" data-lb-readnext="${vs[0].id}">${I.check}T.${esc(String(vs[0].number))} lu</button>`)).join('')}</div>`;
   }
   function lbBuyHtml() {
     const list = lbBuyList().filter(v => lbKindOk(lbSer(v.series_id)));
-    if (!list.length) return '<div class="lb-empty"><b>Rien à acheter.</b><p>Marquez un tome « À acheter » depuis sa fiche, ou suivez une série pour voir ses tomes manquants ici.</p></div>';
+    if (!list.length) return '<div class="lb-empty"><b>Panier vide.</b><p>Marquez un tome « Panier » depuis sa fiche.</p></div>';
+    if (LB.disp === 'grid') return lbVolGrid(list, v => v.release_date ? lbFmtDate(v.release_date) : '', v => `<button type="button" class="lb-btn sm lb-vact" data-lb-own="${v.id}">${I.check}Acheté</button>`);
     return `<div class="lb-list">${list.map(v => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, [v.release_date ? lbFmtDate(v.release_date) : '', v.wish ? 'souhaité' : 'manquant'].filter(Boolean).join(' · '), `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>`); }).join('')}</div>`;
   }
   function lbOutHtml(mobile) {
@@ -13105,11 +13122,13 @@
     const dated = LB.vols.filter(v => v.release_date && !v.owned && lbKindOk(lbSer(v.series_id)));
     const up = dated.filter(v => v.release_date >= today).sort((a, b) => a.release_date.localeCompare(b.release_date));
     const past = dated.filter(v => v.release_date < today).sort((a, b) => b.release_date.localeCompare(a.release_date));
-    const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, `<button type="button" class="lb-link sm" data-lb-reldate="${v.id}">${lbFmtDate(v.release_date)}</button> · ${lbFmtLabel(v.format || s.format)}`,
+    const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · T.${esc(String(v.number))}`, `${lbFmtDate(v.release_date)}`,
       isPast ? `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>` : (v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`)); };
-    const out = up.length ? `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`
+    const g = LB.disp === 'grid';
+    const grid = (vs, isPast) => lbVolGrid(vs, v => lbFmtDate(v.release_date), v => isPast ? `<button type="button" class="lb-btn sm lb-vact" data-lb-own="${v.id}">${I.check}Acheté</button>` : v.wish ? '<span class="lb-tag lb-vact">Panier</span>' : `<button type="button" class="lb-btn sm ghost lb-vact" data-lb-wish="${v.id}">${LBI.cart}Panier</button>`);
+    const out = up.length ? (g ? grid(up) : `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`)
       : '<div class="lb-empty sm"><p>Aucune sortie à venir. Ajoutez la date d’un prochain tome dans sa fiche (bouton « + Tome »).</p></div>';
-    return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div><div class="lb-list">${past.map(v => row(v, true)).join('')}</div>` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
+    return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div>${g ? grid(past, true) : `<div class="lb-list">${past.map(v => row(v, true)).join('')}</div>`}` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
   }
   function lbPreHtml() {
     const list = [...LB.prepub].sort((a, b) => (a.read - b.read) || String(a.issue_date || '9999').localeCompare(String(b.issue_date || '9999')) || String(a.magazine || '').localeCompare(String(b.magazine || ''), 'fr'));
@@ -13158,6 +13177,8 @@
       <button type="button" class="lb-del" data-lbv-del>${LBI.trash}Supprimer ce tome</button>`;
   }
   async function lbVolSet(v, patch) {
+    if (patch.read && !v.owned && patch.owned === undefined) Object.assign(patch, { owned: true, wish: false, bought_at: v.bought_at || lbToday() }); // on ne peut pas avoir lu un tome qu'on n'a pas
+    if (patch.owned) patch.wish = false;
     Object.assign(v, patch); v2Render(); lbVolPanel();
     await lbUpd('lib_volumes', v.id, patch);
   }
@@ -13674,6 +13695,7 @@
       // même numéro deux fois : on garde un seul tome avec le meilleur des deux
       const patch = {};
       ['owned', 'read', 'wish'].forEach(f => { if (v[f] && !k0[f]) patch[f] = true; });
+      if (k0.owned || patch.owned) { if (k0.wish || patch.wish) patch.wish = false; }
       ['isbn', 'cover_url', 'release_date', 'bought_at', 'read_at', 'rating', 'format'].forEach(f => { if (v[f] && !k0[f]) patch[f] = v[f]; });
       if (Object.keys(patch).length) { Object.assign(k0, patch); await sb.from('lib_volumes').update(patch).eq('id', k0.id); }
       await sb.from('lib_volumes').delete().eq('id', v.id);
@@ -13735,6 +13757,8 @@
           v.previews = v.previews_replace ? urls : [...((ex && ex.previews) || []), ...urls]; // previews_replace : remplace les anciennes planches
         }
         delete v.previews_data; delete v.previews_replace;
+        if (v.read && v.owned === undefined && !(ex && ex.owned)) v.owned = true;
+        if (v.owned) v.wish = false;
         const vf = {}; ['release_date', 'isbn', 'cover_url', 'owned', 'read', 'read_at', 'bought_at', 'wish', 'format', 'rating', 'title', 'summary', 'previews'].forEach(k => { if (v[k] != null) vf[k] = v[k]; });
         if (ex) { if (Object.keys(vf).length) await sb.from('lib_volumes').update(vf).eq('id', ex.id); }
         else { const r = await sb.from('lib_volumes').insert({ series_id: ser.id, number: v.number, owned: false, ...vf }); if (r.error) throw r.error; }
