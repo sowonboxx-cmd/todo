@@ -2940,6 +2940,8 @@
   .lb-smod-bar { display: flex; align-items: center; gap: 6px; padding: 12px 16px 12px 24px; border-bottom: 1px solid #F0EFEB; flex-shrink: 0; }
   .lb-crumb { flex: 1; font-size: 13.5px; color: #8b8b8b; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-crumb b { color: #1f1f1f; }
+  .lb-crumb-a { border: none; background: none; padding: 0; font: inherit; color: inherit; cursor: pointer; }
+  .lb-crumb-a:hover { color: #1f1f1f; text-decoration: underline; text-underline-offset: 3px; }
   .lb-mb { width: 34px; height: 34px; border-radius: 10px; border: none; background: transparent; color: #8b8a85; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
   .lb-mb:hover:not(:disabled) { background: #F3F2EE; color: #1f1f1f; }
   .lb-mb:disabled { opacity: .3; cursor: default; }
@@ -13303,7 +13305,7 @@
     const vs = lbVolsOf(s.id), i = v ? vs.findIndex(x => x.id === v.id) : -1;
     const tabL = LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection';
     m.innerHTML = `<div class="lb-smod-bar">
-        ${v ? `<button type="button" class="lb-mb" data-lbm-back title="Retour à la série">${LBI.back}</button><span class="lb-crumb">${esc(s.title)} › <b>${esc(lbTome(v))}</b></span>
+        ${v ? `<button type="button" class="lb-mb" data-lbm-back title="Retour à la série">${LBI.back}</button><span class="lb-crumb"><button type="button" class="lb-crumb-a" data-lbm-back title="Ouvrir la série">${esc(s.title)}</button> › <b>${esc(lbTome(v))}</b></span>
           <button type="button" class="lb-mb" data-lbm-step="-1" ${i > 0 ? '' : 'disabled'} title="Tome précédent">${LBI.back}</button><button type="button" class="lb-mb" data-lbm-step="1" ${i < vs.length - 1 ? '' : 'disabled'} title="Tome suivant">${I.chev}</button>`
         : `<span class="lb-crumb">Bibliothèque › ${tabL} › <b>${esc(s.title)}</b></span><button type="button" class="lb-mb" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button>`}
         <button type="button" class="lb-mb" data-lbm-full title="${LB.full ? 'Réduire' : 'Plein écran'}">${LB.full ? LBI.shrink : LBI.expand}</button>
