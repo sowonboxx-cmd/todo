@@ -2828,10 +2828,14 @@
   .lb-listbar > :first-child { min-width: 0; }
   .lb-listbar .lb-tools { flex: 1; }
   .lb-vcard { display: flex; flex-direction: column; cursor: default; position: relative; }
-  .lb-buyck { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; border: none; background: #D9822B; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
-  .lb-buyck svg { width: 16px; height: 16px; }
+  .lb-buyck { position: absolute; top: 8px; right: 8px; width: 27px; height: 27px; border-radius: 50%; border: none; background: #D9822B; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .lb-buyck svg { width: 14.5px; height: 14.5px; }
   .lb-buyck:hover { background: #2F9E5B; }
   .lb-buyck.ok { background: #2F9E5B; }
+  .lb-fold { display: flex; align-items: center; gap: 8px; width: 100%; margin: 22px 0 12px; padding: 12px 14px; border: none; border-radius: 12px; background: #F1EFEA; color: #6b6b6b; font: 600 12px 'Inter', sans-serif; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; text-align: left; }
+  .lb-fold b { background: #fff; color: #1f1f1f; border-radius: 9px; padding: 1px 7px; font-size: 11.5px; letter-spacing: 0; }
+  .lb-fold svg { width: 16px; height: 16px; margin-left: auto; transition: transform .15s; }
+  .lb-fold.open svg { transform: rotate(180deg); }
   .lb-buyck.off { background: rgba(255,255,255,.92); color: #9a9a9a; }
   .lb-buyck.off:hover { background: #D9822B; color: #fff; }
   .lb-vcv { padding: 0; border: none; background: none; cursor: pointer; display: block; width: 100%; }
@@ -13475,9 +13479,14 @@
     const grid = (vs, isPast) => lbVolGrid(vs, v => lbFmtDate(v.release_date), v => isPast
       ? `<button type="button" class="lb-buyck" data-lb-own="${v.id}" title="Marquer comme acheté" aria-label="Marquer comme acheté">${LBI.cart}</button>`
       : `<button type="button" class="lb-buyck${v.wish ? '' : ' off'}" data-lb-wish="${v.id}" title="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}" aria-label="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}">${LBI.cart}</button>`);
-    const out = up.length ? (g ? grid(up) : `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`)
-      : '<div class="lb-empty sm"><p>Aucune sortie à venir. Ajoutez la date d’un prochain tome dans sa fiche (bouton « + Tome »).</p></div>';
-    return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div>${g ? grid(past, true) : `<div class="lb-list">${past.map(v => row(v, true)).join('')}</div>`}` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
+    // déjà sortis d'abord ; à venir : seulement ceux qui ont leur couverture, les autres repliés sous « Sans couverture »
+    const hasCov = v => !!(v.cover_url || (+v.number === 1 && lbSer(v.series_id)?.cover_url));
+    const upC = up.filter(hasCov), upN = up.filter(v => !hasCov(v));
+    const block = (vs, isPast) => g ? grid(vs, isPast) : `<div class="lb-list">${vs.map(v => row(v, isPast)).join('')}</div>`;
+    const pastH = past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div>${block(past, true)}` : '';
+    const upH = upC.length ? `<div class="lb-sec">À VENIR</div>${block(upC)}` : '';
+    const noCov = upN.length ? `<button type="button" class="lb-fold${LB.outNoCov ? ' open' : ''}" data-lb-outnocov><span>À venir · sans couverture pour l'instant</span><b>${upN.length}</b>${I.chevD || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'}</button>${LB.outNoCov ? block(upN) : ''}` : '';
+    return (pastH + upH + noCov) || '<div class="lb-empty sm"><p>Aucune sortie à suivre pour le moment.</p></div>';
   }
   function lbPreHtml() {
     const list = [...LB.prepub].sort((a, b) => (a.read - b.read) || String(a.issue_date || '9999').localeCompare(String(b.issue_date || '9999')) || String(a.magazine || '').localeCompare(String(b.magazine || ''), 'fr'));
@@ -14061,6 +14070,7 @@
     if ((el = d('[data-lb-rd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbRd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
     if ((el = d('[data-lb-readall]'))) { lbReadAll(el, lbSer(LB.open)); return; }
     if ((el = d('[data-lb-readnext]'))) { const v = lbVol(el.dataset.lbReadnext); if (v) await lbVolSet(v, { read: true, read_at: lbToday() }); return; }
+    if (d('[data-lb-outnocov]')) { LB.outNoCov = !LB.outNoCov; v2Render(); return; }
     if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: el.classList.contains('lb-buyck') ? !v.wish : true }); return; } // pastille : bascule panier
     if ((el = d('[data-lb-preread]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPreread); if (p) { p.read = !p.read; v2Render(); await lbUpd('lib_prepub', p.id, { read: p.read }); } return; }
     if ((el = d('[data-lb-prenext]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPrenext); if (p) { p.chapter = lbNextChapter(p.chapter || 'ch. 0'); p.read = false; v2Render(); await lbUpd('lib_prepub', p.id, { chapter: p.chapter, read: false }); } return; }
