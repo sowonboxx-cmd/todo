@@ -12823,15 +12823,17 @@
   const lbSub = v => lbHS(v) ? (v.title || '').split(' · ').slice(1).join(' · ').trim() : '';
   const lbTome = v => lbHS(v) ? [lbCode(v), lbSub(v)].filter(Boolean).join(' · ') : 'Tome ' + v.number;
   const lbReg = vs => vs.filter(v => !lbHS(v));
+  // couvertures dont l'adresse d'origine a disparu (ancien site d'Akita Shoten) : servies par le relais d'images de FuryoGang
+  const lbImg = u => /^https?:\/\/(www\.)?akitashoten\.co\.jp\//.test(u || '') ? 'https://furyogang.com/api/couv?u=' + encodeURIComponent(u) : (u || '');
   function lbCover(s, v, cls = '') {
     if (v) {
       const url = v.cover_url || (+v.number === 1 ? s?.cover_url : '');
-      return url ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(url)}')"></div>`
+      return url ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(lbImg(url))}')"></div>`
         : `<div class="lb-cv ${cls} lb-tbd"><span>${esc(s?.title_original || s?.title || '')}</span><b>${esc(lbTn(v))}</b><em>${v.release_date && v.release_date <= lbToday() ? 'Pas de couverture' : 'Couverture à venir'}</em></div>`;
     }
     const url = s?.cover_url;
     return url
-      ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(url)}')"></div>`
+      ? `<div class="lb-cv ${cls}" style="background-image:url('${esc(lbImg(url))}')"></div>`
       : `<div class="lb-cv ${cls} ph" style="background:${lbGrad(s?.title || '')}"><span>${esc(s?.title || '')}</span></div>`;
   }
   function lbStats(s) {
@@ -13709,10 +13711,10 @@
       box.innerHTML = `
         <div class="v-tcm-head"><b>Ajouter à la bibliothèque</b><button type="button" class="v-tcm-x" data-lbm-close aria-label="Fermer">${I.x}</button></div>
         <form class="lb-search-in" data-lbm-form>${LBI.link}<input type="text" data-lbm-q value="${esc(st.q)}" placeholder="Nom, ISBN ou lien (BDGest, Amazon…)" autocomplete="off"><button type="submit" class="lb-btn sm dark">${st.busy ? '…' : 'Chercher'}</button></form>
-        ${st.results.length && st.pick === null ? `<div class="lb-results">${st.results.map((r, i) => `<button type="button" class="lb-res" data-lbm-pick="${i}">${r.cover ? `<span class="lb-rescv" style="background-image:url('${esc(r.cover)}')"></span>` : `<span class="lb-rescv ph" style="background:${lbGrad(r.title)}"></span>`}<span><b>${esc(r.title)}</b><small>${r.src === 'fg' ? '<b class="lb-fgtag">FuryoGang</b> ' : ''}${esc([r.authors, r.publisher, r.count > 1 ? `${r.total} tomes` : '', r.date ? r.date.slice(0, 4) : '', r.sub].filter(Boolean).join(' · '))}</small></span></button>`).join('')}<button type="button" class="lb-res manual" data-lbm-manual><span><b>Aucun ne correspond</b><small>Remplir à la main</small></span></button></div>` : ''}
+        ${st.results.length && st.pick === null ? `<div class="lb-results">${st.results.map((r, i) => `<button type="button" class="lb-res" data-lbm-pick="${i}">${r.cover ? `<span class="lb-rescv" style="background-image:url('${esc(lbImg(r.cover))}')"></span>` : `<span class="lb-rescv ph" style="background:${lbGrad(r.title)}"></span>`}<span><b>${esc(r.title)}</b><small>${r.src === 'fg' ? '<b class="lb-fgtag">FuryoGang</b> ' : ''}${esc([r.authors, r.publisher, r.count > 1 ? `${r.total} tomes` : '', r.date ? r.date.slice(0, 4) : '', r.sub].filter(Boolean).join(' · '))}</small></span></button>`).join('')}<button type="button" class="lb-res manual" data-lbm-manual><span><b>Aucun ne correspond</b><small>Remplir à la main</small></span></button></div>` : ''}
         ${!st.results.length && st.step === 'none' ? `<div class="lb-note">Rien trouvé automatiquement. Remplissez la fiche à la main, ou essayez avec l'ISBN du tome 1.</div>` : ''}
         ${st.pick !== null ? `
-          <div class="lb-found">${f.cover_url ? `<span class="lb-rescv big" style="background-image:url('${esc(f.cover_url)}')"></span>` : `<span class="lb-rescv big ph" style="background:${lbGrad(f.title)}"><i>${esc(f.title)}</i></span>`}
+          <div class="lb-found">${f.cover_url ? `<span class="lb-rescv big" style="background-image:url('${esc(lbImg(f.cover_url))}')"></span>` : `<span class="lb-rescv big ph" style="background:${lbGrad(f.title)}"><i>${esc(f.title)}</i></span>`}
             <div class="lb-fgrid">${field('title', 'Titre')}${field('title_original', 'Titre original', 'facultatif')}${field('authors', 'Scénario / auteur')}${field('artist', 'Dessin', 'si différent')}${field('publisher', 'Éditeur')}${field('genre', 'Genre', 'Seinen, Furyō…')}${field('total', 'Nombre de tomes', '', 'number')}
               <label class="lb-fl"><span>Type</span><div class="v-seg sm">${LB_KINDS.slice(0, 4).map(([k, l]) => `<button type="button" class="${f.kind === k ? 'on' : ''}" data-lbf-kind="${k}">${l}</button>`).join('')}</div></label></div></div>
           <div class="lb-psec">CE LIVRE</div>
@@ -13918,7 +13920,7 @@
     const go = t.closest('[data-lb-go]');
     if (go) { e.preventDefault(); lbGo(go.dataset.lbGo); return; }
     if (V.space !== 'lib' && !t.closest('.lb-panel, .lb-smod')) return;
-    { const z = t.closest('[data-lb-zoom]'); if (z) { lbViewer([z.dataset.lbZoom], 0, ''); return; } }
+    { const z = t.closest('[data-lb-zoom]'); if (z) { lbViewer([lbImg(z.dataset.lbZoom)], 0, ''); return; } }
     if (t.closest('[data-lb-mback]')) { if (LB.vol) LB.vol = null; else LB.open = null; v2Render(); document.querySelector('#v2m .lb-mob')?.scrollTo(0, 0); return; }
     { const mt = t.closest('[data-lb-mtab]'); if (mt) { LB.mtab = mt.dataset.lbMtab; v2Render(); return; } }
     if (t.closest('[data-lb-vsort]')) { LB.vsort = LB.vsort === 'desc' ? 'asc' : 'desc'; v2Render(); return; }
