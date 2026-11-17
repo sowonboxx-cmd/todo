@@ -14195,7 +14195,7 @@
         if (r.error) throw r.error; ser = r.data;
       } else {
         const patch = {}; fields.forEach(k => { if (sd[k] != null && (ser[k] == null || ser[k] === '' || (sd.force || []).includes(k))) patch[k] = sd[k]; }); // force : champs à remplacer même s'ils sont remplis
-        const maxN = Math.max(0, ...(d.volumes || []).map(v => +v.number || 0).filter(n => n < 100));
+        const maxN = Math.max(0, ...(d.volumes || []).filter(v => !v.delete).map(v => +v.number || 0).filter(n => n < 100));
         if (maxN > (ser.total_volumes || 0)) patch.total_volumes = maxN;
         if (sd.rename) patch.title = sd.rename; // renommer la série
         (sd.clear || []).filter(k => fields.includes(k)).forEach(k => { patch[k] = null; }); // vider des champs
