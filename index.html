@@ -13201,8 +13201,14 @@
   const lbDmy = iso => iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '';
   const lbStatusTxt = st => { const t = (st || '').toLowerCase(); return /termin|fini|complet/.test(t) ? ['Terminé', ''] : /pause|arr[eê]t/.test(t) ? [st, 'warn'] : t ? ['En cours', 'g'] : ['', '']; };
   // auteurs en lignes : Scénario / Dessin / Autres (ou Auteur s'il n'y en a qu'un)
+  function lbSplitAuthors(scen, dess, both) {
+    if (scen || dess) return scen && dess && scen !== dess ? { authors: scen, artist: dess } : { authors: scen || dess, artist: '' };
+    const m = (both || '').split(/\s+&\s+|\s*,\s*/).map(x => x.trim()).filter(Boolean);
+    return m.length === 2 ? { authors: m[0], artist: m[1] } : { authors: m.join(', '), artist: '' };
+  }
   function lbPeopleKv(s) {
     const names = x => (x || '').split(/\s*[,;·]\s*/).map(n => n.trim()).filter(Boolean);
+    if (!s.artist && /\s&\s/.test(s.authors || '')) { const sp = lbSplitAuthors('', '', s.authors); s = { ...s, ...sp }; } // « A & B » sans dessinateur = scénario & dessin
     const au = names(s.authors), ar = names(s.artist).filter(n => !au.includes(n));
     if (!ar.length) return au.length ? [[au.length > 1 ? 'Auteurs' : 'Auteur', au.join(', ')]] : [];
     const join = l => l.length === 2 ? l.join(' & ') : l.join(', ');
@@ -13751,7 +13757,8 @@
           const ed = fr || jp; if (!ed) return;
           Object.assign(f, { title_original: f.title_original || r.title_original, publisher: ed.pub || '', edition: ed.label || '', status: fr ? (fr.statut || '') : '', total: (ed.tomes || []).length || ed.nb || f.total, to: (ed.tomes || []).length || ed.nb || f.to, fgVols: (ed.tomes || []).map(t => ({ number: t.n, release_date: t.date || null, cover_url: t.cover || null })), jp_volumes: jp ? (jp.nb || (jp.tomes || []).length) : null, jp_status: jp ? jp.statut : null, source_url: `https://furyogang.com/ma-collection/${x.serie?.slug || ''}` });
           if (!f.cover_url && ed.tomes?.[0]?.cover) f.cover_url = ed.tomes[0].cover;
-          if (!f.authors && x.serie?.auteurs) f.authors = x.serie.auteurs;
+          // auteurs : rôles de la fiche FuryoGang (scénario / dessin) ; sinon « A & B » = scénario & dessin
+          { const sp = lbSplitAuthors(x.scen, x.dess, x.serie?.auteurs || f.authors); f.authors = sp.authors; f.artist = sp.artist; }
           if (x.resume) f.summary = x.resume; // résumé de la fiche FuryoGang
           draw(); });
         // la première recherche ne montre souvent qu'une partie de la série : on recompte les tomes avec le titre exact

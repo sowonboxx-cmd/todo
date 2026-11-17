@@ -86,7 +86,7 @@ async function fgSerie(id: string) {
   const x = JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`));
   // résumé : seulement pour les séries dont la fiche est en ligne sur FuryoGang
   const slug = x?.serie?.slug;
-  if (slug) { try { const f = JSON.parse(await get(`${FG}/api/serie?s=${encodeURIComponent(slug)}`)); if (f?.serie?.resume) x.resume = f.serie.resume; } catch (_) { /* pas de fiche */ } }
+  if (slug) { try { const f = JSON.parse(await get(`${FG}/api/serie?s=${encodeURIComponent(slug)}`)); if (f?.serie?.resume) x.resume = f.serie.resume; if (f?.serie?.scen) x.scen = f.serie.scen; if (f?.serie?.dess) x.dess = f.serie.dess; } catch (_) { /* pas de fiche */ } }
   return x;
 }
 
