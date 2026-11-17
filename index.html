@@ -2835,6 +2835,7 @@
   .lb-table.tomes .lb-th, .lb-table.tomes .lb-tr { grid-template-columns: minmax(240px, 3fr) 90px minmax(80px, 1fr) 100px 64px 56px 64px; }
   .lb-th { background: #F7F6F3; height: 40px; font-size: 12px; color: #8b8b8b; font-weight: 600; }
   .lb-tr { min-height: 64px; border-top: 1px solid #F0EFEB; cursor: pointer; font-size: 13.5px; }
+  .lb-tmob { display: none; }
   .lb-tr:hover { background: #FAFAF8; }
   .lb-tr.sel { background: #F3F2EE; }
   .lb-tc1 { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 8px 0; }
@@ -2860,6 +2861,21 @@
     .lb-table .lb-tr > :not(:first-child) { display: none; }
     .lb-table.series .lb-tr > :nth-child(4), .lb-table.tomes .lb-tr > :nth-child(6) { display: flex; }
     .lb-table.series .lb-tprog .lb-bar { width: 50px; flex: none; }
+    /* séries en liste (mobile) : couverture plus grande, avancement sous le titre */
+    .lb-table.series .lb-tr { grid-template-columns: minmax(0, 1fr); padding: 12px 16px; }
+    .lb-table.series .lb-tr > :nth-child(4) { display: none; }
+    .lb-table.series .lb-tc1 { gap: 16px; }
+    .lb-table.series .lb-tc1 .lb-cv.xs { width: 64px; height: 92px; border-radius: 8px; flex-shrink: 0; box-shadow: 0 3px 10px rgba(0,0,0,.14); }
+    .lb-table.series .lb-tt b { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-table.series .lb-tt small { display: none; }
+    .lb-tmob { display: flex; flex-direction: column; align-items: flex-start; }
+    .lb-tmau { font-style: normal; font-size: 13px; color: #9a9a9a; margin-top: 3px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lb-tmn { display: flex; align-items: center; gap: 6px; font-size: 14.5px; font-weight: 500; color: #8b8b8b; margin-top: 5px; }
+    .lb-tmn.done { color: #2F9E5B; font-weight: 600; }
+    .lb-tmck { width: 17px; height: 17px; border-radius: 50%; background: #2F9E5B; color: #fff; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .lb-tmck svg { width: 11px; height: 11px; stroke-width: 3.4; }
+    .lb-tmbar { display: block; width: 82px; height: 5px; border-radius: 3px; background: #ECEAE5; margin-top: 9px; overflow: hidden; }
+    .lb-tmbar i { display: block; height: 100%; background: #2F9E5B; border-radius: 3px; }
     .lb-modehint { display: none; }
   }
   .lb-ribbon { position: absolute; top: 8px; left: 8px; background: #E8B339; color: #1f1f1f; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 6px; }
@@ -12960,7 +12976,9 @@
   function lbSeriesRowHtml(s) {
     const st = lbStats(s), pct = st.total ? Math.round(st.own / st.total * 100) : 0, top = LB_TOPS.find(([k]) => k === s.top);
     return `<div class="lb-tr" data-lb-open="${s.id}" role="button" tabindex="0">
-      <span class="lb-tc1">${lbCover(s, null, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small>${esc(s.title_original || s.authors || '')}</small></span></span>
+      <span class="lb-tc1">${lbCover(s, null, 'xs')}<span class="lb-tt"><b>${esc(s.title)}</b><small>${esc(s.title_original || s.authors || '')}</small>${(() => { // mobile : auteurs, puis avancement sous le titre (coche verte quand la série est complète)
+        const done = st.total && st.own >= st.total, au = lbPeopleKv(s).map(([, v]) => v).join(' & ');
+        return `<span class="lb-tmob">${au ? `<em class="lb-tmau">${esc(au)}</em>` : ''}<span class="lb-tmn${done ? ' done' : ''}">${done ? `<span class="lb-tmck">${I.check}</span>` : ''}${st.own}/${st.total || '?'} tomes</span>${done ? '' : `<span class="lb-tmbar"><i style="width:${pct}%"></i></span>`}</span>`; })()}</span></span>
       <span class="lb-tch"><span class="lb-kpill">${lbKindLbl(s)}</span></span>
       <span class="lb-tch lb-tmut">${esc(s.publisher || '')}</span>
       <span class="lb-tprog"><span class="lb-bar"><i style="width:${pct}%"></i></span><b>${st.own}/${st.total || '?'}</b></span>
