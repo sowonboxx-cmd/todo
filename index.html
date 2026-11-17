@@ -2825,7 +2825,11 @@
   .lb-listbar { display: flex; align-items: center; gap: 10px; }
   .lb-listbar > :first-child { min-width: 0; }
   .lb-listbar .lb-tools { flex: 1; }
-  .lb-vcard { display: flex; flex-direction: column; cursor: default; }
+  .lb-vcard { display: flex; flex-direction: column; cursor: default; position: relative; }
+  .lb-buyck { position: absolute; top: 8px; right: 8px; width: 30px; height: 30px; border-radius: 50%; border: none; background: #D9822B; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  .lb-buyck svg { width: 16px; height: 16px; }
+  .lb-buyck:hover { background: #2F9E5B; }
+  .lb-buyck.ok { background: #2F9E5B; }
   .lb-vcv { padding: 0; border: none; background: none; cursor: pointer; display: block; width: 100%; }
   .lb-vact { margin-top: 8px; align-self: flex-start; }
   @media (max-width: 760px) { .lb-stabs { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; } .lb-stabs::-webkit-scrollbar { display: none; } .lb-stabs button { flex: none; padding: 7px 11px; } .lb-mob .lb-tools:has(.lb-stabs) .lb-legend { display: none; } }
@@ -13447,7 +13451,8 @@
   function lbBuyHtml() {
     const list = lbBuyList().filter(v => lbKindOk(lbSer(v.series_id)));
     if (!list.length) return '<div class="lb-empty"><b>Panier vide.</b><p>Marquez un tome « Panier » depuis sa fiche.</p></div>';
-    if (LB.disp === 'grid') return lbVolGrid(list, v => v.release_date ? lbFmtDate(v.release_date) : '', v => `<button type="button" class="lb-btn sm lb-vact" data-lb-own="${v.id}">${I.check}Acheté</button>`);
+    // À acheter : pastille panier orange en haut à droite de la couverture ; un clic = acheté (le tome quitte la liste)
+    if (LB.disp === 'grid') return lbVolGrid(list, v => v.release_date ? lbFmtDate(v.release_date) : '', v => `<button type="button" class="lb-buyck" data-lb-own="${v.id}" title="Marquer comme acheté" aria-label="Marquer comme acheté">${LBI.cart}</button>`);
     return `<div class="lb-list">${list.map(v => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · ${esc(lbTn(v))}`, [v.release_date ? lbFmtDate(v.release_date) : '', v.wish ? 'souhaité' : 'manquant'].filter(Boolean).join(' · '), `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>`); }).join('')}</div>`;
   }
   function lbOutHtml(mobile) {
@@ -14032,6 +14037,7 @@
     }
     if ((el = d('[data-lb-own]'))) {
       const v = lbVol(el.dataset.lbOwn); if (!v) return;
+      if (el.classList.contains('lb-buyck')) { el.classList.add('ok'); el.innerHTML = I.check; await new Promise(r => setTimeout(r, 380)); } // passe au vert un instant avant de quitter la liste
       const patch = v.owned ? { owned: false, read: false, read_at: null, bought_at: null, wish: true } : { owned: true, wish: false, bought_at: v.bought_at || lbToday() }; // décoché = repasse « à acheter »
       await lbVolSet(v, patch); return;
     }
