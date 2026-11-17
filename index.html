@@ -2788,6 +2788,8 @@
   .lb button { font-family: 'Inter', sans-serif; }
   .lb svg { width: 16px; height: 16px; flex-shrink: 0; }
   .lb-bar-top { display: flex; gap: 10px; align-items: center; }
+  .lb-head .lb-bar-top { flex: 1; min-width: 0; }
+  .lb-head .lb-bar-top .cz-search { flex: 1; min-width: 0; }
   .lb-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border-radius: 11px; background: #F3F2EE; border: none; font: 600 14px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; white-space: nowrap; }
   .lb-btn:hover { background: #ECEAE4; }
   .lb-btn.dark { background: #1f1f1f; color: #fff; }
@@ -12914,6 +12916,11 @@
     return LB.vols.filter(v => !v.owned && v.wish && lbSer(v.series_id)) // « à acheter » = uniquement les tomes marqués (pas de règle cachée)
       .sort((a, b) => (lbSer(a.series_id)?.title || '').localeCompare(lbSer(b.series_id)?.title || '', 'fr') || (+a.number - +b.number));
   }
+  // barre de recherche + ajouter : sur tous les onglets (ordi : à droite des onglets ; mobile : sous les onglets)
+  function lbSearchHtml(mobile) {
+    return `<div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
+        ${mobile ? `<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button>` : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>`;
+  }
   function lbTabsHtml() {
     const n = lbCounts();
     const tabs = isMobile() ? LB_TABS.filter(([k]) => k !== 'pre') : LB_TABS;
@@ -12924,12 +12931,12 @@
     if (LB.err) return `<div class="cz-install"><b>L'espace Bibliothèque n'est pas encore installé.</b><p>Ouvrez Supabase → SQL Editor, collez le fichier <code>library_schema.sql</code> et lancez-le, puis rechargez la page.</p><p class="cz-err">${esc(LB.err)}</p></div>`;
     if (mobile && LB.vol && lbVol(LB.vol) && lbSer(lbVol(LB.vol).series_id)) return lbTomeMobHtml(lbVol(LB.vol));
     if (mobile && LB.open && lbSer(LB.open)) return lbSeriesMobHtml(lbSer(LB.open));
-    const bar = () => `<div class="lb-listbar">${lbKindBar(mobile)}${lbDispHtml()}</div>`;
-    if (LB.tab === 'read') return bar() + lbReadHtml();
-    if (LB.tab === 'buy') return bar() + lbBuyHtml();
-    if (LB.tab === 'out') return lbBdgestHtml() + bar() + lbOutHtml(mobile);
+    const bar = () => `<div class="lb-listbar">${lbKindBar(mobile)}${lbDispHtml()}</div>`, sh = mobile ? lbSearchHtml(true) : '';
+    if (LB.tab === 'read') return sh + bar() + lbReadHtml();
+    if (LB.tab === 'buy') return sh + bar() + lbBuyHtml();
+    if (LB.tab === 'out') return sh + lbBdgestHtml() + bar() + lbOutHtml(mobile);
     if (LB.tab === 'pre') LB.tab = 'col'; // onglet retiré (ancienne page mémorisée)
-    return lbCollectionHtml(mobile);
+    return sh + lbCollectionHtml(mobile);
   }
   // ---------- Collection ----------
   function lbFiltered() {
@@ -13127,8 +13134,6 @@
     const kinds = [['all', 'Tout'], ...LB_KINDS].filter(([k]) => k === 'all' || LB.series.some(s => (s.kind || 'manga') === k));
     const kCount = k => k === 'all' ? LB.series.length : LB.series.filter(s => (s.kind || 'manga') === k).length;
     return `
-      <div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
-        ${mobile ? `<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button>` : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>
       ${mobile ? lbMobStatsHtml() + lbNextHtml(true) : lbDashHtml() + lbNextHtml(false)}
       ${mobile ? '' : `<div class="lb-tools">
         <div class="v-seg">${kinds.map(([k, l]) => `<button type="button" class="${LB.kind === k ? 'on' : ''}" data-lb-kind="${k}">${l} <small>${kCount(k)}</small></button>`).join('')}</div>
@@ -13429,7 +13434,8 @@
     return `<div class="lb-row" ${attrs}><button type="button" class="lb-rcv" data-lb-open="${s.id}">${lbCover(s, null, 'sm')}</button><div class="lb-rt"><b>${title}</b><small>${sub}</small></div>${right}</div>`;
   }
   const lbRange = nums => { const out = []; let a = null, b = null; nums.forEach(n => { if (a === null) { a = b = n; } else if (n === b + 1) b = n; else { out.push(a === b ? `T.${a}` : `T.${a} à ${b}`); a = b = n; } }); if (a !== null) out.push(a === b ? `T.${a}` : `T.${a} à ${b}`); return out.join(', '); };
-  const lbKindOk = s => !!s && (LB.kind === 'all' || (s.kind || 'manga') === LB.kind);
+  const lbQOk = s => { const q = lbNorm(LB.q); return !q || lbNorm(`${s.title} ${s.title_original || ''} ${s.authors || ''} ${s.artist || ''} ${s.publisher || ''}`).includes(q); };
+  const lbKindOk = s => !!s && (LB.kind === 'all' || (s.kind || 'manga') === LB.kind) && lbQOk(s); // + recherche (barre toujours visible)
   // filtre Manga / BD / Comics, partagé par Collection, À lire, À acheter et Sorties
   function lbKindBar(mobile) {
     const kinds = [['all', 'Tout'], ...LB_KINDS].filter(([k]) => k === 'all' || LB.series.some(s => (s.kind || 'manga') === k));
@@ -13910,7 +13916,7 @@
     root.querySelector('[data-v-title]').textContent = 'Bibliothèque';
     root.querySelector('[data-v-views]').innerHTML = '';
     const q = document.activeElement?.matches?.('[data-lb-q]') ? document.activeElement.selectionStart : null;
-    panel.innerHTML = `<div class="cz cz-desk lb lb-desk" data-v-scroll="lb-${LB.tab}"><div class="cz-head">${lbTabsHtml()}</div>${lbBodyHtml(false)}</div>`;
+    panel.innerHTML = `<div class="cz cz-desk lb lb-desk" data-v-scroll="lb-${LB.tab}"><div class="cz-head lb-head">${lbTabsHtml()}${lbSearchHtml(false)}</div>${lbBodyHtml(false)}</div>`;
     if (q !== null) { const i = panel.querySelector('[data-lb-q]'); if (i) { i.focus(); i.setSelectionRange(q, q); } }
     lbVolPanel();
     lbModal();
