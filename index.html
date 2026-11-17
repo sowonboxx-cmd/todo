@@ -2832,6 +2832,8 @@
   .lb-buyck svg { width: 16px; height: 16px; }
   .lb-buyck:hover { background: #2F9E5B; }
   .lb-buyck.ok { background: #2F9E5B; }
+  .lb-buyck.off { background: rgba(255,255,255,.92); color: #9a9a9a; }
+  .lb-buyck.off:hover { background: #D9822B; color: #fff; }
   .lb-vcv { padding: 0; border: none; background: none; cursor: pointer; display: block; width: 100%; }
   .lb-vact { margin-top: 8px; align-self: flex-start; }
   @media (max-width: 760px) { .lb-stabs { display: flex; width: 100%; overflow-x: auto; scrollbar-width: none; } .lb-stabs::-webkit-scrollbar { display: none; } .lb-stabs button { flex: none; padding: 7px 11px; } .lb-mob .lb-tools:has(.lb-stabs) .lb-legend { display: none; } }
@@ -13469,7 +13471,10 @@
     const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · ${esc(lbTn(v))}`, `${lbFmtDate(v.release_date)}`,
       isPast ? `<button type="button" class="lb-btn sm" data-lb-own="${v.id}">${I.check}Acheté</button>` : (v.wish ? '<span class="lb-tag">À acheter</span>' : `<button type="button" class="lb-btn sm ghost" data-lb-wish="${v.id}">${LBI.cart}À acheter</button>`)); };
     const g = LB.disp === 'grid';
-    const grid = (vs, isPast) => lbVolGrid(vs, v => lbFmtDate(v.release_date), v => isPast ? `<button type="button" class="lb-btn sm lb-vact" data-lb-own="${v.id}">${I.check}Acheté</button>` : v.wish ? '<span class="lb-tag lb-vact">Panier</span>' : `<button type="button" class="lb-btn sm ghost lb-vact" data-lb-wish="${v.id}">${LBI.cart}Panier</button>`);
+    // pastilles en haut à droite de la couverture : déjà sorti = caddie orange (un clic = acheté) ; à venir = caddie orange si au panier, gris sinon (un clic = ajoute / retire du panier)
+    const grid = (vs, isPast) => lbVolGrid(vs, v => lbFmtDate(v.release_date), v => isPast
+      ? `<button type="button" class="lb-buyck" data-lb-own="${v.id}" title="Marquer comme acheté" aria-label="Marquer comme acheté">${LBI.cart}</button>`
+      : `<button type="button" class="lb-buyck${v.wish ? '' : ' off'}" data-lb-wish="${v.id}" title="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}" aria-label="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}">${LBI.cart}</button>`);
     const out = up.length ? (g ? grid(up) : `<div class="lb-list">${up.map(v => row(v)).join('')}</div>`)
       : '<div class="lb-empty sm"><p>Aucune sortie à venir. Ajoutez la date d’un prochain tome dans sa fiche (bouton « + Tome »).</p></div>';
     return `<div class="lb-sec">À VENIR</div>${out}${past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div>${g ? grid(past, true) : `<div class="lb-list">${past.map(v => row(v, true)).join('')}</div>`}` : ''}${mobile ? `<div class="lb-sec">PRÉPUBLICATION</div>${lbPreHtml()}` : ''}`;
@@ -14056,7 +14061,7 @@
     if ((el = d('[data-lb-rd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbRd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
     if ((el = d('[data-lb-readall]'))) { lbReadAll(el, lbSer(LB.open)); return; }
     if ((el = d('[data-lb-readnext]'))) { const v = lbVol(el.dataset.lbReadnext); if (v) await lbVolSet(v, { read: true, read_at: lbToday() }); return; }
-    if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: true }); return; }
+    if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: el.classList.contains('lb-buyck') ? !v.wish : true }); return; } // pastille : bascule panier
     if ((el = d('[data-lb-preread]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPreread); if (p) { p.read = !p.read; v2Render(); await lbUpd('lib_prepub', p.id, { read: p.read }); } return; }
     if ((el = d('[data-lb-prenext]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPrenext); if (p) { p.chapter = lbNextChapter(p.chapter || 'ch. 0'); p.read = false; v2Render(); await lbUpd('lib_prepub', p.id, { chapter: p.chapter, read: false }); } return; }
     if ((el = d('[data-lb-predate]'))) { const p = LB.prepub.find(x => x.id === el.dataset.lbPredate); if (p) lbPickDate(el, p.issue_date, async iso => { p.issue_date = iso; v2Render(); await lbUpd('lib_prepub', p.id, { issue_date: iso }); }); return; }
