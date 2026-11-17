@@ -13179,7 +13179,7 @@
       <div class="lb-tools"><div class="lb-stabs" role="tablist">${[['all', 'Tomes'], ['read', 'Lus'], ['toread', 'À lire'], ['buy', 'Panier'], ['miss', 'Manquants']].filter(([k]) => k !== 'miss' || sc.miss).map(([k, l]) => `<button type="button" role="tab" aria-selected="${LB.stab === k}" class="${LB.stab === k ? 'on' : ''}" data-lb-stab="${k}"><span>${l}</span><em>${sc[k]}</em></button>`).join('')}</div>
         ${LB.stab === 'read' ? `<span class="lb-legend"><i class="rd"></i>Lu <i class="miss"></i>Pas encore lu</span>${vs.some(v => !v.read) ? `<button type="button" class="lb-btn sm lb-readall" data-lb-readall>${I.check}Tout marquer lu</button>` : ''}` : '<span class="lb-legend"><i class="own"></i>Possédé <i class="miss"></i>Manquant</span>'}</div>
       <div class="lb-tomes${LB.stab === 'read' ? ' rdmode' : ''}">${vs.map(v => lbTomeHtml(s, v)).join('')}
-        ${LB.stab === 'all' ? `<button type="button" class="lb-tadd" data-lb-addvol>${I.plus}<span>Tome</span></button>` : ''}</div>
+</div>
       ${!vs.length && LB.stab !== 'all' ? '<div class="lb-empty sm"><p>Aucun tome ici.</p></div>' : ''}
       <button type="button" class="lb-del" data-lb-delseries>${LBI.trash}Supprimer cette série</button>`;
   }
@@ -13235,8 +13235,7 @@
           return `<button type="button" class="lb-mtm ${v.owned ? 'own' : v.wish ? 'buy' : 'miss'}" data-lb-vol="${v.id}">
             ${lbCover(s, v)}
             ${v.owned ? `<span class="lb-mtb own${v.read ? '' : ' half'}">${I.check}</span>` : v.wish ? `<span class="lb-mtb buy">${LBI.cart}</span>` : ''}
-            <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbSub(v) ? esc(lbSub(v)) : lbDmy(v.release_date)}</small></button>`; }).join('')}
-          <button type="button" class="lb-mtm lb-madd" data-lb-addvol><div class="lb-cv">${I.plus}<span>Tome</span></div></button></div></div>`;
+            <b>${lbHS(v) ? esc(lbCode(v)) : 'Tome ' + String(v.number).padStart(2, '0')}</b><small>${lbSub(v) ? esc(lbSub(v)) : lbDmy(v.release_date)}</small></button>`; }).join('')}</div></div>`; // pas de bouton « + Tome » : les tomes arrivent tout seuls (recherche, synchro)
     } else if (tab === 'syn') {
       const sum = s.summary || all.find(v => v.summary)?.summary;
       const tags = [lbKindLbl(s), ...(s.genre || '').split(/\s*[,·]\s*/), s.edition].filter(Boolean);
