@@ -13137,8 +13137,7 @@
     const sc = { all: all.length, read: all.filter(v => v.owned && v.read).length, toread: all.filter(v => v.owned && !v.read).length, buy: all.filter(v => !v.owned && v.wish).length, miss: all.filter(v => !v.owned && !v.wish).length };
     const top = LB_TOPS.find(([k]) => k === s.top);
     const meta = [
-      [s.authors && s.artist && s.authors !== s.artist ? 'Scénario' : 'Auteur', s.authors || s.artist],
-      [s.authors && s.artist && s.authors !== s.artist ? 'Dessin' : '', s.authors !== s.artist ? s.artist : ''],
+      ...lbPeopleKv(s),
       ['Éditeur', [s.publisher, s.edition].filter(Boolean).join(' · ')],
       ['Genre', s.genre],
       ['Parution', [s.status, s.total_volumes ? s.total_volumes + ' tomes' : ''].filter(Boolean).join(' · ')],
@@ -13147,7 +13146,7 @@
     const nextOut = all.filter(v => v.release_date && v.release_date >= lbToday() && !v.owned).sort((a, b) => a.release_date.localeCompare(b.release_date))[0];
     const days = nextOut ? Math.round((new Date(nextOut.release_date + 'T00:00:00') - new Date(lbToday() + 'T00:00:00')) / 864e5) : 0;
     const kick = [lbKindLbl(s), s.genre, s.publisher, s.edition].filter(Boolean).join(' · ');
-    const people = s.authors && s.artist && s.authors !== s.artist ? `${s.authors} (scénario) · ${s.artist} (dessin)` : (s.authors || s.artist || '');
+    const people = lbPeopleKv(s).map(([k, v]) => k === 'Scénario' || k === 'Dessin' ? `${v} (${k.toLowerCase()})` : v).join(' · ');
     return `
       ${mobile ? `<button type="button" class="lb-back" data-lb-close>${LBI.back}${LB_TABS.find(t => t[0] === LB.tab)?.[1] || 'Collection'}</button>` : ''}
       <div class="lb-hero2">
@@ -13206,10 +13205,11 @@
     const m = (both || '').split(/\s+&\s+|\s*,\s*/).map(x => x.trim()).filter(Boolean);
     return m.length === 2 ? { authors: m[0], artist: m[1] } : { authors: m.join(', '), artist: '' };
   }
+  // rôles : un seul nom = Auteur ; deux noms sans dessinateur indiqué = scénario puis dessin (ordre des fiches) ; doublons retirés
   function lbPeopleKv(s) {
-    const names = x => (x || '').split(/\s*[,;·]\s*/).map(n => n.trim()).filter(Boolean);
-    if (!s.artist && /\s&\s/.test(s.authors || '')) { const sp = lbSplitAuthors('', '', s.authors); s = { ...s, ...sp }; } // « A & B » sans dessinateur = scénario & dessin
-    const au = names(s.authors), ar = names(s.artist).filter(n => !au.includes(n));
+    const names = x => [...new Set((x || '').split(/\s*[,;·]\s*|\s+&\s+/).map(n => n.trim()).filter(Boolean))];
+    let au = names(s.authors), ar = names(s.artist).filter(n => !au.includes(n));
+    if (!ar.length && au.length === 2) { ar = [au[1]]; au = [au[0]]; }
     if (!ar.length) return au.length ? [[au.length > 1 ? 'Auteurs' : 'Auteur', au.join(', ')]] : [];
     const join = l => l.length === 2 ? l.join(' & ') : l.join(', ');
     return [['Scénario', join(au)], ['Dessin', join(ar)]].filter(([, v]) => v); // tous les scénaristes sur la même ligne
@@ -13245,7 +13245,7 @@
     } else if (tab === 'syn') {
       const sum = s.summary || all.find(v => v.summary)?.summary;
       const tags = [lbKindLbl(s), ...(s.genre || '').split(/\s*[,·]\s*/), s.edition].filter(Boolean);
-      const rows = [[s.artist && s.artist !== s.authors ? 'Scénario' : 'Auteur', s.authors], ['Dessin', s.artist && s.artist !== s.authors ? s.artist : ''], ['Éditeur', s.publisher], ['Collection', s.edition], ['Genre', s.genre], ['Titre original', s.title_original]].filter(r => r[1]);
+      const rows = [...lbPeopleKv(s), ['Éditeur', s.publisher], ['Collection', s.edition], ['Genre', s.genre], ['Titre original', s.title_original]].filter(r => r[1]);
       body = `<div class="lb-mcard">${sum ? `<p class="lb-msum">${esc(sum)}</p>` : `<p class="lb-msum lb-mmut">Pas encore de résumé.</p>${LB.hasSummary ? '<button type="button" class="lb-btn sm" data-lb-findsum>Chercher le résumé</button>' : ''}`}${tags.length ? `<div class="lb-mtags">${tags.map((t, i) => `<span class="${i ? '' : 'k'}">${esc(t)}</span>`).join('')}</div>` : ''}</div>
         ${rows.length ? `<div class="lb-mcard lb-mrows">${rows.map(([k, v]) => `<div><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>` : ''}`;
     } else {
