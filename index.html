@@ -1224,9 +1224,10 @@
     line-height: 1; cursor: grab; user-select: none;
   }
   .td-subtask-title { flex: 1; font-size: 13px; }
-  .td-add-what { display: none; }
+  /* « + Ajouter une sous-tâche / une source » sans titres de section (téléphone et ordinateur) */
+  [data-task-sheet] [data-view="detail"] > .pa-section-head { display: none !important; }
   .td-more-mob { display: none !important; }
-  @media (max-width: 899px) { .td-add-what { display: inline; } .td-more-mob { display: flex !important; } }
+  @media (max-width: 899px) { .td-more-mob { display: flex !important; } }
   .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
   .td-subtask-row .td-img-remove {
     position: static; width: auto; height: auto; background: transparent; color: var(--faint);
@@ -1864,7 +1865,6 @@
     .task-sheet { box-shadow: 0 160px 0 0 var(--card, #fff); }
     /* fiche tâche : priorité et image passent dans le menu ⋯ ; « + Ajouter une sous-tâche / une source » sans titre de section */
     [data-task-sheet] .td-header-actions [data-td-flag-btn], [data-task-sheet] .td-header-actions [data-td-upload-btn] { display: none !important; }
-    [data-task-sheet] [data-view="detail"] > .pa-section-head { display: none !important; }
     [data-task-sheet] [data-td-add-source-row] { margin-top: 2px; }
     /* case « fait » de la fiche tâche : plus grande, plus facile à toucher */
     [data-task-sheet] .td-due .checkbox { width: 26px; height: 26px; border-radius: 8px; }
