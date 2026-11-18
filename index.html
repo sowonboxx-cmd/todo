@@ -1224,6 +1224,9 @@
     line-height: 1; cursor: grab; user-select: none;
   }
   .td-subtask-title { flex: 1; font-size: 13px; }
+  .td-add-what { display: none; }
+  .td-more-mob { display: none !important; }
+  @media (max-width: 899px) { .td-add-what { display: inline; } .td-more-mob { display: flex !important; } }
   .td-subtask-due { font-size: 10.5px; font-weight: 700; color: var(--accent-due); flex-shrink: 0; }
   .td-subtask-row .td-img-remove {
     position: static; width: auto; height: auto; background: transparent; color: var(--faint);
@@ -1856,6 +1859,10 @@
     .task-sheet { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
     /* le blanc de la fiche continue jusqu'en bas de l'écran (sous la barre d'accueil de l'iPhone) */
     .task-sheet { box-shadow: 0 160px 0 0 var(--card, #fff); }
+    /* fiche tâche : priorité et image passent dans le menu ⋯ ; « + Ajouter une sous-tâche / une source » sans titre de section */
+    [data-task-sheet] .td-header-actions [data-td-flag-btn], [data-task-sheet] .td-header-actions [data-td-upload-btn] { display: none !important; }
+    [data-task-sheet] [data-view="detail"] > .pa-section-head { display: none !important; }
+    [data-task-sheet] [data-td-add-source-row] { margin-top: 2px; }
     /* case « fait » de la fiche tâche : plus grande, plus facile à toucher */
     [data-task-sheet] .td-due .checkbox { width: 26px; height: 26px; border-radius: 8px; }
     [data-task-sheet] .td-due { gap: 12px; }
@@ -4308,6 +4315,14 @@
                       <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>
                     </button>
                     <div class="td-more-menu" data-td-more-menu role="menu" hidden>
+                      <button type="button" role="menuitem" class="td-more-mob" data-td-more="flag">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 21V3.5"/><path d="M6.5 4.5h11l-2 4 2 4h-11"/></svg>
+                        <span>Priorité</span>
+                      </button>
+                      <button type="button" role="menuitem" class="td-more-mob" data-td-more="upload">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+                        <span>Ajouter une image</span>
+                      </button>
                       <button type="button" role="menuitem" data-td-more="fav">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
                         <span data-td-more-fav-label>Ajouter en favori</span>
@@ -4350,7 +4365,7 @@
               <div class="td-subtasks-list" data-td-subtasks-list></div>
               <div class="add-subtask-row" data-td-add-subtask-row>
                 <span class="add-subtask-plus">+</span>
-                <span>Ajouter</span>
+                <span>Ajouter<span class="td-add-what"> une sous-tâche</span></span>
               </div>
               <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
 
@@ -4363,7 +4378,7 @@
               </div>
               <div class="add-subtask-row" data-td-add-source-row>
                 <span class="add-subtask-plus">+</span>
-                <span>Ajouter</span>
+                <span>Ajouter<span class="td-add-what"> une source</span></span>
               </div>
 
               <div class="td-images" data-td-images></div>
@@ -6488,6 +6503,7 @@
         close();
         const act = it.dataset.tdMore;
         if (act === 'fav') sheet.querySelector('[data-td-favorite-btn]')?.click();
+        else if (act === 'flag') sheet.querySelector('[data-td-flag-btn]')?.click();
         else if (act === 'upload') sheet.querySelector('[data-td-upload-btn]')?.click();
         else if (act === 'delete') sheet.querySelector('[data-td-goto-delete-task]')?.click();
       });
