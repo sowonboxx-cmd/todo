@@ -1857,6 +1857,9 @@
   #v2.v-loading, #v2m.v-loading { visibility: hidden; }
   @media (max-width: 899px) {
     .task-sheet { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+    /* iPhone : la bande tout en bas (sous la barre d'accueil) prend la couleur du fond de la page, pas celle des éléments fixes.
+       Quand une fiche est ouverte, le fond de la page passe en blanc pour que la fiche continue jusqu'en bas. */
+    html:has([data-task-sheet].open), html:has([data-addtask-sheet].open), html:has([data-pb-sheet].open), html:has([data-pa-sheet].open), html:has([data-vm-sheet].open), html:has([data-task-sheet].open) body, html:has([data-addtask-sheet].open) body, html:has([data-pb-sheet].open) body, html:has([data-pa-sheet].open) body, html:has([data-vm-sheet].open) body { background: #fff !important; }
     /* le blanc de la fiche continue jusqu'en bas de l'écran (sous la barre d'accueil de l'iPhone) */
     .task-sheet { box-shadow: 0 160px 0 0 var(--card, #fff); }
     /* fiche tâche : priorité et image passent dans le menu ⋯ ; « + Ajouter une sous-tâche / une source » sans titre de section */
@@ -5025,6 +5028,20 @@
     });
   });
   applyTheme(document.documentElement.getAttribute('data-theme'));
+  // fiche ouverte sur téléphone : barres de l'iPhone en blanc, comme la fiche
+  (function () {
+    const SHEETS = '[data-task-sheet].open, [data-addtask-sheet].open, [data-pb-sheet].open, [data-pa-sheet].open, [data-vm-sheet].open';
+    let last = null;
+    const sync = () => {
+      if (!themeColorMeta) return;
+      const light = document.documentElement.getAttribute('data-theme') !== 'dark';
+      const open = window.matchMedia('(max-width: 899px)').matches && !!document.querySelector(SHEETS);
+      const c = !light ? '#14171A' : open ? '#ffffff' : '#F3F1EC';
+      if (c !== last) { last = c; themeColorMeta.setAttribute('content', c); }
+    };
+    new MutationObserver(sync).observe(document.body, { subtree: true, attributes: true, attributeFilter: ['class'] });
+    sync();
+  })();
 
   const kpiDoneDesktop = document.getElementById('kpi-done-desktop');
   const kpiDoneMobile = document.getElementById('kpi-done-mobile');
