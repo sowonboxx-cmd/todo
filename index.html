@@ -10135,7 +10135,10 @@
   };
   if (!['list', 'kanban', 'cats'].includes(V.view)) V.view = 'list';
   // on rouvre l'app là où on était (espace, projet / page, série ouverte…)
-  const LOC0 = LS.get('loc', null) || {};
+  // … sauf à l'ouverture de l'app (nouvel onglet / app relancée) : on arrive sur les tâches en Kanban (en retard, aujourd'hui, à venir)
+  const FRESH = (() => { try { const f = !sessionStorage.getItem('v2_session'); sessionStorage.setItem('v2_session', '1'); return f; } catch (_) { return false; } })();
+  const LOC0 = FRESH ? {} : (LS.get('loc', null) || {});
+  if (FRESH) V.view = 'kanban';
   if (['cuisine', 'lib'].includes(LOC0.space)) V.space = LOC0.space;
   else if (LOC0.fav) V.fav = true;
   else { V.proj = LOC0.proj || null; V.page = LOC0.page || null; }
