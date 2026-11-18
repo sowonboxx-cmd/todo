@@ -1237,6 +1237,11 @@
     font-family: 'Inter', sans-serif; font-size: 11.5px; font-weight: 600; color: var(--muted);
     cursor: pointer; padding: 8px 0 4px;
   }
+  /* détail d'une tâche : « n sous-tâches terminées » à droite, sur la ligne de « + Ajouter » */
+  [data-td-subtasks-list] { position: relative; }
+  [data-td-subtasks-list] > .td-subtasks-done-toggle { position: absolute; right: 4px; top: 100%; z-index: 1; height: 36px; padding: 0; display: flex; align-items: center; }
+  /* champ de saisie ouvert (ligne « + Ajouter » masquée) : le compteur revient sous la liste, à droite */
+  [data-td-subtasks-list]:has(+ [data-td-add-subtask-row][style*="none"]) > .td-subtasks-done-toggle { position: static; height: auto; padding: 8px 4px 4px; justify-content: flex-end; }
   .td-subtasks-done-toggle:hover { color: var(--ink); }
   .td-subtask-row.done .td-subtask-title { text-decoration: line-through; color: var(--faint); }
 
@@ -2678,6 +2683,7 @@
     html.td-center-mode [data-task-sheet] .td-subtask-drag { font-size: 15px; width: 16px; }
     html.td-center-mode [data-task-sheet] .td-subtask-row .td-img-remove { font-size: 15px; }
     html.td-center-mode [data-task-sheet] .td-subtasks-done-toggle { font-size: 14.5px; padding: 12px 0 6px; }
+    html.td-center-mode [data-task-sheet] [data-td-subtasks-list] > .td-subtasks-done-toggle { padding: 0; height: 44px; }
     html.td-center-mode [data-task-sheet] .add-subtask-row { font-size: 16px; padding: 12px 4px; }
     html.td-center-mode [data-task-sheet] .add-subtask-plus { font-size: 20px; }
     html.td-center-mode [data-task-sheet] .add-subtask-input, html.td-center-mode [data-task-sheet] .td-source-input { font-size: 16px; padding: 12px 14px; }
@@ -4462,13 +4468,12 @@
 
               <input type="text" class="at-title" placeholder="Titre de la tâche" data-at-title>
               <textarea class="at-desc at-task-only" rows="2" placeholder="Description, lien…" data-at-desc></textarea>
-              <button type="button" class="at-addsub at-task-only" data-at-add-subtask-btn>+ Ajouter une sous-tâche</button>
-
               <input type="text" class="add-subtask-input at-task-only" data-at-image-url-input placeholder="Lien de l'image…" style="display:none;">
               <div class="td-images at-task-only" data-at-images></div>
 
-              <input type="text" class="add-subtask-input at-task-only" data-at-subtask-input placeholder="Sous-tâche…" style="display:none;">
               <div class="td-subtasks-list at-task-only" data-at-subtasks-list></div>
+              <input type="text" class="add-subtask-input at-task-only" data-at-subtask-input placeholder="Sous-tâche…" style="display:none;">
+              <button type="button" class="at-addsub at-task-only" data-at-add-subtask-btn>+ Ajouter une sous-tâche</button>
 
               <div class="td-sources-list at-task-only" data-at-sources-list></div>
               <div class="td-source-add-row at-task-only" data-at-source-add-row style="display:none;">
@@ -5638,8 +5643,9 @@
 
     let html = incomplete.map(rowHtml).join('');
     if (done.length) {
-      html += `<div class="td-subtasks-done-toggle" data-td-subtasks-done-toggle>${done.length} sous-tâche${done.length > 1 ? 's' : ''} terminée${done.length > 1 ? 's' : ''}</div>`;
+      // la liste des terminées d'abord (repliée), puis le compteur, calé à droite sur la ligne « + Ajouter » juste dessous
       html += `<div class="td-subtasks-done-list" data-td-subtasks-done-list style="display:none;">${done.map(rowHtml).join('')}</div>`;
+      html += `<div class="td-subtasks-done-toggle" data-td-subtasks-done-toggle>${done.length} sous-tâche${done.length > 1 ? 's' : ''} terminée${done.length > 1 ? 's' : ''}</div>`;
     }
     list.innerHTML = html;
     list.querySelector('[data-td-subtasks-done-toggle]')?.addEventListener('click', () => {
