@@ -12914,7 +12914,7 @@
       if (!d) throw new Error('rien trouvé');
       const { ings, steps } = czParseCaption(d.caption || '');
       const seen = new Set();
-      CZM.d = d; CZM.title = (d.title || '').replace(/\s+on Instagram.*$/i, '').trim() || 'Nouvelle recette';
+      CZM.d = d; CZM.title = (d.title || '').replace(/\s+on Instagram.*$/i, '').replace(CZ_EMO, ' ').replace(/\s+/g, ' ').trim() || 'Nouvelle recette';
       CZM.ings = ings.filter(i => { const k = czKey(i.name); if (!k || seen.has(k)) return false; seen.add(k); return true; }).map(i => { const match = czMatchProduct(i.name); return { ...i, match, on: true, use: match && (match.exact || match.close) ? 'old' : 'new' }; });
       CZM.steps = steps;
     } catch (e) { CZM.err = 'Lecture impossible (' + (e.message || e) + '). Vous pouvez créer la fiche sans lien.'; }
