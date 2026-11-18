@@ -2594,6 +2594,13 @@
   [data-addtask-sheet] .at-head-close svg { width: 16px; height: 16px; }
   [data-addtask-sheet] .at-title { font-size: 24px; letter-spacing: -.01em; margin-bottom: 6px; }
   [data-addtask-sheet] .at-desc { background: transparent; padding: 0; border-radius: 0; font-size: 15px; resize: none; margin-bottom: 10px; color: #4a4a4a; }
+  /* sous-tâches ajoutées : même taille que « Description, lien… » */
+  [data-addtask-sheet] .td-subtask-row { gap: 12px; padding: 11px 0; }
+  [data-addtask-sheet] .td-subtask-title { font-size: 15px; cursor: pointer; }
+  [data-addtask-sheet] .td-subtask-row .checkbox { width: 20px; height: 20px; cursor: pointer; flex-shrink: 0; }
+  [data-addtask-sheet] .td-subtask-row .checkbox.done::after { font-size: 12px; }
+  [data-addtask-sheet] .td-subtask-row .checkbox.done { background: #2F9E5B; border-color: #2F9E5B; }
+  [data-addtask-sheet] .add-subtask-input { font-size: 15px; }
   [data-addtask-sheet] .at-addsub {
     border: none; background: transparent; padding: 4px 0 10px; font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
     color: #8b8b8b; cursor: pointer; display: block;
@@ -9001,14 +9008,30 @@
     if (!list) return;
     const subs = JSON.parse(sheet.dataset.stagedSubtasks || '[]');
     list.innerHTML = subs.map((s, i) => `
-      <div class="td-subtask-row" data-idx="${i}">
-        <div class="checkbox"></div>
-        <div class="td-subtask-title">${escapeHtml(s.title)}</div>
+      <div class="td-subtask-row${s.done ? ' done' : ''}" data-idx="${i}">
+        <div class="checkbox${s.done ? ' done' : ''}" data-staged-sub-toggle="${i}" role="checkbox" aria-checked="${!!s.done}"></div>
+        <div class="td-subtask-title" data-staged-sub-toggle="${i}">${escapeHtml(s.title)}</div>
         <button type="button" class="td-img-remove" data-staged-sub-remove="${i}" title="Retirer">${CLOSE_ICON_SVG}</button>
       </div>`).join('');
+    // cocher / décocher une sous-tâche pas encore enregistrée
+    list.querySelectorAll('[data-staged-sub-toggle]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const idx = parseInt(el.dataset.stagedSubToggle, 10);
+        sheet.dataset.stagedSubtasks = JSON.stringify(subs.map((x, i) => i === idx ? { ...x, done: !x.done } : x));
+        renderAtSubtasks(sheet);
+      });
+    });
     list.querySelectorAll('[data-staged-sub-remove]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
+        // premier clic : on demande ; deuxième clic : on retire
+        if (!btn.classList.contains('confirming')) {
+          list.querySelectorAll('.td-img-remove.confirming').forEach(b => { b.classList.remove('confirming'); b.innerHTML = CLOSE_ICON_SVG; });
+          btn.classList.add('confirming'); btn.textContent = 'Supprimer ?';
+          clearTimeout(btn._t); btn._t = setTimeout(() => { if (btn.isConnected) { btn.classList.remove('confirming'); btn.innerHTML = CLOSE_ICON_SVG; } }, 3000);
+          return;
+        }
         const idx = parseInt(btn.dataset.stagedSubRemove, 10);
         const next = subs.filter((_, i) => i !== idx);
         sheet.dataset.stagedSubtasks = JSON.stringify(next);
@@ -9456,7 +9479,7 @@
         const stagedSubs = JSON.parse(sheet.dataset.stagedSubtasks || '[]');
         if (stagedSubs.length) {
           const { error: subsErr } = await sb.from('subtasks')
-            .insert(stagedSubs.map(s => ({ todo_id: newTodo.id, title: s.title })));
+            .insert(stagedSubs.map(s => ({ todo_id: newTodo.id, title: s.title, ...(s.done ? { is_done: true } : {}) })));
           if (subsErr) console.error('Erreur sous-tâches :', subsErr);
         }
 
