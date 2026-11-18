@@ -3413,6 +3413,7 @@
   .lb-fchips button { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 10px; background: var(--v-soft2); padding: 9px 13px; font: 500 14px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; }
   .lb-fchips button svg { width: 15px; height: 15px; }
   .lb-fchips button.on { background: #1f1f1f; color: #fff; }
+  .lb-fchips button small { font-size: 12px; opacity: .55; }
   .lb-chips button { display: inline-flex; align-items: center; gap: 5px; background: #fff; border: none; border-radius: 9px; padding: 6px 10px; font: 500 13px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; }
   .lb-chips button.on { background: #1f1f1f; color: #fff; }
   .lb-chips svg { width: 13px; height: 13px; }
@@ -3467,6 +3468,60 @@
   .cz-mob .cz-opt { order: 3; }
   .cz-mob .cz-opt { margin-left: 0; }
   .cz-mob .cz-grid { grid-template-columns: 1fr 1fr; gap: 16px 12px; }
+  .cz-mob .cz-grid2 { gap: 12px; }
+  .cz-mob .cz-bar { gap: 8px; align-items: stretch; }
+  .cz-vbtn { flex-shrink: 0; width: 46px; border: none; border-radius: 12px; background: var(--v-card); color: #b0afab; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+  .cz-vbtn svg { width: 19px; height: 19px; }
+  .cz-vbtn.on { color: var(--v-ink); box-shadow: inset 0 0 0 1.5px var(--v-ink); }
+  .cz-rc2 { background: #fff; border-radius: 16px; overflow: hidden; cursor: pointer; min-width: 0; }
+  .cz-rc2 .cz-th { border-radius: 0; aspect-ratio: auto; height: 150px; }
+  .cz-rc2 b { display: block; font-size: 14.5px; font-weight: 600; padding: 9px 11px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-rc2 small { display: block; font-size: 12px; color: #8a8a87; padding: 0 11px 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cz-rc2 b:last-child { padding-bottom: 11px; }
+  .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); color: #1f1f1f; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
+  .cz-cnt svg { width: 11px; height: 11px; }
+  .cz-impb { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 7px; background: #F1F0EC; color: #555; }
+  /* import d'un lien */
+  .cz-imp-bd[hidden] { display: none; }
+  .cz-imp-bd { --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-soft2: #EDEBE6; --v-chip: #ECEAE4; --v-card: #fff; --v-green: #2F9E5B; --v-red: #C8342B; z-index: 2100; }
+  .czi { width: min(480px, 100%); gap: 12px; max-height: calc(100dvh - 32px); }
+  .czi-paste { display: flex; gap: 8px; margin: 0; }
+  .czi-inp { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F2EE; border-radius: 12px; padding: 0 12px; }
+  .czi-inp svg { width: 16px; height: 16px; color: #8a8a87; flex-shrink: 0; }
+  .czi-inp input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: 400 14px 'Inter', sans-serif; color: var(--v-ink); padding: 12px 0; }
+  .czi-go { border: none; border-radius: 12px; background: var(--v-ink); color: #fff; font: 600 14px 'Inter', sans-serif; padding: 0 16px; cursor: pointer; }
+  .czi-go:disabled { opacity: .6; }
+  .czi-err { font-size: 13px; color: #C8342B; margin: 0; }
+  .czi-blank { align-self: center; border: none; background: none; font: 500 13.5px 'Inter', sans-serif; color: #8a8a87; text-decoration: underline; cursor: pointer; padding: 4px; }
+  .czi-prev { display: flex; gap: 12px; }
+  .czi-im { width: 96px; height: 128px; border-radius: 12px; background-size: cover; background-position: center; flex-shrink: 0; position: relative; }
+  .czi-im .cz-src { background: rgba(0,0,0,.55); font-size: 10px; font-weight: 600; left: 6px; top: 6px; }
+  .czi-pt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .czi-title { border: none; border-bottom: 1.5px solid transparent; outline: none; font: 700 16px 'Inter', sans-serif; color: var(--v-ink); padding: 2px 0; background: none; width: 100%; }
+  .czi-title:focus { border-bottom-color: #DAD8D2; }
+  .czi-pt small { font-size: 12.5px; color: #8a8a87; }
+  .czi-pt p { font-size: 12.5px; color: #777; line-height: 1.4; margin: 2px 0 0; }
+  .czi-seg button { flex: 1; justify-content: center; }
+  .czi-sec { border-top: 1px solid var(--v-line); padding-top: 10px; display: flex; flex-direction: column; }
+  .czi-sh { font-size: 11.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: #8a8a87; margin-bottom: 4px; }
+  .czi-r { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 14px; }
+  .czi-r.off .czi-n, .czi-r.off small { color: #b0afab; text-decoration: line-through; }
+  .czi-n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .czi-r small { margin-left: auto; color: #8a8a87; white-space: nowrap; font-size: 13px; }
+  .czi-tag { font-size: 10.5px; font-weight: 600; padding: 2px 6px; border-radius: 6px; white-space: nowrap; flex-shrink: 0; }
+  .czi-tag.ok { background: #E7F3EA; color: #2E7D4A; } .czi-tag.new { background: #F1F0EC; color: #777; }
+  .czi-sim { display: flex; align-items: center; gap: 8px; background: #FFF4E0; color: #8A5300; border-radius: 10px; padding: 7px 8px 7px 10px; margin: 0 0 4px 32px; font-size: 12.5px; }
+  .czi-sim > svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .czi-sim > span { flex: 1; min-width: 0; }
+  .czi-ch { display: flex; gap: 2px; background: rgba(255,255,255,.7); border-radius: 8px; padding: 2px; flex-shrink: 0; }
+  .czi-ch button { border: none; background: none; font: 600 11.5px 'Inter', sans-serif; color: #8A5300; padding: 4px 8px; border-radius: 6px; cursor: pointer; }
+  .czi-ch button.on { background: #fff; color: var(--v-ink); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+  .czi-empty { font-size: 13px; color: #8a8a87; margin: 0; line-height: 1.45; }
+  .czi .cz-addbtn { margin-top: 2px; }
+  .czi .cz-addbtn:disabled { opacity: .6; }
+  @media (max-width: 699px) { .cz-modal-bd.cz-imp-bd { align-items: flex-end; padding: 0; } .czi { width: 100%; border-radius: 20px 20px 0 0; max-height: 92dvh; padding-bottom: calc(18px + env(safe-area-inset-bottom)); } }
+  .cz-impb.imp-high { background: #FDE8E6; color: #C8342B; } .cz-impb.imp-medium { background: #FFF2DE; color: #B26A00; } .cz-impb.imp-low { background: #E7F3EA; color: #2E7D4A; }
   .cz-mob .cz-card { border: none; }
   /* fiche produit */
   .cz-modal-bd { position: fixed; inset: 0; z-index: 2000; background: rgba(24,24,22,.35); display: flex; align-items: center; justify-content: center; padding: 16px; }
@@ -3520,6 +3575,78 @@
   .cz-page { position: fixed; inset: 0; z-index: 1500; background: #fff; overflow-y: auto; display: none; font-family: 'Inter', sans-serif; color: var(--v-ink, #1f1f1f); --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
   .cz-page.open { display: block; }
   html.cz-page-open, html.cz-page-open body { overflow: hidden; }
+  /* ---- fiche recette « lecture » (mobile) ---- */
+  .cz-page.czv { background: #F2F0EB; }
+  .czv-hero { position: relative; aspect-ratio: 16 / 9; min-height: 230px; background-size: cover; background-position: center; }
+  .czv-hero::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.35) 0, rgba(0,0,0,0) 32%, rgba(0,0,0,0) 45%, rgba(0,0,0,.7) 100%); }
+  .czv-top { position: absolute; z-index: 2; left: 14px; right: 14px; top: calc(env(safe-area-inset-top) + 10px); display: flex; justify-content: space-between; }
+  .czv-rb { width: 38px; height: 38px; border-radius: 50%; border: none; background: rgba(255,255,255,.92); color: #1f1f1f; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .czv-rb svg { width: 20px; height: 20px; }
+  .czv-tt { position: absolute; z-index: 2; left: 18px; right: 18px; bottom: 14px; color: #fff; }
+  .czv-tt h1 { margin: 0; font-size: 27px; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; text-shadow: 0 1px 8px rgba(0,0,0,.25); }
+  .czv-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+  .czv-chips span { font-size: 12px; font-weight: 600; padding: 5px 9px; border-radius: 8px; background: rgba(255,255,255,.22); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  .czv-chips .imp { background: #FDE8E6; color: #C8342B; }
+  .czv-body { padding: 14px 14px calc(env(safe-area-inset-bottom) + 30px); display: flex; flex-direction: column; gap: 12px; }
+  .czv-card { background: #fff; border-radius: 18px; padding: 14px; }
+  .czv-seg { display: flex; background: #F1EFEA; border-radius: 11px; padding: 3px; margin-bottom: 12px; }
+  .czv-seg button { flex: 1; border: none; background: none; padding: 8px 0; border-radius: 8px; font: 500 14px 'Inter', sans-serif; color: #777; cursor: pointer; }
+  .czv-seg button.on { background: #fff; color: #1f1f1f; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  .czv-seg small { color: #9a9a9a; font-weight: 500; margin-left: 2px; }
+  .czv-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; margin: 0 -14px; padding: 0 14px 2px; scrollbar-width: none; }
+  .czv-strip::-webkit-scrollbar { display: none; }
+  .czv-vid { position: relative; flex: 0 0 auto; width: calc((100% - 20px) / 3); aspect-ratio: 9 / 16; border-radius: 12px; border: none; padding: 0; background-size: cover; background-position: center; scroll-snap-align: start; cursor: pointer; overflow: hidden; }
+  .czv-pl { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; }
+  .czv-pl svg { width: 16px; height: 16px; margin-left: 2px; }
+  .czv-lb { position: absolute; left: 6px; bottom: 6px; font: 700 10px 'Inter', sans-serif; color: #fff; background: rgba(0,0,0,.5); padding: 2px 6px; border-radius: 6px; }
+  .czv-mas { columns: 2; column-gap: 8px; }
+  .czv-mas img { width: 100%; display: block; border-radius: 12px; margin-bottom: 8px; break-inside: avoid; cursor: zoom-in; }
+  .czv-empty { margin: 4px 0 2px; font-size: 13.5px; color: #9a9a9a; }
+  .czv-web { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .czv-web a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border-radius: 10px; background: #F5F4F1; color: #1f1f1f; font-size: 13px; text-decoration: none; }
+  .czv-web svg { width: 15px; height: 15px; }
+  .czv-add { margin-top: 10px; }
+  .czv-add .cz-inline-add, .czv-card > .cz-inline-add { margin: 8px 0 0; }
+  .czv-sh { display: flex; align-items: center; justify-content: space-between; font: 700 11.5px 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #8b8b8b; margin-bottom: 6px; }
+  .czv-sh button { border: none; background: none; font: 600 12.5px 'Inter', sans-serif; letter-spacing: 0; text-transform: none; color: #2B5FD9; cursor: pointer; padding: 0; }
+  .czv-ing { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid #ECEAE5; font-size: 15px; }
+  .czv-ing:first-of-type { border-top: none; }
+  .czv-ck { width: 22px; height: 22px; border-radius: 7px; border: 1.8px solid #C9C6BF; background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: #fff; padding: 0; cursor: pointer; }
+  .czv-ck.on { background: #2F9E5B; border-color: #2F9E5B; }
+  .czv-ck svg { width: 13px; height: 13px; }
+  .czv-in { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .czv-ing.used .czv-in { color: #aaa; text-decoration: line-through; }
+  .czv-q { color: #8b8b8b; font-size: 13px; white-space: nowrap; }
+  .czv-st { border: none; font: 600 11.5px 'Inter', sans-serif; padding: 5px 8px; border-radius: 8px; background: #E3F5E9; color: #1E7D45; cursor: pointer; white-space: nowrap; }
+  .czv-st.b { background: #FDEEDD; color: #B4621A; }
+  .czv-hint { margin: 10px 0 0; font-size: 11.5px; color: #9a9a9a; }
+  .czv-step { display: flex; align-items: flex-start; gap: 11px; width: 100%; text-align: left; border: none; background: none; padding: 9px 0; border-top: 1px solid #ECEAE5; font: 400 15px/1.45 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; }
+  .czv-step:first-of-type { border-top: none; }
+  .czv-step b { width: 24px; height: 24px; border-radius: 50%; background: #1f1f1f; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .czv-step b svg { width: 13px; height: 13px; }
+  .czv-step.done { color: #aaa; text-decoration: line-through; }
+  .czv-step.done b { background: #2F9E5B; }
+  .czv-desc summary { cursor: pointer; font: 700 11.5px 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #8b8b8b; }
+  .czv-desc p { white-space: pre-wrap; font-size: 14px; line-height: 1.5; color: #444; margin: 10px 0 0; }
+  .czv-done { display: block; width: calc(100% - 36px); margin: 4px 18px 0; padding: 11px; border: none; border-radius: 12px; background: #1f1f1f; color: #fff; font: 600 14px 'Inter', sans-serif; cursor: pointer; }
+  /* lecture vidéo en grand */
+  .czpl { position: fixed; inset: 0; z-index: 2600; background: rgba(12,12,12,.92); display: none; align-items: center; justify-content: center; }
+  .czpl.open { display: flex; }
+  .czpl-f { position: relative; background: #000; border-radius: 14px; overflow: hidden; }
+  .czpl-f iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
+  .czpl-f.v { width: min(92vw, 420px, calc((100dvh - 150px) * 9 / 16)); aspect-ratio: 9 / 16; }
+  .czpl-f.v.ig { aspect-ratio: auto; height: min(calc(100dvh - 150px), 760px); }
+  .czpl-f.h { width: min(92vw, 1100px); aspect-ratio: 16 / 9; }
+  .czpl-f.x { aspect-ratio: auto; background: transparent; max-height: calc(100dvh - 150px); overflow: auto; }
+  .czpl-x { position: absolute; top: calc(env(safe-area-inset-top) + 12px); right: 14px; width: 40px; height: 40px; border-radius: 50%; border: none; background: rgba(255,255,255,.15); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .czpl-x svg { width: 20px; height: 20px; }
+  .czpl-nav { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; border: none; background: rgba(255,255,255,.15); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 2; }
+  .czpl-nav svg { width: 22px; height: 22px; }
+  .czpl-nav.l { left: 14px; } .czpl-nav.r { right: 14px; } .czpl-nav.r svg { transform: rotate(180deg); }
+  .czpl-nav:disabled { opacity: .25; cursor: default; }
+  .czpl-meta { position: absolute; bottom: calc(env(safe-area-inset-bottom) + 18px); left: 0; right: 0; display: flex; justify-content: center; gap: 16px; color: rgba(255,255,255,.75); font: 500 13px 'Inter', sans-serif; }
+  .czpl-meta a { color: #fff; }
+  @media (max-width: 700px) { .czpl-nav { top: auto; transform: none; bottom: calc(env(safe-area-inset-bottom) + 6px); width: 40px; height: 40px; } .czpl-nav.l { left: 16px; } .czpl-nav.r { right: 16px; } }
   .cz-page-top { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: calc(env(safe-area-inset-top) + 12px) 18px 10px; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); }
   .cz-back { display: inline-flex; align-items: center; gap: 4px; border: none; background: #F3F1EC; border-radius: 10px; padding: 8px 12px 8px 8px; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
   .cz-back svg { width: 17px; height: 17px; }
@@ -3542,7 +3669,7 @@
   .cz-media-x { position: absolute; right: 6px; top: 6px; z-index: 2; width: 28px; height: 28px; border: none; border-radius: 50%; background: rgba(0,0,0,.55); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
   .cz-media-x svg { width: 13px; height: 13px; }
   .cz-media .td-yt-embed { margin-top: 0; border-radius: 14px; }
-  .cz-ig { width: 100%; height: 640px; border: 1px solid var(--v-line); border-radius: 14px; background: #fff; display: block; }
+  iframe.cz-ig { width: 100%; height: 640px; border: 1px solid var(--v-line); border-radius: 14px; background: #fff; display: block; }
   .cz-openlink { display: inline-block; margin-top: 6px; font-size: 12.5px; font-weight: 600; color: var(--v-faint); }
   .cz-webcard { display: flex; align-items: center; gap: 12px; border: 1px solid var(--v-line); border-radius: 14px; padding: 12px 14px; text-decoration: none; color: var(--v-ink); }
   .cz-webcard svg { width: 20px; height: 20px; flex-shrink: 0; color: var(--v-faint); }
@@ -3555,7 +3682,7 @@
     .cz-page-body { grid-template-columns: 1fr; gap: 18px; padding: 4px 16px 60px; }
     .cz-page-media { order: -1; position: static; }
     .cz-page-title { font-size: 24px; }
-    .cz-ig { height: 560px; }
+    iframe.cz-ig { height: 560px; }
   }
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
@@ -11404,7 +11531,7 @@
     else if (mobile) document.querySelectorAll('.lb-smod, .lb-smod-bd').forEach(x => x.remove());
     restoreScroll(scope, saved);
     if (mobile) alignTrack();
-    if (sheetOpen()) { if (V.space === 'lib' && mroot.querySelector('[data-vm-sheet] [data-lb-freset]')) lbFilterSheet(); else renderFilterSheet(); }
+    if (sheetOpen()) { if (V.space === 'lib' && mroot.querySelector('[data-vm-sheet] [data-lb-freset]')) lbFilterSheet(); else if (V.space === 'cuisine' && mroot.querySelector('[data-vm-sheet] [data-cz-freset]')) czFilterSheet(); else renderFilterSheet(); }
     if (!V.loaded) {
       V.loaded = true;
       root.classList.remove('v-loading');
@@ -12088,6 +12215,9 @@
     rview: LS.get('cz_rview', 'grid'),          // grid | list
     origin: '', imp: '',
     open: null,                                 // id de la recette ouverte
+    edit: false,                                // fiche en mode modification (mobile)
+    mtab: 'v',                                  // fiche : onglet Vidéos (v) / Photos (p)
+    player: null,                               // { id, i } vidéo lue en grand
   };
   const CZ_TABS = [['courses', 'Courses'], ['recettes', 'Recettes'], ['next', 'Next']];
   const CZ_KINDS = ['Alimentation', 'Divers', 'Shopping'];
@@ -12461,15 +12591,18 @@
     return rows;
   }
   function czThumb(r) {
-    const img = (r.images || [])[0];
+    const mob = isMobile();
     const s = czSrc((r.links || [])[0]);
-    let bg;
-    if (img) bg = `<img src="${esc(img)}" alt="" loading="lazy">`;
-    else if (s?.t === 'yt') bg = `<img src="https://i.ytimg.com/vi/${s.id}/hqdefault.jpg" alt="" loading="lazy">`;
-    else bg = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
-    const play = s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
-    const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.label)}</span>` : '';
-    return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}</div>`;
+    const cover = czCoverOf(r);
+    if (!cover) czQueueThumbs(r);
+    const grad = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
+    const bg = cover ? `${grad}<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()">` : grad;
+    const play = !mob && s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
+    const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.t === 'ig' ? 'Instagram' : s.label)}</span>` : '';
+    const nv = mob ? czVideos(r).length : 0;
+    const cnt = nv > 1 ? `<span class="cz-cnt">${CZI.tri}${nv}</span>` : '';
+    const imp = mob && r.kind === 'next' && r.importance ? `<span class="cz-impb imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '';
+    return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}${imp}${cnt}</div>`;
   }
   function czPills(r) {
     const out = [];
@@ -12483,17 +12616,31 @@
   }
   function czRecipesHtml(kind, mobile) {
     const all = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
-    const chips = kind === 'next'
+    const nf = kind === 'recipe' && CZ.origin ? 1 : 0;
+    const chips = kind === 'recipe' && mobile
+      ? `<button type="button" class="lb-filt${nf ? ' on' : ''}" data-cz-filters>${LBI.filter}<span>${nf ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`
+      : kind === 'next'
       ? ['', ...CZ_IMP].map(v => `<button type="button" class="cz-chip${CZ.imp === v ? ' on' : ''}" data-cz-imp="${v}">${v || 'Toutes'}${v ? ` <small>${all.filter(r => r.importance === v).length}</small>` : ''}</button>`).join('')
       : ['', ...[...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'))].map(v => `<button type="button" class="cz-chip${CZ.origin === v ? ' on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Tout')}</button>`).join('');
     return `
       <div class="cz-bar">
         <label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label>
-        <div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>
+        ${mobile ? `<button type="button" class="cz-vbtn${CZ.rview === 'grid' ? ' on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="cz-vbtn${CZ.rview === 'list' ? ' on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button>` : `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`}
         ${mobile ? '' : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
       </div>
       <div class="cz-ctrls"><div class="cz-chips">${chips}</div></div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
+  }
+  // ---------- Filtres (mobile, Recettes) : origine / pays dans une feuille ----------
+  function czFilterSheet(open) {
+    const sh = document.querySelector('#v2m [data-vm-sheet]'), bd = document.querySelector('#v2m [data-vm-sheet-bd]'); if (!sh) return;
+    if (!open && !(sh.classList.contains('open') && sh.querySelector('[data-cz-freset]'))) return;
+    const all = CZ.recipes.filter(r => r.kind !== 'next');
+    const ors = [...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
+    sh.innerHTML = `<div class="vm-grab"></div><h3>Filtres</h3>
+      <div class="vm-field"><span>Origine</span><div class="lb-fchips">${['', ...ors].map(v => `<button type="button" class="${(CZ.origin || '') === v ? 'on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Toutes')}${v ? ` <small>${all.filter(r => r.origin === v).length}</small>` : ''}</button>`).join('')}</div></div>
+      <div class="vm-sheet-actions"><button type="button" data-cz-freset>Réinitialiser</button><button type="button" class="main" data-vm-sheet-close>OK</button></div>`;
+    if (open) { sh.classList.add('open'); bd?.classList.add('open'); }
   }
   function czRecipeListHtml(kind) {
     const rows = czRecipeRows(kind);
@@ -12501,16 +12648,183 @@
     if (CZ.rview === 'list') {
       return `<div class="cz-card">${rows.map(r => `<div class="cz-rrow" data-cz-open="${r.id}">${czThumb(r)}<div class="cz-rrow-body"><b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div></div>`).join('')}</div>`;
     }
+    if (isMobile()) return `<div class="cz-grid cz-grid2">${rows.map(r => { const sub = [r.origin, r.minutes ? r.minutes + ' min' : ''].filter(Boolean).join(' · '); return `<div class="cz-rc2" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`; }).join('')}</div>`;
     return `<div class="cz-grid">${rows.map(r => `<div class="cz-rc" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div>`).join('')}</div>`;
   }
-  async function czNewRecipe() {
-    const kind = V.cz === 'next' ? 'next' : 'recipe';
+  async function czNewRecipe(k) {
+    const kind = k || (V.cz === 'next' ? 'next' : 'recipe');
     const { data, error } = await sb.from('cuisine_recipes').insert({ name: kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette', kind, links: [], images: [], types: [], tags: [] }).select().single();
     if (error) { alert('Création impossible : ' + error.message); return; }
     CZ.recipes.push(data);
     czRefreshAll(); if (V.space === 'cuisine') v2Render();
     czOpen(data.id, true);
   }
+
+  // ---------- import d'un lien (Instagram, YouTube, site) : titre, image, description, ingrédients, étapes ----------
+  // lecture de la description : ingrédients (avec quantités) et étapes
+  const CZ_EMO = /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{20E3}\u{200D}]/gu;
+  const CZ_UNIT = String.raw`(?:kg|g|gr|grammes?|mg|l|cl|ml|dl|litres?|c\.?\s?à\s?(?:s|c|soupe|café)\.?|cuill(?:è|e)res?\s+à\s+(?:soupe|café)|cas|cac|cs|cc|tbsp|tsp|tablespoons?|teaspoons?|cups?|tasses?|verres?|bols?|pinc(?:é|e)es?|gousses?|cloves?|tranches?|slices?|bottes?|sachets?|boîtes?|brins?|feuilles?|morceaux?|oz|lbs?|pieces?|pcs?)`;
+  const CZ_NUM = String.raw`(?:\d+(?:[.,/]\d+)?(?:\s?(?:-|à|to)\s?\d+(?:[.,]\d+)?)?|½|¼|¾|⅓|⅔|une?|deux|trois|quatre|cinq|six|a|an|one|two|three)`;
+  const CZ_NOISE = /@\w|abonne|follow|link in bio|lien en bio|enregistre|save (?:this|for)|partage|share|comment/i;
+  const CZ_QTY_START = new RegExp(String.raw`^(${CZ_NUM}\s?${CZ_UNIT}?\.?)(?=\s|$)\s*(?:(?:de|d'|d’|of)\s*)?(.+)$`, 'i');
+  const CZ_QTY_END = new RegExp(String.raw`^(.+?)\s*(?:[:–—-]\s*|\(\s*)(${CZ_NUM}\s?${CZ_UNIT}?\.?)\s*\)?$`, 'i');
+  function czParseCaption(text) {
+    const lines = String(text || '').split(/\n/).map(l => l.replace(/(\d)\uFE0F?\u20E3/gu, '$1. ').replace(new RegExp('^\\s*(?:' + CZ_EMO.source + ')+', 'u'), '- ').replace(CZ_EMO, ' ').replace(/\s+/g, ' ').trim()).map(l => l.replace(/^-\s*(\d+\.\s)/, '$1'));
+    const H_ING = /^(?:[#*\s]*)(ingr(?:é|e)dients?|ingredients|il (?:vous )?faut|you(?:'|’)ll need|pour \d+\s*(?:personnes|pers|parts)|liste de courses)\b/i;
+    const H_STEP = /^(?:[#*\s]*)(pr(?:é|e)paration|recette|(?:é|e)tapes?|instructions?|m(?:é|e)thode|method|steps|directions|how to|d(?:é|e)roul(?:é|e))\b/i;
+    const STEP_N = /^(?:(?:step|(?:é|e)tape)\s*)?(\d{1,2})\s*[.)/:\-–]\s*(.+)$/i;
+    const BUL = /^[-•*▪·‣◦–—>]\s*/;
+    const ings = [], steps = []; let mode = '';
+    const pushIng = (l) => {
+      l = l.replace(BUL, '').replace(/[.;]+$/, '').trim(); if (!l || l.length > 70 || /^#|^@|https?:/.test(l)) return;
+      let qty = '', name = l, m;
+      if ((m = l.match(CZ_QTY_START)) && !/^(a|an|une?|one)$/i.test(m[1].trim()) || (m && /^(a|an|une?|one)\s/i.test(l) && new RegExp('^' + CZ_UNIT, 'i').test(m[2] || ''))) { qty = m[1].trim(); name = m[2]; }
+      else if ((m = l.match(CZ_QTY_END))) { name = m[1]; qty = m[2].trim(); }
+      name = name.replace(/\s*\((?:[^)]*)\)\s*$/, '').replace(/\s*[,:–—-]\s*$/, '').trim();
+      if (!name || name.length > 45) return;
+      if (!qty && /,/.test(name) && name.split(',').every(x => x.trim().split(' ').length <= 3)) { name.split(',').forEach(x => x.trim() && ings.push({ raw: l, name: x.trim().charAt(0).toUpperCase() + x.trim().slice(1), qty: '' })); return; }
+      ings.push({ raw: l, name: name.charAt(0).toUpperCase() + name.slice(1), qty });
+    };
+    for (const l of lines) {
+      if (!l) { if (mode === 'ing' && ings.length) mode = 'ing?'; continue; }
+      if (H_ING.test(l)) { mode = 'ing'; const rest = l.replace(H_ING, '').replace(/^[^:]*:\s*/, ''); if (rest && /\d/.test(rest)) rest.split(/,|;/).forEach(pushIng); continue; }
+      if (H_STEP.test(l) && l.length < 40) { mode = 'step'; continue; }
+      const sn = l.match(STEP_N);
+      if (sn && (mode === 'step' || sn[2].length > 25 || /^\d+\s*[.)]/.test(l) && mode !== 'ing')) { mode = 'step'; steps.push(sn[2].trim()); continue; }
+      if (mode === 'ing' || mode === 'ing?') {
+        if (mode === 'ing?' && !(BUL.test(l) || CZ_QTY_START.test(l))) { mode = ''; }
+        else { mode = 'ing'; pushIng(l); continue; }
+      }
+      if (CZ_NOISE.test(l)) continue;
+      if (mode === 'step') { if (/^#|^@/.test(l)) continue; steps.push(l.replace(BUL, '')); continue; }
+      // sans titre : lignes à puce courtes avec une quantité
+      const lb = l.replace(BUL, '');
+      if (l.length < 60 && (BUL.test(l) ? CZ_QTY_START.test(lb) : new RegExp(String.raw`^\d+(?:[.,/]\d+)?\s?${CZ_UNIT}\b`, 'i').test(lb))) pushIng(l);
+    }
+    return { ings, steps };
+  }
+  const CZ_STOP = new Set(['de', 'du', 'des', 'la', 'le', 'les', 'l', 'd', 'a', 'au', 'aux', 'en', 'of', 'the', 'frais', 'fraiche', 'fresh']);
+  const czKey = n => czNorm(String(n || '').replace(/œ/gi, 'oe').replace(/æ/gi, 'ae')).replace(/\([^)]*\)/g, ' ').replace(/['’]/g, ' ').split(/[^a-z0-9]+/).filter(w => w && !CZ_STOP.has(w)).map(w => w.length > 3 ? w.replace(/(?:s|x)$/, '') : w).join(' ');
+  function czLev(a, b) { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+  function czMatchProduct(name) {
+    const k = czKey(name); if (!k) return null;
+    const kw = k.split(' '); let best = null, bs = 0;
+    for (const p of CZ.products) {
+      if (p.is_archived) continue;
+      const pk = czKey(p.name); if (!pk) continue;
+      if (pk === k) return { p, exact: true };
+      const pw = pk.split(' '), inter = kw.filter(w => pw.includes(w)).length;
+      let sc = inter / Math.max(kw.length, pw.length);
+      if (inter && (inter === kw.length || inter === pw.length)) sc = Math.max(sc, .6);
+      if (Math.min(k.length, pk.length) > 4 && czLev(k, pk) <= 2) sc = Math.max(sc, .8);
+      if (sc > bs) { bs = sc; best = p; }
+    }
+    return bs >= .5 ? { p: best, exact: false, close: bs >= .8 } : null;
+  }
+  const CZM = { open: false, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: 'next', saving: false };
+  const czMod = document.createElement('div'); czMod.className = 'cz-modal-bd cz-imp-bd'; czMod.hidden = true; document.body.appendChild(czMod);
+  function czImport() {
+    Object.assign(CZM, { open: true, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: V.cz === 'recettes' || V.cz === 'recipe' ? 'recipe' : 'next', saving: false });
+    czImpRender(); setTimeout(() => czMod.querySelector('[data-czi-url]')?.focus(), 30);
+  }
+  function czImpClose() { CZM.open = false; czMod.hidden = true; czMod.innerHTML = ''; }
+  function czImpRender() {
+    if (!CZM.open) return czImpClose();
+    czMod.hidden = false;
+    const d = CZM.d, word = CZM.kind === 'next' ? 'l’idée' : 'la recette';
+    let body = '';
+    if (d) {
+      const s = czSrc(CZM.url);
+      const on = CZM.ings.filter(i => i.on);
+      const capShort = (d.caption || '').replace(/\s+/g, ' ').slice(0, 140);
+      body = `<div class="czi-prev">${d.image ? `<div class="czi-im" style="background-image:url('${esc(d.image)}')">` : `<div class="czi-im" style="background:${czGrad(CZM.title || 'x')}">`}${s ? `<span class="cz-src">${esc(s.t === 'ig' ? 'Instagram' : s.t === 'web' ? s.host : s.label)}</span>` : ''}</div>
+        <div class="czi-pt"><input type="text" class="czi-title" data-czi-title value="${esc(CZM.title)}" placeholder="Titre" aria-label="Titre">${d.author ? `<small>@${esc(d.author.replace(/^@/, ''))}</small>` : ''}${capShort ? `<p>« ${esc(capShort)}${(d.caption || '').length > 140 ? '…' : ''} »</p>` : ''}</div></div>
+        <div class="czi-seg v-seg"><button type="button" class="${CZM.kind === 'next' ? 'on' : ''}" data-czi-kind="next">Next</button><button type="button" class="${CZM.kind === 'recipe' ? 'on' : ''}" data-czi-kind="recipe">Recettes</button></div>
+        <div class="czi-sec"><div class="czi-sh">Ingrédients trouvés dans la description${CZM.ings.length ? ` · ${on.length}/${CZM.ings.length}` : ''}</div>
+          ${CZM.ings.length ? CZM.ings.map((i, n) => {
+            const m = i.match;
+            const note = !m ? '<span class="czi-tag new">nouveau</span>' : m.exact ? `<span class="czi-tag ok">déjà dans vos produits</span>` : '';
+            const sim = m && !m.exact && i.on ? `<div class="czi-sim">${CZI_WARN}<span>Ressemble à <b>${esc(m.p.name)}</b></span><div class="czi-ch"><button type="button" class="${i.use === 'old' ? 'on' : ''}" data-czi-use="${n}" data-v="old">Utiliser</button><button type="button" class="${i.use === 'new' ? 'on' : ''}" data-czi-use="${n}" data-v="new">Nouveau</button></div></div>` : '';
+            return `<div class="czi-r${i.on ? '' : ' off'}"><button type="button" class="czv-ck${i.on ? ' on' : ''}" data-czi-on="${n}" aria-label="Garder">${I.check}</button><span class="czi-n">${esc(m && m.exact ? m.p.name : i.name)}</span>${note}<small>${esc(i.qty)}</small></div>${sim}`;
+          }).join('') : '<p class="czi-empty">Aucun ingrédient repéré : vous pourrez les ajouter sur la fiche.</p>'}
+        </div>
+        <div class="czi-sec"><div class="czi-sh">Étapes trouvées · ${CZM.steps.length}</div><p class="czi-empty">${CZM.steps.length ? 'Copiées dans « Recette », modifiables ensuite.' : 'Aucune étape repérée.'}${d.caption ? ' La description complète est gardée sur la fiche.' : ''}</p></div>
+        <button type="button" class="cz-addbtn green" data-czi-create${CZM.saving ? ' disabled' : ''}>${CZM.saving ? 'Création…' : `Créer ${word}${on.length ? ` avec ${on.length} ingrédient${on.length > 1 ? 's' : ''}` : ''}`}</button>`;
+    }
+    czMod.innerHTML = `<div class="cz-modal czi" role="dialog" aria-label="Importer un lien">
+      <div class="cz-modal-head"><b>${CZM.kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</b><button type="button" class="cz-x" data-czi-close aria-label="Fermer">${I.x}</button></div>
+      <form class="czi-paste" data-czi-form><span class="czi-inp">${CZI.link}<input type="url" data-czi-url value="${esc(CZM.url)}" placeholder="Coller un lien Instagram, YouTube ou site" autocomplete="off" aria-label="Lien"></span><button type="submit" class="czi-go"${CZM.busy ? ' disabled' : ''}>${CZM.busy ? 'Lecture…' : 'Lire'}</button></form>
+      ${CZM.err ? `<p class="czi-err">${esc(CZM.err)}</p>` : ''}
+      ${body}
+      ${d ? '' : `<button type="button" class="czi-blank" data-czi-blank>Créer sans lien</button>`}
+    </div>`;
+  }
+  const CZI_WARN = svg('<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/>', ' stroke-width="1.9"');
+  async function czImpRead() {
+    const u = (czMod.querySelector('[data-czi-url]')?.value || '').trim(); CZM.url = u;
+    if (!/^https?:\/\//i.test(u)) { CZM.err = 'Collez un lien complet (https://…).'; return czImpRender(); }
+    CZM.busy = true; CZM.err = ''; czImpRender();
+    try {
+      const d = (await lbLib({ meta: u }))?.[0];
+      if (!d) throw new Error('rien trouvé');
+      const { ings, steps } = czParseCaption(d.caption || '');
+      const seen = new Set();
+      CZM.d = d; CZM.title = (d.title || '').replace(/\s+on Instagram.*$/i, '').trim() || 'Nouvelle recette';
+      CZM.ings = ings.filter(i => { const k = czKey(i.name); if (!k || seen.has(k)) return false; seen.add(k); return true; }).map(i => { const match = czMatchProduct(i.name); return { ...i, match, on: true, use: match && (match.exact || match.close) ? 'old' : 'new' }; });
+      CZM.steps = steps;
+    } catch (e) { CZM.err = 'Lecture impossible (' + (e.message || e) + '). Vous pouvez créer la fiche sans lien.'; }
+    CZM.busy = false; czImpRender();
+  }
+  async function czImpCreate() {
+    if (CZM.saving) return; CZM.saving = true; czImpRender();
+    const d = CZM.d || {};
+    const base = { name: CZM.title.trim() || 'Nouvelle recette', kind: CZM.kind, links: CZM.url ? [CZM.url] : [], images: [], types: [], tags: [], notes: CZM.steps.map((s, i) => `${i + 1}. ${s}`).join('\n') || null };
+    let ins = await sb.from('cuisine_recipes').insert({ ...base, description: d.caption || null }).select().single();
+    if (ins.error && /description|column/i.test(ins.error.message || '')) ins = await sb.from('cuisine_recipes').insert(base).select().single();
+    if (ins.error) { CZM.saving = false; CZM.err = 'Création impossible : ' + ins.error.message; return czImpRender(); }
+    const r = ins.data; CZ.recipes.push(r);
+    // ingrédients : produits existants ou nouveaux
+    const items = [];
+    for (const i of CZM.ings.filter(x => x.on)) {
+      let p = i.match && i.use === 'old' ? i.match.p : null;
+      if (!p) {
+        const { data, error } = await sb.from('cuisine_products').insert({ name: i.name, to_buy: false, rayons: [], kind: 'Alimentation' }).select().single();
+        if (error) continue; CZ.products.push(data); p = data;
+      }
+      if (!items.some(x => x.product_id === p.id)) items.push({ recipe_id: r.id, product_id: p.id, qty: i.qty || null });
+    }
+    if (items.length) {
+      let res = await sb.from('cuisine_recipe_items').insert(items);
+      if (res.error && /qty|column/i.test(res.error.message || '')) res = await sb.from('cuisine_recipe_items').insert(items.map(({ qty, ...x }) => x));
+      if (!res.error) CZ.items.push(...items);
+    }
+    // couverture : copiée dans le stockage (les liens Instagram expirent)
+    if (d.image) {
+      try {
+        const url = await lbStoreImage(await (await fetch(d.image)).blob(), `cuisine/${r.id}/cover`);
+        const patch = { cover_url: url, media: { [CZM.url]: url } };
+        const up = await sb.from('cuisine_recipes').update(patch).eq('id', r.id);
+        if (!up.error) Object.assign(r, patch);
+        else { r.images = [url]; await czUpd('cuisine_recipes', r.id, { images: r.images }); }
+      } catch (e) { console.info('couverture', e); }
+    }
+    czImpClose();
+    czRefreshAll(); if (V.space === 'cuisine') v2Render();
+    czOpen(r.id);
+  }
+  czMod.addEventListener('submit', e => { if (e.target.closest('[data-czi-form]')) { e.preventDefault(); czImpRead(); } });
+  czMod.addEventListener('input', e => { if (e.target.matches('[data-czi-title]')) CZM.title = e.target.value; else if (e.target.matches('[data-czi-url]')) CZM.url = e.target.value; });
+  czMod.addEventListener('paste', e => { if (e.target.matches('[data-czi-url]')) setTimeout(() => { if (/^https?:\/\/\S+$/.test(e.target.value.trim())) czImpRead(); }, 0); });
+  czMod.addEventListener('click', e => {
+    const t = e.target;
+    if (t === czMod || t.closest('[data-czi-close]')) { czImpClose(); return; }
+    if (t.closest('[data-czi-blank]')) { czImpClose(); czNewRecipe(CZM.kind); return; }
+    if (t.closest('[data-czi-create]')) { czImpCreate(); return; }
+    const k = t.closest('[data-czi-kind]'); if (k) { CZM.kind = k.dataset.cziKind; czImpRender(); return; }
+    const o = t.closest('[data-czi-on]'); if (o) { const i = CZM.ings[+o.dataset.cziOn]; i.on = !i.on; czImpRender(); return; }
+    const u = t.closest('[data-czi-use]'); if (u) { CZM.ings[+u.dataset.cziUse].use = u.dataset.v; czImpRender(); return; }
+  });
+  document.addEventListener('keydown', e => { if (CZM.open && e.key === 'Escape') { e.stopImmediatePropagation(); czImpClose(); } }, true);
 
   // ---------- page recette ----------
   const czPage = document.createElement('div');
@@ -12519,7 +12833,7 @@
   czPage.setAttribute('aria-label', 'Recette');
   document.body.appendChild(czPage);
   function czOpen(id, focusTitle) {
-    CZ.open = id;
+    CZ.open = id; CZ.edit = !!focusTitle; CZ.mtab = 'v';
     czRenderPage();
     czPage.classList.add('open');
     document.documentElement.classList.add('cz-page-open');
@@ -12527,7 +12841,7 @@
     if (focusTitle) { const t = czPage.querySelector('[data-czp-name]'); t?.focus(); t?.select(); }
   }
   function czClose() {
-    CZ.open = null;
+    CZ.open = null; CZ.edit = false; czPlayer(null);
     czPage.classList.remove('open');
     document.documentElement.classList.remove('cz-page-open');
     czPage.innerHTML = '';
@@ -12542,9 +12856,142 @@
     if (s.t === 'x') return `<div class="cz-media">${rm}<div class="td-tweet" data-tweet-id="${s.id}"></div></div>`;
     return `<div class="cz-media">${rm}<a class="cz-webcard" href="${esc(url)}" target="_blank" rel="noopener">${CZI.link}<span><b>${esc(s.host)}</b><small>${esc(url)}</small></span></a></div>`;
   }
+  // ---------- fiche recette « lecture » (mobile) ----------
+  const czLinkSrc = u => czSrc(u) || { t: 'web', host: '', label: 'Lien' };
+  const czVideos = r => (r.links || []).filter(u => ['yt', 'ig', 'x'].includes(czSrc(u)?.t));
+  const czWebLinks = r => (r.links || []).filter(u => czSrc(u)?.t === 'web');
+  function czThumbOf(r, u) {
+    const s = czSrc(u); if (!s) return '';
+    const m = r.media && typeof r.media === 'object' ? r.media[u] : '';
+    if (m) return m;
+    if (s.t === 'yt') return `https://i.ytimg.com/vi/${s.id}/hqdefault.jpg`;
+    if (u === (r.links || [])[0] && r.cover_url) return r.cover_url;
+    return '';
+  }
+  function czCoverOf(r) {
+    if (r.cover_url) return r.cover_url;
+    if ((r.images || [])[0]) return r.images[0];
+    for (const u of r.links || []) { const t = czThumbOf(r, u); if (t) return t; }
+    return '';
+  }
+  const czSteps = r => (r.notes || '').split(/\n+/).map(l => l.replace(/^\s*(?:[-•*▪︎·]|\d+\s*[.)\-:]|étape\s*\d+\s*[:.\-]?)\s*/i, '').trim()).filter(Boolean);
+  const czLsArr = k => { const v = LS.get(k, []); return Array.isArray(v) ? v : []; };
+  function czViewHtml(r) {
+    const isNext = r.kind === 'next';
+    const items = CZ.items.filter(i => i.recipe_id === r.id);
+    const ings = items.map(i => ({ p: czProd(i.product_id), qty: i.qty || '' })).filter(x => x.p && !x.p.is_archived).sort((a, b) => czByName(a.p, b.p));
+    const used = czLsArr('cz_used_' + r.id), done = czLsArr('cz_steps_' + r.id);
+    const notBuy = ings.filter(x => !x.p.to_buy).length;
+    const vids = czVideos(r), web = czWebLinks(r), imgs = r.images || [];
+    const cover = czCoverOf(r), steps = czSteps(r);
+    const chips = [isNext && r.importance ? `<span class="imp">${esc(r.importance)}</span>` : '', r.origin ? `<span>${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).slice(0, 2).map(t => `<span>${esc(t)}</span>`)].join('');
+    const tab = CZ.mtab === 'p' && imgs.length ? 'p' : (vids.length ? 'v' : (imgs.length ? 'p' : 'v'));
+    const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"><span class="czv-pl">${CZI.tri}</span><span class="czv-lb">${esc(s.label)}</span></button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
+    const phHtml = imgs.length ? `<div class="czv-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : '<p class="czv-empty">Aucune photo pour l\'instant.</p>';
+    return `
+      <div class="czv-hero"${cover ? ` style="background-image:url('${esc(cover)}')"` : ` style="background:${czGrad(r.name)}"`}>
+        <div class="czv-top">
+          <button type="button" class="czv-rb" data-czp-close aria-label="Retour">${CZI.back}</button>
+          <div class="td-more-wrap">
+            <button type="button" class="czv-rb" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
+            <div class="td-more-menu" data-czp-menu hidden>
+              <button type="button" data-czv-edit>${svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', ' stroke-width="1.9"')}<span>Modifier la fiche</span></button>
+              <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+              <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
+              <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="czv-tt"><h1>${esc(r.name)}</h1>${chips ? `<div class="czv-chips">${chips}</div>` : ''}</div>
+      </div>
+      <div class="czv-body">
+        <section class="czv-card">
+          <div class="czv-seg"><button type="button" class="${tab === 'v' ? 'on' : ''}" data-czv-mtab="v">Vidéos${vids.length ? ` <small>${vids.length}</small>` : ''}</button><button type="button" class="${tab === 'p' ? 'on' : ''}" data-czv-mtab="p">Photos${imgs.length ? ` <small>${imgs.length}</small>` : ''}</button></div>
+          ${tab === 'v' ? vidHtml : phHtml}
+          ${web.length ? `<div class="czv-web">${web.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${CZI.link}<span>${esc(czSrc(u).host)}</span></a>`).join('')}</div>` : ''}
+          <div class="czv-add">${tab === 'v' ? `<input type="url" class="cz-inline-add" data-czp-linkadd placeholder="+ Coller un lien YouTube, Insta, site…" enterkeyhint="done">` : `<button type="button" class="cz-ghost" data-czp-upimg>${CZI.photo}Ajouter une photo</button>`}</div>
+        </section>
+        <section class="czv-card">
+          <div class="czv-sh"><span>Ingrédients${ings.length ? ` · ${ings.length}` : ''}</span>${used.length ? '<button type="button" data-czv-reset="used">Tout décocher</button>' : ''}</div>
+          ${ings.map(({ p, qty }) => { const u = used.includes(p.id); return `<div class="czv-ing${u ? ' used' : ''}">
+              <button type="button" class="czv-ck${u ? ' on' : ''}" data-czv-used="${p.id}" aria-label="${u ? 'Pas encore sorti' : 'Sorti / utilisé'}">${u ? I.check : ''}</button>
+              <span class="czv-in">${esc(p.name)}</span>${qty ? `<span class="czv-q">${esc(qty)}</span>` : ''}
+              <button type="button" class="czv-st ${p.to_buy ? 'b' : ''}" data-cz-toggle="${p.id}" title="Toucher pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button></div>`; }).join('')}
+          <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient" enterkeyhint="done">
+          <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+          ${notBuy ? `<button type="button" class="cz-addbtn green" data-czp-allbuy>${CZI.cart}Mettre les ${notBuy} ingrédient${notBuy > 1 ? 's' : ''} dans les courses</button>` : ''}
+          ${ings.length ? '<p class="czv-hint">Case : sorti / utilisé pour cette fois · pastille : votre stock, relié aux Courses</p>' : ''}
+        </section>
+        <section class="czv-card">
+          <div class="czv-sh"><span>Recette${steps.length ? ` · ${done.filter(i => i < steps.length).length} / ${steps.length}` : ''}</span>${done.length ? '<button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</div>
+          ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}</span></button>`).join('')
+            : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
+        </section>
+        ${r.description ? `<details class="czv-card czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
+      </div>`;
+  }
+  // ---------- lecture d'une vidéo en grand, dans l'app ----------
+  const czPl = document.createElement('div');
+  czPl.className = 'czpl'; czPl.setAttribute('role', 'dialog'); czPl.setAttribute('aria-label', 'Vidéo');
+  document.body.appendChild(czPl);
+  function czPlayerRender() {
+    const P = CZ.player; const r = P && czById(P.id); const vids = r ? czVideos(r) : [];
+    if (!r || !vids.length) { czPl.classList.remove('open'); czPl.innerHTML = ''; return; }
+    const i = Math.max(0, Math.min(P.i, vids.length - 1)), u = vids[i], s = czSrc(u);
+    let frame = '';
+    if (s.t === 'yt') frame = `<div class="czpl-f ${/\/shorts\//.test(u) ? 'v' : 'h'}"><iframe src="https://www.youtube.com/embed/${s.id}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="YouTube"></iframe></div>`;
+    else if (s.t === 'ig') frame = `<div class="czpl-f v ig"><iframe src="https://www.instagram.com/${s.kind}/${s.id}/embed/" scrolling="no" allowtransparency="true" allowfullscreen title="Instagram"></iframe></div>`;
+    else frame = `<div class="czpl-f h x"><div class="td-tweet" data-tweet-id="${s.id}"></div></div>`;
+    czPl.innerHTML = `<button type="button" class="czpl-x" data-czpl-close aria-label="Fermer">${I.x}</button>
+      ${vids.length > 1 ? `<button type="button" class="czpl-nav l" data-czpl-step="-1" aria-label="Précédente"${i ? '' : ' disabled'}>${CZI.back}</button>` : ''}
+      ${frame}
+      ${vids.length > 1 ? `<button type="button" class="czpl-nav r" data-czpl-step="1" aria-label="Suivante"${i < vids.length - 1 ? '' : ' disabled'}>${CZI.back}</button>` : ''}
+      <div class="czpl-meta"><span>${i + 1} / ${vids.length}</span><a href="${esc(u)}" target="_blank" rel="noopener">Ouvrir sur ${esc(s.label)}</a></div>`;
+    czPl.classList.add('open');
+    if (s.t === 'x') mountTweets(czPl);
+  }
+  function czPlayer(id, i) { CZ.player = id == null ? null : { id, i }; czPlayerRender(); }
+  czPl.addEventListener('click', e => {
+    if (e.target === czPl || e.target.closest('[data-czpl-close]')) { czPlayer(null); return; }
+    const st = e.target.closest('[data-czpl-step]'); if (st && CZ.player) { CZ.player.i += +st.dataset.czplStep; czPlayerRender(); }
+  });
+  { let x0 = null; czPl.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+    czPl.addEventListener('touchend', e => { if (x0 == null || !CZ.player) return; const dx = e.changedTouches[0].clientX - x0; x0 = null; if (Math.abs(dx) > 60) { CZ.player.i += dx < 0 ? 1 : -1; czPlayerRender(); } }, { passive: true }); }
+  document.addEventListener('keydown', e => { if (!CZ.player) return; if (e.key === 'Escape') { e.stopImmediatePropagation(); czPlayer(null); } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { CZ.player.i += e.key === 'ArrowRight' ? 1 : -1; czPlayerRender(); } }, true);
+  // ---------- vignettes / couverture des liens Insta et sites (copiées dans le stockage, une fois) ----------
+  const czThumbTried = new Set(); let czThumbBusy = 0; const czThumbQ = [];
+  function czQueueThumbs(r) {
+    if (!r || !r.media || typeof r.media !== 'object') return; // colonne « media » absente : lancer cuisine_v2.sql
+    (r.links || []).forEach(u => { const s = czSrc(u); if (!s || s.t === 'x' || s.t === 'yt' || r.media[u] || czThumbTried.has(u)) return; czThumbTried.add(u); czThumbQ.push([r.id, u]); });
+    czThumbPump();
+  }
+  async function czThumbPump() {
+    while (czThumbBusy < 2 && czThumbQ.length) {
+      const [id, u] = czThumbQ.shift(); czThumbBusy++;
+      (async () => {
+        try {
+          const d = (await lbLib({ meta: u }))?.[0];
+          const r = czById(id);
+          if (d?.image && r) {
+            const url = await lbStoreImage(await (await fetch(d.image)).blob(), `cuisine/${id}/${czSrc(u).t}`);
+            r.media = { ...(r.media || {}), [u]: url };
+            const patch = { media: r.media };
+            if (!r.cover_url && !(r.images || [])[0]) { r.cover_url = url; patch.cover_url = url; }
+            await czUpd('cuisine_recipes', id, patch);
+            if (CZ.open === id) czRenderPage();
+            document.querySelectorAll(`[data-cz-thumb="${id}"]`).forEach(el => { el.outerHTML = czThumb(r); });
+          }
+        } catch (e) { console.info('vignette', e); }
+        czThumbBusy--; czThumbPump();
+      })();
+    }
+  }
   function czRenderPage() {
     const r = czById(CZ.open);
     if (!r) { czClose(); return; }
+    czQueueThumbs(r);
+    if (isMobile() && !CZ.edit) { czPage.classList.add('czv'); czPage.innerHTML = czViewHtml(r); return; } // fiche « lecture »
+    czPage.classList.remove('czv');
     const ings = CZ.items.filter(i => i.recipe_id === r.id).map(i => czProd(i.product_id)).filter(p => p && !p.is_archived).sort(czByName);
     const notBuy = ings.filter(p => !p.to_buy).length;
     const isNext = r.kind === 'next';
@@ -12561,6 +13008,7 @@
           </div>
         </div>
       </div>
+      ${isMobile() ? '<button type="button" class="czv-done" data-czv-edit>Terminer la modification</button>' : ''}
       <div class="cz-page-body">
         <div class="cz-page-main">
           <input type="text" class="cz-page-title" data-czp-name value="${esc(r.name)}" aria-label="Nom de la recette">
@@ -12663,11 +13111,13 @@
     }
     const rv = t.closest('[data-cz-rview]');
     if (rv) { CZ.rview = rv.dataset.czRview; LS.set('cz_rview', CZ.rview); v2Render(); return; }
+    if (t.closest('[data-cz-filters]')) { czFilterSheet(true); return; }
+    if (t.closest('[data-cz-freset]')) { CZ.origin = ''; v2Render(); return; }
     const og = t.closest('[data-cz-origin]');
     if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); return; }
     const im = t.closest('[data-cz-imp]');
     if (im) { CZ.imp = im.dataset.czImp; v2Render(); return; }
-    if (t.closest('[data-cz-newrecipe]')) { czNewRecipe(); return; }
+    if (t.closest('[data-cz-newrecipe]')) { czImport(); return; }
     const op = t.closest('[data-cz-open]');
     if (op) { czOpen(op.dataset.czOpen); return; }
 
@@ -12692,6 +13142,12 @@
       return;
     }
     if (t.closest('[data-czp-upimg]')) { if (menu) menu.hidden = true; czUploadImages(r); return; }
+    if (t.closest('[data-czv-edit]')) { CZ.edit = !CZ.edit; czRenderPage(); czPage.scrollTop = 0; return; }
+    const mt = t.closest('[data-czv-mtab]'); if (mt) { CZ.mtab = mt.dataset.czvMtab; czRenderPage(); return; }
+    const pl = t.closest('[data-czv-play]'); if (pl) { czPlayer(r.id, +pl.dataset.czvPlay); return; }
+    const us = t.closest('[data-czv-used]'); if (us) { const k = 'cz_used_' + r.id, a = czLsArr(k), id = us.dataset.czvUsed; LS.set(k, a.includes(id) ? a.filter(x => x !== id) : [...a, id]); czRenderPage(); return; }
+    const sp = t.closest('[data-czv-step]'); if (sp) { const k = 'cz_steps_' + r.id, a = czLsArr(k), i = +sp.dataset.czvStep; LS.set(k, a.includes(i) ? a.filter(x => x !== i) : [...a, i]); czRenderPage(); return; }
+    const rs = t.closest('[data-czv-reset]'); if (rs) { LS.set((rs.dataset.czvReset === 'used' ? 'cz_used_' : 'cz_steps_') + r.id, []); czRenderPage(); return; }
     const ul = t.closest('[data-czp-unlink]');
     if (ul) {
       const pid = ul.dataset.czpUnlink;
@@ -12780,7 +13236,7 @@
   });
   function czFab() {
     if (V.cz === 'courses') { const i = mroot.querySelector('[data-cz-q]'); i?.focus(); i?.scrollIntoView({ block: 'center' }); }
-    else czNewRecipe();
+    else czImport();
   }
 
   function czFocusState() {

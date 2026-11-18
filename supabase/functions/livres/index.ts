@@ -90,11 +90,56 @@ async function fgSerie(id: string) {
   return x;
 }
 
+// ---------- Cuisine : métadonnées d'un lien (Instagram, YouTube, site de recettes) ----------
+//   POST { meta: "https://www.instagram.com/reel/…" } → { items: [{ title, caption, author, image /* data:… */, src }] }
+const H = (s = '') => s.replace(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCodePoint(parseInt(h, 16))).replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(+n))
+  .replace(/&quot;/g, '"').replace(/&#039;|&#39;|&apos;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&');
+const og = (html: string, k: string) => H((html.match(new RegExp(`<meta[^>]+(?:property|name)="${k}"[^>]+content="([^"]*)"`, 'i')) || html.match(new RegExp(`<meta[^>]+content="([^"]*)"[^>]+(?:property|name)="${k}"`, 'i')) || [])[1] || '');
+async function asDataUrl(url: string) {
+  if (!url) return '';
+  try {
+    const r = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }); if (!r.ok) return '';
+    const b = new Uint8Array(await r.arrayBuffer()); if (b.length > 4_000_000) return '';
+    let bin = ''; for (let i = 0; i < b.length; i += 0x8000) bin += String.fromCharCode(...b.subarray(i, i + 0x8000));
+    return `data:${r.headers.get('content-type') || 'image/jpeg'};base64,${btoa(bin)}`;
+  } catch (_) { return ''; }
+}
+async function linkMeta(url: string) {
+  const ig = url.match(/instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(p|reels?|tv)\/([A-Za-z0-9_-]+)/);
+  if (ig) {
+    const kind = ig[1].startsWith('reel') ? 'reel' : ig[1];
+    const out: any = { src: 'ig', title: '', caption: '', author: '', image: '' };
+    try { // page « embed » : légende complète + image
+      const h = await (await fetch(`https://www.instagram.com/${kind}/${ig[2]}/embed/captioned/`)).text();
+      const cap = (h.match(/<div class="Caption">([\s\S]*?)<div class="CaptionComments">/) || h.match(/<div class="Caption">([\s\S]*?)<\/div>/) || [])[1] || '';
+      out.author = H((cap.match(/class="CaptionUsername"[^>]*>([^<]+)</) || [])[1] || '').trim();
+      out.caption = H(cap.replace(/<a class="CaptionUsername"[\s\S]*?<\/a>/, '').replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '')).replace(/[ \t]+/g, ' ').replace(/\n /g, '\n').trim();
+      out.imgUrl = H((h.match(/class="EmbeddedMediaImage"[^>]*src="([^"]+)"/) || [])[1] || '');
+    } catch (_) { /* ignore */ }
+    try { // page publique (aperçu de partage) : titre + image en meilleure qualité
+      const h = await (await fetch(`https://www.instagram.com/${kind}/${ig[2]}/`, { headers: { 'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)' } })).text();
+      out.ogTitle = og(h, 'og:title'); out.imgUrl = og(h, 'og:image') || out.imgUrl;
+      if (!out.caption) out.caption = (og(h, 'og:description').match(/: "([\s\S]*)"\s*$/) || [])[1] || '';
+    } catch (_) { /* ignore */ }
+    out.image = await asDataUrl(out.imgUrl); delete out.imgUrl;
+    out.title = (out.caption.split('\n').map((l: string) => l.trim()).find((l: string) => l && !/^[#@]/.test(l)) || '').replace(/[#@]\S+/g, '').trim().slice(0, 80);
+    return out;
+  }
+  const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (yt) {
+    const o = await (await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent('https://www.youtube.com/watch?v=' + yt[1])}`)).json().catch(() => ({}));
+    return { src: 'yt', title: o.title || '', author: o.author_name || '', caption: '', image: await asDataUrl(`https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`) };
+  }
+  const h = await (await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UltimateDashboard/1.0)' } })).text();
+  return { src: 'web', title: og(h, 'og:title') || tag(h, 'title'), author: og(h, 'og:site_name'), caption: og(h, 'og:description') || og(h, 'description'), image: await asDataUrl(og(h, 'og:image')) };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : Object.fromEntries(new URL(req.url).searchParams);
     let items: any[] = [];
+    if (body.meta) return new Response(JSON.stringify({ items: [await linkMeta(String(body.meta))] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (body.fg) return new Response(JSON.stringify({ items: await fgSearch(String(body.fg)) }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (body.fgId) return new Response(JSON.stringify({ items: [await fgSerie(String(body.fgId))] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (Array.isArray(body.eans) && body.eans.length) {
