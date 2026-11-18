@@ -1875,6 +1875,7 @@
   }
   .v-side::-webkit-scrollbar { display: none; }
   .v-brand { display: flex; align-items: center; gap: 10px; padding: 2px 6px 2px; }
+  .v-brand [data-v-home] { cursor: pointer; }
   .v-brand-mark {
     width: 32px; height: 32px; border-radius: 9px; background: var(--v-ink); color: #fff; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 700;
@@ -10806,8 +10807,8 @@
 
     return `
       <div class="v-brand">
-        <div class="v-brand-mark">${esc(Array.from(appTitle)[0] || '天')}</div>
-        <div style="min-width:0"><div class="v-brand-name" data-app-title-text>${esc(appTitle)}</div><div class="v-brand-sub">${esc(computeSidebarDateLabel())}</div></div>
+        <div class="v-brand-mark" data-v-home title="Accueil">${esc(Array.from(appTitle)[0] || '天')}</div>
+        <div style="min-width:0" data-v-home title="Accueil"><div class="v-brand-name" data-app-title-text>${esc(appTitle)}</div><div class="v-brand-sub">${esc(computeSidebarDateLabel())}</div></div>
         ${isMobile() ? `<button type="button" class="v-sync" data-v-sync aria-label="Synchroniser l'app" title="Synchroniser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>` : ''}
       </div>
       <div class="v-quick">
@@ -11754,7 +11755,7 @@
       const row = e.target.closest('#v2 .v-row[data-v-open]');
       if (row) { e.preventDefault(); e.stopPropagation(); selClick(row.dataset.vOpen, e.shiftKey); return; }
     } else if (e.target.closest('[data-v-selmode]')) { selToggleMode(true); return; }
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-prio],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
+    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-home],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-prio],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
@@ -11783,12 +11784,14 @@
       const q = d.vQuick;
       if (q === 'new') { openNew(contextDate()); return; }
       if (q === 'fav') { setFilter(V.fav ? {} : { fav: true }); return; }
-      V.view = 'list'; LS.set('view', 'list');
+      // Aujourd'hui / En retard : vue Kanban (toutes les colonnes), positionnée sur la bonne colonne
+      V.view = 'kanban'; LS.set('view', 'kanban');
       const tab = q === 'late' ? 'o' : 't';
-      V.dTab = tab; V.mTab = tab; LS.set('dtab', tab);
+      V.dTab = tab; V.mTab = tab; V.mKcol = KTAB_COL[tab]; LS.set('dtab', tab);
       setFilter({});
       return;
     }
+    if (d.vHome !== undefined) { V.view = 'kanban'; LS.set('view', 'kanban'); V.dTab = 't'; V.mTab = 't'; V.mKcol = KTAB_COL.t; setFilter({}); return; } // logo / nom de l'app = accueil (Kanban)
     if (d.vView) { V.space = null; V.view = d.vView; LS.set('view', V.view); v2Render(); return; }
     if (d.vDtab) { V.dTab = d.vDtab; LS.set('dtab', V.dTab); v2Render(); return; }
     if (d.vMtab) {
