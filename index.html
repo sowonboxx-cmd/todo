@@ -3478,10 +3478,79 @@
   .cz-rc2 b { display: block; font-size: 14.5px; font-weight: 600; padding: 9px 11px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cz-rc2 small { display: block; font-size: 12px; color: #8a8a87; padding: 0 11px 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cz-rc2 b:last-child { padding-bottom: 11px; }
-  .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .cz-rc2 .cz-src, .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
   .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); color: #1f1f1f; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
   .cz-cnt svg { width: 11px; height: 11px; }
   .cz-impb { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 7px; background: #F1F0EC; color: #555; }
+
+  /* liste ordinateur (maquette validée) */
+  .cz-grid2 { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+  #v2 .cz-rc2 { border: 1px solid var(--v-line); transition: box-shadow .15s; }
+  #v2 .cz-rc2:hover { box-shadow: 0 6px 20px rgba(0,0,0,.07); }
+  #v2 .cz-rc2 .cz-th { height: 170px; }
+  /* pays : drapeau en rectangle arrondi */
+  .czf { width: 22px; height: 15px; border-radius: 4px; overflow: hidden; flex-shrink: 0; display: inline-flex; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); vertical-align: -3px; }
+  .czf svg { width: 100%; height: 100%; display: block; }
+  .czf.none { background: #E6E4DE; color: #777; font: 700 8.5px 'Inter', sans-serif; align-items: center; justify-content: center; letter-spacing: .02em; }
+  .czo-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 1; }
+  .czo { display: inline-flex; align-items: center; gap: 8px; border: none; padding: 7px 12px 7px 9px; border-radius: 11px; background: var(--v-soft, #F5F4F1); font: 500 14px 'Inter', sans-serif; color: #333; cursor: pointer; }
+  .czo small { color: #9a9a9a; font-size: 12.5px; }
+  .czo:first-child { padding-left: 12px; }
+  .czo.on { background: #1f1f1f; color: #fff; } .czo.on small { color: #aaa; }
+  .czo-all { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 11px; border: 1.5px solid #E2E0DA; background: #fff; font: 600 14px 'Inter', sans-serif; color: #333; cursor: pointer; }
+  .czo-all svg { width: 15px; height: 15px; }
+  .czo-all b { background: #1f1f1f; color: #fff; font-size: 11px; border-radius: 9px; padding: 1px 6px; }
+  .v-stmenu.czo-pop { width: 300px; padding: 8px; max-height: min(460px, 70vh); display: flex; flex-direction: column; }
+  .czo-q { display: flex; align-items: center; gap: 8px; background: #F5F4F1; border-radius: 10px; padding: 0 10px; margin-bottom: 4px; }
+  .czo-q svg { width: 15px; height: 15px; color: #999; flex-shrink: 0; }
+  .czo-q input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: 400 14px 'Inter', sans-serif; padding: 9px 0; color: #1f1f1f; }
+  .czo-h { font: 700 11px 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #999; padding: 8px 8px 4px; }
+  .czo-list { overflow-y: auto; display: flex; flex-direction: column; }
+  .czo-r { display: flex; align-items: center; gap: 10px; border: none; background: none; padding: 8px; border-radius: 9px; font: 400 14px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; text-align: left; }
+  .czo-r:hover { background: #F5F4F1; } .czo-r.on { background: #F1EFEA; font-weight: 600; }
+  .czo-r small { margin-left: auto; color: #999; font-size: 12.5px; }
+  .czo-none { margin: 6px 8px; font-size: 13px; color: #999; }
+  /* fiche recette ordinateur (A2) */
+  .cz-page.czv.czd { background: #fff; }
+  .czd-top { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 14px 24px; background: rgba(255,255,255,.94); backdrop-filter: blur(8px); font-size: 14px; color: #8b8b8b; }
+  .czd-top b { color: #1f1f1f; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .czd-crumb { display: inline-flex; align-items: center; gap: 4px; border: none; background: none; font: 500 14px 'Inter', sans-serif; color: #8b8b8b; cursor: pointer; padding: 4px 6px 4px 0; }
+  .czd-crumb:hover { color: #1f1f1f; } .czd-crumb svg { width: 16px; height: 16px; }
+  .czd-more { margin-left: auto; }
+  .czd-top .cz-x svg { width: 16px; height: 16px; }
+  .czd-body { max-width: 1280px; margin: 0 auto; padding: 4px 24px 60px; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+  .czd-media, .czd-side { min-width: 0; }
+  .czd-h { display: flex; align-items: center; justify-content: space-between; font: 700 11.5px 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #8b8b8b; margin-bottom: 10px; min-height: 30px; }
+  .czd-arw { display: flex; gap: 6px; }
+  .czd-arw button { width: 30px; height: 30px; border-radius: 50%; border: none; background: #F1EFEA; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #333; padding: 0; }
+  .czd-arw svg { width: 15px; height: 15px; } .czd-arw .r svg { transform: rotate(180deg); }
+  .czd-strip { display: flex; gap: 10px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+  .czd-strip::-webkit-scrollbar { display: none; }
+  .czd-strip .czv-vid { width: calc((100% - 30px) / 4); aspect-ratio: 104 / 176; border-radius: 14px; }
+  .czd-addv { background: #FAF9F6 !important; border: 1.5px dashed #D3D0C9 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: #777; font: 600 13px 'Inter', sans-serif; }
+  .czd-addv svg { width: 22px; height: 22px; }
+  .czd-links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  .czd-links a { display: inline-flex; align-items: center; gap: 7px; padding: 7px 11px; border-radius: 10px; background: #F5F4F1; color: #1f1f1f; text-decoration: none; font-size: 13.5px; }
+  .czd-links a svg { width: 15px; height: 15px; }
+  .czd-links .cz-inline-add { flex: 1; min-width: 220px; margin: 0; }
+  .czd-dv { border-top: 1px solid #ECEAE5; margin: 18px 0 14px; }
+  .czd-padd { display: inline-flex; align-items: center; gap: 6px; border: none; background: #F1EFEA; border-radius: 9px; padding: 6px 11px; font: 600 12.5px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; text-transform: none; letter-spacing: 0; }
+  .czd-padd svg { width: 14px; height: 14px; }
+  .czd-mas { columns: 3; column-gap: 8px; }
+  .czd-mas img { width: 100%; display: block; margin-bottom: 8px; border-radius: 12px; break-inside: avoid; cursor: zoom-in; }
+  .czd-side { position: sticky; top: 64px; display: flex; flex-direction: column; gap: 14px; }
+  .czd-title { font: 800 34px/1.1 'Inter', sans-serif; letter-spacing: -.02em; margin: 0; text-wrap: balance; }
+  .czd-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: -4px; }
+  .czd-chips > span { display: inline-flex; align-items: center; gap: 7px; font: 600 12.5px 'Inter', sans-serif; padding: 6px 10px; border-radius: 8px; background: #F1EFEA; color: #555; }
+  .czd-chips .imp-high { background: #FDE8E6; color: #C8342B; } .czd-chips .imp-medium { background: #FFF2DE; color: #B26A00; } .czd-chips .imp-low { background: #E7F3EA; color: #2E7D4A; }
+  .czd-card { background: #FAF9F6; border-radius: 16px; padding: 16px; }
+  .czd-card .czv-ing:first-of-type, .czd-card .czv-step:first-of-type { border-top: none; }
+  .czd-allbuy, .czd-cnt button, .czd-lnk { border: none; background: none; font: 600 12.5px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; text-transform: none; letter-spacing: 0; padding: 0; }
+  .czd-cnt { text-transform: none; letter-spacing: 0; color: #1f1f1f; font-size: 12.5px; font-weight: 600; }
+  .czd-cnt button { color: #2B5FD9; }
+  .czd-allbuy:hover, .czd-lnk:hover { text-decoration: underline; }
+  .czd-card .cz-inline-add { margin-top: 8px; }
+  @media (max-width: 1100px) { .czd-body { grid-template-columns: 1fr; } .czd-side { position: static; order: -1; } }
   /* import d'un lien */
   .cz-imp-bd[hidden] { display: none; }
   .cz-imp-bd { --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-soft2: #EDEBE6; --v-chip: #ECEAE4; --v-card: #fff; --v-green: #2F9E5B; --v-red: #C8342B; z-index: 2100; }
@@ -3631,7 +3700,13 @@
   .czv-done { display: block; width: calc(100% - 36px); margin: 4px 18px 0; padding: 11px; border: none; border-radius: 12px; background: #1f1f1f; color: #fff; font: 600 14px 'Inter', sans-serif; cursor: pointer; }
   /* lecture vidéo en grand */
   .czpl { position: fixed; inset: 0; z-index: 2600; background: rgba(12,12,12,.92); display: none; align-items: center; justify-content: center; }
-  .czpl.open { display: flex; }
+  .czpl.open { display: flex; gap: 34px; }
+  .czpl-peek { width: 190px; aspect-ratio: 9 / 16; border-radius: 16px; border: none; padding: 0; background-size: cover; background-position: center; opacity: .35; transform: scale(.9); cursor: pointer; flex-shrink: 0; transition: opacity .15s; }
+  span.czpl-peek { visibility: hidden; }
+  .czpl-peek:hover { opacity: .6; }
+  @media (max-width: 1100px) { .czpl-peek { display: none; } }
+  @media (min-width: 900px) { .czv-done { width: auto; display: inline-block; margin: 2px 0 6px 24px; padding: 9px 18px; } }
+  @media (min-width: 1101px) { .czpl-f.h { width: min(calc(100vw - 560px), 960px); } }
   .czpl-f { position: relative; background: #000; border-radius: 14px; overflow: hidden; }
   .czpl-f iframe { width: 100%; height: 100%; border: none; display: block; background: #fff; }
   .czpl-f.v { width: min(92vw, 420px, calc((100dvh - 150px) * 9 / 16)); aspect-ratio: 9 / 16; }
@@ -12590,18 +12665,80 @@
     } else rows.sort(czByName);
     return rows;
   }
-  function czThumb(r) {
+
+  // ---------- drapeaux (dessinés, rectangle arrondi) : « Coréen », « Corée », « korea »… → même drapeau ----------
+  const CZ_FLAGS = {
+    cn: '<rect width="30" height="20" fill="#DE2910"/><path d="M6 3l1 3h3l-2.5 2 1 3L6 9 3.5 11l1-3L2 6h3z" fill="#FFDE00"/>',
+    it: '<rect width="10" height="20" fill="#009246"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE2B37"/>',
+    jp: '<rect width="30" height="20" fill="#fff"/><circle cx="15" cy="10" r="5.5" fill="#BC002D"/>',
+    fr: '<rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/>',
+    th: '<rect width="30" height="20" fill="#A51931"/><rect y="3.3" width="30" height="13.4" fill="#F4F5F8"/><rect y="6.7" width="30" height="6.6" fill="#2D2A4A"/>',
+    kr: '<rect width="30" height="20" fill="#fff"/><path d="M10 10a5 5 0 0 1 10 0z" fill="#CD2E3A"/><path d="M10 10a5 5 0 0 0 10 0z" fill="#0047A0"/>',
+    mx: '<rect width="10" height="20" fill="#006847"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#CE1126"/><circle cx="15" cy="10" r="2.2" fill="#8C6A2C"/>',
+    cm: '<rect width="10" height="20" fill="#007A5E"/><rect x="10" width="10" height="20" fill="#CE1126"/><rect x="20" width="10" height="20" fill="#FCD116"/><path d="M15 7l.8 2.3h2.4l-2 1.4.8 2.3-2-1.4-2 1.4.8-2.3-2-1.4h2.4z" fill="#FCD116"/>',
+    in: '<rect width="30" height="20" fill="#fff"/><rect width="30" height="6.7" fill="#FF9933"/><rect y="13.3" width="30" height="6.7" fill="#138808"/><circle cx="15" cy="10" r="2.4" fill="none" stroke="#000080" stroke-width=".8"/>',
+    lb: '<rect width="30" height="20" fill="#ED1C24"/><rect y="5" width="30" height="10" fill="#fff"/><path d="M15 6.5l3 6h-6z" fill="#00A651"/>',
+    vn: '<rect width="30" height="20" fill="#DA251D"/><path d="M15 5l1.4 4.2h4.4l-3.6 2.6 1.4 4.2-3.6-2.6-3.6 2.6 1.4-4.2-3.6-2.6h4.4z" fill="#FF0"/>',
+    es: '<rect width="30" height="20" fill="#AA151B"/><rect y="5" width="30" height="10" fill="#F1BF00"/>',
+    gr: '<rect width="30" height="20" fill="#0D5EAF"/><path d="M0 3h30M0 7h30M0 11h30M0 15h30" stroke="#fff" stroke-width="2"/><rect width="11" height="9" fill="#0D5EAF"/><path d="M5.5 0v9M0 4.5h11" stroke="#fff" stroke-width="2"/>',
+    ma: '<rect width="30" height="20" fill="#C1272D"/><path d="M15 6l1.2 3.6h3.6l-3 2.2 1.2 3.6-3-2.2-3 2.2 1.2-3.6-3-2.2h3.6z" fill="none" stroke="#006233" stroke-width=".9"/>',
+    pe: '<rect width="10" height="20" fill="#D91023"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#D91023"/>',
+    sn: '<rect width="10" height="20" fill="#00853F"/><rect x="10" width="10" height="20" fill="#FDEF42"/><rect x="20" width="10" height="20" fill="#E31B23"/><path d="M15 7.5l.7 2h2.1l-1.7 1.2.7 2-1.8-1.2-1.8 1.2.7-2-1.7-1.2h2.1z" fill="#00853F"/>',
+    us: '<rect width="30" height="20" fill="#B22234"/><path d="M0 2.3h30M0 5.4h30M0 8.5h30M0 11.6h30M0 14.7h30M0 17.8h30" stroke="#fff" stroke-width="1.5"/><rect width="13" height="10.8" fill="#3C3B6E"/>',
+    tr: '<rect width="30" height="20" fill="#E30A17"/><circle cx="12" cy="10" r="5" fill="#fff"/><circle cx="13.3" cy="10" r="4" fill="#E30A17"/>',
+    gb: '<rect width="30" height="20" fill="#012169"/><path d="M0 0l30 20M30 0L0 20" stroke="#fff" stroke-width="4"/><path d="M0 0l30 20M30 0L0 20" stroke="#C8102E" stroke-width="1.5"/><path d="M15 0v20M0 10h30" stroke="#fff" stroke-width="6"/><path d="M15 0v20M0 10h30" stroke="#C8102E" stroke-width="3.5"/>',
+    de: '<rect width="30" height="7" fill="#000"/><rect y="6.7" width="30" height="6.7" fill="#DD0000"/><rect y="13.3" width="30" height="6.7" fill="#FFCE00"/>',
+    pt: '<rect width="30" height="20" fill="#FF0000"/><rect width="12" height="20" fill="#006600"/><circle cx="12" cy="10" r="3.2" fill="#FFCC00"/>',
+    br: '<rect width="30" height="20" fill="#009C3B"/><path d="M15 3l11 7-11 7-11-7z" fill="#FFDF00"/><circle cx="15" cy="10" r="3.6" fill="#002776"/>',
+    ci: '<rect width="10" height="20" fill="#F77F00"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#009E60"/>',
+    ng: '<rect width="10" height="20" fill="#008751"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#008751"/>',
+    id: '<rect width="30" height="10" fill="#CE1126"/><rect y="10" width="30" height="10" fill="#fff"/>',
+    ph: '<rect width="30" height="10" fill="#0038A8"/><rect y="10" width="30" height="10" fill="#CE1126"/><path d="M0 0l13 10L0 20z" fill="#fff"/>',
+    tw: '<rect width="30" height="20" fill="#FE0000"/><rect width="15" height="10" fill="#000095"/><circle cx="7.5" cy="5" r="2.3" fill="#fff"/>',
+    ht: '<rect width="30" height="10" fill="#00209F"/><rect y="10" width="30" height="10" fill="#D21034"/>',
+    dz: '<rect width="15" height="20" fill="#006233"/><rect x="15" width="15" height="20" fill="#fff"/><circle cx="15" cy="10" r="4.5" fill="#D21034"/><circle cx="16.3" cy="10" r="3.6" fill="#fff"/>',
+    tn: '<rect width="30" height="20" fill="#E70013"/><circle cx="15" cy="10" r="5" fill="#fff"/><circle cx="15.8" cy="10" r="3.4" fill="#E70013"/><circle cx="16.6" cy="10" r="2.8" fill="#fff"/>',
+    jm: '<rect width="30" height="20" fill="#009B3A"/><path d="M0 0l30 20M30 0L0 20" stroke="#FED100" stroke-width="3.5"/><path d="M0 0v20l13-10zM30 0v20l-13-10z" fill="#000"/>',
+  };
+  const CZ_FLAG_KEYS = [['cn', 'chin'], ['it', 'ital'], ['jp', 'japon'], ['fr', 'fran'], ['th', 'thai'], ['kr', 'core'], ['kr', 'korea'], ['mx', 'mexi'], ['cm', 'camer'], ['in', 'inde'], ['in', 'indien'], ['lb', 'liban'], ['vn', 'viet'], ['es', 'espagn'], ['gr', 'grec'], ['gr', 'grece'], ['ma', 'maroc'], ['pe', 'peru'], ['sn', 'senegal'], ['us', 'americ'], ['us', 'etats'], ['us', 'usa'], ['us', 'hawai'], ['tr', 'turc'], ['tr', 'turqu'], ['gb', 'angl'], ['gb', 'royaume'], ['gb', 'brit'], ['de', 'allem'], ['pt', 'portug'], ['br', 'bresil'], ['ci', 'ivoir'], ['ci', 'cote'], ['ng', 'nigeria'], ['id', 'indones'], ['ph', 'philipp'], ['tw', 'taiw'], ['ht', 'haiti'], ['dz', 'alger'], ['tn', 'tunis'], ['jm', 'jamai']];
+  function czFlag(origin) {
+    const n = czNorm(origin).replace(/[^a-z]/g, '');
+    const k = (CZ_FLAG_KEYS.find(([, w]) => n.startsWith(w)) || [])[0];
+    return k ? `<span class="czf"><svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${CZ_FLAGS[k]}</svg></span>` : `<span class="czf none">${esc((origin || '?').slice(0, 2).toUpperCase())}</span>`;
+  }
+  function czOriginBar() {
+    const all = CZ.recipes.filter(r => r.kind !== 'next');
+    const cnt = {}; all.forEach(r => { if (r.origin) cnt[r.origin] = (cnt[r.origin] || 0) + 1; });
+    const ors = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a] || a.localeCompare(b, 'fr'));
+    const top = ors.slice(0, 7); if (CZ.origin && !top.includes(CZ.origin)) top.push(CZ.origin);
+    const chip = o => `<button type="button" class="czo${CZ.origin === o ? ' on' : ''}" data-cz-origin="${esc(o)}">${czFlag(o)}<span>${esc(o)}</span><small>${cnt[o] || 0}</small></button>`;
+    return `<div class="czo-bar"><button type="button" class="czo${CZ.origin ? '' : ' on'}" data-cz-origin=""><span>Tout</span><small>${all.length}</small></button>${top.map(chip).join('')}
+      ${ors.length > 7 ? `<button type="button" class="czo-all" data-cz-allorigins>${LBI.filter}<span>Tous les pays</span><b>${ors.length}</b></button>` : ''}</div>`;
+  }
+  function czOriginPop(anchor) {
+    const all = CZ.recipes.filter(r => r.kind !== 'next');
+    const cnt = {}; all.forEach(r => { if (r.origin) cnt[r.origin] = (cnt[r.origin] || 0) + 1; });
+    const ors = Object.keys(cnt).sort((a, b) => a.localeCompare(b, 'fr'));
+    const rows = q => ors.filter(o => !q || czNorm(o).includes(czNorm(q))).map(o => `<button type="button" role="menuitemradio" aria-checked="${CZ.origin === o}" class="czo-r${CZ.origin === o ? ' on' : ''}" data-cz-origin="${esc(o)}">${czFlag(o)}<span>${esc(o)}</span><small>${cnt[o]}</small></button>`).join('') || '<p class="czo-none">Aucun pays.</p>';
+    const { m, close } = floatMenu(anchor, `<label class="czo-q">${I.search}<input type="text" placeholder="Chercher un pays…" autocomplete="off" aria-label="Chercher un pays"></label><div class="czo-h">${ors.length} pays</div><div class="czo-list">${rows('')}</div>`, 'czo-pop');
+    const inp = m.querySelector('input'), list = m.querySelector('.czo-list');
+    inp.addEventListener('input', () => { list.innerHTML = rows(inp.value); });
+    m.addEventListener('click', e => { const b = e.target.closest('[data-cz-origin]'); if (b) { CZ.origin = b.dataset.czOrigin; close(); v2Render(); } });
+    m.style.left = Math.max(8, Math.min(anchor.getBoundingClientRect().right - m.offsetWidth, window.innerWidth - m.offsetWidth - 12)) + 'px';
+    setTimeout(() => inp.focus(), 20);
+  }
+  function czThumb(r, rowPlay) {
     const mob = isMobile();
     const s = czSrc((r.links || [])[0]);
     const cover = czCoverOf(r);
     if (!cover) czQueueThumbs(r);
     const grad = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
     const bg = cover ? `${grad}<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()">` : grad;
-    const play = !mob && s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
+    const play = rowPlay && !mob && s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
     const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.t === 'ig' ? 'Instagram' : s.label)}</span>` : '';
-    const nv = mob ? czVideos(r).length : 0;
+    const nv = czVideos(r).length;
     const cnt = nv > 1 ? `<span class="cz-cnt">${CZI.tri}${nv}</span>` : '';
-    const imp = mob && r.kind === 'next' && r.importance ? `<span class="cz-impb imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '';
+    const imp = r.kind === 'next' && r.importance ? `<span class="cz-impb imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '';
     return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}${imp}${cnt}</div>`;
   }
   function czPills(r) {
@@ -12619,6 +12756,7 @@
     const nf = kind === 'recipe' && CZ.origin ? 1 : 0;
     const chips = kind === 'recipe' && mobile
       ? `<button type="button" class="lb-filt${nf ? ' on' : ''}" data-cz-filters>${LBI.filter}<span>${nf ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`
+      : kind === 'recipe' ? czOriginBar()
       : kind === 'next'
       ? ['', ...CZ_IMP].map(v => `<button type="button" class="cz-chip${CZ.imp === v ? ' on' : ''}" data-cz-imp="${v}">${v || 'Toutes'}${v ? ` <small>${all.filter(r => r.importance === v).length}</small>` : ''}</button>`).join('')
       : ['', ...[...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'))].map(v => `<button type="button" class="cz-chip${CZ.origin === v ? ' on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Tout')}</button>`).join('');
@@ -12646,9 +12784,9 @@
     const rows = czRecipeRows(kind);
     if (!rows.length) return `<div class="v-empty">${CZ.rq ? 'Aucun résultat.' : 'Rien ici pour l’instant.'}</div>`;
     if (CZ.rview === 'list') {
-      return `<div class="cz-card">${rows.map(r => `<div class="cz-rrow" data-cz-open="${r.id}">${czThumb(r)}<div class="cz-rrow-body"><b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div></div>`).join('')}</div>`;
+      return `<div class="cz-card">${rows.map(r => `<div class="cz-rrow" data-cz-open="${r.id}">${czThumb(r, true)}<div class="cz-rrow-body"><b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div></div>`).join('')}</div>`;
     }
-    if (isMobile()) return `<div class="cz-grid cz-grid2">${rows.map(r => { const sub = [r.origin, r.minutes ? r.minutes + ' min' : ''].filter(Boolean).join(' · '); return `<div class="cz-rc2" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`; }).join('')}</div>`;
+    return `<div class="cz-grid cz-grid2">${rows.map(r => { const sub = [r.origin, r.minutes ? r.minutes + ' min' : ''].filter(Boolean).join(' · '); return `<div class="cz-rc2" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`; }).join('')}</div>`;
     return `<div class="cz-grid">${rows.map(r => `<div class="cz-rc" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div>`).join('')}</div>`;
   }
   async function czNewRecipe(k) {
@@ -12887,6 +13025,7 @@
     const chips = [isNext && r.importance ? `<span class="imp">${esc(r.importance)}</span>` : '', r.origin ? `<span>${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).slice(0, 2).map(t => `<span>${esc(t)}</span>`)].join('');
     const tab = CZ.mtab === 'p' && imgs.length ? 'p' : (vids.length ? 'v' : (imgs.length ? 'p' : 'v'));
     const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"><span class="czv-pl">${CZI.tri}</span><span class="czv-lb">${esc(s.label)}</span></button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
+    if (!isMobile()) return czDeskViewHtml(r, { isNext, ings, used, done, notBuy, vids, web, imgs, steps });
     const phHtml = imgs.length ? `<div class="czv-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : '<p class="czv-empty">Aucune photo pour l\'instant.</p>';
     return `
       <div class="czv-hero"${cover ? ` style="background-image:url('${esc(cover)}')"` : ` style="background:${czGrad(r.name)}"`}>
@@ -12930,6 +13069,58 @@
         ${r.description ? `<details class="czv-card czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
       </div>`;
   }
+  // ---------- fiche recette « lecture » (ordinateur) : vidéos en haut, photos dessous, ingrédients et recette à droite ----------
+  function czDeskViewHtml(r, o) {
+    const { isNext, ings, used, done, notBuy, vids, web, imgs, steps } = o;
+    const chips = [isNext && r.importance ? `<span class="imp imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '', r.origin ? `<span>${czFlag(r.origin)}${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).map(t => `<span>${esc(t)}</span>`), ...(r.tags || []).map(t => `<span>${esc(t)}</span>`)].join('');
+    const vcards = vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"><span class="czv-pl">${CZI.tri}</span><span class="czv-lb">${esc(s.label)}</span></button>`; }).join('');
+    const addTile = vids.length < 4 ? `<button type="button" class="czv-vid czd-addv" data-czd-addvid>${I.plus}<span>Ajouter une vidéo</span></button>` : '';
+    const arrows = vids.length > 4 ? `<div class="czd-arw"><button type="button" data-czd-scroll="-1" aria-label="Précédentes">${CZI.back}</button><button type="button" class="r" data-czd-scroll="1" aria-label="Suivantes">${CZI.back}</button></div>` : '';
+    return `
+      <div class="czd-top">
+        <button type="button" class="czd-crumb" data-czp-close>${CZI.back}<span>${isNext ? 'Next recettes' : 'Recettes'}</span></button><span class="czd-sep">›</span><b>${esc(r.name)}</b>
+        <div class="td-more-wrap czd-more">
+          <button type="button" class="cz-x" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
+          <div class="td-more-menu" data-czp-menu hidden>
+            <button type="button" data-czv-edit>${svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', ' stroke-width="1.9"')}<span>Modifier la fiche</span></button>
+            <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+            <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
+            <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
+          </div>
+        </div>
+        <button type="button" class="cz-x" data-czp-close aria-label="Fermer">${I.x}</button>
+      </div>
+      <div class="czd-body">
+        <div class="czd-media">
+          <div class="czd-h"><span>Vidéos${vids.length ? ` · ${vids.length}` : ''}</span>${arrows}</div>
+          <div class="czd-strip" data-czd-strip>${vcards}${addTile}</div>
+          <div class="czd-links">${web.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${CZI.link}<span>${esc(czSrc(u).host)}</span></a>`).join('')}<input type="url" class="cz-inline-add" data-czp-linkadd placeholder="+ Coller un lien YouTube, Insta, site…" enterkeyhint="done"></div>
+          <div class="czd-dv"></div>
+          <div class="czd-h"><span>Photos${imgs.length ? ` · ${imgs.length}` : ''}</span><button type="button" class="czd-padd" data-czp-upimg>${I.plus}Ajouter</button></div>
+          ${imgs.length ? `<div class="czd-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : '<p class="czv-empty">Vos photos de la recette iront ici.</p>'}
+        </div>
+        <div class="czd-side">
+          <h1 class="czd-title">${esc(r.name)}</h1>
+          ${chips ? `<div class="czd-chips">${chips}</div>` : ''}
+          <section class="czd-card">
+            <div class="czv-sh"><span>Ingrédients${ings.length ? ` · ${ings.length}` : ''}</span>${notBuy ? `<button type="button" class="czd-allbuy" data-czp-allbuy>Mettre les ${notBuy} dans les courses</button>` : used.length ? '<button type="button" data-czv-reset="used">Tout décocher</button>' : ''}</div>
+            ${ings.map(({ p, qty }) => { const u = used.includes(p.id); return `<div class="czv-ing${u ? ' used' : ''}">
+                <button type="button" class="czv-ck${u ? ' on' : ''}" data-czv-used="${p.id}" aria-label="${u ? 'Pas encore sorti' : 'Sorti / utilisé'}">${u ? I.check : ''}</button>
+                <span class="czv-in">${esc(p.name)}</span>${qty ? `<span class="czv-q">${esc(qty)}</span>` : ''}
+                <button type="button" class="czv-st ${p.to_buy ? 'b' : ''}" data-cz-toggle="${p.id}" title="Cliquer pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button></div>`; }).join('')}
+            <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient" enterkeyhint="done">
+            <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+            ${ings.length ? `<p class="czv-hint">Case : sorti / utilisé pour cette fois · pastille : votre stock, relié aux Courses${used.length && notBuy ? ' · <button type="button" class="czd-lnk" data-czv-reset="used">Tout décocher</button>' : ''}</p>` : ''}
+          </section>
+          <section class="czd-card">
+            <div class="czv-sh"><span>Recette</span>${steps.length ? `<span class="czd-cnt">${done.filter(i => i < steps.length).length} / ${steps.length} faites${done.length ? ' · <button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</span>` : ''}</div>
+            ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}</span></button>`).join('')
+              : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
+          </section>
+          ${r.description ? `<details class="czd-card czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
+        </div>
+      </div>`;
+  }
   // ---------- lecture d'une vidéo en grand, dans l'app ----------
   const czPl = document.createElement('div');
   czPl.className = 'czpl'; czPl.setAttribute('role', 'dialog'); czPl.setAttribute('aria-label', 'Vidéo');
@@ -12944,12 +13135,15 @@
     else frame = `<div class="czpl-f h x"><div class="td-tweet" data-tweet-id="${s.id}"></div></div>`;
     czPl.innerHTML = `<button type="button" class="czpl-x" data-czpl-close aria-label="Fermer">${I.x}</button>
       ${vids.length > 1 ? `<button type="button" class="czpl-nav l" data-czpl-step="-1" aria-label="Précédente"${i ? '' : ' disabled'}>${CZI.back}</button>` : ''}
+      ${i > 0 ? czPeek(r, vids[i - 1], -1) : (vids.length > 1 ? '<span class="czpl-peek"></span>' : '')}
       ${frame}
+      ${i < vids.length - 1 ? czPeek(r, vids[i + 1], 1) : (vids.length > 1 ? '<span class="czpl-peek"></span>' : '')}
       ${vids.length > 1 ? `<button type="button" class="czpl-nav r" data-czpl-step="1" aria-label="Suivante"${i < vids.length - 1 ? '' : ' disabled'}>${CZI.back}</button>` : ''}
       <div class="czpl-meta"><span>${i + 1} / ${vids.length}</span><a href="${esc(u)}" target="_blank" rel="noopener">Ouvrir sur ${esc(s.label)}</a></div>`;
     czPl.classList.add('open');
     if (s.t === 'x') mountTweets(czPl);
   }
+  function czPeek(r, u, d) { const th = czThumbOf(r, u); return `<button type="button" class="czpl-peek" data-czpl-step="${d}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + d)}`}" aria-label="${d < 0 ? 'Vidéo précédente' : 'Vidéo suivante'}"></button>`; }
   function czPlayer(id, i) { CZ.player = id == null ? null : { id, i }; czPlayerRender(); }
   czPl.addEventListener('click', e => {
     if (e.target === czPl || e.target.closest('[data-czpl-close]')) { czPlayer(null); return; }
@@ -12990,8 +13184,8 @@
     const r = czById(CZ.open);
     if (!r) { czClose(); return; }
     czQueueThumbs(r);
-    if (isMobile() && !CZ.edit) { czPage.classList.add('czv'); czPage.innerHTML = czViewHtml(r); return; } // fiche « lecture »
-    czPage.classList.remove('czv');
+    if (!CZ.edit) { czPage.classList.add('czv'); czPage.classList.toggle('czd', !isMobile()); czPage.innerHTML = czViewHtml(r); return; } // fiche « lecture »
+    czPage.classList.remove('czv', 'czd');
     const ings = CZ.items.filter(i => i.recipe_id === r.id).map(i => czProd(i.product_id)).filter(p => p && !p.is_archived).sort(czByName);
     const notBuy = ings.filter(p => !p.to_buy).length;
     const isNext = r.kind === 'next';
@@ -13008,7 +13202,7 @@
           </div>
         </div>
       </div>
-      ${isMobile() ? '<button type="button" class="czv-done" data-czv-edit>Terminer la modification</button>' : ''}
+      <button type="button" class="czv-done" data-czv-edit>Terminer la modification</button>
       <div class="cz-page-body">
         <div class="cz-page-main">
           <input type="text" class="cz-page-title" data-czp-name value="${esc(r.name)}" aria-label="Nom de la recette">
@@ -13112,6 +13306,7 @@
     const rv = t.closest('[data-cz-rview]');
     if (rv) { CZ.rview = rv.dataset.czRview; LS.set('cz_rview', CZ.rview); v2Render(); return; }
     if (t.closest('[data-cz-filters]')) { czFilterSheet(true); return; }
+    const ao = t.closest('[data-cz-allorigins]'); if (ao) { czOriginPop(ao); return; }
     if (t.closest('[data-cz-freset]')) { CZ.origin = ''; v2Render(); return; }
     const og = t.closest('[data-cz-origin]');
     if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); return; }
@@ -13142,6 +13337,8 @@
       return;
     }
     if (t.closest('[data-czp-upimg]')) { if (menu) menu.hidden = true; czUploadImages(r); return; }
+    if (t.closest('[data-czd-addvid]')) { const i = czPage.querySelector('[data-czp-linkadd]'); i?.focus(); return; }
+    const dsc = t.closest('[data-czd-scroll]'); if (dsc) { const st = czPage.querySelector('[data-czd-strip]'); st?.scrollBy({ left: +dsc.dataset.czdScroll * st.clientWidth * .75, behavior: 'smooth' }); return; }
     if (t.closest('[data-czv-edit]')) { CZ.edit = !CZ.edit; czRenderPage(); czPage.scrollTop = 0; return; }
     const mt = t.closest('[data-czv-mtab]'); if (mt) { CZ.mtab = mt.dataset.czvMtab; czRenderPage(); return; }
     const pl = t.closest('[data-czv-play]'); if (pl) { czPlayer(r.id, +pl.dataset.czvPlay); return; }
