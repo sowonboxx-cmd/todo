@@ -134,11 +134,31 @@ async function linkMeta(url: string) {
   return { src: 'web', title: og(h, 'og:title') || tag(h, 'title'), author: og(h, 'og:site_name'), caption: og(h, 'og:description') || og(h, 'description'), image: await asDataUrl(og(h, 'og:image')) };
 }
 
+// Mise à jour du schéma Cuisine, faite par la fonction elle-même (rien à lancer à la main dans le SQL Editor).
+// Uniquement des « add column if not exists » : sans danger, ne touche à aucune donnée.
+const CUISINE_V2 = [
+  'alter table public.cuisine_recipes add column if not exists cover_url text',
+  'alter table public.cuisine_recipes add column if not exists description text',
+  'alter table public.cuisine_recipe_items add column if not exists qty text',
+  "alter table public.cuisine_recipes add column if not exists media jsonb not null default '{}'::jsonb",
+  "notify pgrst, 'reload schema'",
+];
+async function migrateCuisine() {
+  const url = Deno.env.get('SUPABASE_DB_URL');
+  if (!url) return { ok: false, error: 'SUPABASE_DB_URL absent' };
+  const { default: postgres } = await import('https://deno.land/x/postgresjs@v3.4.4/mod.js');
+  const sql = postgres(url, { max: 1, prepare: false });
+  try { for (const q of CUISINE_V2) await sql.unsafe(q); return { ok: true }; }
+  catch (e) { return { ok: false, error: String((e as Error)?.message || e) }; }
+  finally { await sql.end({ timeout: 2 }).catch(() => {}); }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   try {
     const body = req.method === 'POST' ? await req.json().catch(() => ({})) : Object.fromEntries(new URL(req.url).searchParams);
     let items: any[] = [];
+    if (body.migrate === 'cuisine_v2') return new Response(JSON.stringify({ items: [await migrateCuisine()] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (body.meta) return new Response(JSON.stringify({ items: [await linkMeta(String(body.meta))] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (body.fg) return new Response(JSON.stringify({ items: await fgSearch(String(body.fg)) }), { headers: { ...CORS, 'Content-Type': 'application/json' } });
     if (body.fgId) return new Response(JSON.stringify({ items: [await fgSerie(String(body.fgId))] }), { headers: { ...CORS, 'Content-Type': 'application/json' } });

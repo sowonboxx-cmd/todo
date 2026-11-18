@@ -12343,6 +12343,13 @@
     CZ.products = p.data || []; CZ.recipes = r.data || []; CZ.items = i.data || [];
     v2Render();
     if (CZ.open) czRenderPage();
+    // colonnes Cuisine v2 absentes (quantités, couverture, description) : la fonction serveur les ajoute elle-même, une fois
+    if (!CZ.migTried && !(CZ.recipes[0] && 'media' in CZ.recipes[0])) {
+      CZ.migTried = true;
+      const res = (await lbLib({ migrate: 'cuisine_v2' }))?.[0];
+      if (res?.ok) { await new Promise(ok => setTimeout(ok, 1500)); czLoad(true); }
+      else if (res) console.info('cuisine v2', res.error);
+    }
   }
   async function czUpd(table, id, patch) {
     const { error } = await sb.from(table).update({ ...patch, updated_at: new Date().toISOString() }).eq('id', id);
