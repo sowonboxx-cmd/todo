@@ -510,7 +510,8 @@
   .checkbox.p-low { border-color: var(--accent-manga-blue); }
   .checkbox.p-none { border-color: #6B716A; }
   .checkbox.done { background: var(--accent-rosalina); border-color: var(--accent-rosalina); }
-  .checkbox.done::after { content: '✓'; color: #fff; font-size: 10px; }
+  /* coche dessinée (flat), plus le caractère « ✓ » de la police */
+  .checkbox.done::after { content: ''; width: 64%; height: 64%; background: #fff; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center / contain no-repeat; }
   .task-row .tinfo { flex: 1; min-width: 0; }
   .task-row .tname { font-weight: 600; }
   .task-row.is-done .tname { text-decoration: line-through; color: var(--faint); }
@@ -1853,6 +1854,11 @@
   #v2.v-loading, #v2m.v-loading { visibility: hidden; }
   @media (max-width: 899px) {
     .task-sheet { padding-bottom: calc(22px + env(safe-area-inset-bottom)); }
+    /* le blanc de la fiche continue jusqu'en bas de l'écran (sous la barre d'accueil de l'iPhone) */
+    .task-sheet { box-shadow: 0 160px 0 0 var(--card, #fff); }
+    /* case « fait » de la fiche tâche : plus grande, plus facile à toucher */
+    [data-task-sheet] .td-due .checkbox { width: 26px; height: 26px; border-radius: 8px; }
+    [data-task-sheet] .td-due { gap: 12px; }
   }
 
   #v2, #v2m {
