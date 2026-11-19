@@ -2750,6 +2750,8 @@
   .cz-search input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: 'Inter', sans-serif; font-size: 15px; color: var(--v-ink); }
   .cz-ctrls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .cz-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .cz-sortbtn { margin-left: auto; }
+  .cz-mob .cz-sortbtn { height: 36px; border-radius: 12px; }
   .cz-chip { border: none; background: var(--v-chip); color: #4a4a4a; font-family: 'Inter', sans-serif; font-size: 12.5px; font-weight: 600; padding: 7px 11px; border-radius: 9px; cursor: pointer; white-space: nowrap; }
   .cz-chip small { color: inherit; opacity: .6; font-weight: 500; }
   .cz-chip.on { background: var(--v-ink); color: #fff; }
@@ -12780,12 +12782,20 @@
       const ingOf = id => CZ.items.filter(i => i.recipe_id === id).map(i => czProd(i.product_id)?.name || '').join(' ');
       rows = rows.filter(r => czNorm(r.name + ' ' + (r.origin || '') + ' ' + (r.notes || '') + ' ' + ingOf(r.id)).includes(q));
     }
-    if (kind === 'next') {
+    const so = czSortOf(kind);
+    const recent = (a, b) => String(b.created_at || '').localeCompare(String(a.created_at || ''));
+    if (so === 'recent') rows.sort((a, b) => recent(a, b) || czByName(a, b));
+    else if (so === 'az') rows.sort(czByName);
+    else { // importance (Next, par défaut)
       const rank = { High: 0, Medium: 1, Low: 2 };
-      rows.sort((a, b) => ((rank[a.importance] ?? 3) - (rank[b.importance] ?? 3)) || String(b.created_at).localeCompare(String(a.created_at)));
-    } else rows.sort(czByName);
+      rows.sort((a, b) => ((rank[a.importance] ?? 3) - (rank[b.importance] ?? 3)) || recent(a, b));
+    }
     return rows;
   }
+  // tri : Recettes A → Z par défaut, Next par importance par défaut ; mémorisé séparément
+  const CZ_SORTS = { recipe: [['az', 'A → Z'], ['recent', 'Ajoutées récemment']], next: [['imp', 'Importance'], ['recent', 'Ajoutées récemment'], ['az', 'A → Z']] };
+  const czSortOf = kind => { const k = LS.get(kind === 'next' ? 'cz_nsort' : 'cz_rsort', kind === 'next' ? 'imp' : 'az'); return CZ_SORTS[kind === 'next' ? 'next' : 'recipe'].some(([x]) => x === k) ? k : CZ_SORTS[kind === 'next' ? 'next' : 'recipe'][0][0]; };
+  const czSortBtn = kind => { const l = CZ_SORTS[kind].find(([k]) => k === czSortOf(kind))[1]; return `<button type="button" class="v-tool cz-sortbtn" data-cz-sortmenu="${kind}" aria-label="Trier">${LBI.sort}<span>${l}</span>${I.down}</button>`; };
 
   // ---------- drapeaux (dessinés, rectangle arrondi) : « Coréen », « Corée », « korea »… → même drapeau ----------
   const CZ_FLAGS = {
@@ -12887,7 +12897,7 @@
         ${mobile ? `<button type="button" class="cz-vbtn${CZ.rview === 'grid' ? ' on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="cz-vbtn${CZ.rview === 'list' ? ' on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button>` : `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`}
         ${mobile ? '' : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
       </div>
-      <div class="cz-ctrls"><div class="cz-chips">${chips}</div></div>
+      <div class="cz-ctrls"><div class="cz-chips">${chips}${mobile ? czSortBtn(kind === 'next' ? 'next' : 'recipe') : ''}</div>${mobile ? '' : czSortBtn(kind === 'next' ? 'next' : 'recipe')}</div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
   }
   // ---------- Filtres (mobile, Recettes) : origine / pays dans une feuille ----------
@@ -13502,6 +13512,13 @@
     if (t.closest('[data-cz-freset]')) { CZ.origin = ''; v2Render(); return; }
     const og = t.closest('[data-cz-origin]');
     if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); return; }
+    const sm = t.closest('[data-cz-sortmenu]');
+    if (sm) {
+      const kind = sm.dataset.czSortmenu, cur = czSortOf(kind);
+      const { m, close } = floatMenu(sm, CZ_SORTS[kind].map(([k, l]) => `<button type="button" data-k="${k}"><span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''));
+      m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LS.set(kind === 'next' ? 'cz_nsort' : 'cz_rsort', b.dataset.k); v2Render(); });
+      return;
+    }
     const im = t.closest('[data-cz-imp]');
     if (im) { CZ.imp = im.dataset.czImp; v2Render(); return; }
     if (t.closest('[data-cz-newrecipe]')) { czImport(); return; }
