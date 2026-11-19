@@ -11521,7 +11521,8 @@
   }
 
   // ---------------- kanban ----------------
-  function kanbanCols() {
+  function kanbanCols(noDateFirst) {
+    const nd = { key: 'n', title: 'Sans date', drop: null, match: t => bucket(t) === 'n' };
     const cols = [
       { key: 'o', title: 'Overdue', late: true, match: t => bucket(t) === 'o' && !t.is_done },
       { key: 't', title: 'Today', date: todayISO(), match: t => bucket(t) === 't' },
@@ -11534,8 +11535,7 @@
       cols.push({ key: 'd' + i, title: formatDateShort(iso), wd: weekdayOf(iso), date: iso, match: t => bucket(t) === 'w' && t.due_date === iso && !isDailyRepeat(t) });
     }
     cols.push({ key: 'l', title: 'Plus tard', drop: isoPlusDays(7), match: t => bucket(t) === 'l' });
-    cols.push({ key: 'n', title: 'Sans date', drop: null, match: t => bucket(t) === 'n' });
-    return cols;
+    return noDateFirst ? [nd, ...cols] : [...cols, nd]; // ordinateur : « Sans date » tout à gauche, pour ne pas les perdre de vue
   }
   function colTasks(col, all) {
     return all.filter(t => col.match(t) && (col.key === 'o' ? !t.is_done : (V.done || !t.is_done)))
@@ -11596,7 +11596,7 @@
         }).join('')}</div>`;
       return;
     }
-    const cols = kanbanCols();
+    const cols = kanbanCols(true);
     panel.innerHTML = `
       <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${catOn() ? groupBtnHtml(true) : ''}${newBtnHtml()}</div>
       ${V.showFilters ? filtersHtml() : ''}
