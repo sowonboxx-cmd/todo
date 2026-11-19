@@ -12714,17 +12714,20 @@
     return [rows.filter(p => p.to_buy).length, rows.length];
   }
   function czCoursesHtml(mobile) {
-    const [nBuy, nAll] = czScopeCounts();
-    const nf = (CZ.kind !== 'all' ? 1 : 0) + (CZ.rayon ? 1 : 0);
+    const ctrls = czCoursesCtrls(mobile);
     return `
       <div class="cz-bar">
         <label class="cz-search">${I.search}<input type="search" data-cz-q value="${esc(CZ.q)}" placeholder="Chercher ou ajouter un produit…" autocomplete="off" enterkeyhint="done" aria-label="Chercher ou ajouter un produit"></label>
       </div>
-      <div class="cz-ctrls cz-cctrls">
-        <div class="v-seg cz-scope"><button type="button" class="${CZ.scope === 'buy' ? 'on' : ''}" data-cz-scope="buy">À acheter <small>${nBuy}</small></button><button type="button" class="${CZ.scope === 'all' ? 'on' : ''}" data-cz-scope="all">Tous les produits <small>${nAll}</small></button></div>
-        <button type="button" class="cz-fbtn${mobile ? ' sq' : ''}${nf ? ' on' : ''}" data-cz-cfilter aria-label="Filtres">${LBI.filter}${mobile ? '' : '<span>Filtres</span>'}${nf ? `<b>${nf}</b>` : ''}</button>
-      </div>
+      ${mobile ? `<div class="cz-ctrls cz-cctrls">${ctrls}</div>` : ''}
       <div class="cz-list" data-cz-list>${czListHtml()}</div>`;
+  }
+  // À acheter / Tous les produits + Filtres : sous la recherche sur téléphone, sur la ligne des onglets sur ordi
+  function czCoursesCtrls(mobile) {
+    const [nBuy, nAll] = czScopeCounts();
+    const nf = (CZ.kind !== 'all' ? 1 : 0) + (CZ.rayon ? 1 : 0);
+    return `<div class="v-seg cz-scope"><button type="button" class="${CZ.scope === 'buy' ? 'on' : ''}" data-cz-scope="buy">À acheter <small>${nBuy}</small></button><button type="button" class="${CZ.scope === 'all' ? 'on' : ''}" data-cz-scope="all">Tous les produits <small>${nAll}</small></button></div>
+        <button type="button" class="cz-fbtn${mobile ? ' sq' : ''}${nf ? ' on' : ''}" data-cz-cfilter aria-label="Filtres">${LBI.filter}${mobile ? '' : '<span>Filtres</span>'}${nf ? `<b>${nf}</b>` : ''}</button>`;
   }
   // filtre des Courses : catégorie + rayon (feuille sur téléphone, petite fenêtre sur ordi)
   function czCFilterHtml(sheet) {
@@ -13134,7 +13137,8 @@
   const czRFilterBtn = () => { const n = czRFilterN(); return `<button type="button" class="cz-fbtn${n ? ' on' : ''}" data-cz-rfilter>${LBI.filter}<span>Filtres</span>${n ? `<b>${n}</b>` : ''}</button>`; };
   // ordi : « + Recette / + Next », tri ou Filtres, puis galerie / liste tout à droite — sur la ligne des onglets
   function czHeadTools() {
-    if (V.cz === 'courses' || !CZ.loaded || CZ.err) return '';
+    if (!CZ.loaded || CZ.err) return '';
+    if (V.cz === 'courses') return `<span class="cz-hgap"></span>${czCoursesCtrls(false)}`;
     const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
     return `<span class="cz-hgap"></span><button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Ajouter une recette</button><span class="cz-hgap"></span>${czRFilterBtn()}${czSortBtn('recipe')}${view}`;
   }
