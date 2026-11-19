@@ -3814,6 +3814,48 @@
   .cz-sec { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-faint); padding-top: 8px; }
   .cz-sec small { letter-spacing: 0; font-weight: 500; }
   .cz-notes { border: 1px solid var(--v-line); border-radius: 12px; padding: 12px 14px; font-family: 'Inter', sans-serif; font-size: 14.5px; line-height: 1.5; color: var(--v-ink); resize: vertical; outline: none; min-height: 110px; }
+  /* ajouter un ingrédient (façon Notion) : ligne pleine largeur, recherche, fenêtre douce */
+  .czip-add { display: flex; align-items: center; gap: 10px; width: 100%; margin: 6px 0 0; padding: 10px 8px; border: none; border-radius: 10px; background: transparent; color: #9A978F; font: 400 15px 'Inter', sans-serif; text-align: left; cursor: pointer; }
+  .czip-add svg { width: 16px; height: 16px; flex-shrink: 0; }
+  .czip-add:hover { background: #F4F3F0; color: #55534E; }
+  .czip { position: relative; margin-top: 6px; z-index: 40; }
+  .czip-in { display: flex; align-items: center; gap: 10px; padding: 0 10px; height: 44px; border: 1.5px solid #1F1F1F; border-radius: 10px; background: #fff; }
+  .czip-in svg { width: 16px; height: 16px; flex-shrink: 0; color: #1F1F1F; }
+  .czip-in input { flex: 1; min-width: 0; border: none; outline: none; background: none; font: 400 15px 'Inter', sans-serif; color: #1F1F1F; padding: 0; }
+  .czip-in input::placeholder { color: #A3A099; }
+  .czip-pn { position: absolute; left: 0; right: 0; top: calc(100% + 6px); background: #fff; border-radius: 12px; box-shadow: 0 0 0 1px rgba(15,15,15,.06), 0 12px 32px rgba(15,15,15,.16); overflow: hidden; font: 400 14px 'Inter', sans-serif; color: #1F1F1F; }
+  .czip-pills { padding: 10px 12px 6px; border-bottom: 1px solid #EFEDE9; max-height: 150px; overflow-y: auto; }
+  .czip-g { display: flex; justify-content: space-between; gap: 10px; font-size: 11.5px; font-weight: 500; color: #9A978F; padding: 6px 4px 7px; }
+  .czip-list .czip-g { padding: 9px 14px 5px; }
+  .czip-tag { display: inline-flex; align-items: center; gap: 5px; margin: 0 4px 5px 0; padding: 4px 6px 4px 9px; border: none; border-radius: 6px; background: #F4F0E6; color: #1F1F1F; font: 400 13px 'Inter', sans-serif; cursor: pointer; }
+  .czip-tag svg { width: 11px; height: 11px; color: #9A978F; }
+  .czip-tag:hover { background: #ECE5D4; } .czip-tag:hover svg { color: #1F1F1F; }
+  .czip-list { max-height: 300px; overflow-y: auto; padding: 0 0 4px; overscroll-behavior: contain; }
+  .czip-it, .czip-new { display: flex; align-items: center; gap: 10px; width: calc(100% - 10px); margin: 0 5px; padding: 7px 12px; border: none; border-radius: 7px; background: none; font: 400 14.5px 'Inter', sans-serif; color: #1F1F1F; text-align: left; cursor: pointer; }
+  .czip-it.cr, .czip-it:hover:not(.off), .czip-new.cr, .czip-new:hover { background: #F4F0E6; }
+  .czip-it.off { opacity: .55; cursor: default; }
+  .czip-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; } .czip-t b { font-weight: 650; }
+  .czip-it small { color: #A3A099; font-size: 12px; white-space: nowrap; }
+  .czip-dot { width: 7px; height: 7px; border-radius: 50%; background: #46A869; flex-shrink: 0; } .czip-dot.b { background: #E08A3C; }
+  .czip-new { border-top: 1px solid #EFEDE9; border-radius: 0 0 7px 7px; margin-top: 2px; padding: 10px 12px; }
+  .czip-new svg { width: 15px; height: 15px; color: #9A978F; } .czip-new b { font-weight: 600; }
+  .czip-none { margin: 0; padding: 8px 14px 10px; color: #9A978F; font-size: 13px; }
+  .czip-foot { display: flex; align-items: center; gap: 4px; padding: 8px 12px; border-top: 1px solid #EFEDE9; font-size: 12px; color: #9A978F; }
+  .czip-foot kbd { font: 500 11px 'Inter', sans-serif; color: #77746D; border: 1px solid #E2E0DB; border-radius: 4px; padding: 1px 5px; margin-left: 6px; }
+  .czip-foot kbd:first-child { margin-left: 0; }
+  /* téléphone : feuille qui monte du bas */
+  .czip.sheet { position: fixed; inset: 0; z-index: 2000; margin: 0; }
+  .czip.sheet .czip-bd { position: absolute; inset: 0; background: rgba(20,20,20,.35); }
+  .czip.sheet .czip-box { position: absolute; left: 0; right: 0; bottom: 0; top: max(70px, env(safe-area-inset-top, 0px)); background: #fff; border-radius: 18px 18px 0 0; display: flex; flex-direction: column; padding: 8px 0 env(safe-area-inset-bottom, 0px); }
+  .czip-grab { cursor: pointer; width: 38px; height: 5px; border-radius: 3px; background: #DDDAD4; margin: 2px auto 10px; flex-shrink: 0; }
+  .czip.sheet .czip-in { margin: 0 14px 6px; border: none; background: #F3F1EC; border-radius: 12px; height: 46px; flex-shrink: 0; }
+  .czip.sheet .czip-in svg { color: #9A978F; }
+  .czip.sheet .czip-in input { font-size: 16px; }
+  .czip.sheet .czip-pn { position: static; box-shadow: none; border-radius: 0; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+  .czip.sheet .czip-pills { max-height: 30vh; flex-shrink: 0; }
+  .czip.sheet .czip-list { max-height: none; flex: 1; }
+  .czip.sheet .czip-it, .czip.sheet .czip-new { padding: 10px 12px; font-size: 15.5px; }
+  html.czip-lock, html.czip-lock body { overflow: hidden; }
   .cz-inline-add { border: 1px dashed #D9D7D0; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--v-ink); outline: none; background: transparent; }
   .cz-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: #F3F1EC; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
   .cz-ghost svg { width: 18px; height: 18px; }
@@ -13110,7 +13152,7 @@
     if (focusTitle) { const t = czPage.querySelector('[data-czp-name]'); t?.focus(); t?.select(); }
   }
   function czClose() {
-    CZ.open = null; CZ.edit = false; CZ.repos = false; czPlayer(null);
+    CZ.open = null; CZ.edit = false; CZ.repos = false; CZ.ip = null; document.documentElement.classList.remove('czip-lock'); czPlayer(null);
     czPage.classList.remove('open');
     document.documentElement.classList.remove('cz-page-open');
     czPage.innerHTML = '';
@@ -13189,8 +13231,7 @@
               <button type="button" class="czv-ck${u ? ' on' : ''}" data-czv-used="${p.id}" aria-label="${u ? 'Pas encore sorti' : 'Sorti / utilisé'}">${u ? I.check : ''}</button>
               <span class="czv-in">${esc(p.name)}</span>${qty ? `<span class="czv-q">${esc(qty)}</span>` : ''}
               <button type="button" class="czv-st ${p.to_buy ? 'b' : ''}" data-cz-toggle="${p.id}" title="Toucher pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button></div>`; }).join('')}
-          <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient" enterkeyhint="done">
-          <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+          ${czIpHtml(r)}
           ${notBuy ? `<button type="button" class="cz-addbtn green" data-czp-allbuy>${CZI.cart}Mettre les ${notBuy} ingrédient${notBuy > 1 ? 's' : ''} dans les courses</button>` : ''}
           ${ings.length ? '<p class="czv-hint">Case : sorti / utilisé pour cette fois · pastille : votre stock, relié aux Courses</p>' : ''}
         </section>
@@ -13232,8 +13273,7 @@
               <button type="button" class="czv-ck${u ? ' on' : ''}" data-czv-used="${p.id}" aria-label="${u ? 'Pas encore sorti' : 'Sorti / utilisé'}">${u ? I.check : ''}</button>
               <span class="czv-in">${esc(p.name)}</span>${qty ? `<span class="czv-q">${esc(qty)}</span>` : ''}
               <button type="button" class="czv-st ${p.to_buy ? 'b' : ''}" data-cz-toggle="${p.id}" title="Cliquer pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button></div>`; }).join('')}
-          <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient" enterkeyhint="done">
-          <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+          ${czIpHtml(r)}
           ${ings.length ? `<p class="czv-hint">Case : sorti / utilisé pour cette fois · pastille : votre stock, relié aux Courses${used.length && notBuy ? ' · <button type="button" class="czd-lnk" data-czv-reset="used">Tout décocher</button>' : ''}</p>` : ''}
         </section>
         <section>
@@ -13424,8 +13464,7 @@
               <span class="cz-name cz-static">${esc(p.name)}</span><span class="cz-ray">${esc((p.rayons || [])[0] || '')}</span>
               <button type="button" class="cz-pill ${p.to_buy ? 'buy' : 'stock'}" data-cz-toggle="${p.id}" title="Toucher pour changer">${p.to_buy ? 'à acheter' : 'en stock'}</button>
               <button type="button" class="cz-more" data-czp-unlink="${p.id}" aria-label="Retirer ${esc(p.name)}">${I.x}</button></div>`).join('')}</div>` : ''}
-          <input type="text" class="cz-inline-add" data-czp-ingadd list="cz-prods" placeholder="+ Ajouter un ingrédient (Entrée)" enterkeyhint="done">
-          <datalist id="cz-prods">${czLive().slice().sort(czByName).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+          ${czIpHtml(r)}
           ${notBuy ? `<button type="button" class="cz-addbtn green" data-czp-allbuy>${CZI.cart}Mettre les ${notBuy} ingrédient${notBuy > 1 ? 's' : ''} dans les courses</button>` : ''}
         </div>
         <div class="cz-page-media">
@@ -13445,7 +13484,95 @@
     r[f] = v;
     await czUpd('cuisine_recipes', r.id, { [f]: v });
   }
-  async function czAddIngredient(r, name) {
+  // ---------- ajouter un ingrédient : ligne pleine largeur → recherche + fenêtre (pastilles de la recette, produits Alimentation) ----------
+  const czIsAlim = p => !p.kind || p.kind === 'Alimentation';
+  function czIpHtml(r) {
+    if (!CZ.ip || CZ.ip.rid !== r.id) return `<button type="button" class="czip-add" data-czip-open>${I.plus}<span>Ajouter un ingrédient</span></button>`;
+    const mob = isMobile();
+    return `<div class="czip${mob ? ' sheet' : ''}">${mob ? '<div class="czip-bd" data-czip-close></div>' : ''}<div class="czip-box">${mob ? '<div class="czip-grab" data-czip-close role="button" aria-label="Fermer"></div>' : ''}
+      <label class="czip-in">${I.search}<input type="text" data-czip-q value="${esc(CZ.ip.q)}" placeholder="Chercher ou créer un ingrédient…" autocomplete="off" enterkeyhint="done" aria-label="Chercher ou créer un ingrédient"></label>
+      <div class="czip-pn" data-czip-panel>${czIpPanel(r)}</div></div></div>`;
+  }
+  function czIpMark(name, q) { // passe en gras le texte trouvé (sans tenir compte des accents)
+    if (!q) return esc(name);
+    const chars = [...name], norm = chars.map(c => czNorm(c));
+    const flat = norm.join(''), at = flat.indexOf(q); if (at < 0) return esc(name);
+    let pos = 0, a = -1, b = -1;
+    chars.forEach((c, i) => { if (a < 0 && pos >= at) a = i; pos += norm[i].length; if (b < 0 && pos >= at + q.length) b = i + 1; });
+    return esc(chars.slice(0, a).join('')) + '<b>' + esc(chars.slice(a, b).join('')) + '</b>' + esc(chars.slice(b).join(''));
+  }
+  function czIpItems(r) { // éléments qu'on peut choisir au clavier, dans l'ordre affiché
+    const inR = new Set(CZ.items.filter(i => i.recipe_id === r.id).map(i => i.product_id));
+    const q = czNorm(CZ.ip.q);
+    const alim = czLive().filter(czIsAlim);
+    if (!q) return { inR, q, rows: alim.filter(p => !inR.has(p.id)).sort(czByName), done: [], create: '' };
+    const hit = alim.filter(p => czNorm(p.name).includes(q)).sort((a, b) => (czNorm(b.name).startsWith(q) - czNorm(a.name).startsWith(q)) || czByName(a, b));
+    const exact = czLive().some(p => czNorm(p.name) === q);
+    return { inR, q, rows: hit.filter(p => !inR.has(p.id)), done: hit.filter(p => inR.has(p.id)), create: exact ? '' : CZ.ip.q.trim() };
+  }
+  function czIpPanel(r) {
+    const { inR, q, rows, done, create } = czIpItems(r);
+    const n = rows.length + (create ? 1 : 0);
+    if (CZ.ip.sel >= n) CZ.ip.sel = Math.max(0, n - 1);
+    const it = (p, i) => `<button type="button" class="czip-it${i === CZ.ip.sel ? ' cr' : ''}" data-czip-add="${p.id}"><span class="czip-dot${p.to_buy ? ' b' : ''}"></span><span class="czip-t">${czIpMark(p.name, q)}</span><small>${esc((p.rayons || [])[0] || '')}</small></button>`;
+    const mine = CZ.items.filter(i => i.recipe_id === r.id).map(i => czProd(i.product_id)).filter(p => p && !p.is_archived).sort(czByName);
+    const pills = !q && mine.length ? `<div class="czip-pills"><div class="czip-g"><span>Dans la recette · ${mine.length}</span><span>toucher pour retirer</span></div>${mine.map(p => `<button type="button" class="czip-tag" data-czip-rm="${p.id}" aria-label="Retirer ${esc(p.name)}">${esc(p.name)}${I.x}</button>`).join('')}</div>` : '';
+    const head = q ? `<div class="czip-g"><span>Alimentation</span><span>${rows.length + done.length} résultat${rows.length + done.length > 1 ? 's' : ''}</span></div>`
+      : `<div class="czip-g"><span>Alimentation · ${rows.length} produit${rows.length > 1 ? 's' : ''}</span><span>vert : en stock · orange : à acheter</span></div>`;
+    const list = rows.map(it).join('') + done.map(p => `<div class="czip-it off"><span class="czip-dot${p.to_buy ? ' b' : ''}"></span><span class="czip-t">${czIpMark(p.name, q)}</span><small>déjà dans la recette</small></div>`).join('');
+    const mk = create ? `<button type="button" class="czip-new${CZ.ip.sel === rows.length ? ' cr' : ''}" data-czip-create>${I.plus}<span>Créer <b>« ${esc(create)} »</b> dans Alimentation</span></button>` : '';
+    const foot = isMobile() ? '' : '<div class="czip-foot"><kbd>↑↓</kbd>choisir <kbd>Entrée</kbd>ajouter <kbd>Échap</kbd>fermer</div>';
+    return `${pills}<div class="czip-list" data-czip-list>${head}${list || (create ? '' : '<p class="czip-none">Aucun produit.</p>')}</div>${mk}${foot}`;
+  }
+  function czIpPanelRefresh(r) {
+    const pn = czPage.querySelector('[data-czip-panel]'); if (!pn) return;
+    const l = pn.querySelector('[data-czip-list]'), st = l ? l.scrollTop : 0;
+    pn.innerHTML = czIpPanel(r);
+    const l2 = pn.querySelector('[data-czip-list]'); if (l2) l2.scrollTop = st;
+    l2?.querySelector('.cr')?.scrollIntoView({ block: 'nearest' });
+  }
+  function czIpRender(focus) { // re-dessine la fiche en gardant la position de lecture et celle de la liste
+    const keep = [czPage, ...czPage.querySelectorAll('*')].filter(e => e.scrollTop > 0).map(e => [e === czPage ? null : e.className, e.scrollTop]);
+    czRenderPage();
+    keep.forEach(([c, y]) => { const e = c === null ? czPage : czPage.getElementsByClassName(c.split(' ')[0])[0]; if (e) e.scrollTop = y; });
+    if (focus) czPage.querySelector('[data-czip-q]')?.focus({ preventScroll: true });
+  }
+  function czIpOpen(r) { CZ.ip = { rid: r.id, q: '', sel: 0 }; czIpRender(true); if (isMobile()) document.documentElement.classList.add('czip-lock'); }
+  function czIpClose() { if (!CZ.ip) return; CZ.ip = null; document.documentElement.classList.remove('czip-lock'); czIpRender(false); }
+  async function czIpPick(r, el) {
+    const { rows, create } = czIpItems(r);
+    let name = '';
+    if (el?.dataset.czipAdd) name = czProd(el.dataset.czipAdd)?.name || '';
+    else if (el?.hasAttribute('data-czip-create')) name = create;
+    else name = CZ.ip.sel < rows.length ? rows[CZ.ip.sel]?.name : create;
+    if (!name) return;
+    CZ.ip.q = ''; CZ.ip.sel = 0;
+    await czAddIngredient(r, name, true);
+  }
+  async function czIpRemove(r, pid) {
+    CZ.items = CZ.items.filter(i => !(i.recipe_id === r.id && i.product_id === pid));
+    czIpRender(!isMobile());
+    await sb.from('cuisine_recipe_items').delete().eq('recipe_id', r.id).eq('product_id', pid);
+  }
+  czPage.addEventListener('input', e => { if (!e.target.matches('[data-czip-q]') || !CZ.ip) return; CZ.ip.q = e.target.value; CZ.ip.sel = 0; const r = czById(CZ.open); if (r) czIpPanelRefresh(r); });
+  document.addEventListener('keydown', e => { // avant les raccourcis de la fiche (Échap fermerait la recette)
+    const t = e.target; if (!CZ.ip || !t.matches?.('[data-czip-q]')) return;
+    const r = czById(CZ.open); if (!r) return;
+    if (e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); czIpClose(); return; }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); e.stopImmediatePropagation(); const { rows, create } = czIpItems(r); const n = rows.length + (create ? 1 : 0); if (n) CZ.ip.sel = (CZ.ip.sel + (e.key === 'ArrowDown' ? 1 : -1) + n) % n; czIpPanelRefresh(r); return; }
+    if (e.key === 'Enter') { e.preventDefault(); e.stopImmediatePropagation(); czIpPick(r); }
+  }, true);
+  document.addEventListener('pointerdown', e => { if (CZ.ip && !e.target.closest('.czip') && !e.target.closest('[data-czip-open]')) czIpClose(); }, true);
+  czPage.addEventListener('click', e => {
+    if (!CZ.ip && !e.target.closest('[data-czip-open]')) return;
+    const r = czById(CZ.open); if (!r) return;
+    const t = e.target;
+    if (t.closest('[data-czip-open]')) { e.stopPropagation(); czIpOpen(r); return; }
+    if (t.closest('[data-czip-close]')) { e.stopPropagation(); czIpClose(); return; }
+    const rm = t.closest('[data-czip-rm]'); if (rm) { e.stopPropagation(); czIpRemove(r, rm.dataset.czipRm); return; }
+    const ad = t.closest('[data-czip-add],[data-czip-create]'); if (ad) { e.stopPropagation(); czIpPick(r, ad); return; }
+  }, true);
+  async function czAddIngredient(r, name, keep) {
     name = name.trim(); if (!name) return;
     let p = czLive().find(x => czNorm(x.name) === czNorm(name));
     if (!p) {
@@ -13455,8 +13582,7 @@
     }
     if (CZ.items.some(i => i.recipe_id === r.id && i.product_id === p.id)) return;
     CZ.items.push({ recipe_id: r.id, product_id: p.id });
-    czRenderPage();
-    czPage.querySelector('[data-czp-ingadd]')?.focus();
+    if (keep) czIpRender(!isMobile()); else czRenderPage();
     const { error } = await sb.from('cuisine_recipe_items').insert({ recipe_id: r.id, product_id: p.id });
     if (error) alert(error.message);
   }
