@@ -3520,6 +3520,10 @@
   .cz-rc2 .cz-src, .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
   .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); color: #1f1f1f; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
   .cz-cnt svg { width: 11px; height: 11px; }
+  .cz-nexttag { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 8px; background: rgba(31,31,31,.82); color: #fff; font-family: 'Inter', sans-serif; white-space: nowrap; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+  .cz-pill.cz-pnext { background: #1f1f1f; color: #fff; }
+  .cz-rrow .cz-nexttag { display: none; }
+  .cz-hflex { flex: 1; }
   .cz-impb { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 700; padding: 3px 7px; border-radius: 7px; background: #F1F0EC; color: #555; }
 
   /* liste ordinateur (maquette validée) */
@@ -10643,7 +10647,7 @@
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
     proj: null, page: null, fav: false,  // filtre catégorie / page / favoris
     space: null,                         // null = tâches, 'cuisine' = espace Cuisine, 'lib' = Bibliothèque
-    cz: LS.get('cz_tab', 'courses'),     // onglet de l'espace Cuisine
+    cz: LS.get('cz_tab', 'courses') === 'next' ? 'recettes' : LS.get('cz_tab', 'courses'),     // onglet de l'espace Cuisine
     showFilters: false,
     prio: 'all', subs: 'all', done: false,
     catDay: LS.get('catday', 't'),
@@ -11342,8 +11346,7 @@
           <div class="v-cat-head"><button type="button" class="v-cat-name" data-cz-go="${V.cz || 'courses'}">Cuisine</button></div>
           <div class="v-cat-pages">
             <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'courses' ? ' on' : ''}" data-cz-go="courses">${CZI.cart}<span>Courses</span><span class="v-page-count">${CZ.loaded ? (czLive().filter(p => p.to_buy).length || '') : ''}</span></button>
-            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'recettes' ? ' on' : ''}" data-cz-go="recettes">${CZI.fork}<span>Recettes</span><span class="v-page-count">${CZ.loaded ? CZ.recipes.filter(r => r.kind !== 'next').length : ''}</span></button>
-            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'next' ? ' on' : ''}" data-cz-go="next">${CZI.play}<span>Next recettes</span><span class="v-page-count">${CZ.loaded ? CZ.recipes.filter(r => r.kind === 'next').length : ''}</span></button>
+            <button type="button" class="v-page${V.space === 'cuisine' && V.cz === 'recettes' ? ' on' : ''}" data-cz-go="recettes">${CZI.fork}<span>Recettes</span><span class="v-page-count">${CZ.loaded ? CZ.recipes.length : ''}</span></button>
           </div>
         </section>
         ${lbSidebarHtml()}
@@ -12607,13 +12610,13 @@
     group: false,
     recentOpen: LS.get('cz_recent', false),     // section « Cochés récemment » dépliée ?
     rview: LS.get('cz_rview', 'grid'),          // grid | list
-    origin: '', imp: '',
+    origin: '', imp: '', rtype: '',
     open: null,                                 // id de la recette ouverte
     edit: false,                                // fiche en mode modification (mobile)
     mtab: 'v',                                  // fiche : onglet Vidéos (v) / Photos (p)
     player: null,                               // { id, i } vidéo lue en grand
   };
-  const CZ_TABS = [['courses', 'Courses'], ['recettes', 'Recettes'], ['next', 'Next']];
+  const CZ_TABS = [['courses', 'Courses'], ['recettes', 'Recettes']];
   const CZ_KINDS = ['Alimentation', 'Divers', 'Shopping'];
   const CZ_IMP = ['High', 'Medium', 'Low'];
   const CZ_GRAD = ['#8a4b2a,#d39a5b', '#3b2f2a,#a3754d', '#7a1f1f,#e0703a', '#2c3b2f,#8fae6b', '#5b3a1d,#f0c27b', '#41262a,#c26a5a', '#2a2f3b,#7a8fae', '#6b4a1d,#e8b36a'];
@@ -12676,7 +12679,7 @@
   }
 
   function czGo(tab) {
-    V.space = 'cuisine'; V.cz = tab || V.cz || 'courses'; LS.set('cz_tab', V.cz);
+    V.space = 'cuisine'; V.cz = tab === 'next' ? 'recettes' : (tab || V.cz || 'courses'); LS.set('cz_tab', V.cz);
     V.proj = null; V.page = null; V.fav = false;
     if (isMobile()) closeDrawer();
     czLoad();
@@ -12685,13 +12688,13 @@
 
   // ---------- rendu commun (desktop + mobile) ----------
   function czTabsHtml() {
-    const n = { courses: czLive().filter(p => p.to_buy).length, recettes: CZ.recipes.filter(r => r.kind !== 'next').length, next: CZ.recipes.filter(r => r.kind === 'next').length };
+    const n = { courses: czLive().filter(p => p.to_buy).length, recettes: CZ.recipes.length };
     return `<div class="v-seg cz-tabs" role="tablist" aria-label="Cuisine">${CZ_TABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.cz === k}" class="${V.cz === k ? 'on' : ''}" data-cz-tab="${k}">${l} <small>${CZ.loaded ? n[k] : ''}</small></button>`).join('')}</div>`;
   }
   function czBodyHtml(mobile) {
     if (!CZ.loaded) return '<div class="v-empty">Chargement…</div>';
     if (CZ.err) return `<div class="cz-install"><b>L'espace Cuisine n'est pas encore installé.</b><p>Ouvre Supabase → SQL Editor, colle le fichier <code>cuisine_install.sql</code> et lance-le, puis recharge la page.</p><p class="cz-err">${esc(CZ.err)}</p></div>`;
-    return V.cz === 'courses' ? czCoursesHtml(mobile) : czRecipesHtml(V.cz === 'next' ? 'next' : 'recipe', mobile);
+    return V.cz === 'courses' ? czCoursesHtml(mobile) : czRecipesHtml('recipe', mobile);
   }
 
   // ---------- courses ----------
@@ -13004,9 +13007,10 @@
   // ---------- recettes / next ----------
   function czRecipeRows(kind) {
     const q = czNorm(CZ.rq);
-    let rows = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
-    if (kind === 'recipe' && CZ.origin) rows = rows.filter(r => (r.origin || '') === CZ.origin);
-    if (kind === 'next' && CZ.imp) rows = rows.filter(r => (r.importance || '') === CZ.imp);
+    let rows = CZ.recipes.slice();
+    if (CZ.rtype) rows = rows.filter(r => (CZ.rtype === 'next' ? r.kind === 'next' : r.kind !== 'next'));
+    if (CZ.origin) rows = rows.filter(r => (r.origin || '') === CZ.origin);
+    if (CZ.imp) rows = rows.filter(r => (r.importance || '') === CZ.imp);
     if (q) {
       const ingOf = id => CZ.items.filter(i => i.recipe_id === id).map(i => czProd(i.product_id)?.name || '').join(' ');
       rows = rows.filter(r => czNorm(r.name + ' ' + (r.origin || '') + ' ' + (r.notes || '') + ' ' + ingOf(r.id)).includes(q));
@@ -13021,10 +13025,10 @@
     }
     return rows;
   }
-  // tri : Recettes A → Z par défaut, Next par importance par défaut ; mémorisé séparément
-  const CZ_SORTS = { recipe: [['az', 'A → Z'], ['recent', 'Ajoutées récemment']], next: [['imp', 'Importance'], ['recent', 'Ajoutées récemment'], ['az', 'A → Z']] };
-  const czSortOf = kind => { const k = LS.get(kind === 'next' ? 'cz_nsort' : 'cz_rsort', kind === 'next' ? 'imp' : 'az'); return CZ_SORTS[kind === 'next' ? 'next' : 'recipe'].some(([x]) => x === k) ? k : CZ_SORTS[kind === 'next' ? 'next' : 'recipe'][0][0]; };
-  const czSortBtn = kind => { const l = CZ_SORTS[kind].find(([k]) => k === czSortOf(kind))[1]; return `<button type="button" class="v-tool cz-sortbtn" data-cz-sortmenu="${kind}" aria-label="Trier">${LBI.sort}<span>${l}</span>${I.down}</button>`; };
+  // tri (Recettes et Next recettes réunies) : A → Z par défaut
+  const CZ_SORTS = { recipe: [['az', 'A → Z'], ['recent', 'Ajoutées récemment'], ['imp', 'Importance']] };
+  const czSortOf = () => { const k = LS.get('cz_rsort', 'az'); return CZ_SORTS.recipe.some(([x]) => x === k) ? k : 'az'; };
+  const czSortBtn = kind => { kind = 'recipe'; const l = CZ_SORTS[kind].find(([k]) => k === czSortOf(kind))[1]; return `<button type="button" class="v-tool cz-sortbtn" data-cz-sortmenu="${kind}" aria-label="Trier">${LBI.sort}<span>${l}</span>${I.down}</button>`; };
 
   // ---------- drapeaux (dessinés, rectangle arrondi) : « Coréen », « Corée », « korea »… → même drapeau ----------
   const CZ_FLAGS = {
@@ -13067,7 +13071,7 @@
     return k ? `<span class="czf"><svg viewBox="0 0 30 20" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${CZ_FLAGS[k]}</svg></span>` : `<span class="czf none">${esc((origin || '?').slice(0, 2).toUpperCase())}</span>`;
   }
   function czOriginBar() {
-    const all = CZ.recipes.filter(r => r.kind !== 'next');
+    const all = CZ.recipes;
     const cnt = {}; all.forEach(r => { if (r.origin) cnt[r.origin] = (cnt[r.origin] || 0) + 1; });
     const ors = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a] || a.localeCompare(b, 'fr'));
     const top = ors.slice(0, 7); if (CZ.origin && !top.includes(CZ.origin)) top.push(CZ.origin);
@@ -13076,7 +13080,7 @@
       ${ors.length > 7 ? `<button type="button" class="czo-all" data-cz-allorigins>${LBI.filter}<span>Tous les pays</span><b>${ors.length}</b></button>` : ''}</div>`;
   }
   function czOriginPop(anchor) {
-    const all = CZ.recipes.filter(r => r.kind !== 'next');
+    const all = CZ.recipes;
     const cnt = {}; all.forEach(r => { if (r.origin) cnt[r.origin] = (cnt[r.origin] || 0) + 1; });
     const ors = Object.keys(cnt).sort((a, b) => a.localeCompare(b, 'fr'));
     const rows = q => ors.filter(o => !q || czNorm(o).includes(czNorm(q))).map(o => `<button type="button" role="menuitemradio" aria-checked="${CZ.origin === o}" class="czo-r${CZ.origin === o ? ' on' : ''}" data-cz-origin="${esc(o)}">${czFlag(o)}<span>${esc(o)}</span><small>${cnt[o]}</small></button>`).join('') || '<p class="czo-none">Aucun pays.</p>';
@@ -13098,13 +13102,14 @@
     const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.t === 'ig' ? 'Instagram' : s.label)}</span>` : '';
     const nv = czVideos(r).length;
     const cnt = nv > 1 ? `<span class="cz-cnt">${CZI.tri}${nv}</span>` : '';
-    const imp = r.kind === 'next' && r.importance ? `<span class="cz-impb imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '';
+    const imp = r.kind === 'next' ? `<span class="cz-nexttag">Next recette</span>` : '';
     return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}${imp}${cnt}</div>`;
   }
   function czPills(r) {
     const out = [];
-    if (r.kind === 'next') { if (r.importance) out.push(`<span class="cz-pill imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>`); }
-    else {
+    if (r.kind === 'next') out.push('<span class="cz-pill cz-pnext">Next recette</span>');
+    if (r.importance) out.push(`<span class="cz-pill imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>`);
+    {
       if (r.origin) out.push(`<span class="cz-pill">${esc(r.origin)}</span>`);
       if (r.minutes) out.push(`<span class="cz-pill">${r.minutes} min</span>`);
       if ((r.types || [])[0]) out.push(`<span class="cz-pill">${esc(r.types[0])}</span>`);
@@ -13112,42 +13117,38 @@
     return out.join('');
   }
   function czRecipesHtml(kind, mobile) {
-    const all = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
-    const sk = kind === 'next' ? 'next' : 'recipe';
     const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
-    const nf = kind === 'next' ? (CZ.imp ? 1 : 0) : (CZ.origin ? 1 : 0);
-    const fbtn = `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" ${kind === 'next' ? 'data-cz-nfilter' : 'data-cz-filters'}>${LBI.filter}<span>${kind !== 'next' && CZ.origin ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`;
-    const left = kind === 'recipe' && !mobile ? czOriginBar() : fbtn;
+    const search = `<label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="Chercher une recette, un ingrédient…" autocomplete="off" aria-label="Chercher"></label>`;
     if (!mobile) return `
-      <div class="cz-bar"><label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label></div>
-      ${kind === 'recipe' ? `<div class="cz-ctrls"><div class="cz-chips">${czOriginBar()}</div></div>` : ''}
+      <div class="cz-bar">${search}</div>
+      <div class="cz-ctrls"><div class="cz-chips">${czOriginBar()}</div></div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
     return `
-      <div class="cz-bar">
-        <label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label>
-        ${mobile ? `<button type="button" class="cz-plusbtn" data-cz-newrecipe aria-label="${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}">${I.plus}</button>` : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
-      </div>
-      <div class="cz-ctrls cz-rctrls"><div class="cz-chips">${left}</div><span class="cz-sp"></span>${czSortBtn(sk)}${view}</div>
+      <div class="cz-bar">${search}<button type="button" class="cz-plusbtn" data-cz-newrecipe aria-label="Ajouter une recette">${I.plus}</button></div>
+      <div class="cz-ctrls cz-rctrls"><div class="cz-chips">${czRFilterBtn()}</div><span class="cz-sp"></span>${czSortBtn('recipe')}${view}</div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
   }
+  const czRFilterN = () => (CZ.rtype ? 1 : 0) + (CZ.imp ? 1 : 0) + (CZ.origin ? 1 : 0);
+  const czRFilterBtn = () => { const n = czRFilterN(); return `<button type="button" class="cz-fbtn${n ? ' on' : ''}" data-cz-rfilter>${LBI.filter}<span>Filtres</span>${n ? `<b>${n}</b>` : ''}</button>`; };
   // ordi : « + Recette / + Next », tri ou Filtres, puis galerie / liste tout à droite — sur la ligne des onglets
   function czHeadTools() {
     if (V.cz === 'courses' || !CZ.loaded || CZ.err) return '';
-    const next = V.cz === 'next', sk = next ? 'next' : 'recipe';
     const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
-    const nf = next && CZ.imp ? 1 : 0;
-    const mid = next ? `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" data-cz-nfilter>${LBI.filter}<span>Filtres</span>${nf ? '<b>1</b>' : ''}</button>` : czSortBtn(sk);
-    return `<span class="cz-hgap"></span><button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Recette</button><span class="cz-hgap"></span>${mid}${view}`;
+    return `<span class="cz-hgap"></span>${czRFilterBtn()}${czSortBtn('recipe')}${view}<span class="cz-hflex"></span><button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Ajouter une recette</button>`;
   }
-  // filtre Next : importance + tri (feuille sur téléphone, petite fenêtre sur ordi)
+  // filtre unique Recettes : type (Recette / Next recette), importance, origine — feuille sur téléphone, petite fenêtre sur ordi
   function czNFilterHtml(sheet) {
-    const all = CZ.recipes.filter(r => r.kind === 'next');
+    const all = CZ.recipes;
     const dot = { High: '#C8342B', Medium: '#C98A1B', Low: '#2F9E5B' };
-    const n = all.filter(r => !CZ.imp || r.importance === CZ.imp).length, cur = czSortOf('next');
-    return `${sheet ? `<div class="vm-grab"></div><h3 class="cz-fh">Filtres<button type="button" data-czn-reset>Réinitialiser</button></h3>` : ''}
+    const n = czRecipeRows('recipe').length;
+    const nNext = all.filter(r => r.kind === 'next').length;
+    const ors = [...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
+    const types = [['', 'Toutes', all.length], ['recipe', 'Recettes', all.length - nNext], ['next', 'Next recettes', nNext]];
+    return `${sheet ? `<div class="vm-grab"></div>` : ''}<h3 class="cz-fh">Filtres<button type="button" data-czn-reset>Réinitialiser</button></h3>
+      <div class="vm-field"><span>Afficher</span><div class="lb-fchips">${types.map(([v, l, c]) => `<button type="button" class="${(CZ.rtype || '') === v ? 'on' : ''}" data-cz-rtype="${v}">${l} <small>${c}</small></button>`).join('')}</div></div>
       <div class="vm-field"><span>Importance</span><div class="lb-fchips">${['', ...CZ_IMP].map(v => `<button type="button" class="${CZ.imp === v ? 'on' : ''}" data-cz-imp="${v}">${v ? `<i class="czf-dot" style="background:${dot[v]}"></i>${v} <small>${all.filter(r => r.importance === v).length}</small>` : 'Toutes'}</button>`).join('')}</div></div>
-      <div class="vm-field"><span>Trier par</span><div class="lb-fchips">${CZ_SORTS.next.map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}" data-czn-sort="${k}">${l}</button>`).join('')}</div></div>
-      ${sheet ? `<button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} idée${n > 1 ? 's' : ''}</button>` : ''}`;
+      ${sheet && ors.length ? `<div class="vm-field"><span>Origine</span><div class="lb-fchips">${['', ...ors].map(v => `<button type="button" class="${(CZ.origin || '') === v ? 'on' : ''}" data-cz-origin="${esc(v)}">${v ? czFlag(v) : ''}${esc(v || 'Toutes')}${v ? ` <small>${all.filter(r => r.origin === v).length}</small>` : ''}</button>`).join('')}</div></div>` : ''}
+      ${sheet ? `<button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} recette${n > 1 ? 's' : ''}</button>` : ''}`;
   }
   function czNFilterOpen(anchor) {
     if (isMobile()) {
@@ -13185,7 +13186,7 @@
     return `<div class="cz-grid">${rows.map(r => `<div class="cz-rc" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div>`).join('')}</div>`;
   }
   async function czNewRecipe(k) {
-    const kind = k || (V.cz === 'next' ? 'next' : 'recipe');
+    const kind = k || 'recipe';
     const { data, error } = await sb.from('cuisine_recipes').insert({ name: kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette', kind, links: [], images: [], types: [], tags: [] }).select().single();
     if (error) { alert('Création impossible : ' + error.message); return; }
     CZ.recipes.push(data);
@@ -13257,7 +13258,7 @@
   const CZM = { open: false, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: 'next', saving: false };
   const czMod = document.createElement('div'); czMod.className = 'cz-modal-bd cz-imp-bd'; czMod.hidden = true; document.body.appendChild(czMod);
   function czImport() {
-    Object.assign(CZM, { open: true, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: V.cz === 'recettes' || V.cz === 'recipe' ? 'recipe' : 'next', saving: false });
+    Object.assign(CZM, { open: true, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: 'recipe', saving: false });
     czImpRender(); setTimeout(() => czMod.querySelector('[data-czi-url]')?.focus(), 30);
   }
   function czImpClose() { CZM.open = false; czMod.hidden = true; czMod.innerHTML = ''; }
@@ -13272,7 +13273,7 @@
       const capShort = (d.caption || '').replace(/\s+/g, ' ').slice(0, 140);
       body = `<div class="czi-prev">${d.image ? `<div class="czi-im" style="background-image:url('${esc(d.image)}')">` : `<div class="czi-im" style="background:${czGrad(CZM.title || 'x')}">`}${s ? `<span class="cz-src">${esc(s.t === 'ig' ? 'Instagram' : s.t === 'web' ? s.host : s.label)}</span>` : ''}</div>
         <div class="czi-pt"><input type="text" class="czi-title" data-czi-title value="${esc(CZM.title)}" placeholder="Titre" aria-label="Titre">${d.author ? `<small>@${esc(d.author.replace(/^@/, ''))}</small>` : ''}${capShort ? `<p>« ${esc(capShort)}${(d.caption || '').length > 140 ? '…' : ''} »</p>` : ''}</div></div>
-        <div class="czi-seg v-seg"><button type="button" class="${CZM.kind === 'next' ? 'on' : ''}" data-czi-kind="next">Next</button><button type="button" class="${CZM.kind === 'recipe' ? 'on' : ''}" data-czi-kind="recipe">Recettes</button></div>
+        <div class="czi-seg v-seg"><button type="button" class="${CZM.kind === 'recipe' ? 'on' : ''}" data-czi-kind="recipe">Recette</button><button type="button" class="${CZM.kind === 'next' ? 'on' : ''}" data-czi-kind="next">Next recette</button></div>
         <div class="czi-sec"><div class="czi-sh">Ingrédients trouvés dans la description${CZM.ings.length ? ` · ${on.length}/${CZM.ings.length}` : ''}</div>
           ${CZM.ings.length ? CZM.ings.map((i, n) => {
             const m = i.match;
@@ -13850,9 +13851,9 @@
     const fk = t.closest('[data-czf-kind]'); if (fk) { CZ.kind = fk.dataset.czfKind; CZ.rayon = ''; LS.set('cz_kind2', CZ.kind); v2Render(); czCFilterRefresh(); return; }
     const fr = t.closest('[data-czf-ray]'); if (fr) { CZ.rayon = fr.dataset.czfRay; v2Render(); czCFilterRefresh(); return; }
     if (t.closest('[data-czf-reset]')) { CZ.kind = 'all'; CZ.rayon = ''; LS.set('cz_kind2', 'all'); v2Render(); czCFilterRefresh(); return; }
-    if (t.closest('[data-czn-reset]')) { CZ.imp = ''; LS.set('cz_nsort', 'imp'); v2Render(); czNFilterRefresh(); return; }
-    const ns = t.closest('[data-czn-sort]'); if (ns) { LS.set('cz_nsort', ns.dataset.cznSort); v2Render(); czNFilterRefresh(); return; }
-    const nf = t.closest('[data-cz-nfilter]'); if (nf) { czNFilterOpen(nf); return; }
+    if (t.closest('[data-czn-reset]')) { CZ.imp = ''; CZ.rtype = ''; CZ.origin = ''; v2Render(); czNFilterRefresh(); return; }
+    const rt = t.closest('[data-cz-rtype]'); if (rt) { CZ.rtype = rt.dataset.czRtype; v2Render(); czNFilterRefresh(); return; }
+    const nf = t.closest('[data-cz-rfilter],[data-cz-nfilter]'); if (nf) { czNFilterOpen(nf); return; }
     if (t.closest('[data-cz-recent]')) { CZ.recentOpen = !CZ.recentOpen; LS.set('cz_recent', CZ.recentOpen); czRefreshList(); return; }
     if (t.closest('[data-cz-group]')) { CZ.group = !CZ.group; LS.set('cz_group', CZ.group); v2Render(); return; }
     if (t.closest('[data-cz-addprod]')) {
@@ -13866,12 +13867,12 @@
     const ao = t.closest('[data-cz-allorigins]'); if (ao) { czOriginPop(ao); return; }
     if (t.closest('[data-cz-freset]')) { CZ.origin = ''; v2Render(); return; }
     const og = t.closest('[data-cz-origin]');
-    if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); return; }
+    if (og) { CZ.origin = og.dataset.czOrigin; v2Render(); czNFilterRefresh(); return; }
     const sm = t.closest('[data-cz-sortmenu]');
     if (sm) {
       const kind = sm.dataset.czSortmenu, cur = czSortOf(kind);
       const { m, close } = floatMenu(sm, CZ_SORTS[kind].map(([k, l]) => `<button type="button" data-k="${k}"><span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''));
-      m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LS.set(kind === 'next' ? 'cz_nsort' : 'cz_rsort', b.dataset.k); v2Render(); });
+      m.addEventListener('click', ev => { const b = ev.target.closest('[data-k]'); if (!b) return; close(); LS.set('cz_rsort', b.dataset.k); v2Render(); });
       return;
     }
     const im = t.closest('[data-cz-imp]');
@@ -13947,7 +13948,7 @@
   document.addEventListener('input', (e) => {
     const t = e.target;
     if (t.matches('[data-cz-q]')) { CZ.q = t.value; czRefreshList(); return; }
-    if (t.matches('[data-cz-rq]')) { CZ.rq = t.value; document.querySelectorAll('[data-cz-rlist]').forEach(el => { el.innerHTML = czRecipeListHtml(V.cz === 'next' ? 'next' : 'recipe'); }); }
+    if (t.matches('[data-cz-rq]')) { CZ.rq = t.value; document.querySelectorAll('[data-cz-rlist]').forEach(el => { el.innerHTML = czRecipeListHtml('recipe'); }); }
   });
   document.addEventListener('change', (e) => {
     const t = e.target;
