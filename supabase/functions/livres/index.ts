@@ -130,7 +130,9 @@ async function linkMeta(url: string) {
     const o = await (await fetch(`https://www.youtube.com/oembed?format=json&url=${encodeURIComponent('https://www.youtube.com/watch?v=' + yt[1])}`)).json().catch(() => ({}));
     return { src: 'yt', title: o.title || '', author: o.author_name || '', caption: '', image: await asDataUrl(`https://i.ytimg.com/vi/${yt[1]}/hqdefault.jpg`) };
   }
-  const h = await (await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; UltimateDashboard/1.0)' } })).text();
+  const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15', 'Accept': 'text/html,image/*,*/*' } });
+  if (/^image\//.test(res.headers.get('content-type') || '')) { await res.body?.cancel(); return { src: 'web', title: '', author: '', caption: '', image: await asDataUrl(url) }; } // lien direct vers une image
+  const h = await res.text();
   return { src: 'web', title: og(h, 'og:title') || tag(h, 'title'), author: og(h, 'og:site_name'), caption: og(h, 'og:description') || og(h, 'description'), image: await asDataUrl(og(h, 'og:image')) };
 }
 
