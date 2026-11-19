@@ -1907,12 +1907,11 @@
   .v-quick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .v-quick button {
     display: flex; flex-direction: column; align-items: flex-start; gap: 7px; padding: 10px 11px;
-    border: none; border-radius: 12px; background: #F5F4F1; cursor: pointer; text-align: left;
+    border: none; border-radius: 12px; background: var(--v-soft2); cursor: pointer; text-align: left;
     font-size: 12.5px; font-weight: 600; transition: background .15s ease;
   }
-  .v-quick button:hover { background: #EEEDE9; }
+  .v-quick button:hover { background: #EAE9E5; }
   .v-quick button.on { background: var(--v-chip); }
-  .v-quick button[data-v-quick="new"] { background: var(--v-chip); }
   .v-quick svg { width: 17px; height: 17px; }
   .v-side-label {
     display: flex; align-items: center; justify-content: space-between;
@@ -3856,6 +3855,49 @@
   .czip.sheet .czip-list { max-height: none; flex: 1; }
   .czip.sheet .czip-it, .czip.sheet .czip-new { padding: 10px 12px; font-size: 15.5px; }
   html.czip-lock, html.czip-lock body { overflow: hidden; }
+  /* Courses / Recettes / Next allégés : blocs par catégorie, bouton Filtres, + à droite de la recherche */
+  .cz-kgrp { display: flex; justify-content: space-between; align-items: baseline; padding: 14px 16px 7px 4px; }
+  .cz-kgrp:first-child { padding-top: 4px; }
+  .cz-kgrp small { font-size: 12px; }
+  .cz-list > .cz-card + .cz-kgrp { margin-top: 6px; }
+  .cz-cctrls { flex-wrap: nowrap; }
+  .cz-fbtn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px; border: none; border-radius: 10px; background: var(--v-soft2); color: var(--v-ink); font: 500 13px 'Inter', sans-serif; cursor: pointer; flex-shrink: 0; position: relative; white-space: nowrap; }
+  .cz-fbtn svg { width: 15px; height: 15px; }
+  .cz-fbtn b { min-width: 18px; height: 18px; border-radius: 9px; background: #1f1f1f; color: #fff; font-size: 11px; display: inline-flex; align-items: center; justify-content: center; padding: 0 5px; }
+  .cz-fbtn.sq b { position: absolute; top: -5px; right: -5px; }
+  .cz-sp { flex: 1; }
+  .cz-rctrls { flex-wrap: wrap; }
+  .cz-rctrls .cz-chips { min-width: 0; flex: 1 1 auto; }
+  .cz-rctrls .cz-chips:has(> .cz-fbtn) { flex: 0 1 auto; }
+  .cz-viewsw { flex-shrink: 0; }
+  .cz-viewsw button.on { box-shadow: none; }
+  .czf-pop { width: 340px; padding: 14px; display: flex; flex-direction: column; gap: 14px; }
+  .czf-pop .vm-field { display: flex; flex-direction: column; gap: 8px; }
+  .czf-pop .vm-field > span { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #8b8b8b; }
+  .czf-pop .lb-fchips { gap: 6px; }
+  .czf-pop .lb-fchips button { width: auto; padding: 7px 11px; font-size: 13px; border-radius: 10px; background: #F1F1EF; color: #1f1f1f; font-weight: 500; }
+  .czf-pop .lb-fchips button:hover { background: #EAE9E5; }
+  .czf-pop .lb-fchips button.on { background: #1f1f1f; color: #fff; }
+  .czf-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .lb-fchips button.on .czf-dot { box-shadow: 0 0 0 1.5px #fff; }
+  .lb-fchips button .czf { width: 18px; height: 12px; border-radius: 3px; }
+  .cz-fh { display: flex; align-items: baseline; justify-content: space-between; }
+  .cz-fh button { border: none; background: none; font: 500 14px 'Inter', sans-serif; color: var(--v-faint); cursor: pointer; padding: 0; }
+  .cz-fgo { border: none; border-radius: 12px; padding: 14px; background: #1f1f1f; color: #fff; font: 600 15px 'Inter', sans-serif; cursor: pointer; }
+  .cz-plusbtn { flex-shrink: 0; width: 46px; border: none; border-radius: 12px; background: #1f1f1f; color: #fff; display: flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }
+  .cz-plusbtn svg { width: 20px; height: 20px; }
+  #v2m.cz-on .vm-fab { display: none; }
+  .cz-mob .cz-cctrls, .cz-mob .cz-rctrls { flex-wrap: nowrap; }
+  .cz-mob .cz-cctrls .cz-scope { flex: 1 1 auto; background: var(--v-seg); border-radius: 12px; }
+  .cz-mob .cz-cctrls .cz-scope button { padding: 9px 4px; border-radius: 9px; font-size: 13px; }
+  .cz-mob .cz-fbtn { background: var(--v-card); height: 36px; border-radius: 12px; }
+  .cz-mob .cz-fbtn.sq { width: 46px; height: auto; align-self: stretch; padding: 0; justify-content: center; }
+  .cz-mob .cz-fbtn.sq svg { width: 19px; height: 19px; }
+  .cz-mob .cz-rctrls .cz-chips { order: 0; flex: 0 1 auto; }
+  .cz-mob .cz-viewsw { background: var(--v-card); border-radius: 12px; padding: 3px; }
+  .cz-mob .cz-viewsw button { padding: 6px 9px; border-radius: 9px; color: #9a9a96; }
+  .cz-mob .cz-viewsw button.on { background: var(--v-soft2); color: var(--v-ink); }
+  .cz-mob .cz-sortbtn { height: 36px; border-radius: 12px; }
   .cz-inline-add { border: 1px dashed #D9D7D0; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--v-ink); outline: none; background: transparent; }
   .cz-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: #F3F1EC; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
   .cz-ghost svg { width: 18px; height: 18px; }
@@ -3936,7 +3978,7 @@
             <div class="d-topbar-home">
               <div class="d-topbar-icon-btn d-topbar-project-badge" data-kanban-project-name data-go-home style="cursor:pointer;">Dashboard</div>
               <button type="button" class="d-topbar-icon-btn" data-open-projects-overview title="Vue par projet">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/><rect x="14" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="4" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="14" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/></svg>
               </button>
             </div>
             <div class="d-topbar-search-wrap">
@@ -4149,7 +4191,7 @@
               </div>
               <div class="h3-right">
                 <button class="dots-btn" data-open-projects-overview title="Vue par projet">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/><rect x="14" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="4" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="14" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/></svg>
                 </button>
                 <button class="dots-btn" data-toggle-completed title="Afficher les tâches terminées">
                   <svg class="eye-closed" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.53 18.53 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -10524,7 +10566,7 @@
     title: svg('<circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/>', ' style="color:#237F46"'),
     vList: svg('<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor"/>'),
     vKanban: svg('<rect x="3.5" y="4" width="4.6" height="16" rx="1.6"/><rect x="9.7" y="4" width="4.6" height="10" rx="1.6"/><rect x="15.9" y="4" width="4.6" height="13" rx="1.6"/>'),
-    vCats: svg('<rect x="4" y="4" width="7" height="7" rx="2.2"/><rect x="13" y="4" width="7" height="7" rx="2.2"/><rect x="4" y="13" width="7" height="7" rx="2.2"/><rect x="13" y="13" width="7" height="7" rx="2.2"/>'),
+    vCats: svg('<rect x="4" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/><rect x="14" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="4" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="14" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/>'),
   };
 
   // ---------------- couleurs des catégories ----------------
@@ -12441,9 +12483,9 @@
     products: [], recipes: [], items: [],
     q: '', rq: '',
     scope: LS.get('cz_scope', 'buy'),          // buy = à acheter, all = tous les produits
-    kind: LS.get('cz_kind', 'Alimentation'),   // all | Alimentation | Divers | Shopping
+    kind: LS.get('cz_kind2', 'all'),            // filtre : all | Alimentation | Divers | Shopping (par défaut tout, en blocs)
     rayon: '',                                  // filtre rayon
-    group: LS.get('cz_group', false),           // grouper par rayon (option)
+    group: false,
     recentOpen: LS.get('cz_recent', false),     // section « Cochés récemment » dépliée ?
     rview: LS.get('cz_rview', 'grid'),          // grid | list
     origin: '', imp: '',
@@ -12461,7 +12503,7 @@
     fork: svg('<path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8a2 2 0 0 1-2 2M5 3v8a2 2 0 0 0 2 2M17 21V3c-2 1.5-3 4-3 7h3"/>', ' stroke-width="1.8"'),
     play: svg('<rect x="3" y="5" width="18" height="13" rx="2"/><path d="M10 9l5 2.5-5 2.5z"/>', ' stroke-width="1.8"'),
     tri: '<svg viewBox="0 0 24 24" fill="#fff" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
-    grid: svg('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+    grid: svg('<rect x="4" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/><rect x="14" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="4" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="14" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/>'),
     list: svg('<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1" fill="currentColor"/><circle cx="4.5" cy="12" r="1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1" fill="currentColor"/>'),
     back: svg('<path d="M15 18l-6-6 6-6"/>'),
     dots: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5.5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18.5" cy="12" r="1.8"/></svg>',
@@ -12547,18 +12589,43 @@
   }
   function czCoursesHtml(mobile) {
     const [nBuy, nAll] = czScopeCounts();
-    const rays = czRayons();
+    const nf = (CZ.kind !== 'all' ? 1 : 0) + (CZ.rayon ? 1 : 0);
     return `
       <div class="cz-bar">
         <label class="cz-search">${I.search}<input type="search" data-cz-q value="${esc(CZ.q)}" placeholder="Chercher ou ajouter un produit…" autocomplete="off" enterkeyhint="done" aria-label="Chercher ou ajouter un produit"></label>
       </div>
-      <div class="cz-ctrls">
+      <div class="cz-ctrls cz-cctrls">
         <div class="v-seg cz-scope"><button type="button" class="${CZ.scope === 'buy' ? 'on' : ''}" data-cz-scope="buy">À acheter <small>${nBuy}</small></button><button type="button" class="${CZ.scope === 'all' ? 'on' : ''}" data-cz-scope="all">Tous les produits <small>${nAll}</small></button></div>
-        <select class="cz-select" data-cz-rayon aria-label="Rayon"><option value="">Tous les rayons</option>${rays.map(([r, n]) => `<option value="${esc(r)}"${CZ.rayon === r ? ' selected' : ''}>${esc(r)} (${n})</option>`).join('')}</select>
-        <div class="cz-chips">${['all', ...CZ_KINDS].map(k => `<button type="button" class="cz-chip${CZ.kind === k ? ' on' : ''}" data-cz-kind="${k}">${k === 'all' ? 'Tout' : k}</button>`).join('')}</div>
-        <button type="button" class="cz-chip cz-opt${CZ.group ? ' on' : ''}" data-cz-group aria-pressed="${CZ.group}" title="Grouper la liste par rayon">Par rayon</button>
+        <button type="button" class="cz-fbtn${mobile ? ' sq' : ''}${nf ? ' on' : ''}" data-cz-cfilter aria-label="Filtres">${LBI.filter}${mobile ? '' : '<span>Filtres</span>'}${nf ? `<b>${nf}</b>` : ''}</button>
       </div>
       <div class="cz-list" data-cz-list>${czListHtml()}</div>`;
+  }
+  // filtre des Courses : catégorie + rayon (feuille sur téléphone, petite fenêtre sur ordi)
+  function czCFilterHtml(sheet) {
+    const base = czLive().filter(p => CZ.scope === 'all' || p.to_buy);
+    const kcount = k => base.filter(p => (p.kind || 'Alimentation') === k).length;
+    const inKind = base.filter(p => CZ.kind === 'all' || (p.kind || 'Alimentation') === CZ.kind);
+    const rm = new Map(); inKind.forEach(p => (p.rayons || []).forEach(r => rm.set(r, (rm.get(r) || 0) + 1)));
+    const rays = [...rm.entries()].sort((a, b) => a[0].localeCompare(b[0], 'fr'));
+    if (CZ.rayon && !rm.has(CZ.rayon)) rays.push([CZ.rayon, 0]);
+    const n = inKind.filter(p => !CZ.rayon || (p.rayons || []).includes(CZ.rayon)).length;
+    return `${sheet ? `<div class="vm-grab"></div><h3 class="cz-fh">Filtres<button type="button" data-czf-reset>Réinitialiser</button></h3>` : ''}
+      <div class="vm-field"><span>Catégorie</span><div class="lb-fchips">${[['all', 'Toutes'], ...CZ_KINDS.map(k => [k, k])].map(([k, l]) => `<button type="button" class="${CZ.kind === k ? 'on' : ''}" data-czf-kind="${k}">${l}${k === 'all' ? '' : ` <small>${kcount(k)}</small>`}</button>`).join('')}</div></div>
+      <div class="vm-field"><span>Rayon</span><div class="lb-fchips">${[['', 'Tous', null], ...rays.map(([r, c]) => [r, r, c])].map(([k, l, c]) => `<button type="button" class="${CZ.rayon === k ? 'on' : ''}" data-czf-ray="${esc(k)}">${esc(l)}${c == null ? '' : ` <small>${c}</small>`}</button>`).join('')}</div></div>
+      ${sheet ? `<button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} produit${n > 1 ? 's' : ''}</button>` : ''}`;
+  }
+  function czCFilterOpen(anchor) {
+    if (isMobile()) {
+      const sh = document.querySelector('#v2m [data-vm-sheet]'), bd = document.querySelector('#v2m [data-vm-sheet-bd]'); if (!sh) return;
+      sh.innerHTML = czCFilterHtml(true); sh.dataset.czf = '1'; sh.classList.add('open'); bd?.classList.add('open'); return;
+    }
+    const { m } = floatMenu(anchor, czCFilterHtml(false), 'czf-pop');
+    CZ.cfPop = m;
+  }
+  function czCFilterRefresh() {
+    const sh = document.querySelector('#v2m [data-vm-sheet].open');
+    if (sh && sh.dataset.czf) sh.innerHTML = czCFilterHtml(true);
+    if (CZ.cfPop && document.body.contains(CZ.cfPop)) CZ.cfPop.innerHTML = czCFilterHtml(false);
   }
   function czFilteredProducts() {
     const q = czNorm(CZ.q);
@@ -12589,12 +12656,10 @@
     }
     if (!rows.length && !q) html += `<div class="v-empty">${CZ.scope === 'buy' ? 'Rien à acheter 🎉' : 'Aucun produit.'}</div>`;
     if (rows.length) {
-      if (CZ.group && !q) {
-        const groups = new Map();
-        rows.forEach(p => { const k = (p.rayons || [])[0] || 'Sans rayon'; if (!groups.has(k)) groups.set(k, []); groups.get(k).push(p); });
-        [...groups.entries()].sort((a, b) => a[0] === 'Sans rayon' ? 1 : b[0] === 'Sans rayon' ? -1 : a[0].localeCompare(b[0], 'fr'))
-          .forEach(([k, ps]) => { html += `<div class="cz-grp">${esc(k)} <small>${ps.length}</small></div><div class="cz-card">${ps.map(czRowHtml).join('')}</div>`; });
-      } else html += `<div class="cz-card">${rows.map(czRowHtml).join('')}</div>`;
+      CZ_KINDS.forEach(k => { // Alimentation, puis Divers, puis Shopping, chacun dans son bloc
+        const ps = rows.filter(p => (CZ_KINDS.includes(p.kind) ? p.kind : 'Alimentation') === k);
+        if (ps.length) html += `<div class="cz-grp cz-kgrp"><span>${k}</span><small>${ps.length}</small></div><div class="cz-card">${ps.map(czRowHtml).join('')}</div>`;
+      });
     }
     if (q && !exact) html += `<button type="button" class="cz-addbtn" data-cz-addprod>${I.plus}Ajouter « ${esc(q)} » aux courses</button>`;
     if (!q && CZ.scope === 'buy') {
@@ -12929,21 +12994,41 @@
   }
   function czRecipesHtml(kind, mobile) {
     const all = CZ.recipes.filter(r => (kind === 'next' ? r.kind === 'next' : r.kind !== 'next'));
-    const nf = kind === 'recipe' && CZ.origin ? 1 : 0;
-    const chips = kind === 'recipe' && mobile
-      ? `<button type="button" class="lb-filt${nf ? ' on' : ''}" data-cz-filters>${LBI.filter}<span>${nf ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`
-      : kind === 'recipe' ? czOriginBar()
-      : kind === 'next'
-      ? ['', ...CZ_IMP].map(v => `<button type="button" class="cz-chip${CZ.imp === v ? ' on' : ''}" data-cz-imp="${v}">${v || 'Toutes'}${v ? ` <small>${all.filter(r => r.importance === v).length}</small>` : ''}</button>`).join('')
-      : ['', ...[...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'))].map(v => `<button type="button" class="cz-chip${CZ.origin === v ? ' on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Tout')}</button>`).join('');
+    const sk = kind === 'next' ? 'next' : 'recipe';
+    const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
+    const nf = kind === 'next' ? (CZ.imp ? 1 : 0) : (CZ.origin ? 1 : 0);
+    const fbtn = `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" ${kind === 'next' ? 'data-cz-nfilter' : 'data-cz-filters'}>${LBI.filter}<span>${kind !== 'next' && CZ.origin ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`;
+    const left = kind === 'recipe' && !mobile ? czOriginBar() : fbtn;
     return `
       <div class="cz-bar">
         <label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label>
-        ${mobile ? `<button type="button" class="cz-vbtn${CZ.rview === 'grid' ? ' on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="cz-vbtn${CZ.rview === 'list' ? ' on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button>` : `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`}
-        ${mobile ? '' : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
+        ${mobile ? `<button type="button" class="cz-plusbtn" data-cz-newrecipe aria-label="${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}">${I.plus}</button>` : `<button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${kind === 'next' ? 'Nouvelle idée' : 'Nouvelle recette'}</button>`}
       </div>
-      <div class="cz-ctrls"><div class="cz-chips">${chips}${mobile ? czSortBtn(kind === 'next' ? 'next' : 'recipe') : ''}</div>${mobile ? '' : czSortBtn(kind === 'next' ? 'next' : 'recipe')}</div>
+      <div class="cz-ctrls cz-rctrls"><div class="cz-chips">${left}</div><span class="cz-sp"></span>${czSortBtn(sk)}${view}</div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
+  }
+  // filtre Next : importance + tri (feuille sur téléphone, petite fenêtre sur ordi)
+  function czNFilterHtml(sheet) {
+    const all = CZ.recipes.filter(r => r.kind === 'next');
+    const dot = { High: '#C8342B', Medium: '#C98A1B', Low: '#2F9E5B' };
+    const n = all.filter(r => !CZ.imp || r.importance === CZ.imp).length, cur = czSortOf('next');
+    return `${sheet ? `<div class="vm-grab"></div><h3 class="cz-fh">Filtres<button type="button" data-czn-reset>Réinitialiser</button></h3>` : ''}
+      <div class="vm-field"><span>Importance</span><div class="lb-fchips">${['', ...CZ_IMP].map(v => `<button type="button" class="${CZ.imp === v ? 'on' : ''}" data-cz-imp="${v}">${v ? `<i class="czf-dot" style="background:${dot[v]}"></i>${v} <small>${all.filter(r => r.importance === v).length}</small>` : 'Toutes'}</button>`).join('')}</div></div>
+      ${sheet ? `<div class="vm-field"><span>Trier par</span><div class="lb-fchips">${CZ_SORTS.next.map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}" data-czn-sort="${k}">${l}</button>`).join('')}</div></div>
+      <button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} idée${n > 1 ? 's' : ''}</button>` : ''}`;
+  }
+  function czNFilterOpen(anchor) {
+    if (isMobile()) {
+      const sh = document.querySelector('#v2m [data-vm-sheet]'), bd = document.querySelector('#v2m [data-vm-sheet-bd]'); if (!sh) return;
+      sh.innerHTML = czNFilterHtml(true); sh.dataset.czf = 'n'; sh.classList.add('open'); bd?.classList.add('open'); return;
+    }
+    const { m } = floatMenu(anchor, czNFilterHtml(false), 'czf-pop');
+    CZ.nfPop = m;
+  }
+  function czNFilterRefresh() {
+    const sh = document.querySelector('#v2m [data-vm-sheet].open');
+    if (sh && sh.dataset.czf === 'n') sh.innerHTML = czNFilterHtml(true);
+    if (CZ.nfPop && document.body.contains(CZ.nfPop)) CZ.nfPop.innerHTML = czNFilterHtml(false);
   }
   // ---------- Filtres (mobile, Recettes) : origine / pays dans une feuille ----------
   function czFilterSheet(open) {
@@ -12951,9 +13036,11 @@
     if (!open && !(sh.classList.contains('open') && sh.querySelector('[data-cz-freset]'))) return;
     const all = CZ.recipes.filter(r => r.kind !== 'next');
     const ors = [...new Set(all.map(r => r.origin).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr'));
-    sh.innerHTML = `<div class="vm-grab"></div><h3>Filtres</h3>
-      <div class="vm-field"><span>Origine</span><div class="lb-fchips">${['', ...ors].map(v => `<button type="button" class="${(CZ.origin || '') === v ? 'on' : ''}" data-cz-origin="${esc(v)}">${esc(v || 'Toutes')}${v ? ` <small>${all.filter(r => r.origin === v).length}</small>` : ''}</button>`).join('')}</div></div>
-      <div class="vm-sheet-actions"><button type="button" data-cz-freset>Réinitialiser</button><button type="button" class="main" data-vm-sheet-close>OK</button></div>`;
+    const n = all.filter(r => !CZ.origin || r.origin === CZ.origin).length;
+    sh.dataset.czf = '';
+    sh.innerHTML = `<div class="vm-grab"></div><h3 class="cz-fh">Filtres<button type="button" data-cz-freset>Réinitialiser</button></h3>
+      <div class="vm-field"><span>Origine</span><div class="lb-fchips">${['', ...ors].map(v => `<button type="button" class="${(CZ.origin || '') === v ? 'on' : ''}" data-cz-origin="${esc(v)}">${v ? czFlag(v) : ''}${esc(v || 'Toutes')}${v ? ` <small>${all.filter(r => r.origin === v).length}</small>` : ''}</button>`).join('')}</div></div>
+      <button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} recette${n > 1 ? 's' : ''}</button>`;
     if (open) { sh.classList.add('open'); bd?.classList.add('open'); }
   }
   function czRecipeListHtml(kind) {
@@ -13626,7 +13713,14 @@
     const sc = t.closest('[data-cz-scope]');
     if (sc) { CZ.scope = sc.dataset.czScope; LS.set('cz_scope', CZ.scope); v2Render(); return; }
     const kd = t.closest('[data-cz-kind]');
-    if (kd) { CZ.kind = kd.dataset.czKind; LS.set('cz_kind', CZ.kind); v2Render(); return; }
+    if (kd) { CZ.kind = kd.dataset.czKind; LS.set('cz_kind2', CZ.kind); v2Render(); return; }
+    const cfb = t.closest('[data-cz-cfilter]'); if (cfb) { czCFilterOpen(cfb); return; }
+    const fk = t.closest('[data-czf-kind]'); if (fk) { CZ.kind = fk.dataset.czfKind; CZ.rayon = ''; LS.set('cz_kind2', CZ.kind); v2Render(); czCFilterRefresh(); return; }
+    const fr = t.closest('[data-czf-ray]'); if (fr) { CZ.rayon = fr.dataset.czfRay; v2Render(); czCFilterRefresh(); return; }
+    if (t.closest('[data-czf-reset]')) { CZ.kind = 'all'; CZ.rayon = ''; LS.set('cz_kind2', 'all'); v2Render(); czCFilterRefresh(); return; }
+    if (t.closest('[data-czn-reset]')) { CZ.imp = ''; LS.set('cz_nsort', 'imp'); v2Render(); czNFilterRefresh(); return; }
+    const ns = t.closest('[data-czn-sort]'); if (ns) { LS.set('cz_nsort', ns.dataset.cznSort); v2Render(); czNFilterRefresh(); return; }
+    const nf = t.closest('[data-cz-nfilter]'); if (nf) { czNFilterOpen(nf); return; }
     if (t.closest('[data-cz-recent]')) { CZ.recentOpen = !CZ.recentOpen; LS.set('cz_recent', CZ.recentOpen); czRefreshList(); return; }
     if (t.closest('[data-cz-group]')) { CZ.group = !CZ.group; LS.set('cz_group', CZ.group); v2Render(); return; }
     if (t.closest('[data-cz-addprod]')) {
@@ -13649,7 +13743,7 @@
       return;
     }
     const im = t.closest('[data-cz-imp]');
-    if (im) { CZ.imp = im.dataset.czImp; v2Render(); return; }
+    if (im) { CZ.imp = im.dataset.czImp; v2Render(); czNFilterRefresh(); return; }
     if (t.closest('[data-cz-newrecipe]')) { czImport(); return; }
     const op = t.closest('[data-cz-open]');
     if (op) { czOpen(op.dataset.czOpen); return; }
@@ -13816,7 +13910,7 @@
     filter: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
     book: svg('<path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/>'),
     tablet: svg('<rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M11 18h2"/>'),
-    grid: svg('<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'),
+    grid: svg('<rect x="4" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/><rect x="14" y="4" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="4" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none" opacity=".35"/><rect x="14" y="14" width="6" height="6" rx="1.8" fill="currentColor" stroke="none"/>'),
     eye: svg('<path d="M2.5 12s3.5-6.5 9.5-6.5S21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>'),
     cart: svg('<path d="M3 4h2l2.4 11h10.2L20 8H6.2"/><circle cx="9" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/>'),
     cal: svg('<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>'),

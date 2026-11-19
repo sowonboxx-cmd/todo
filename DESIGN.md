@@ -120,14 +120,17 @@ qui « flashe »). La couleur sert seulement à repérer (icône, petite pastill
   Tout / Alimentation / Divers / Shopping…) utilisent `.v-seg` : même piste grise, même onglet
   actif blanc. Pas de puces noires d'un côté et d'onglets de l'autre.
 - **Filtres** : un seul bouton « Filtres » (icône + pastille du nombre actif) qui ouvre une feuille
-  en bas sur téléphone, une petite fenêtre sur ordi. Couleur de sélection = celle de l'espace
-  (Cuisine : beige `#F6EFE6` / brun `#7A4A12`), jamais le bleu par défaut.
+  en bas sur téléphone, une petite fenêtre sur ordi. Sélection = **noir `#1F1F1F`** (couleur par
+  défaut de l'app), puces non choisies en gris `#F1F1EF` ; pastille du nombre en noir ; bouton
+  « Voir N … » noir. Jamais de bleu, pas de couleurs en plus.
 - **Pas de `<select>` natif** (flèche collée au bord, style du navigateur) : `floatMenu()` ou feuille.
 - **Fonds gris des boutons et tuiles** : le même gris que la piste des onglets (`#F1F1EF` sur
   fond blanc, `--v-seg` `#E9E7E1` sur fond `--v-bg`). Vaut pour Aujourd'hui / En retard /
   Favoris / Nouvelle tâche, « Nouvelle idée », « Nouvelle recette », etc.
-- **Pas de bordure noire** autour d'un élément gris sélectionné (galerie / liste, recherche…) :
-  l'état actif = fond gris un peu plus foncé ou blanc, sans contour.
+- **Pas de bordure, jamais** : ni autour d'un élément sélectionné (puce, filtre, galerie / liste,
+  recherche…), ni pour décorer. L'état actif = fond noir `#1F1F1F` texte blanc (puces, filtres)
+  ou fond gris un peu plus foncé / blanc (onglets), sans contour.
 - **Champ de recherche** : fond gris de l'app, sans bordure, loupe grise.
 - **Ajouter** : le + va à droite de la barre de recherche, pas en bouton flottant.
-- **Icône grille** : carrés espacés (ne se touchent pas), même icône partout dans l'app.
+- **Icône grille** : « G3 » — 4 petits carrés pleins espacés, deux tons (haut-gauche et bas-droite
+  pleins, les deux autres à 35 %), même icône partout dans l'app.
