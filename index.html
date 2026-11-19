@@ -2506,7 +2506,12 @@
   .vm-drawer { touch-action: pan-y; overscroll-behavior: none; }
   .vm-drawer-bd, .vm-drawer-foot { touch-action: none; }
   .vm-drawer .v-side { overflow-x: hidden; overscroll-behavior: none; touch-action: pan-y; }
-  .vm-page { padding-bottom: 96px; }
+  .vm-page { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  /* app installée sur l'iPhone : iOS arrête l'écran au-dessus de la barre d'accueil → on étend jusqu'en bas pour que la liste défile dessous */
+  @media (display-mode: standalone) and (max-width: 899px) {
+    html.v2-on body.v2-on { bottom: auto; height: 100vh; }
+    #v2m { bottom: auto; height: 100vh; }
+  }
   .vm-edge { position: fixed; left: 0; top: 0; bottom: 0; width: 16px; z-index: 40; touch-action: none; }
   .vm-tabs .v-seg button { min-height: 38px; }
   .vm-tabs .v-seg button:active, .vm-ibtn:active, .vm-nav button.vm-view:active { opacity: .6; }
