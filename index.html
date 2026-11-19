@@ -12624,6 +12624,9 @@
     p.to_buy = !p.to_buy;
     p.updated_at = new Date().toISOString();
     const leaving = !p.to_buy && CZ.scope === 'buy' && !CZ.q.trim();
+    if (p.to_buy && CZ.q.trim() && V.space === 'cuisine' && V.cz === 'courses') { // remis dans les courses depuis la recherche : on vide la recherche et on revient à la liste
+      CZ.q = ''; document.querySelectorAll('[data-cz-q]').forEach(i => { i.value = ''; });
+    }
     if (leaving) {
       document.querySelectorAll(`[data-cz-row="${id}"]`).forEach(r => { r.classList.add('done', 'leaving'); const c = r.querySelector('.cz-chk'); c.classList.add('ok'); c.innerHTML = I.check; });
       setTimeout(() => { czRefreshAll(); }, 420);
