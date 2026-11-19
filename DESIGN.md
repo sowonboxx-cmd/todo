@@ -108,3 +108,26 @@ Couleurs de projet / catégorie : générées par `colors()` à partir de la cou
 - Couleurs : retard rouge, aujourd'hui vert.
 - Liste : onglet **Tout** par défaut (aujourd'hui, puis retard, puis la suite par date) ;
   ordre des onglets : Tout, Overdue, Today, Demain (Semaine sur ordi).
+
+---
+
+## 8. Cohérence — ce qui doit se ressembler partout
+
+Règle : un même rôle = un même composant, et par défaut **gris** (pas de bleu, pas de couleur
+qui « flashe »). La couleur sert seulement à repérer (icône, petite pastille), jamais de fond vif.
+
+- **Tous les choix d'un groupe** (À acheter / Tous les produits, Courses / Recettes / Next,
+  Tout / Alimentation / Divers / Shopping…) utilisent `.v-seg` : même piste grise, même onglet
+  actif blanc. Pas de puces noires d'un côté et d'onglets de l'autre.
+- **Filtres** : un seul bouton « Filtres » (icône + pastille du nombre actif) qui ouvre une feuille
+  en bas sur téléphone, une petite fenêtre sur ordi. Couleur de sélection = celle de l'espace
+  (Cuisine : beige `#F6EFE6` / brun `#7A4A12`), jamais le bleu par défaut.
+- **Pas de `<select>` natif** (flèche collée au bord, style du navigateur) : `floatMenu()` ou feuille.
+- **Fonds gris des boutons et tuiles** : le même gris que la piste des onglets (`#F1F1EF` sur
+  fond blanc, `--v-seg` `#E9E7E1` sur fond `--v-bg`). Vaut pour Aujourd'hui / En retard /
+  Favoris / Nouvelle tâche, « Nouvelle idée », « Nouvelle recette », etc.
+- **Pas de bordure noire** autour d'un élément gris sélectionné (galerie / liste, recherche…) :
+  l'état actif = fond gris un peu plus foncé ou blanc, sans contour.
+- **Champ de recherche** : fond gris de l'app, sans bordure, loupe grise.
+- **Ajouter** : le + va à droite de la barre de recherche, pas en bouton flottant.
+- **Icône grille** : carrés espacés (ne se touchent pas), même icône partout dans l'app.
