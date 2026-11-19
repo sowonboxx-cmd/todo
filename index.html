@@ -1223,7 +1223,16 @@
     flex-shrink: 0; width: 14px; text-align: center; color: var(--faint); font-size: 13px;
     line-height: 1; cursor: grab; user-select: none;
   }
-  .td-subtask-title { flex: 1; font-size: 13px; }
+  .td-subtask-title { flex: 1; font-size: 13px; min-width: 0; outline: none; cursor: text; word-break: break-word; min-height: 1.4em; }
+  .td-st-open { display: flex; flex-direction: column; }
+  .td-st-open > .td-subtask-row:last-child { border-bottom: none; }
+  .td-st-new .checkbox { opacity: .45; cursor: default; pointer-events: none; }
+  .td-st-new .td-subtask-title:empty::before { content: attr(data-ph); color: #B5B2AB; }
+  .td-st-draft .td-subtask-drag, .td-st-new .td-subtask-drag { visibility: hidden; }
+  .td-subtask-row:focus-within { background: #FAFAF8; border-radius: 8px; }
+  .td-subtask-row .td-subtask-drag, .td-subtask-row .td-img-remove { opacity: 0; transition: opacity .12s; }
+  .td-subtask-row:hover .td-subtask-drag, .td-subtask-row:hover .td-img-remove, .td-subtask-row .td-img-remove.confirming { opacity: 1; }
+  @media (hover: none) { .td-subtask-row .td-img-remove { opacity: 1; } }
   /* « + Ajouter une sous-tâche / une source » sans titres de section (téléphone et ordinateur) */
   [data-task-sheet] [data-view="detail"] > .pa-section-head { display: none !important; }
   .td-more-mob { display: none !important; }
@@ -1244,7 +1253,7 @@
   }
   /* détail d'une tâche : « n sous-tâches terminées » à droite, sur la ligne de « + Ajouter » */
   [data-td-subtasks-list] { position: relative; }
-  [data-td-subtasks-list] > .td-subtasks-done-toggle { position: absolute; right: 4px; top: 100%; z-index: 1; height: 36px; padding: 0; display: flex; align-items: center; }
+  [data-td-subtasks-list] > .td-subtasks-done-toggle { position: static; height: auto; padding: 8px 4px 2px; display: flex; align-items: center; justify-content: flex-end; }
   /* champ de saisie ouvert (ligne « + Ajouter » masquée) : le compteur revient sous la liste, à droite */
   [data-td-subtasks-list]:has(+ [data-td-add-subtask-row][style*="none"]) > .td-subtasks-done-toggle { position: static; height: auto; padding: 8px 4px 4px; justify-content: flex-end; }
   .td-subtasks-done-toggle:hover { color: var(--ink); }
@@ -4474,10 +4483,6 @@
 
               <div class="pa-section-head" data-td-subtasks-head style="display:none;">Sous-tâches</div>
               <div class="td-subtasks-list" data-td-subtasks-list></div>
-              <div class="add-subtask-row" data-td-add-subtask-row>
-                <span class="add-subtask-plus">+</span>
-                <span>Ajouter<span class="td-add-what"> une sous-tâche</span></span>
-              </div>
               <input type="text" class="add-subtask-input" data-add-subtask-input placeholder="Sous-tâche…" style="display:none;">
 
               <div class="pa-section-head">Sources</div>
@@ -5443,8 +5448,7 @@
         if (el.dataset.searchKind === 'todo') {
           openTaskSheet(phone, el.dataset.searchId);
         } else {
-          openTaskSheet(phone, el.dataset.searchParent);
-          openSubtaskDetail(sheet, el.dataset.searchId);
+          openTaskSheet(phone, el.dataset.searchParent); // plus de page interne pour une sous-tâche : on ouvre la tâche
         }
       });
     });
@@ -6014,6 +6018,100 @@
     showLightboxImage(lb);
   }
 
+  // ---- sous-tâches écrites en ligne : Entrée = enregistre et ouvre la ligne suivante, clic ailleurs = enregistre,
+  //      retour arrière sur une ligne vide = la supprime et remonte ----
+  function tdStText(el) { return (el.textContent || '').replace(/\s+/g, ' ').trim(); }
+  function tdStCaretEnd(el) { el.focus(); const r = document.createRange(); r.selectNodeContents(el); r.collapse(false); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); }
+  async function tdStSaveOrder(box) { // positions des sous-tâches non terminées, dans l'ordre affiché
+    const ids = [...box.querySelectorAll('.td-subtask-row[data-subtask-id]')].map(r => r.dataset.subtaskId);
+    for (let i = 0; i < ids.length; i++) {
+      const sub = cachedSubtasks.find(x => x.id === ids[i]);
+      if (sub && sub.position !== i + 1) { sub.position = i + 1; await sb.from('subtasks').update({ position: i + 1 }).eq('id', ids[i]); }
+    }
+  }
+  function tdStDraft(after) { // nouvelle ligne vide juste en dessous
+    const d = document.createElement('div');
+    d.className = 'td-subtask-row td-st-draft';
+    d.innerHTML = `<span class="td-subtask-drag"></span><div class="checkbox"></div><div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next"></div>`;
+    after.after(d);
+    return d.querySelector('[data-subtask-edit]');
+  }
+  async function tdStCommit(sheet, todoId, ed) { // enregistre une ligne (nouvelle ou modifiée) ; renvoie la ligne
+    const row = ed.closest('.td-subtask-row'); if (!row || row.dataset.saving) return row;
+    const title = tdStText(ed);
+    if (row.dataset.subtaskId) { // modification
+      const s = cachedSubtasks.find(x => x.id === row.dataset.subtaskId);
+      if (!title) { ed.textContent = s ? s.title : ''; return row; } // vidé puis quitté : on remet le texte
+      if (s && s.title !== title) { s.title = title; await sb.from('subtasks').update({ title }).eq('id', s.id); }
+      return row;
+    }
+    if (!title) return row;
+    row.dataset.saving = '1';
+    const box = row.parentElement;
+    const { data: newSub, error } = await sb.from('subtasks').insert({ todo_id: todoId, title }).select().single();
+    delete row.dataset.saving;
+    if (error) { console.error(error); return row; }
+    cachedSubtasks.push(newSub);
+    let real = row;
+    if (row.matches('[data-st-new]')) { // la ligne « Ajouter » reste en bas : la nouvelle s'insère juste au-dessus
+      real = document.createElement('div');
+      real.className = 'td-subtask-row';
+      real.innerHTML = `<span class="td-subtask-drag" title="Réorganiser">${DRAG_ICON_SVG}</span><div class="checkbox" data-subtask-checkbox></div><div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next"></div><button type="button" class="td-img-remove" data-subtask-remove="${newSub.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>`;
+      real.querySelector('[data-subtask-edit]').textContent = title;
+      row.before(real);
+      ed.textContent = '';
+    } else {
+      row.classList.remove('td-st-draft');
+      row.querySelector('.td-subtask-drag').innerHTML = DRAG_ICON_SVG;
+      row.querySelector('.checkbox').setAttribute('data-subtask-checkbox', '');
+      row.insertAdjacentHTML('beforeend', `<button type="button" class="td-img-remove" data-subtask-remove="${newSub.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>`);
+    }
+    real.dataset.subtaskId = newSub.id; real.dataset.reorderId = newSub.id;
+    tdStSaveOrder(box);
+    return real;
+  }
+  function tdWireSubtaskEdit(sheet, todoId, list) {
+    if (list.dataset.stWired) return; // délégation : une seule fois par liste
+    list.dataset.stWired = '1';
+    list.addEventListener('keydown', async (e) => {
+      const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
+      const row = ed.closest('.td-subtask-row');
+      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+        e.preventDefault();
+        if (!tdStText(ed)) return;
+        const isNew = row.matches('[data-st-new]');
+        const saved = await tdStCommit(sheet, todoId, ed);
+        if (isNew) { ed.focus(); return; } // on reste sur la ligne « Ajouter », vidée, prête pour la suivante
+        tdStDraft(saved).focus();
+        return;
+      }
+      if (e.key === 'Backspace' && !tdStText(ed) && !row.matches('[data-st-new]')) {
+        e.preventDefault();
+        const prev = row.previousElementSibling?.querySelector('[data-subtask-edit]');
+        const id = row.dataset.subtaskId, box = row.parentElement;
+        row.dataset.gone = '1'; row.remove();
+        if (prev) tdStCaretEnd(prev); else box?.querySelector('[data-st-new] [data-subtask-edit]')?.focus();
+        if (id) {
+          await sb.from('subtasks').update({ is_archived: true }).eq('id', id);
+          cachedSubtasks = cachedSubtasks.filter(x => x.id !== id);
+        }
+        return;
+      }
+      if (e.key === 'Escape') { e.stopPropagation(); ed.blur(); }
+    });
+    list.addEventListener('focusout', async (e) => {
+      const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
+      const row = ed.closest('.td-subtask-row');
+      if (!row || row.dataset.gone || !row.isConnected) return;
+      if (row.classList.contains('td-st-draft') && !tdStText(ed)) { row.dataset.gone = '1'; row.remove(); return; } // ligne laissée vide : elle disparaît
+      await tdStCommit(sheet, todoId, ed);
+    });
+    list.addEventListener('paste', (e) => { // on colle du texte brut, sur une ligne
+      const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
+      e.preventDefault();
+      document.execCommand('insertText', false, (e.clipboardData.getData('text/plain') || '').replace(/\s*\n\s*/g, ' '));
+    });
+  }
   function renderTdSubtasks(sheet, todoId) {
     const list = sheet.querySelector('[data-td-subtasks-list]');
     if (!list) return;
@@ -6031,15 +6129,17 @@
     const done = all.filter(s => s.is_done).sort(bySort);
 
     const rowHtml = (s) => `
-      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}" data-reorder-id="${s.id}" draggable="true">
+      <div class="td-subtask-row${s.is_done ? ' done' : ''}" data-subtask-id="${s.id}" data-reorder-id="${s.id}">
         <span class="td-subtask-drag" title="Réorganiser">${DRAG_ICON_SVG}</span>
         <div class="checkbox${s.is_done ? ' done' : ''}" data-subtask-checkbox></div>
-        <div class="td-subtask-title" data-subtask-open>${escapeHtml(s.title)}</div>
+        <div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next">${escapeHtml(s.title)}</div>
         ${s.due_date ? `<div class="td-subtask-due">${escapeHtml(formatDateShort(s.due_date))}</div>` : ''}
         <button type="button" class="td-img-remove" data-subtask-remove="${s.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>
       </div>`;
 
-    let html = incomplete.map(rowHtml).join('');
+    // dernière ligne : on écrit directement dessus pour ajouter (façon Notion / TickTick)
+    const newRow = `<div class="td-subtask-row td-st-new" data-st-new><span class="td-subtask-drag"></span><div class="checkbox"></div><div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next" data-ph="Ajouter une sous-tâche"></div></div>`;
+    let html = `<div class="td-st-open" data-st-open>${incomplete.map(rowHtml).join('')}${newRow}</div>`;
     if (done.length) {
       // la liste des terminées d'abord (repliée), puis le compteur, calé à droite sur la ligne « + Ajouter » juste dessous
       html += `<div class="td-subtasks-done-list" data-td-subtasks-done-list style="display:none;">${done.map(rowHtml).join('')}</div>`;
@@ -6074,13 +6174,7 @@
         renderTdSubtasks(sheet, todoId); // re-tri : la case cochée descend en bas
       });
     });
-    list.querySelectorAll('[data-subtask-open]').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const subtaskId = el.closest('.td-subtask-row').dataset.subtaskId;
-        openSubtaskDetail(sheet, subtaskId);
-      });
-    });
+    tdWireSubtaskEdit(sheet, todoId, list);
     // suppression : premier clic = demande de confirmation, second clic = suppression réelle
     list.querySelectorAll('[data-subtask-remove]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
@@ -6099,7 +6193,13 @@
       });
     });
     // réorganisation par glisser-déposer (sous-tâches non terminées uniquement)
-    const incompleteRows = [...list.querySelectorAll('.td-subtask-row:not(.done)')];
+    const incompleteRows = [...list.querySelectorAll('.td-subtask-row:not(.done):not(.td-st-new)')];
+    incompleteRows.forEach(r => { // on ne glisse que par la poignée, pour pouvoir sélectionner le texte
+      const h = r.querySelector('.td-subtask-drag');
+      h?.addEventListener('pointerdown', () => { r.draggable = true; });
+      r.addEventListener('dragend', () => { r.draggable = false; });
+      document.addEventListener('pointerup', () => { if (!r.classList.contains('dragging-reorder')) r.draggable = false; });
+    });
     wireDragReorder(incompleteRows, async (orderedIds) => {
       for (let i = 0; i < orderedIds.length; i++) {
         const sub = cachedSubtasks.find(x => x.id === orderedIds[i]);
@@ -6794,12 +6894,7 @@
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
-      const input = sheet.querySelector('[data-add-subtask-input]');
-      const row = sheet.querySelector('[data-td-add-subtask-row]');
-      if (row) row.style.display = 'none';
-      input.style.display = 'block';
-      input.value = '';
-      input.focus();
+      sheet.querySelector('[data-st-new] [data-subtask-edit]')?.focus(); // on écrit directement sur la ligne « Ajouter une sous-tâche »
     });
     sheet.querySelector('[data-td-add-subtask-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
