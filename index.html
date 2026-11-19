@@ -1225,6 +1225,8 @@
   }
   .td-subtask-title { flex: 1; font-size: 13px; min-width: 0; outline: none; cursor: text; word-break: break-word; min-height: 1.4em; }
   .td-st-open { display: flex; flex-direction: column; }
+  .td-more-menu button span { white-space: nowrap; }
+  [data-task-sheet] [data-td-add-source-row] { display: none !important; } /* « Ajouter une source » vit dans le menu ⋯ */
   .td-st-open > .td-subtask-row:last-child { border-bottom: none; }
   .td-st-new .checkbox { opacity: .45; cursor: default; pointer-events: none; }
   .td-st-new .td-subtask-title:empty::before { content: attr(data-ph); color: #B5B2AB; }
@@ -4443,6 +4445,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5"/><path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
                         <span>Ajouter une image</span>
                       </button>
+                      <button type="button" role="menuitem" data-td-more="subtask">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4.5" width="6" height="6" rx="1.6"/><path d="M14 7.5h6M4 17h6M14 17h6M17 14v6"/></svg>
+                        <span>Ajouter une sous-tâche</span>
+                      </button>
+                      <button type="button" role="menuitem" data-td-more="source">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>
+                        <span>Ajouter une source</span>
+                      </button>
                       <button type="button" role="menuitem" data-td-more="fav">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
                         <span data-td-more-fav-label>Ajouter en favori</span>
@@ -6052,23 +6062,21 @@
     delete row.dataset.saving;
     if (error) { console.error(error); return row; }
     cachedSubtasks.push(newSub);
-    let real = row;
-    if (row.matches('[data-st-new]')) { // la ligne « Ajouter » reste en bas : la nouvelle s'insère juste au-dessus
-      real = document.createElement('div');
-      real.className = 'td-subtask-row';
-      real.innerHTML = `<span class="td-subtask-drag" title="Réorganiser">${DRAG_ICON_SVG}</span><div class="checkbox" data-subtask-checkbox></div><div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next"></div><button type="button" class="td-img-remove" data-subtask-remove="${newSub.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>`;
-      real.querySelector('[data-subtask-edit]').textContent = title;
-      row.before(real);
-      ed.textContent = '';
-    } else {
-      row.classList.remove('td-st-draft');
-      row.querySelector('.td-subtask-drag').innerHTML = DRAG_ICON_SVG;
-      row.querySelector('.checkbox').setAttribute('data-subtask-checkbox', '');
-      row.insertAdjacentHTML('beforeend', `<button type="button" class="td-img-remove" data-subtask-remove="${newSub.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>`);
-    }
+    const real = row;
+    if (row.matches('[data-st-new]')) { row.removeAttribute('data-st-new'); row.classList.remove('td-st-new'); ed.removeAttribute('data-ph'); }
+    row.classList.remove('td-st-draft');
+    row.querySelector('.td-subtask-drag').innerHTML = DRAG_ICON_SVG;
+    row.querySelector('.checkbox').setAttribute('data-subtask-checkbox', '');
+    row.insertAdjacentHTML('beforeend', `<button type="button" class="td-img-remove" data-subtask-remove="${newSub.id}" title="Supprimer">${CLOSE_ICON_SVG}</button>`);
     real.dataset.subtaskId = newSub.id; real.dataset.reorderId = newSub.id;
     tdStSaveOrder(box);
     return real;
+  }
+  function tdStFocusAdd(sheet) { // « Ajouter une sous-tâche » (menu ⋯, bouton) : ligne vide à la fin de la liste
+    const box = sheet.querySelector('[data-st-open]'); if (!box) return;
+    const nw = box.querySelector('[data-st-new] [data-subtask-edit]'); if (nw) { nw.focus(); return; }
+    const draft = box.querySelector('.td-st-draft [data-subtask-edit]'); if (draft) { draft.focus(); return; }
+    const last = [...box.querySelectorAll('.td-subtask-row')].pop(); if (last) tdStDraft(last).focus();
   }
   function tdWireSubtaskEdit(sheet, todoId, list) {
     if (list.dataset.stWired) return; // délégation : une seule fois par liste
@@ -6079,9 +6087,7 @@
       if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
         e.preventDefault();
         if (!tdStText(ed)) return;
-        const isNew = row.matches('[data-st-new]');
         const saved = await tdStCommit(sheet, todoId, ed);
-        if (isNew) { ed.focus(); return; } // on reste sur la ligne « Ajouter », vidée, prête pour la suivante
         tdStDraft(saved).focus();
         return;
       }
@@ -6095,6 +6101,7 @@
           await sb.from('subtasks').update({ is_archived: true }).eq('id', id);
           cachedSubtasks = cachedSubtasks.filter(x => x.id !== id);
         }
+        if (box && !box.querySelector('.td-subtask-row')) renderTdSubtasks(sheet, todoId); // plus rien : la ligne « Ajouter une sous-tâche » revient
         return;
       }
       if (e.key === 'Escape') { e.stopPropagation(); ed.blur(); }
@@ -6139,7 +6146,7 @@
 
     // dernière ligne : on écrit directement dessus pour ajouter (façon Notion / TickTick)
     const newRow = `<div class="td-subtask-row td-st-new" data-st-new><span class="td-subtask-drag"></span><div class="checkbox"></div><div class="td-subtask-title" data-subtask-edit contenteditable="plaintext-only" spellcheck="false" enterkeyhint="next" data-ph="Ajouter une sous-tâche"></div></div>`;
-    let html = `<div class="td-st-open" data-st-open>${incomplete.map(rowHtml).join('')}${newRow}</div>`;
+    let html = `<div class="td-st-open" data-st-open>${incomplete.map(rowHtml).join('')}${incomplete.length ? '' : newRow}</div>`;
     if (done.length) {
       // la liste des terminées d'abord (repliée), puis le compteur, calé à droite sur la ligne « + Ajouter » juste dessous
       html += `<div class="td-subtasks-done-list" data-td-subtasks-done-list style="display:none;">${done.map(rowHtml).join('')}</div>`;
@@ -6731,6 +6738,8 @@
         else if (act === 'flag') sheet.querySelector('[data-td-flag-btn]')?.click();
         else if (act === 'upload') sheet.querySelector('[data-td-upload-btn]')?.click();
         else if (act === 'delete') sheet.querySelector('[data-td-goto-delete-task]')?.click();
+        else if (act === 'subtask') setTimeout(() => tdStFocusAdd(sheet), 0);
+        else if (act === 'source') sheet.querySelector('[data-td-add-source-row]')?.click();
       });
     })();
     sheet.querySelector('[data-td-favorite-btn]')?.addEventListener('click', async () => {
@@ -6894,7 +6903,7 @@
 
     // ---- sous-tâches : champ inline à la place de prompt() ----
     sheet.querySelector('[data-td-add-speed-btn]')?.addEventListener('click', () => {
-      sheet.querySelector('[data-st-new] [data-subtask-edit]')?.focus(); // on écrit directement sur la ligne « Ajouter une sous-tâche »
+      tdStFocusAdd(sheet); // on écrit directement sur une nouvelle ligne
     });
     sheet.querySelector('[data-td-add-subtask-row]')?.addEventListener('click', () => {
       const input = sheet.querySelector('[data-add-subtask-input]');
