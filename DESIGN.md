@@ -134,3 +134,12 @@ qui « flashe »). La couleur sert seulement à repérer (icône, petite pastill
 - **Ajouter** : le + va à droite de la barre de recherche, pas en bouton flottant.
 - **Icône grille** : « G3 » — 4 petits carrés pleins espacés, deux tons (haut-gauche et bas-droite
   pleins, les deux autres à 35 %), même icône partout dans l'app.
+- **Harmoniser, toujours** : un même rôle a exactement le même rendu partout (Tâches, Cuisine,
+  Bibliothèque, ordi et téléphone). Gris neutres uniquement — plus de beige / sable
+  (`--v-chip` = `#EBEBE8`, `--v-soft2` = `#F1F1EF`). Onglets actifs, boutons (Nouvelle tâche,
+  Filtres avancés, Retards inclus, outils `.v-tool`) : même gris, sans bordure.
+- **Bouton d'ajout principal** (+ Recette, Ajouter dans la Bibliothèque) : **noir**, placé juste
+  après les onglets, avant la recherche ou les filtres.
+- **Galerie / liste** : un seul sélecteur partout, `.v-seg.cz-viewsw` (icône grille G3 + icône liste),
+  collé aux filtres / au tri.
+

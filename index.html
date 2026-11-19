@@ -1874,7 +1874,7 @@
   #v2, #v2m {
     --v-bg: #F3F1EC; --v-card: #ffffff; --v-ink: #1f1f1f; --v-ink2: #2a2a2a;
     --v-muted: #6b6b6b; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3;
-    --v-soft2: #F1F1EF; --v-chip: #ECEAE4; --v-seg: #E9E7E1; --v-check: #E6E5E0;
+    --v-soft2: #F1F1EF; --v-chip: #EBEBE8; --v-seg: #E9E7E1; --v-check: #E6E5E0;
     --v-red: #C8342B; --v-orange: #B26A00; --v-green: #2F9E5B; --v-gold: #E8B339;
     font-family: 'Inter', system-ui, sans-serif; color: var(--v-ink); background: var(--v-bg);
     -webkit-font-smoothing: antialiased;
@@ -2014,7 +2014,7 @@
   .v-btn.on { background: var(--v-chip); }
   .v-btn svg { width: 15px; height: 15px; }
   .v-btn.primary { background: var(--v-chip); margin-left: auto; padding: 10px 15px; }
-  .v-btn.primary:hover { background: #E3E1DA; }
+  .v-btn.primary:hover { background: #E2E2DF; }
   .v-btn .v-badge {
     min-width: 20px; height: 20px; border-radius: 6px; background: var(--v-card); font-size: 11.5px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
@@ -2154,8 +2154,8 @@
   .v-prio svg { width: 14px; height: 14px; flex-shrink: 0; }
   .v-prio.none { color: var(--v-faint); }
   .v-tool {
-    display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 11px; border-radius: 10px; border: 1px solid var(--v-line);
-    background: #fff; font: 500 13px 'Inter', sans-serif; color: var(--v-ink); cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 11px; border-radius: 10px; border: none;
+    background: var(--v-soft2); font: 500 13px 'Inter', sans-serif; color: var(--v-ink); cursor: pointer; white-space: nowrap; flex-shrink: 0;
   }
   .v-tool svg { width: 14px; height: 14px; color: var(--v-muted); }
   .v-tool:hover { background: var(--v-soft); }
@@ -2532,7 +2532,7 @@
     display: flex; align-items: center; justify-content: center;
   }
   .vm-views button svg { width: 19px; height: 19px; }
-  .vm-views button.on { background: #ECEAE4; color: #1f1f1f; }
+  .vm-views button.on { background: #EBEBE8; color: #1f1f1f; }
   .vm-head { padding-right: 14px; }
   .vm-fab {
     bottom: calc(env(safe-area-inset-bottom) + 22px); right: 18px; width: 60px; height: 60px; border-radius: 19px;
@@ -2557,7 +2557,7 @@
   .vm-drawer-foot button:active { background: #F5F4F1; }
   .vm-drawer-foot svg { width: 20px; height: 20px; flex-shrink: 0; }
   .vm-fcount {
-    margin-left: auto; min-width: 22px; height: 22px; border-radius: 7px; background: #ECEAE4; font-size: 12px; font-weight: 700;
+    margin-left: auto; min-width: 22px; height: 22px; border-radius: 7px; background: #EBEBE8; font-size: 12px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; padding: 0 6px;
   }
   .vm-fcount[hidden] { display: none; }
@@ -2827,7 +2827,7 @@
   .lb-head .lb-bar-top { flex: 1; min-width: 0; }
   .lb-head .lb-bar-top .cz-search { flex: 1; min-width: 0; }
   .lb-btn { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border-radius: 11px; background: #F3F2EE; border: none; font: 600 14px 'Inter', sans-serif; color: #1f1f1f; cursor: pointer; white-space: nowrap; }
-  .lb-btn:hover { background: #ECEAE4; }
+  .lb-btn:hover { background: #EBEBE8; }
   .lb-btn.dark { background: #1f1f1f; color: #fff; }
   .lb-btn.dark:hover { background: #000; }
   .lb-btn.sm { padding: 7px 11px; font-size: 13px; border-radius: 9px; }
@@ -2845,7 +2845,7 @@
   .lb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 18px 16px; padding-bottom: 30px; }
   .lb-card { display: block; text-align: left; background: none; border: none; padding: 0; cursor: pointer; color: inherit; min-width: 0; }
   .lb-cvw { position: relative; }
-  .lb-cv { aspect-ratio: 2/3; border-radius: 10px; background-size: cover; background-position: center; background-color: #ECEAE4; box-shadow: 0 2px 8px rgba(0,0,0,.12); display: flex; align-items: flex-end; padding: 10px; transition: transform .15s; }
+  .lb-cv { aspect-ratio: 2/3; border-radius: 10px; background-size: cover; background-position: center; background-color: #EBEBE8; box-shadow: 0 2px 8px rgba(0,0,0,.12); display: flex; align-items: flex-end; padding: 10px; transition: transform .15s; }
   .lb-card:hover .lb-cv { transform: translateY(-2px); }
   .lb-cv.ph span { color: rgba(255,255,255,.92); font-weight: 800; font-size: 16px; line-height: 1.05; letter-spacing: -.01em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; }
   .lb-cv.sm { padding: 3px; border-radius: 6px; }
@@ -2856,10 +2856,8 @@
   .lb-modebar { justify-content: flex-start; }
   .lb-modehint { font-size: 12.5px; color: #8b8b8b; }
   .lb-disp { margin-left: auto; display: inline-flex; gap: 2px; }
-  .lb-disp button { border: none; background: transparent; padding: 6px; border-radius: 9px; color: #C4C2BB; cursor: pointer; display: flex; }
-  .lb-disp button:hover { color: #8b8b8b; }
-  .lb-disp button.on { color: #1f1f1f; }
-  .lb-disp svg { width: 22px; height: 22px; display: block; }
+  .lb-disp button { padding: 6px 9px; display: flex; }
+  .lb-disp svg { width: 17px; height: 17px; display: block; }
   .lb-listbar { display: flex; align-items: center; gap: 10px; }
   .lb-listbar > :first-child { min-width: 0; }
   .lb-listbar .lb-tools { flex: 1; }
@@ -2932,7 +2930,7 @@
   .lb-fmt.both { width: auto; padding: 0 5px; gap: 2px; }
   .lb-ct { font-size: 14px; font-weight: 600; margin-top: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-cm { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #6b6b6b; margin-top: 3px; font-variant-numeric: tabular-nums; }
-  .lb-bar { flex: 1; height: 4px; border-radius: 2px; background: #ECEAE4; overflow: hidden; display: block; }
+  .lb-bar { flex: 1; height: 4px; border-radius: 2px; background: #EBEBE8; overflow: hidden; display: block; }
   .lb-bar i { display: block; height: 100%; background: #2F9E5B; }
   .lb-bar.w { flex: none; height: 6px; }
   .lb-empty { background: var(--v-card); border-radius: 16px; padding: 28px; text-align: center; color: #6b6b6b; font-size: 14px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
@@ -3204,7 +3202,7 @@
   .lb-ms-l { font-size: 13px; color: #6b6b6b; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-ms-seg b { margin-left: auto; font-size: 17px; font-variant-numeric: tabular-nums; }
   .lb-ms-bar { display: flex; align-items: center; gap: 12px; padding: 10px 10px 12px; border-top: 1px solid #F0EFEB; }
-  .lb-ms-tr { flex: 1; display: block; height: 8px; border-radius: 5px; background: #ECEAE4; overflow: hidden; }
+  .lb-ms-tr { flex: 1; display: block; height: 8px; border-radius: 5px; background: #EBEBE8; overflow: hidden; }
   .lb-ms-tr i { display: block; height: 100%; border-radius: 5px; background: #2F62C9; }
   .lb-ms-bar span { font-size: 13.5px; font-weight: 600; white-space: nowrap; }
   .lb-ms-bar b { color: #2F62C9; }
@@ -3292,7 +3290,7 @@
   .lb-mms b { display: block; font-size: 26px; letter-spacing: -.02em; }
   .lb-mms b small { font-size: 14px; color: #B5B3AC; font-weight: 600; }
   .lb-mms span { font-size: 12px; color: #8b8b8b; }
-  .lb-mpb { height: 7px; border-radius: 4px; background: #ECEAE4; margin: 12px 0 5px; overflow: hidden; }
+  .lb-mpb { height: 7px; border-radius: 4px; background: #EBEBE8; margin: 12px 0 5px; overflow: hidden; }
   .lb-mpb i { display: block; height: 100%; border-radius: 4px; background: #2F9E5B; }
   .lb-mpbl { font-size: 11.5px; color: #8b8b8b; }
   .lb-mwide { width: 100%; margin-top: 10px; border: 1px solid #EFEEEA; background: #F7F6F3; border-radius: 12px; padding: 12px; font: 600 14px 'Inter', sans-serif; color: #1f1f1f; }
@@ -3412,7 +3410,7 @@
   .lb-res b { display: block; font-size: 14px; }
   .lb-res small { font-size: 12.5px; color: #8b8b8b; }
   .lb-res.manual { padding-left: 64px; }
-  .lb-rescv { width: 44px; aspect-ratio: 2/3; border-radius: 6px; background-size: cover; background-position: center; background-color: #ECEAE4; flex-shrink: 0; display: flex; align-items: flex-end; padding: 6px; }
+  .lb-rescv { width: 44px; aspect-ratio: 2/3; border-radius: 6px; background-size: cover; background-position: center; background-color: #EBEBE8; flex-shrink: 0; display: flex; align-items: flex-end; padding: 6px; }
   .lb-rescv.big { width: 96px; border-radius: 10px; }
   .lb-rescv i { font-style: normal; color: #fff; font-weight: 800; font-size: 13px; line-height: 1.05; overflow: hidden; }
   .lb-note { font-size: 13.5px; line-height: 1.5; background: #FBF1D9; color: #6E4A00; border-radius: 12px; padding: 10px 14px; }
@@ -3634,7 +3632,7 @@
   @media (max-width: 700px) { .czrp-bar span { display: none; } .czrp-bar { padding-left: 6px; } }
   /* import d'un lien */
   .cz-imp-bd[hidden] { display: none; }
-  .cz-imp-bd { --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-soft2: #EDEBE6; --v-chip: #ECEAE4; --v-card: #fff; --v-green: #2F9E5B; --v-red: #C8342B; z-index: 2100; }
+  .cz-imp-bd { --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-soft2: #EDEBE6; --v-chip: #EBEBE8; --v-card: #fff; --v-green: #2F9E5B; --v-red: #C8342B; z-index: 2100; }
   .czi { width: min(480px, 100%); gap: 12px; max-height: calc(100dvh - 32px); }
   .czi-paste { display: flex; gap: 8px; margin: 0; }
   .czi-inp { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; background: #F3F2EE; border-radius: 12px; padding: 0 12px; }
@@ -3687,7 +3685,7 @@
   /* fiche produit */
   .cz-pp-bd { position: fixed; inset: 0; z-index: 1590; background: rgba(24,24,22,.18); display: none; }
   .cz-pp-bd.open { display: block; }
-  .cz-pp { position: fixed; top: 16px; right: 16px; bottom: 16px; width: min(460px, calc(100vw - 32px)); z-index: 1600; background: #fff; border-radius: 20px; box-shadow: -10px 0 40px rgba(0,0,0,.12); display: none; flex-direction: column; overflow: hidden; font-family: 'Inter', sans-serif; color: #1f1f1f; --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
+  .cz-pp { position: fixed; top: 16px; right: 16px; bottom: 16px; width: min(460px, calc(100vw - 32px)); z-index: 1600; background: #fff; border-radius: 20px; box-shadow: -10px 0 40px rgba(0,0,0,.12); display: none; flex-direction: column; overflow: hidden; font-family: 'Inter', sans-serif; color: #1f1f1f; --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #EBEBE8; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
   .cz-pp.open { display: flex; }
   .cz-pp-top { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #EFEEEA; }
   .cz-pp-top .ic-flat-btn { width: 34px; height: 34px; }
@@ -3722,7 +3720,7 @@
     .cz-pp-bd { background: rgba(24,24,22,.35); }
   }
   /* page recette */
-  .cz-page { position: fixed; inset: 0; z-index: 1500; background: #fff; overflow-y: auto; display: none; font-family: 'Inter', sans-serif; color: var(--v-ink, #1f1f1f); --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #ECEAE4; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
+  .cz-page { position: fixed; inset: 0; z-index: 1500; background: #fff; overflow-y: auto; display: none; font-family: 'Inter', sans-serif; color: var(--v-ink, #1f1f1f); --v-ink: #1f1f1f; --v-faint: #8b8b8b; --v-line: #EFEEEA; --v-soft: #F5F5F3; --v-chip: #EBEBE8; --v-card: #fff; --v-check: #E6E5E0; --v-green: #2F9E5B; --v-red: #C8342B; }
   .cz-page.open { display: block; }
   html.cz-page-open, html.cz-page-open body { overflow: hidden; }
   /* ---- fiche recette « lecture » (mobile) ---- */
@@ -3908,6 +3906,8 @@
   .cz-hgap { width: 10px; }
   .cz-desk .cz-head .cz-newbtn, .cz-desk .cz-head .cz-fbtn, .cz-desk .cz-head .cz-sortbtn { height: 36px; padding: 0 14px; border: none; border-radius: 10px; background: var(--v-soft2); font-size: 13.5px; margin: 0; }
   .cz-desk .cz-head .cz-newbtn { font-weight: 600; }
+  .cz-desk .cz-head .cz-newbtn.dark { background: #1f1f1f; color: #fff; }
+  .cz-desk .cz-head .cz-newbtn.dark:hover { background: #333; }
   .cz-desk .cz-head .cz-sortbtn:hover, .cz-desk .cz-head .cz-fbtn:hover, .cz-desk .cz-head .cz-newbtn:hover { background: #EAE9E5; }
   .cz-desk .cz-head .cz-viewsw button { padding: 6px 10px; }
   .cz-inline-add { border: 1px dashed #D9D7D0; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--v-ink); outline: none; background: transparent; }
@@ -11107,7 +11107,7 @@
     if (V.fav) return { bg: '#FBF5E3', fg: '#8F6200' };
     const pid = V.page ? M.pageById.get(V.page)?.project_id : V.proj;
     const p = pid ? M.projById.get(pid) : null;
-    return p ? colors(p) : { bg: '#ECEAE4', fg: '#1f1f1f' };
+    return p ? colors(p) : { bg: '#EBEBE8', fg: '#1f1f1f' };
   }
   function chipHtml() {
     const label = activeFilterLabel();
@@ -13030,7 +13030,7 @@
     const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
     const nf = next && CZ.imp ? 1 : 0;
     const mid = next ? `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" data-cz-nfilter>${LBI.filter}<span>Filtres</span>${nf ? '<b>1</b>' : ''}</button>` : czSortBtn(sk);
-    return `<span class="cz-hgap"></span><button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${next ? 'Next' : 'Recette'}</button>${mid}<span class="cz-sp"></span>${view}`;
+    return `<span class="cz-hgap"></span><button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Recette</button><span class="cz-hgap"></span>${mid}${view}`;
   }
   // filtre Next : importance + tri (feuille sur téléphone, petite fenêtre sur ordi)
   function czNFilterHtml(sheet) {
@@ -14048,8 +14048,9 @@
   }
   // barre de recherche + ajouter : sur tous les onglets (ordi : à droite des onglets ; mobile : sous les onglets)
   function lbSearchHtml(mobile) {
-    return `<div class="lb-bar-top"><label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>
-        ${mobile ? `<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button>` : `<button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>`}</div>`;
+    const q = `<label class="cz-search">${I.search}<input type="search" data-lb-q placeholder="Chercher une série, un auteur…" value="${esc(LB.q)}" autocomplete="off"></label>`;
+    return mobile ? `<div class="lb-bar-top">${q}<button type="button" class="lb-mplus" data-lb-add aria-label="Ajouter une série">${I.plus}</button></div>`
+      : `<div class="lb-bar-top"><button type="button" class="lb-btn dark" data-lb-add>${I.plus}Ajouter</button>${q}</div>`;
   }
   function lbTabsHtml() {
     const n = lbCounts();
@@ -14083,7 +14084,7 @@
   const LB_SORTS = { series: [['az', 'A → Z'], ['recent', 'Ajoutées récemment'], ['note', 'Ma note']], tomes: [['recent', 'Derniers acquis'], ['az', 'A → Z'], ['note', 'Ma note']] };
   const lbSortLabel = () => { const m = LB.mode === 'tomes' ? 'tomes' : 'series'; const k = m === 'tomes' ? LB.tsort : LB.sort; return (LB_SORTS[m].find(x => x[0] === k) || LB_SORTS[m][0])[1]; };
   const lbAcq = v => v.bought_at || String(v.created_at || '').slice(0, 10);
-  const lbDispHtml = () => `<div class="lb-disp">${[['grid', LBI.vgrid, 'Grille'], ['list', LBI.vlist, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}" aria-pressed="${LB.disp === k}">${ic}</button>`).join('')}</div>`;
+  const lbDispHtml = () => `<div class="v-seg cz-viewsw lb-disp">${[['grid', LBI.grid, 'Galerie'], ['list', CZI.list, 'Liste']].map(([k, ic, l]) => `<button type="button" class="${LB.disp === k ? 'on' : ''}" data-lb-disp="${k}" title="${l}" aria-label="${l}" aria-pressed="${LB.disp === k}">${ic}</button>`).join('')}</div>`;
   // grille de tomes pour À lire / Panier / Sorties
   function lbVolGrid(vols, sub, action) {
     return `<div class="lb-grid">${vols.map(v => { const s = lbSer(v.series_id); return `<div class="lb-card lb-vcard"><button type="button" class="lb-vcv" data-lb-vol="${v.id}"><div class="lb-cvw">${lbCover(s, v)}</div></button>
