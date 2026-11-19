@@ -3520,8 +3520,8 @@
   .cz-rc2 .cz-ntag { margin: 2px 11px 11px; }
   .cz-rc2 small + .cz-ntag { margin-top: -6px; }
   .cz-rc2 .cz-src, .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-  .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: #E62117; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
-  .cz-cnt svg { width: 11px; height: 11px; fill: currentColor; }
+  .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); color: #1f1f1f; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
+  .cz-cnt svg { width: 11px; height: 11px; fill: #E62117; }
   .cz-rrow .cz-cnt { right: 4px; bottom: 4px; padding: 2px 5px; font-size: 10px; }
   .cz-ntag { display: inline-block; margin-top: 4px; font: 600 11px 'Inter', sans-serif; color: #4a4a4a; background: var(--v-chip, #EBEBE8); padding: 2px 7px; border-radius: 6px; }
   .cz-nexttag { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 8px; background: rgba(31,31,31,.82); color: #fff; font-family: 'Inter', sans-serif; white-space: nowrap; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
@@ -13099,7 +13099,7 @@
     const mob = isMobile();
     const s = czSrc((r.links || [])[0]);
     const cover = czCoverOf(r);
-    if (!cover) czQueueThumbs(r);
+    czQueueThumbs(r, !cover);
     const grad = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
     const bg = cover ? `${grad}<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()"${cover === r.cover_url ? ` style="object-position:center ${czCoverY(r)}%"` : ''}>` : grad;
     // aperçu propre : seulement l'image, et un petit play rouge + nombre de vidéos en bas
@@ -13621,23 +13621,36 @@
   document.addEventListener('keydown', e => { if (!CZ.player) return; if (e.key === 'Escape') { e.stopImmediatePropagation(); czPlayer(null); } else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { CZ.player.i += e.key === 'ArrowRight' ? 1 : -1; czPlayerRender(); } }, true);
   // ---------- vignettes / couverture des liens Insta et sites (copiées dans le stockage, une fois) ----------
   const czThumbTried = new Set(); let czThumbBusy = 0; const czThumbQ = [];
-  function czQueueThumbs(r) {
+  // vignettes : manquantes (si pas de couverture) + Instagram déjà enregistrées avec le play incrusté (à remplacer une fois par l'image propre)
+  const czIgClean = (r, u) => Array.isArray(r.media?._igc) && r.media._igc.includes(u);
+  function czQueueThumbs(r, full = true) {
     if (!r || !r.media || typeof r.media !== 'object') return; // colonne « media » absente : lancer cuisine_v2.sql
-    (r.links || []).forEach(u => { const s = czSrc(u); if (!s || s.t === 'x' || s.t === 'yt' || r.media[u] || czThumbTried.has(u)) return; czThumbTried.add(u); czThumbQ.push([r.id, u]); });
+    (r.links || []).forEach(u => {
+      const s = czSrc(u); if (!s || s.t === 'x' || s.t === 'yt' || czThumbTried.has(u)) return;
+      const redo = s.t === 'ig' && r.media[u] && !czIgClean(r, u);
+      if (redo ? czIgOff : (!full || r.media[u])) return;
+      czThumbTried.add(u); czThumbQ.push([r.id, u]);
+    });
     czThumbPump();
   }
+  let czIgOff = false; // la fonction serveur ne donne pas encore l'image propre : on ne réessaie pas
   async function czThumbPump() {
     while (czThumbBusy < 2 && czThumbQ.length) {
-      const [id, u] = czThumbQ.shift(); czThumbBusy++;
+      const [id, u] = czThumbQ.shift();
+      if (czIgOff && czSrc(u)?.t === 'ig' && czById(id)?.media?.[u]) continue;
+      czThumbBusy++;
       (async () => {
         try {
           const d = (await lbLib({ meta: u }))?.[0];
           const r = czById(id);
-          if (d?.image && r) {
+          const ig = czSrc(u).t === 'ig', old = r?.media?.[u] || '';
+          if (ig && old && !d?.clean) czIgOff = true;
+          else if (d?.image && r) {
             const url = await lbStoreImage(await (await fetch(d.image)).blob(), `cuisine/${id}/${czSrc(u).t}`);
             r.media = { ...(r.media || {}), [u]: url };
+            if (ig && d.clean) r.media._igc = [...new Set([...(Array.isArray(r.media._igc) ? r.media._igc : []), u])];
             const patch = { media: r.media };
-            if (!r.cover_url && !(r.images || [])[0]) { r.cover_url = url; patch.cover_url = url; }
+            if ((!r.cover_url && !(r.images || [])[0]) || (old && r.cover_url === old)) { r.cover_url = url; patch.cover_url = url; }
             await czUpd('cuisine_recipes', id, patch);
             if (CZ.open === id) czRenderPage();
             document.querySelectorAll(`[data-cz-thumb="${id}"]`).forEach(el => { el.outerHTML = czThumb(r); });

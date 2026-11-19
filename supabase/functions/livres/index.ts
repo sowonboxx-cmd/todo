@@ -118,10 +118,10 @@ async function linkMeta(url: string) {
     } catch (_) { /* ignore */ }
     try { // page publique (aperçu de partage) : titre + image en meilleure qualité
       const h = await (await fetch(`https://www.instagram.com/${kind}/${ig[2]}/`, { headers: { 'User-Agent': 'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)' } })).text();
-      out.ogTitle = og(h, 'og:title'); out.imgUrl = og(h, 'og:image') || out.imgUrl;
+      out.ogTitle = og(h, 'og:title'); out.imgUrl = out.imgUrl || og(h, 'og:image'); // l'image « embed » d'abord : celle de partage (og:image) a un bouton play incrusté sur les reels
       if (!out.caption) out.caption = (og(h, 'og:description').match(/: "([\s\S]*)"\s*$/) || [])[1] || '';
     } catch (_) { /* ignore */ }
-    out.image = await asDataUrl(out.imgUrl); delete out.imgUrl;
+    out.image = await asDataUrl(out.imgUrl); delete out.imgUrl; out.clean = 1; // clean : image sans play incrusté
     out.title = (out.caption.split('\n').map((l: string) => l.trim()).find((l: string) => l && !/^[#@]/.test(l)) || '').replace(/[#@]\S+/g, '').trim().slice(0, 80);
     return out;
   }
