@@ -2,7 +2,7 @@
 // les range dans le bucket R2 et les ressert.
 // Réglages dans Cloudflare : binding R2 nommé IMAGES + secret UPLOAD_TOKEN.
 
-const ALLOWED_ORIGINS = ['https://sowonboxx-cmd.github.io'];
+const ALLOWED_ORIGINS = ['https://sowonboxx-cmd.github.io', 'https://todo.willskyice.com'];
 const MAX_BYTES = 15 * 1024 * 1024; // 15 Mo par image
 
 function cors(origin) {
