@@ -3517,9 +3517,13 @@
   .cz-rc2 b { display: block; font-size: 14.5px; font-weight: 600; padding: 9px 11px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cz-rc2 small { display: block; font-size: 12px; color: #8a8a87; padding: 0 11px 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .cz-rc2 b:last-child { padding-bottom: 11px; }
+  .cz-rc2 .cz-ntag { margin: 2px 11px 11px; }
+  .cz-rc2 small + .cz-ntag { margin-top: -6px; }
   .cz-rc2 .cz-src, .cz-mob .cz-src { background: rgba(0,0,0,.55) !important; color: #fff; font-weight: 600; font-size: 11px; padding: 4px 7px; border-radius: 8px; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
-  .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: rgba(255,255,255,.92); color: #1f1f1f; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
-  .cz-cnt svg { width: 11px; height: 11px; }
+  .cz-cnt { position: absolute; right: 8px; bottom: 8px; background: #E62117; color: #fff; font-size: 11px; font-weight: 600; padding: 3px 7px; border-radius: 8px; display: flex; gap: 3px; align-items: center; }
+  .cz-cnt svg { width: 11px; height: 11px; fill: currentColor; }
+  .cz-rrow .cz-cnt { right: 4px; bottom: 4px; padding: 2px 5px; font-size: 10px; }
+  .cz-ntag { display: inline-block; margin-top: 4px; font: 600 11px 'Inter', sans-serif; color: #4a4a4a; background: var(--v-chip, #EBEBE8); padding: 2px 7px; border-radius: 6px; }
   .cz-nexttag { position: absolute; right: 8px; top: 8px; font-size: 10.5px; font-weight: 600; padding: 3px 8px; border-radius: 8px; background: rgba(31,31,31,.82); color: #fff; font-family: 'Inter', sans-serif; white-space: nowrap; -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
   .cz-pill.cz-pnext { background: #1f1f1f; color: #fff; }
   .cz-rrow .cz-nexttag { display: none; }
@@ -13098,12 +13102,10 @@
     if (!cover) czQueueThumbs(r);
     const grad = `<span class="cz-grad" style="background:${czGrad(r.name)}">${s ? '' : CZI.fork}</span>`;
     const bg = cover ? `${grad}<img src="${esc(cover)}" alt="" loading="lazy" onerror="this.remove()"${cover === r.cover_url ? ` style="object-position:center ${czCoverY(r)}%"` : ''}>` : grad;
-    const play = rowPlay && !mob && s && s.t !== 'web' ? `<span class="cz-play"${s.t === 'yt' ? ` data-cz-play="${r.id}" role="button" aria-label="Lire la vidéo"` : ''}>${CZI.tri}</span>` : '';
-    const badge = s ? `<span class="cz-src cz-${s.t}">${esc(s.t === 'web' ? s.host : s.t === 'ig' ? 'Instagram' : s.label)}</span>` : '';
+    // aperçu propre : seulement l'image, et un petit play rouge + nombre de vidéos en bas
     const nv = czVideos(r).length;
-    const cnt = nv > 1 ? `<span class="cz-cnt">${CZI.tri}${nv}</span>` : '';
-    const imp = r.kind === 'next' ? `<span class="cz-nexttag">Next recette</span>` : '';
-    return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${play}${badge}${imp}${cnt}</div>`;
+    const cnt = nv ? `<span class="cz-cnt">${CZI.tri}${nv}</span>` : '';
+    return `<div class="cz-th" data-cz-thumb="${r.id}">${bg}${cnt}</div>`;
   }
   function czPills(r) {
     const out = [];
@@ -13182,7 +13184,7 @@
     if (CZ.rview === 'list') {
       return `<div class="cz-card">${rows.map(r => `<div class="cz-rrow" data-cz-open="${r.id}">${czThumb(r, true)}<div class="cz-rrow-body"><b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div></div>`).join('')}</div>`;
     }
-    return `<div class="cz-grid cz-grid2">${rows.map(r => { const sub = [r.origin, r.minutes ? r.minutes + ' min' : ''].filter(Boolean).join(' · '); return `<div class="cz-rc2" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}</div>`; }).join('')}</div>`;
+    return `<div class="cz-grid cz-grid2">${rows.map(r => { const sub = [r.origin, r.minutes ? r.minutes + ' min' : ''].filter(Boolean).join(' · '); return `<div class="cz-rc2" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b>${sub ? `<small>${esc(sub)}</small>` : ''}${r.kind === 'next' ? '<span class="cz-ntag">Next recette</span>' : ''}</div>`; }).join('')}</div>`;
     return `<div class="cz-grid">${rows.map(r => `<div class="cz-rc" data-cz-open="${r.id}">${czThumb(r)}<b>${esc(r.name)}</b><div class="cz-pills">${czPills(r)}</div></div>`).join('')}</div>`;
   }
   async function czNewRecipe(k) {
@@ -13421,7 +13423,7 @@
     const cover = czCoverOf(r), steps = czSteps(r);
     const chips = [isNext && r.importance ? `<span class="imp">${esc(r.importance)}</span>` : '', r.origin ? `<span>${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).slice(0, 2).map(t => `<span>${esc(t)}</span>`)].join('');
     const tab = CZ.mtab === 'p' && imgs.length ? 'p' : (vids.length ? 'v' : (imgs.length ? 'p' : 'v'));
-    const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"><span class="czv-pl">${CZI.tri}</span><span class="czv-lb">${esc(s.label)}</span></button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
+    const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"></button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
     if (!isMobile()) return czDeskViewHtml(r, { isNext, ings, used, done, notBuy, vids, web, imgs, steps });
     const phHtml = imgs.length ? `<div class="czv-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : '<p class="czv-empty">Aucune photo pour l\'instant.</p>';
     return `
@@ -13432,7 +13434,7 @@
             <button type="button" class="czv-rb" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
             <div class="td-more-menu" data-czp-menu hidden>
               <button type="button" data-czv-edit>${svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', ' stroke-width="1.9"')}<span>Modifier la fiche</span></button>
-              <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+              <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Retirer l’étiquette Next recette' : 'Marquer Next recette'}</span></button>
               <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
               <button type="button" data-czm-cover>${CZI.photo}<span>Changer la photo du haut</span></button>
               <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
@@ -13471,7 +13473,7 @@
     const { isNext, ings, used, done, notBuy, vids, web, imgs, steps } = o;
     const cover = czCoverOf(r);
     const chips = [isNext && r.importance ? `<span class="imp imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '', r.origin ? `<span>${czFlag(r.origin)}${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).map(t => `<span>${esc(t)}</span>`), ...(r.tags || []).map(t => `<span>${esc(t)}</span>`)].join('');
-    const vcards = vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"><span class="czv-pl">${CZI.tri}</span><span class="czv-lb">${esc(s.label)}</span></button>`; }).join('');
+    const vcards = vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"></button>`; }).join('');
     return `<div class="czm" role="document">
       <div class="czm-bn${CZ.repos ? ' czrp' : ''}" data-czm-bn${cover ? ` style="background-image:url('${esc(cover)}');background-position:center ${czCoverY(r)}%"` : ` style="background:${czGrad(r.name)}"`}>${czReposBar()}
         <div class="czm-btns">
@@ -13479,14 +13481,14 @@
             <button type="button" class="czv-rb" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
             <div class="td-more-menu" data-czp-menu hidden>
               <button type="button" data-czv-edit>${svg('<path d="M4 20h4L19 9l-4-4L4 16v4z"/>', ' stroke-width="1.9"')}<span>Modifier la fiche</span></button>
-              <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+              <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Retirer l’étiquette Next recette' : 'Marquer Next recette'}</span></button>
               <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
               <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
             </div>
           </div>
           <button type="button" class="czv-rb" data-czp-close aria-label="Fermer">${I.x}</button>
         </div>
-        <div class="czm-tt"><div class="czm-cr">${isNext ? 'NEXT RECETTES' : 'RECETTES'}</div><h1>${esc(r.name)}</h1>${chips ? `<div class="czm-chips">${chips}</div>` : ''}</div>
+        <div class="czm-tt"><div class="czm-cr">${isNext ? 'RECETTES · NEXT RECETTE' : 'RECETTES'}</div><h1>${esc(r.name)}</h1>${chips ? `<div class="czm-chips">${chips}</div>` : ''}</div>
         <button type="button" class="czm-cov" data-czm-cover>${CZI.photo}<span>Changer la photo</span></button>
       </div>
       <div class="czm-grid">
@@ -13661,7 +13663,7 @@
         <div class="td-more-wrap">
           <button type="button" class="ic-flat-btn td-more-btn" data-czp-more aria-label="Plus d'options">${CZI.dots}</button>
           <div class="td-more-menu" data-czp-menu hidden>
-            <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Passer dans Recettes' : 'Remettre dans Next'}</span></button>
+            <button type="button" data-czp-move>${isNext ? CZI.fork : CZI.play}<span>${isNext ? 'Retirer l’étiquette Next recette' : 'Marquer Next recette'}</span></button>
             <button type="button" data-czp-upimg>${CZI.photo}<span>Ajouter une photo</span></button>
             <button type="button" class="danger" data-czp-del>${svg('<path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/>', ' stroke-width="1.9"')}<span>Supprimer</span></button>
           </div>
