@@ -1912,6 +1912,7 @@
   /* bouton « synchroniser » (mobile) : recharge toute l'app */
   .v-sync { margin-left: auto; flex-shrink: 0; width: 34px; height: 34px; border: none; border-radius: 50%; background: #E3F5E9; color: #1E9E55; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
   .v-sync svg { width: 18px; height: 18px; }
+  #v2 .v-sync { width: 30px; height: 30px; } #v2 .v-sync svg { width: 16px; height: 16px; } #v2 .v-sync:hover { background: #D4F0DF; }
   .v-sync:active { background: #CDEEDA; }
   .v-sync.busy svg { animation: v-sync-pulse .7s ease-in-out infinite alternate; }
   @keyframes v-sync-pulse { from { opacity: 1; } to { opacity: .3; } }
@@ -11327,7 +11328,7 @@
       <div class="v-brand">
         <div class="v-brand-mark" data-v-home title="Accueil">${esc(Array.from(appTitle)[0] || '天')}</div>
         <div style="min-width:0" data-v-home title="Accueil"><div class="v-brand-name" data-app-title-text>${esc(appTitle)}</div><div class="v-brand-sub">${esc(computeSidebarDateLabel())}</div></div>
-        ${isMobile() ? `<button type="button" class="v-sync" data-v-sync aria-label="Synchroniser l'app" title="Synchroniser"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>` : ''}
+        <button type="button" class="v-sync" data-v-sync aria-label="Recharger la dernière version" title="Recharger la dernière version"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button>
       </div>
       <div class="v-quick">
         <button type="button" data-v-quick="today">${I.clock}<span>Aujourd'hui</span></button>
@@ -12355,12 +12356,14 @@
   root.addEventListener('click', onClick);
   mroot.addEventListener('click', onClick);
   // bouton vert du tiroir : recharge toute l'app depuis le serveur (code + données)
-  mroot.addEventListener('click', (e) => {
+  const onSync = (e) => {
     const b = e.target.closest('[data-v-sync]'); if (!b) return;
     e.preventDefault(); e.stopPropagation(); b.classList.add('busy');
     const u = new URL(location.href); u.searchParams.set('sync', Date.now().toString(36));
     setTimeout(() => location.replace(u.toString()), 120);
-  }, true);
+  };
+  mroot.addEventListener('click', onSync, true);
+  root.addEventListener('click', onSync, true); // ordinateur aussi : la coche à côté de la date
   // après une synchro, on retire le paramètre de l'adresse
   if (/[?&]sync=/.test(location.search)) { const u = new URL(location.href); u.searchParams.delete('sync'); history.replaceState(history.state, '', u.toString()); }
   [root, mroot].forEach(r => {
