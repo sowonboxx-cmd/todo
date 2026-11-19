@@ -15433,6 +15433,38 @@
       if (Object.keys(patch).length) { const up = await sb.from('cuisine_recipes').update(patch).eq('id', r.id); if (up.error) throw up.error; }
       return 'photo';
     }
+    if (row.kind === 'lib' && d.cuisine_inner) { // intérieur des pages Notion : { cuisine_inner: { db: 'product'|'recipe'|'next', name, notes?, links?, img?: { key, data } } }
+      const it = d.cuisine_inner, isP = it.db === 'product', table = isP ? 'cuisine_products' : 'cuisine_recipes';
+      const { data: all, error } = await sb.from(table).select('*');
+      if (error) throw error;
+      const nk = x => czNorm(x).replace(/œ/g, 'oe').replace(/[^a-z0-9]+/g, ' ').trim();
+      const want = nk(it.name);
+      const live = (all || []).filter(x => !x.is_archived && (isP || (it.db === 'next' ? x.kind === 'next' : x.kind !== 'next')));
+      let hit = live.filter(x => nk(x.name) === want);
+      if (!hit.length) hit = live.filter(x => { const k = nk(x.name); return k && want && (k.includes(want) || want.includes(k)); });
+      if (!hit.length) throw new Error(`fiche introuvable : ${it.name}`);
+      if (hit.length > 3) throw new Error(`plusieurs fiches : ${it.name}`);
+      for (const r of hit) { // même nom en double : on complète chaque fiche
+      const patch = {};
+      // on ne touche à rien de ce qui existe : notes seulement si vides, liens et photos seulement s'ils manquent
+      if (it.notes && !String(r.notes || '').trim()) { patch.notes = it.notes; CI.czNotes = (CI.czNotes || 0) + 1; }
+      if (!isP && Array.isArray(it.links) && it.links.length) {
+        const lk = u => { const s2 = czSrc(u); if (s2 && (s2.t === 'yt' || s2.t === 'ig')) return s2.t + ':' + s2.id; return String(u).replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^https?:\/\/(www\.)?/, '').toLowerCase(); };
+        const have = new Set((r.links || []).map(lk));
+        const add = it.links.filter(u => { const k = lk(u); if (have.has(k)) return false; have.add(k); return true; });
+        if (add.length) { patch.links = [...(r.links || []), ...add]; CI.czLinks = (CI.czLinks || 0) + add.length; }
+      }
+      if (it.img && it.img.key && it.img.data) {
+        const imgs = Array.isArray(r.images) ? r.images : [];
+        if (!imgs.some(u => String(u).includes(`/n-${it.img.key}-`))) {
+          const url = await lbStoreImage(await (await fetch(it.img.data)).blob(), `cuisine/${isP ? 'p/' : ''}${r.id}/n-${it.img.key}`);
+          patch.images = [...imgs, url]; CI.czCovers = (CI.czCovers || 0) + 1;
+        }
+      }
+      if (Object.keys(patch).length) { const up = await sb.from(table).update(patch).eq('id', r.id); if (up.error) throw up.error; }
+      }
+      return 'photo';
+    }
     if (row.kind === 'lib' && d.merge) { // regrouper des séries : { merge: { into: "Titre gardé", from: ["Autre titre", …] } }
       await ciMergeSeries(d.merge.into, d.merge.from || [], d.merge.like || null); // like : tous les titres qui contiennent ce texte
       return 'livre';
@@ -15548,7 +15580,7 @@
         catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
       }
       const czTouched = done.photo > 0;
-      if (done.photo) { done.photo = CI.czCovers || 0; done.lien = CI.czLinks || 0; CI.czCovers = 0; CI.czLinks = 0; }
+      if (done.photo) { done.photo = CI.czCovers || 0; done.lien = CI.czLinks || 0; done.note = CI.czNotes || 0; CI.czCovers = 0; CI.czLinks = 0; CI.czNotes = 0; }
       const parts = Object.entries(done).filter(([, n]) => n).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`);
       if (parts.length) alertBubble('Ajouté par Claude : ' + parts.join(', '));
       if (done.livre || done.prépublication) lbLoad(true);
