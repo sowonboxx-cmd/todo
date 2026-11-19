@@ -3521,7 +3521,7 @@
   .czo small { color: #9a9a9a; font-size: 12.5px; }
   .czo:first-child { padding-left: 12px; }
   .czo.on { background: #1f1f1f; color: #fff; } .czo.on small { color: #aaa; }
-  .czo-all { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 11px; border: 1.5px solid #E2E0DA; background: #fff; font: 600 14px 'Inter', sans-serif; color: #333; cursor: pointer; }
+  .czo-all { margin-left: auto; display: inline-flex; align-items: center; gap: 7px; padding: 7px 12px; border-radius: 11px; border: none; background: var(--v-soft2); font: 600 14px 'Inter', sans-serif; color: #333; cursor: pointer; }
   .czo-all svg { width: 15px; height: 15px; }
   .czo-all b { background: #1f1f1f; color: #fff; font-size: 11px; border-radius: 9px; padding: 1px 6px; }
   .v-stmenu.czo-pop { width: 300px; padding: 8px; max-height: min(460px, 70vh); display: flex; flex-direction: column; }
@@ -3898,6 +3898,13 @@
   .cz-mob .cz-viewsw button { padding: 6px 9px; border-radius: 9px; color: #9a9a96; }
   .cz-mob .cz-viewsw button.on { background: var(--v-soft2); color: var(--v-ink); }
   .cz-mob .cz-sortbtn { height: 36px; border-radius: 12px; }
+  /* ordi : outils sur la ligne des onglets, tous sur le même gris que les onglets */
+  .cz-desk .cz-head { display: flex; align-items: center; gap: 8px; }
+  .cz-hgap { width: 10px; }
+  .cz-desk .cz-head .cz-newbtn, .cz-desk .cz-head .cz-fbtn, .cz-desk .cz-head .cz-sortbtn { height: 36px; padding: 0 14px; border: none; border-radius: 10px; background: var(--v-soft2); font-size: 13.5px; margin: 0; }
+  .cz-desk .cz-head .cz-newbtn { font-weight: 600; }
+  .cz-desk .cz-head .cz-sortbtn:hover, .cz-desk .cz-head .cz-fbtn:hover, .cz-desk .cz-head .cz-newbtn:hover { background: #EAE9E5; }
+  .cz-desk .cz-head .cz-viewsw button { padding: 6px 10px; }
   .cz-inline-add { border: 1px dashed #D9D7D0; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--v-ink); outline: none; background: transparent; }
   .cz-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; background: #F3F1EC; border-radius: 12px; padding: 11px 14px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: var(--v-ink); cursor: pointer; }
   .cz-ghost svg { width: 18px; height: 18px; }
@@ -11311,7 +11318,7 @@
       root.querySelector('[data-v-views]').innerHTML = '';
       const panel = root.querySelector('[data-v-panel]');
       const focusQ = czFocusState();
-      panel.innerHTML = `<div class="cz cz-desk"><div class="cz-head">${czTabsHtml()}</div>${czBodyHtml(false)}</div>`;
+      panel.innerHTML = `<div class="cz cz-desk"><div class="cz-head">${czTabsHtml()}${czHeadTools()}</div>${czBodyHtml(false)}</div>`;
       czRestoreFocus(panel, focusQ);
       return;
     }
@@ -12999,6 +13006,10 @@
     const nf = kind === 'next' ? (CZ.imp ? 1 : 0) : (CZ.origin ? 1 : 0);
     const fbtn = `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" ${kind === 'next' ? 'data-cz-nfilter' : 'data-cz-filters'}>${LBI.filter}<span>${kind !== 'next' && CZ.origin ? esc(CZ.origin) : 'Filtres'}</span>${nf ? '<b>1</b>' : ''}</button>`;
     const left = kind === 'recipe' && !mobile ? czOriginBar() : fbtn;
+    if (!mobile) return `
+      <div class="cz-bar"><label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label></div>
+      ${kind === 'recipe' ? `<div class="cz-ctrls"><div class="cz-chips">${czOriginBar()}</div></div>` : ''}
+      <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
     return `
       <div class="cz-bar">
         <label class="cz-search">${I.search}<input type="search" data-cz-rq value="${esc(CZ.rq)}" placeholder="${kind === 'next' ? 'Chercher une idée…' : 'Chercher une recette, un ingrédient…'}" autocomplete="off" aria-label="Chercher"></label>
@@ -13007,6 +13018,15 @@
       <div class="cz-ctrls cz-rctrls"><div class="cz-chips">${left}</div><span class="cz-sp"></span>${czSortBtn(sk)}${view}</div>
       <div data-cz-rlist>${czRecipeListHtml(kind)}</div>`;
   }
+  // ordi : « + Recette / + Next », tri ou Filtres, puis galerie / liste tout à droite — sur la ligne des onglets
+  function czHeadTools() {
+    if (V.cz === 'courses' || !CZ.loaded || CZ.err) return '';
+    const next = V.cz === 'next', sk = next ? 'next' : 'recipe';
+    const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
+    const nf = next && CZ.imp ? 1 : 0;
+    const mid = next ? `<button type="button" class="cz-fbtn${nf ? ' on' : ''}" data-cz-nfilter>${LBI.filter}<span>Filtres</span>${nf ? '<b>1</b>' : ''}</button>` : czSortBtn(sk);
+    return `<span class="cz-hgap"></span><button type="button" class="cz-newbtn" data-cz-newrecipe>${I.plus}${next ? 'Next' : 'Recette'}</button>${mid}<span class="cz-sp"></span>${view}`;
+  }
   // filtre Next : importance + tri (feuille sur téléphone, petite fenêtre sur ordi)
   function czNFilterHtml(sheet) {
     const all = CZ.recipes.filter(r => r.kind === 'next');
@@ -13014,8 +13034,8 @@
     const n = all.filter(r => !CZ.imp || r.importance === CZ.imp).length, cur = czSortOf('next');
     return `${sheet ? `<div class="vm-grab"></div><h3 class="cz-fh">Filtres<button type="button" data-czn-reset>Réinitialiser</button></h3>` : ''}
       <div class="vm-field"><span>Importance</span><div class="lb-fchips">${['', ...CZ_IMP].map(v => `<button type="button" class="${CZ.imp === v ? 'on' : ''}" data-cz-imp="${v}">${v ? `<i class="czf-dot" style="background:${dot[v]}"></i>${v} <small>${all.filter(r => r.importance === v).length}</small>` : 'Toutes'}</button>`).join('')}</div></div>
-      ${sheet ? `<div class="vm-field"><span>Trier par</span><div class="lb-fchips">${CZ_SORTS.next.map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}" data-czn-sort="${k}">${l}</button>`).join('')}</div></div>
-      <button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} idée${n > 1 ? 's' : ''}</button>` : ''}`;
+      <div class="vm-field"><span>Trier par</span><div class="lb-fchips">${CZ_SORTS.next.map(([k, l]) => `<button type="button" class="${cur === k ? 'on' : ''}" data-czn-sort="${k}">${l}</button>`).join('')}</div></div>
+      ${sheet ? `<button type="button" class="cz-fgo" data-vm-sheet-close>Voir ${n} idée${n > 1 ? 's' : ''}</button>` : ''}`;
   }
   function czNFilterOpen(anchor) {
     if (isMobile()) {
