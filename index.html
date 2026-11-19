@@ -11915,6 +11915,17 @@
       if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; }
     });
   }
+  // kanban ordi : « Sans date » est à gauche mais caché au départ — on arrive sur Overdue (ou Today), on fait défiler à gauche pour le voir
+  let kbCtx = '';
+  function kbDefaultScroll(scope) {
+    const board = scope.querySelector('.v-board[data-v-scroll="board"]');
+    if (!board) { kbCtx = ''; return; }
+    const ctx = [V.space, V.proj, V.page, V.fav, V.view].join('|');
+    if (ctx === kbCtx) return;
+    kbCtx = ctx;
+    const nd = board.querySelector('[data-v-dropcol="n"]'), next = nd?.nextElementSibling;
+    if (nd && next) board.scrollLeft = next.offsetLeft - nd.offsetLeft;
+  }
   function v2Render() {
     buildMaps();
     // filtre vers un projet / une page supprimés → retour à toutes les tâches
@@ -11929,6 +11940,7 @@
     if (V.space !== 'lib') document.querySelectorAll('.lb-panel, .lb-panel-bd, .lb-smod, .lb-smod-bd').forEach(x => x.remove());
     else if (mobile) document.querySelectorAll('.lb-smod, .lb-smod-bd').forEach(x => x.remove());
     restoreScroll(scope, saved);
+    kbDefaultScroll(scope);
     if (mobile) alignTrack();
     if (sheetOpen()) { if (V.space === 'lib' && mroot.querySelector('[data-vm-sheet] [data-lb-freset]')) lbFilterSheet(); else if (V.space === 'cuisine' && mroot.querySelector('[data-vm-sheet] [data-cz-freset]')) czFilterSheet(); else renderFilterSheet(); }
     if (!V.loaded) {
