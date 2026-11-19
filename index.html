@@ -2026,8 +2026,10 @@
   .v-btn:hover { background: var(--v-chip); }
   .v-btn.on { background: var(--v-chip); }
   .v-btn svg { width: 15px; height: 15px; }
-  .v-btn.primary { background: var(--v-chip); margin-left: auto; padding: 10px 15px; }
-  .v-btn.primary:hover { background: #E2E2DF; }
+  .v-btn.primary { background: #1f1f1f; color: #fff; padding: 0 15px; }
+  .v-btn.primary:hover { background: #333; }
+  /* barre d'outils des tâches : tout à la même hauteur (bouton, catégories, filtres, colonnes, puces) */
+  .v-tools > .v-btn, .v-tools > .v-tool, .v-tools > .v-chipx, .v-tools .v-select-wrap select, .v-tools > .v-switch { height: 36px; box-sizing: border-box; padding-top: 0; padding-bottom: 0; }
   .v-btn .v-badge {
     min-width: 20px; height: 20px; border-radius: 6px; background: var(--v-card); font-size: 11.5px; font-weight: 700;
     display: inline-flex; align-items: center; justify-content: center; padding: 0 5px;
@@ -11529,13 +11531,13 @@
       : `${headFor(rows.map(t => t.id))}${rowsWithSep(rows) || '<div class="v-empty">Rien ici.</div>'}`;
     panel.innerHTML = `
       <div class="v-tools">
+        ${newBtnHtml()}
         <div class="v-seg" role="tablist" aria-label="Échéance">${DTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${V.dTab === k}" class="${V.dTab === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-dtab="${k}">${l} <small>${count(k)}</small></button>`).join('')}</div>
         ${catSelectHtml()}
         ${filterBtnHtml()}
         ${selBtnHtml()}
         ${chipHtml()}
         ${groupBtnHtml(false)}${catOn() || (ctxProj() && TC.missing) ? manageBtnHtml() : ''}
-        ${newBtnHtml()}
       </div>
       ${V.showFilters ? filtersHtml() : ''}
       <label class="v-quickadd"><input type="text" data-v-quickadd placeholder="Ajouter une tâche et appuyer sur Entrée…" aria-label="Ajouter une tâche"></label>
@@ -11610,7 +11612,7 @@
       const cols = catCols();
       const sorted = arr => sortTasks(arr, 'all', 'prio', false);
       panel.innerHTML = `
-        <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${groupBtnHtml(true)}${manageBtnHtml()}${newBtnHtml()}</div>
+        <div class="v-tools">${newBtnHtml()}${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${groupBtnHtml(true)}${manageBtnHtml()}</div>
         ${V.showFilters ? filtersHtml() : ''}
         <div class="v-board" data-v-scroll="board-cat">${cols.map(col => {
           const tasks = sorted(all.filter(t => col.match(t) && (V.done || !t.is_done)));
@@ -11624,7 +11626,7 @@
     }
     const cols = kanbanCols(true);
     panel.innerHTML = `
-      <div class="v-tools">${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${catOn() ? groupBtnHtml(true) : ''}${newBtnHtml()}</div>
+      <div class="v-tools">${newBtnHtml()}${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${catOn() ? groupBtnHtml(true) : ''}</div>
       ${V.showFilters ? filtersHtml() : ''}
       <div class="v-board" data-v-scroll="board">${cols.map(col => {
         const tasks = colTasks(col, all);
@@ -11697,9 +11699,10 @@
     const todayLabel = `Today <span style="font-weight:400;color:#8b8b8b">${weekdayOf(todayISO())} ${new Date().getDate()}</span>`;
     panel.innerHTML = `
       <div class="v-tools">
+        ${newBtnHtml()}
         <div class="v-daychips" role="tablist" aria-label="Jour">${CDAYS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${day === k}" class="${day === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-catday="${k}">${k === 't' ? todayLabel : l} <small>${count(k)}</small></button>`).join('')}</div>
         ${day === 't' || day === 'w' ? `<button type="button" class="v-switch${lateIn ? ' on' : ''}" role="switch" aria-checked="${lateIn}" data-v-latein><span class="trk"></span>Retards inclus</button>` : ''}
-        ${filterBtnHtml()}${chipHtml()}${newBtnHtml()}
+        ${filterBtnHtml()}${chipHtml()}
       </div>
       ${V.showFilters ? filtersHtml() : ''}
       <div class="v-blocks-scroll" data-v-scroll="cats-${day}">
