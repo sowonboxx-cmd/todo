@@ -15033,6 +15033,36 @@
       CI.czCovers = (CI.czCovers || 0) + n;
       return 'photo';
     }
+    if (row.kind === 'lib' && d.cuisine_notion) { // reprise depuis Notion : { cuisine_notion: { name, links: [], cover_data?: "data:…", cover_url?: "https://…" } }
+      const it = d.cuisine_notion;
+      const { data: all, error } = await sb.from('cuisine_recipes').select('*');
+      if (error) throw error;
+      const nk = x => czNorm(x).replace(/œ/g, 'oe').replace(/[^a-z0-9]+/g, ' ').trim();
+      const want = nk(it.name);
+      const live = (all || []).filter(x => !x.is_archived);
+      let hit = live.filter(x => nk(x.name) === want);
+      if (!hit.length) hit = live.filter(x => { const k = nk(x.name); return k && (k.includes(want) || want.includes(k)); });
+      if (hit.length !== 1) throw new Error(`${hit.length ? 'plusieurs recettes' : 'recette introuvable'} : ${it.name}`);
+      const r = hit[0];
+      // même lien = même vidéo YouTube, même publication Instagram, ou même adresse sans paramètres
+      const lk = u => { const s = czSrc(u); if (s && (s.t === 'yt' || s.t === 'ig')) return s.t + ':' + s.id; return String(u).replace(/[?#].*$/, '').replace(/\/+$/, '').replace(/^https?:\/\/(www\.)?/, '').toLowerCase(); };
+      const have = new Set((r.links || []).map(lk));
+      const add = (it.links || []).filter(u => { const k = lk(u); if (have.has(k)) return false; have.add(k); return true; });
+      const patch = {};
+      if (add.length) patch.links = [...(r.links || []), ...add];
+      // couverture Notion : remplace une couverture automatique (miniature d'un lien, photo libre), jamais une photo choisie dans l'app
+      const media = r.media && typeof r.media === 'object' ? r.media : {};
+      const cur = r.cover_url || '';
+      const auto = !cur || Object.values(media).includes(cur) || /images\.unsplash\.com|\/cuisine\/[^/]+\/notion-/.test(cur);
+      if ((it.cover_data || it.cover_url) && auto) {
+        patch.cover_url = it.cover_data ? await lbStoreImage(await (await fetch(it.cover_data)).blob(), `cuisine/${r.id}/notion`) : it.cover_url;
+        if ('_coverY' in media) { const m = { ...media }; delete m._coverY; patch.media = m; }
+        CI.czCovers = (CI.czCovers || 0) + 1;
+      }
+      CI.czLinks = (CI.czLinks || 0) + add.length;
+      if (Object.keys(patch).length) { const up = await sb.from('cuisine_recipes').update(patch).eq('id', r.id); if (up.error) throw up.error; }
+      return 'photo';
+    }
     if (row.kind === 'lib' && d.merge) { // regrouper des séries : { merge: { into: "Titre gardé", from: ["Autre titre", …] } }
       await ciMergeSeries(d.merge.into, d.merge.from || [], d.merge.like || null); // like : tous les titres qui contiennent ce texte
       return 'livre';
@@ -15147,11 +15177,12 @@
         try { const k = await ciApply(r); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); }
         catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
       }
-      if (done.photo) { done.photo = CI.czCovers || 0; CI.czCovers = 0; }
+      const czTouched = done.photo > 0;
+      if (done.photo) { done.photo = CI.czCovers || 0; done.lien = CI.czLinks || 0; CI.czCovers = 0; CI.czLinks = 0; }
       const parts = Object.entries(done).filter(([, n]) => n).map(([k, n]) => `${n} ${k}${n > 1 ? 's' : ''}`);
       if (parts.length) alertBubble('Ajouté par Claude : ' + parts.join(', '));
       if (done.livre || done.prépublication) lbLoad(true);
-      if (done.photo && CZ.loaded) czLoad(true);
+      if (czTouched && CZ.loaded) czLoad(true);
       if (done.tâche && typeof loadData === 'function') { CI.running = false; await loadData(); }
     } finally { CI.running = false; }
   };
