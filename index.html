@@ -1944,7 +1944,7 @@
   .v-cat.open .v-cat-toggle svg { transform: rotate(90deg); }
   .v-cat-pages { display: none; padding: 0 4px 4px; }
   .v-cat.open .v-cat-pages { display: block; }
-  .v-cat.active-cat { box-shadow: inset 0 0 0 1.5px var(--c-fg); }
+  .v-cat.active-cat { box-shadow: none; background: color-mix(in srgb, var(--c-bg), var(--c-fg) 10%); } /* sélection : un ton plus soutenu, sans bordure */
   .v-page {
     width: 100%; display: flex; align-items: center; gap: 12px; padding: 7px 8px; border-radius: 9px;
     border: none; background: transparent; cursor: pointer; text-align: left; font-size: 14px; color: var(--v-ink2);
