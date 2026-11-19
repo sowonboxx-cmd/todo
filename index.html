@@ -15573,12 +15573,18 @@
     if (CI.running || CI.missing) return;
     CI.running = true;
     try {
-      const { data, error } = await sb.from('claude_inbox').select('*').is('applied_at', null).order('created_at');
+      // d'abord la liste légère (sans le contenu : certains envois portent une photo), puis chaque envoi un par un —
+      // une coupure réseau n'arrête que l'envoi en cours, le reste repart à la prochaine ouverture
+      const { data, error } = await sb.from('claude_inbox').select('id,error').is('applied_at', null).order('created_at').limit(2000);
       if (error) { if (/does not exist|schema cache|relation/i.test(error.message || '')) CI.missing = true; return; }
-      const rows = (data || []).filter(r => !r.applied_at);
-      if (!rows.length) return;
+      const ids = (data || []).filter(r => !/^(fiche|recette) introuvable|^plusieurs (fiches|recettes)/.test(r.error || '')).map(r => r.id);
+      if (!ids.length) return;
       const done = { tâche: 0, livre: 0, prépublication: 0, photo: 0 };
-      for (const r of rows) {
+      if (ids.length > 20) alertBubble(`Import de Claude en cours : ${ids.length} éléments, laissez l'app ouverte`);
+      for (const id of ids) {
+        const { data: r, error: e1 } = await sb.from('claude_inbox').select('*').eq('id', id).maybeSingle();
+        if (e1) { console.error('claude_inbox', id, e1); break; } // réseau coupé : on reprendra plus tard
+        if (!r || r.applied_at) continue;
         try { const k = await ciApply(r); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); }
         catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
       }
