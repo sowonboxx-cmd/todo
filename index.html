@@ -13134,7 +13134,7 @@
   function czHeadTools() {
     if (V.cz === 'courses' || !CZ.loaded || CZ.err) return '';
     const view = `<div class="v-seg cz-viewsw"><button type="button" class="${CZ.rview === 'grid' ? 'on' : ''}" data-cz-rview="grid" aria-label="Galerie">${CZI.grid}</button><button type="button" class="${CZ.rview === 'list' ? 'on' : ''}" data-cz-rview="list" aria-label="Liste">${CZI.list}</button></div>`;
-    return `<span class="cz-hgap"></span>${czRFilterBtn()}${czSortBtn('recipe')}${view}<span class="cz-hflex"></span><button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Ajouter une recette</button>`;
+    return `<span class="cz-hgap"></span>${czRFilterBtn()}${czSortBtn('recipe')}<button type="button" class="cz-newbtn dark" data-cz-newrecipe>${I.plus}Ajouter une recette</button>${view}`;
   }
   // filtre unique Recettes : type (Recette / Next recette), importance, origine — feuille sur téléphone, petite fenêtre sur ordi
   function czNFilterHtml(sheet) {
