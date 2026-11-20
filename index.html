@@ -6093,14 +6093,32 @@
   function tdWireSubtaskEdit(sheet, todoId, list) {
     if (list.dataset.stWired) return; // délégation : une seule fois par liste
     list.dataset.stWired = '1';
+    // Entrée : la nouvelle ligne est créée et focalisée tout de suite (sinon l'iPhone ferme le clavier),
+    // l'enregistrement se fait ensuite. Sur iPhone, Entrée arrive parfois seulement en « beforeinput ».
+    let stEnterAt = 0;
+    const stEnter = (ed) => {
+      if (Date.now() - stEnterAt < 250) return; stEnterAt = Date.now();
+      ed.textContent = ed.textContent.replace(/\s*\n+\s*/g, ' ');
+      if (!tdStText(ed)) return;
+      const row = ed.closest('.td-subtask-row');
+      const next = row.nextElementSibling?.classList.contains('td-st-draft') ? row.nextElementSibling.querySelector('[data-subtask-edit]') : tdStDraft(row);
+      next.focus();
+      tdStCommit(sheet, todoId, ed);
+    };
+    list.addEventListener('beforeinput', (e) => {
+      const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
+      if (e.inputType === 'insertParagraph' || e.inputType === 'insertLineBreak') { e.preventDefault(); stEnter(ed); }
+    });
+    list.addEventListener('input', (e) => { // filet de sécurité : un retour à la ligne passé quand même
+      const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
+      if (/\n/.test(ed.textContent)) stEnter(ed);
+    });
     list.addEventListener('keydown', async (e) => {
       const ed = e.target.closest?.('[data-subtask-edit]'); if (!ed) return;
       const row = ed.closest('.td-subtask-row');
-      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        if (!tdStText(ed)) return;
-        const saved = await tdStCommit(sheet, todoId, ed);
-        tdStDraft(saved).focus();
+        stEnter(ed);
         return;
       }
       if (e.key === 'Backspace' && !tdStText(ed) && !row.matches('[data-st-new]')) {
