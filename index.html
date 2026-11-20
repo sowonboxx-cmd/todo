@@ -10950,6 +10950,7 @@
 
   // regroupement de la liste : none | cat | prio | status (catégorie seulement dans un projet)
   V.group = LS.get('group', 'cat');
+  V.kcol = LS.get('kcol', 'page'); // colonnes du kanban dans un projet : 'page' (sous-projets), 'cat', 'none' (échéance)
   V.gsort = LS.get('gsort', 'prio');
   V.gsortRev = LS.get('gsortRev', false) === true;
   const GROUP_LBL = { none: 'Aucun', cat: 'Catégorie', prio: 'Priorité', status: 'Statut' };
@@ -10976,10 +10977,19 @@
     }
     return null;
   }
+  // kanban dans un projet : colonnes par sous-projet (défaut), par catégorie ou par échéance
+  function kmode() {
+    if (!ctxProj()) return 'none';
+    const k = V.kcol;
+    if (k === 'page') return V.page ? 'none' : 'page';
+    if (k === 'cat') return catOn() ? 'cat' : 'none';
+    return 'none';
+  }
+  const KCOL_LBL = { page: 'Sous-projet', cat: 'Catégorie', none: 'Échéance' };
   function groupBtnHtml(kanban) {
     if (!ctxProj()) return '';
-    const g = kanban ? (V.group === 'cat' && catOn() ? 'cat' : 'none') : effGroup();
-    const lbl = kanban ? (g === 'cat' ? 'Catégorie' : 'Échéance') : GROUP_LBL[g];
+    const g = kanban ? kmode() : effGroup();
+    const lbl = kanban ? KCOL_LBL[g] : GROUP_LBL[g];
     return `<button type="button" class="v-tool${g !== 'none' ? ' on' : ''}" data-v-group="${kanban ? 'k' : 'l'}" aria-haspopup="menu">${I.vCats}<span>${kanban ? 'Colonnes' : 'Grouper'} : ${lbl}</span></button>`;
   }
   const manageBtnHtml = () => ctxProj() && TC.loaded ? `<button type="button" class="v-tool" data-v-tcmanage title="Gérer les catégories du projet">${I.sliders}<span>Catégories</span></button>` : '';
@@ -11005,13 +11015,14 @@
     return { m, close, place };
   }
   function openGroupMenu(anchor, kanban) {
-    const cur = kanban ? (V.group === 'cat' && catOn() ? 'cat' : 'none') : effGroup();
-    const opts = kanban ? [['cat', 'Catégorie'], ['none', 'Échéance']] : [['none', 'Aucun'], ['cat', 'Catégorie'], ['prio', 'Priorité'], ['status', 'Statut']];
+    const cur = kanban ? kmode() : effGroup();
+    const opts = kanban ? [...(V.page ? [] : [['page', 'Sous-projet']]), ['cat', 'Catégorie'], ['none', 'Échéance']] : [['none', 'Aucun'], ['cat', 'Catégorie'], ['prio', 'Priorité'], ['status', 'Statut']];
     const { m, close } = floatMenu(anchor, opts.filter(([k]) => k !== 'cat' || catOn()).map(([k, l]) => `<button type="button" role="menuitemradio" aria-checked="${cur === k}" data-g="${k}"><span>${l}</span>${cur === k ? I.check : ''}</button>`).join(''));
     m.addEventListener('click', (ev) => {
       const b = ev.target.closest('[data-g]'); if (!b) return;
       close();
-      V.group = b.dataset.g; LS.set('group', V.group);
+      if (kanban) { V.kcol = b.dataset.g; LS.set('kcol', V.kcol); }
+      else { V.group = b.dataset.g; LS.set('group', V.group); }
       v2Render();
     });
   }
@@ -11629,26 +11640,54 @@
     </div>`;
   }
   // kanban par catégorie (dans un projet) : une colonne par catégorie + « Sans catégorie »
-  const kanbanByCat = () => catOn() && V.group === 'cat';
+  const kanbanByCat = () => kmode() === 'cat';
+  // colonnes « sous-projet » : une par page du projet + « Sans sous-projet » s'il y en a
+  function pageCols() {
+    const pid = ctxProj();
+    const pages = cachedPages.filter(p => p.project_id === pid && !p.is_archived && p.page_type !== 'doc').sort((a, b) => (a.position || 0) - (b.position || 0));
+    const cs = pages.map(p => ({ key: 'pg:' + p.id, page: p, match: t => t.page_id === p.id }));
+    cs.push({ key: 'pg:', page: null, match: t => !t.page_id || !pages.some(p => p.id === t.page_id) });
+    return cs;
+  }
+  // ordre dans une colonne : aujourd'hui, puis en retard (du plus récent), puis la suite par date, sans date à la fin, terminées en bas
+  function byTodo(a, b) {
+    const r = t => t.is_done ? 4 : bucket(t) === 't' ? 0 : bucket(t) === 'o' ? 1 : t.due_date ? 2 : 3;
+    const ra = r(a), rb = r(b);
+    if (ra !== rb) return ra - rb;
+    if (ra === 1) return byLate(a, b);
+    return byDue(a, b);
+  }
   function catCols() {
     const cs = catsOf(ctxProj()).map(c => ({ key: 'tc:' + c.id, cat: c, match: t => catOf(t)?.id === c.id }));
     cs.push({ key: 'tc:', cat: null, match: t => !catOf(t) });
     return cs;
   }
-  function catCardHtml(t) {
+  function catCardHtml(t, noPg) {
     const b = bucket(t), late = b === 'o' && !t.is_done, st = statusOf(t);
     const pg = pageOf(t);
     return `<div class="v-card v-ccard${t.is_done ? ' is-done' : ''}" draggable="true" data-v-open="${t.id}" data-v-drag="${t.id}">
       ${chk(t)}
       <div class="v-card-body">
         <div class="v-card-top"><span class="v-ttl">${esc(t.title)}</span></div>
-        <div class="v-cmeta">${PRIO_LBL[t.priority] ? `<span class="v-prio" style="color:${PRIO_COL[t.priority]}">${FLAG_SVG}</span>` : ''}<span class="v-cdue${late ? ' late' : b === 't' && !t.is_done ? ' today' : ''}">${t.due_date ? dateTime(t) : 'Sans date'}${repIcon(t)}</span>${!V.page && pg ? `<span class="v-cpg">${esc(pg.title)}</span>` : ''}<span class="v-gsp"></span><span class="v-pill st-${st}">${ST_LABEL[st]}</span></div>
+        <div class="v-cmeta">${PRIO_LBL[t.priority] ? `<span class="v-prio" style="color:${PRIO_COL[t.priority]}">${FLAG_SVG}</span>` : ''}<span class="v-cdue${late ? ' late' : b === 't' && !t.is_done ? ' today' : ''}">${t.due_date ? dateTime(t) : 'Sans date'}${repIcon(t)}</span>${!V.page && !noPg && pg ? `<span class="v-cpg">${esc(pg.title)}</span>` : ''}<span class="v-gsp"></span><span class="v-pill st-${st}">${ST_LABEL[st]}</span></div>
         ${subRow(t)}
       </div>
     </div>`;
   }
   function renderDesktopKanban(panel) {
     const all = cachedTodos.filter(passFilters);
+    if (kmode() === 'page') {
+      const cols = pageCols().map(col => ({ col, tasks: all.filter(t => col.match(t) && (V.done || !t.is_done)).sort(byTodo) })).filter(({ col, tasks }) => col.page || tasks.length);
+      panel.innerHTML = `
+        <div class="v-tools">${newBtnHtml()}${catSelectHtml()}${filterBtnHtml()}${chipHtml()}${groupBtnHtml(true)}${manageBtnHtml()}</div>
+        ${V.showFilters ? filtersHtml() : ''}
+        <div class="v-board" data-v-scroll="board-pg">${cols.map(({ col, tasks }) => `<div class="v-col" data-v-dropcol="${col.key}">
+            <div class="v-col-head"><h2>${esc(col.page ? col.page.title : 'Sans sous-projet')}</h2><span class="v-col-n">${tasks.length}</span>
+              <button type="button" class="v-icon-btn" data-v-padd="${col.page ? col.page.id : ''}" aria-label="Ajouter une tâche : ${esc(col.page ? col.page.title : 'Sans sous-projet')}">${I.plus}</button></div>
+            <div class="v-col-body" data-v-scroll="col-${col.key}">${tasks.map(t => catCardHtml(t, true)).join('') || '<div class="v-empty" style="padding:28px 0">Aucune tâche</div>'}</div>
+          </div>`).join('')}</div>`;
+      return;
+    }
     if (kanbanByCat()) {
       const cols = catCols();
       const sorted = arr => sortTasks(arr, 'all', 'prio', false);
@@ -12375,6 +12414,7 @@
     if (d.vGroup) { openGroupMenu(el, d.vGroup === 'k'); return; }
     if ('vmGroup' in d) { V.group = effGroup() === 'cat' ? 'none' : 'cat'; LS.set('group', V.group); v2Render(); return; }
     if ('vGadd' in d) { openNew(contextDate(), null, null, d.vGadd || null); return; }
+    if ('vPadd' in d) { openNew(null, ctxProj(), d.vPadd || null); return; }
     if ('vTcmanage' in d) { if (isMobile()) closeDrawer(); openCatManager(); return; }
     if (d.vDue) { e.stopPropagation(); openQuickDatePopover(el, d.vDue); return; }
     if (d.vProj) { // ouvrir un projet : tout voir, en liste (ordi et téléphone)
@@ -12507,6 +12547,14 @@
     const id = e.dataTransfer.getData('text/plain');
     const t = cachedTodos.find(x => x.id === id);
     if (colEl.dataset.vDropcol.startsWith('tc:')) { if (t) setTaskCat(t, colEl.dataset.vDropcol.slice(3) || null); return; }
+    if (colEl.dataset.vDropcol.startsWith('pg:')) { // changer de sous-projet
+      const pg = colEl.dataset.vDropcol.slice(3) || null;
+      if (!t || (t.page_id || null) === pg) return;
+      t.page_id = pg; v2Render();
+      const { error } = await sb.from('todos').update({ page_id: pg }).eq('id', id);
+      if (error) { console.error(error); alertBubble('Erreur de sauvegarde.'); loadData(); }
+      return;
+    }
     const col = kanbanCols().find(c => c.key === colEl.dataset.vDropcol);
     if (!t || !col || col.key === 'o') return;
     const newDate = col.date !== undefined ? col.date : col.drop;
