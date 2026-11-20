@@ -83,7 +83,9 @@ async function fgSearch(q: string) {
   }).filter((r: any) => r.score).sort((a: any, b: any) => b.score - a.score).slice(0, 8).map((r: any) => r.x);
 }
 async function fgSerie(id: string) {
-  const x = JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`));
+  let x = JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}`));
+  // FuryoGang garde parfois en cache (une semaine) une réponse « introuvable » : on redemande en contournant le cache
+  if (!x?.serie || x?.error) { try { const y = JSON.parse(await get(`${FG}/api/biblio?id=${encodeURIComponent(id)}&r=${Date.now()}`)); if (y?.serie) x = y; } catch (_) { /* tant pis */ } }
   // résumé : seulement pour les séries dont la fiche est en ligne sur FuryoGang
   const slug = x?.serie?.slug;
   if (slug) { try { const f = JSON.parse(await get(`${FG}/api/serie?s=${encodeURIComponent(slug)}`)); if (f?.serie?.resume) x.resume = f.serie.resume; if (f?.serie?.scen) x.scen = f.serie.scen; if (f?.serie?.dess) x.dess = f.serie.dess; } catch (_) { /* pas de fiche */ } }
