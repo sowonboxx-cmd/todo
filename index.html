@@ -12377,7 +12377,12 @@
     if ('vGadd' in d) { openNew(contextDate(), null, null, d.vGadd || null); return; }
     if ('vTcmanage' in d) { if (isMobile()) closeDrawer(); openCatManager(); return; }
     if (d.vDue) { e.stopPropagation(); openQuickDatePopover(el, d.vDue); return; }
-    if (d.vProj) { e.stopPropagation(); setFilter(V.proj === d.vProj && !V.page ? {} : { proj: d.vProj }); return; }
+    if (d.vProj) { // ouvrir un projet : tout voir, en liste (ordi et téléphone)
+      e.stopPropagation();
+      if (V.proj === d.vProj && !V.page) { setFilter({}); return; }
+      V.view = 'list'; LS.set('view', 'list'); V.dTab = 'all'; V.mTab = 'all'; LS.set('dtab', 'all');
+      setFilter({ proj: d.vProj }); return;
+    }
     if (d.vPage) { const pg = M.pageById.get(d.vPage); setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
     if (d.vFavtodo) { closeDrawer(); openTaskSheet(container(), d.vFavtodo); return; }
     if (d.vTogglecat) {
