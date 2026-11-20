@@ -10707,7 +10707,7 @@
     view: LS.get('view', 'list'),        // list | kanban | cats
     dTab: 't',                           // onglet de la liste desktop : all o t d w — on ouvre toujours sur « Today »
     mTab: 't',                            // onglet mobile (liste + catégories)
-    mKcol: 1,                            // colonne kanban mobile visible
+    mKcol: 2,                            // colonne kanban mobile visible (0 = Sans date, cachée à gauche ; 2 = Today)
     sort: LS.get('sort', 'due'),
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
     proj: null, page: null, fav: false,  // filtre catégorie / page / favoris
@@ -11770,8 +11770,9 @@
         ${subRow(t)}
       </div></div>`;
   }
-  const KTAB_COL = { o: 0, t: 1, d: 2, w: 3 };
-  function kColToTab(i) { return i === 0 ? 'o' : i === 1 ? 't' : i === 2 ? 'd' : i <= 7 ? 'w' : ''; }
+  // téléphone : « Sans date » est la 1re colonne, cachée à gauche (on glisse vers la droite pour la voir), sans onglet
+  const KTAB_COL = { o: 1, t: 2, d: 3, w: 4 };
+  function kColToTab(i) { return i === 0 ? '' : i === 1 ? 'o' : i === 2 ? 't' : i === 3 ? 'd' : i <= 8 ? 'w' : ''; }
 
   function renderMobile() {
     // bas du menu (il faut descendre pour le voir) : recherche, filtres, affichage de la page
@@ -11816,8 +11817,8 @@
     let tabsHtml = '', pages = '';
 
     if (V.view === 'kanban') {
-      const cols = kanbanCols().map(col => ({ col, tasks: colTasks(col, all) }));
-      const cnt = { o: cols[0].tasks.length, t: cols[1].tasks.length, d: cols[2].tasks.length, w: cols.slice(3, 8).reduce((n, c) => n + c.tasks.length, 0) };
+      const cols = kanbanCols(true).map(col => ({ col, tasks: colTasks(col, all) }));
+      const cnt = { o: cols[1].tasks.length, t: cols[2].tasks.length, d: cols[3].tasks.length, w: cols.slice(4, 9).reduce((n, c) => n + c.tasks.length, 0) };
       const cur = kColToTab(V.mKcol);
       tabsHtml = KTABS.map(([k, l]) => `<button type="button" role="tab" aria-selected="${cur === k}" class="${cur === k ? 'on' : ''}${k === 'o' ? ' late' : ''}" data-v-mtab="${k}">${l} <small>${cnt[k]}</small></button>`).join('');
       pages = cols.map(({ col, tasks }) => `<div class="vm-page vm-kpage" data-v-scroll="mk-${col.key}"><div class="vm-col">
@@ -12045,7 +12046,7 @@
   }
   function contextDate() {
     if (isMobile()) {
-      if (V.view === 'kanban') { const col = kanbanCols()[V.mKcol]; return col?.date || todayISO(); }
+      if (V.view === 'kanban') { const col = kanbanCols(true)[V.mKcol]; return col ? (col.key === 'n' ? null : col.date || todayISO()) : todayISO(); }
       return dateForTab(V.mTab);
     }
     if (V.view === 'cats') return dateForTab(V.catDay);
