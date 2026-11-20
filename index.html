@@ -9299,7 +9299,13 @@
     list.querySelectorAll('[data-staged-sub-edit]').forEach(el => {
       const idx = parseInt(el.dataset.stagedSubEdit, 10);
       el.addEventListener('click', (e) => e.stopPropagation());
-      el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+      // Entrée : valide et passe à une nouvelle ligne pour en ajouter une autre
+      el.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter' || e.isComposing) return;
+        e.preventDefault();
+        const input = sheet.querySelector('[data-at-subtask-input]');
+        if (input) { input.style.display = 'block'; input.value = ''; input.focus(); } else el.blur();
+      });
       el.addEventListener('blur', () => {
         const title = el.textContent.replace(/\s+/g, ' ').trim();
         const cur = JSON.parse(sheet.dataset.stagedSubtasks || '[]');
@@ -9623,8 +9629,17 @@
       input.value = '';
       input.focus();
     });
+    // Entrée : ajoute la sous-tâche et garde le champ ouvert pour la suivante (Entrée sur un champ vide le ferme)
     sheet.querySelector('[data-at-subtask-input]')?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') e.target.blur();
+      if (e.key !== 'Enter' || e.isComposing) return;
+      e.preventDefault();
+      const title = e.target.value.trim();
+      if (!title) { e.target.blur(); return; }
+      const subs = JSON.parse(sheet.dataset.stagedSubtasks || '[]');
+      sheet.dataset.stagedSubtasks = JSON.stringify([...subs, { title }]);
+      e.target.value = '';
+      renderAtSubtasks(sheet);
+      e.target.focus();
     });
     sheet.querySelector('[data-at-subtask-input]')?.addEventListener('blur', (e) => {
       const title = e.target.value.trim();
