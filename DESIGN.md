@@ -143,3 +143,12 @@ qui « flashe »). La couleur sert seulement à repérer (icône, petite pastill
 - **Galerie / liste** : un seul sélecteur partout, `.v-seg.cz-viewsw` (icône grille G3 + icône liste),
   collé aux filtres / au tri.
 
+
+## 9. Mode sombre (palette Noir)
+
+- Suit automatiquement le réglage de l'appareil (`prefers-color-scheme`), via `data-theme="dark"` sur `<html>`.
+- Palette : fond `#000`, cartes `#1C1C1E`, surfaces `#242426` / `#2C2C2E`, cases `#3A3A3C`, texte `#F2F2F3`, secondaire `#A1A1A6`.
+  Couleurs vives éclaircies : rouge `#FF6B5E`, vert `#4CC27A`, orange `#F2A33A`. Le noir de sélection devient blanc (texte foncé).
+- Les règles sombres sont **générées** depuis le CSS clair : après toute modification du CSS, lancer `python3 tools/dark-apply.py`
+  (régénère le bloc « MODE SOMBRE » en fin de `<style>`). Ne pas modifier ce bloc à la main ; les réglages manuels vont dans `tools/dark-apply.py`.
+- Couleurs de catégorie/projet : passer par `--c-bg` / `--c-fg` (jamais `style="background:…"` en dur), pour que le mode sombre puisse les adapter.
