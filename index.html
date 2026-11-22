@@ -6612,13 +6612,22 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     return cfg;
   }
   async function uploadImageFile(file, cfg) {
-    const res = await fetch(cfg.url + '/upload', {
+    // sans Worker configuré, ou s'il ne répond pas : stockage Supabase (comme les couvertures)
+    const viaSupabase = async () => {
+      const ext = /png/.test(file.type) ? 'png' : /webp/.test(file.type) ? 'webp' : /gif/.test(file.type) ? 'gif' : 'jpg';
+      const path = `uploads/${new Date().toISOString().slice(0, 7)}/${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.${ext}`;
+      const { error } = await sb.storage.from('bibliotheque').upload(path, file, { contentType: file.type || 'image/jpeg', upsert: true });
+      if (error) throw new Error('Envoi impossible : ' + (error.message || 'stockage'));
+      return sb.storage.from('bibliotheque').getPublicUrl(path).data.publicUrl;
+    };
+    if (!cfg?.url) return viaSupabase();
+    let res; try { res = await fetch(cfg.url + '/upload', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + cfg.token, 'Content-Type': file.type || 'application/octet-stream', 'X-File-Name': encodeURIComponent(file.name || 'image') },
       body: file,
-    });
-    if (res.status === 401) { try { localStorage.removeItem(UPLOAD_KEY); } catch {} throw new Error('Mot de passe refusé'); }
-    if (!res.ok) throw new Error('Envoi impossible (' + res.status + ')');
+    }); } catch (_) { return viaSupabase(); }
+    if (res.status === 401) { try { localStorage.removeItem(UPLOAD_KEY); } catch {} return viaSupabase(); }
+    if (!res.ok) return viaSupabase();
     const data = await res.json();
     return data.url;
   }
@@ -6636,7 +6645,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   async function addImageFilesToSheet(sheet, files, cfg) {
     files = (files || []).filter(f => /^image\//.test(f.type));
     if (!files.length) return;
-    cfg = cfg || getUploadCfg() || askUploadCfg();
+    cfg = cfg || getUploadCfg() || {};
     if (!cfg) return;
     const isNew = sheet.hasAttribute('data-addtask-sheet');
     const current = isNew ? JSON.parse(sheet.dataset.stagedImages || '[]') : (getRecord(sheet.dataset.recordKind, sheet.dataset.recordId)?.images || []);
@@ -6664,7 +6673,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   // bouton « Uploader un fichier » : choix des fichiers si Cloudflare est réglé, sinon lien d'image
   // plus de liens d'images : uniquement des fichiers envoyés sur ton stockage Cloudflare
   async function startImageUpload(sheet) {
-    const cfg = getUploadCfg() || askUploadCfg();
+    const cfg = getUploadCfg() || {};
     if (!cfg) return;
     const files = await pickImageFiles();
     await addImageFilesToSheet(sheet, files, cfg);
@@ -13797,7 +13806,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const p = czProd(czPPid); if (!p) return;
     files = (files || []).filter(f => /^image\//.test(f.type));
     if (!files.length) return;
-    const cfg = getUploadCfg() || askUploadCfg(); if (!cfg) return;
+    const cfg = getUploadCfg() || {}; if (!cfg) return;
     const wrap = czPP.querySelector('.cz-pp-body');
     const ph = document.createElement('div'); ph.className = 'cz-uploading'; ph.textContent = 'Envoi de ' + files.length + ' image' + (files.length > 1 ? 's' : '') + '…';
     wrap?.prepend(ph);
@@ -14767,7 +14776,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   }
   const czFillHtml = r => `<form class="czv-fill" data-czv-fill><input type="url" class="cz-inline-add" data-czv-fillurl placeholder="Coller le lien d’une recette (site)" enterkeyhint="go" aria-label="Lien d’un site de recettes"><button type="submit" class="czi-go"${CZF.busy === r.id ? ' disabled' : ''}>${CZF.busy === r.id ? 'Lecture…' : 'Remplir'}</button></form>${CZF.err ? `<p class="czi-err">${esc(CZF.err)}</p>` : ''}`;
   async function czUploadImages(r) {
-    const cfg = getUploadCfg() || askUploadCfg();
+    const cfg = getUploadCfg() || {};
     if (!cfg) return;
     const files = (await pickImageFiles()).filter(f => /^image\//.test(f.type));
     if (!files.length) return;
@@ -14972,7 +14981,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (!files.length) return;
     e.preventDefault();
     if (zone) zone.setAttribute('data-ph', 'Ajout de la photo…');
-    const cfg = getUploadCfg() || askUploadCfg(); if (!cfg) return;
+    const cfg = getUploadCfg() || {}; if (!cfg) return;
     const urls = [];
     for (const f of files) { try { urls.push(await uploadImageFile(f, cfg)); } catch (err) { alert(err.message); break; } }
     if (!urls.length) return;
