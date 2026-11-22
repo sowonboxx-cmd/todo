@@ -2075,15 +2075,15 @@
 
   /* ---------- checkbox carré ---------- */
   .v-chk {
-    width: 18px; height: 18px; border-radius: 5px; background: var(--v-check); border: none; padding: 0;
+    width: 18px; height: 18px; border-radius: 5px; background: transparent; box-shadow: inset 0 0 0 1.75px var(--v-chk-ring, #C4C3BD); border: none; padding: 0;
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease;
   }
-  .v-chk:hover { background: #D9D8D2; }
+  .v-chk:hover { background: color-mix(in srgb, var(--v-chk-ring, #C4C3BD) 22%, transparent); }
   .v-chk svg { width: 12px; height: 12px; opacity: 0; color: #fff; }
   /* contour selon la priorité (la case garde son fond, l'anneau est intérieur) */
-  .v-chk.p-high { box-shadow: inset 0 0 0 1.75px var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
-  .v-chk.p-med { box-shadow: inset 0 0 0 1.75px var(--accent-pvpp); background: color-mix(in srgb, var(--accent-pvpp) 12%, transparent); }
-  .v-chk.p-low { box-shadow: inset 0 0 0 1.75px var(--accent-manga-blue); background: color-mix(in srgb, var(--accent-manga-blue) 10%, transparent); }
+  .v-chk.p-high { --v-chk-ring: var(--danger); }
+  .v-chk.p-med { --v-chk-ring: var(--accent-pvpp); }
+  .v-chk.p-low { --v-chk-ring: var(--accent-manga-blue); }
   .is-done .v-chk, .v-chk.done { background: var(--v-green); box-shadow: none; }
   .is-done .v-chk svg, .v-chk.done svg { opacity: 1; }
   .is-done .v-ttl { color: var(--v-faint); text-decoration: line-through; }
@@ -4013,12 +4013,13 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
     --v-bg: #000000; --v-card: #1C1C1E; --v-ink: #F2F2F3; --v-ink2: #E6E6E8;
     --v-muted: #A1A1A6; --v-faint: #8A8A90; --v-line: #2A2A2C; --v-soft: #242426;
-    --v-soft2: #242426; --v-chip: #2C2C2E; --v-seg: #1C1C1E; --v-check: #3A3A3C;
+    --v-soft2: #242426; --v-chip: #2C2C2E; --v-seg: #1C1C1E; --v-check: #3A3A3C; --v-chk-ring: #5A5A5E;
     --v-red: #FF6B5E; --v-orange: #F2A33A; --v-green: #4CC27A; --v-gold: #F0C45A;
     --bg: #000000; --paper: #0E0E0F; --card: #1C1C1E; --ink: #F2F2F3; --muted: #A1A1A6; --faint: #8A8A90; --line: #2A2A2C; --line-soft: #242426;
   }
@@ -4094,7 +4095,7 @@ html[data-theme="dark"] .v-search kbd { background: #242426; }
 html[data-theme="dark"] .v-btn.primary { background: #f2f2f3; color: #111111; }
 html[data-theme="dark"] .v-btn.primary:hover { background: #f2f2f3; }
 html[data-theme="dark"] .v-filters { background: #242426; }
-html[data-theme="dark"] .v-chk:hover { background: #3a3a3c; }
+html[data-theme="dark"] .v-chk:hover { background: color-mix(in srgb, var(--v-chk-ring, #3a3a3c) 22%, transparent); }
 html[data-theme="dark"] .v-row:hover { background: #242426; }
 html[data-theme="dark"] .v-pill.prio { background: rgba(255,107,94,0.09); }
 html[data-theme="dark"] .v-pill.st-todo { background: rgba(255,255,255,0.08); color: #d2d2d6; }

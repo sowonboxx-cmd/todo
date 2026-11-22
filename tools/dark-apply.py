@@ -11,7 +11,7 @@ tokens = '''html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-them
     color-scheme: dark;
     --v-bg: #000000; --v-card: #1C1C1E; --v-ink: #F2F2F3; --v-ink2: #E6E6E8;
     --v-muted: #A1A1A6; --v-faint: #8A8A90; --v-line: #2A2A2C; --v-soft: #242426;
-    --v-soft2: #242426; --v-chip: #2C2C2E; --v-seg: #1C1C1E; --v-check: #3A3A3C;
+    --v-soft2: #242426; --v-chip: #2C2C2E; --v-seg: #1C1C1E; --v-check: #3A3A3C; --v-chk-ring: #5A5A5E;
     --v-red: #FF6B5E; --v-orange: #F2A33A; --v-green: #4CC27A; --v-gold: #F0C45A;
     --bg: #000000; --paper: #0E0E0F; --card: #1C1C1E; --ink: #F2F2F3; --muted: #A1A1A6; --faint: #8A8A90; --line: #2A2A2C; --line-soft: #242426;
   }
