@@ -2431,6 +2431,10 @@
   .vm-crumb .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .vm-crumb span:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
   .vm-empty { padding: 48px 20px; text-align: center; font-size: 14px; color: var(--v-faint); }
+  .vm-pseg { overflow-x: auto; scrollbar-width: none; }
+  .vm-pseg::-webkit-scrollbar { display: none; }
+  .vm-pseg button { flex: 0 0 auto; padding-left: 14px; padding-right: 14px; white-space: nowrap; }
+  .vm-kswitch { display: flex; justify-content: flex-end; margin: -4px 0 8px; }
   .vm-kpage { padding: 0 6px 16px 16px; flex: 0 0 calc(100% - 34px); width: calc(100% - 34px); }
   .vm-kpage:last-child { padding-right: 16px; flex-basis: 100%; width: 100%; }
   .vm-col { background: var(--v-chip); border-radius: 18px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-height: 100%; }
@@ -3991,6 +3995,8 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
+
 
 
 
@@ -11352,6 +11358,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     view: LS.get('view', 'list'),        // list | kanban | cats
     dTab: 't',                           // onglet de la liste desktop : all o t d w — on ouvre toujours sur « Today »
     mTab: 't',                            // onglet mobile (liste + catégories)
+    mPcol: 0,                            // colonne « sous-projet » visible (kanban d'un projet, téléphone)
     mKcol: 2,                            // colonne kanban mobile visible (0 = Sans date, cachée à gauche ; 2 = Today)
     sort: LS.get('sort', 'due'),
     sortRev: LS.get('sortRev', false) === true, // 2e clic sur l'en-tête : ordre inversé
@@ -12506,7 +12513,17 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const track = mroot.querySelector('[data-vm-track]');
     let tabsHtml = '', pages = '';
 
-    if (V.view === 'kanban') {
+    const mPg = V.view === 'kanban' && kmode() === 'page';
+    if (mPg) { // kanban d'un projet : une colonne par sous-projet (aujourd'hui, en retard, puis la suite)
+      const cols = pageCols().map(col => ({ col, tasks: all.filter(t => col.match(t) && (V.done || !t.is_done)).sort(byTodo) })).filter(({ col, tasks }) => col.page || tasks.length);
+      V.mPcol = Math.min(V.mPcol, Math.max(0, cols.length - 1));
+      tabsHtml = cols.map(({ col, tasks }, i) => `<button type="button" role="tab" aria-selected="${V.mPcol === i}" class="${V.mPcol === i ? 'on' : ''}" data-v-mtab="p${i}">${esc(col.page ? col.page.title : 'Sans sous-projet')} <small>${tasks.filter(t => !t.is_done).length}</small></button>`).join('');
+      pages = cols.map(({ col, tasks }) => `<div class="vm-page vm-kpage" data-v-scroll="mp-${col.key}"><div class="vm-col">
+          <div class="vm-col-head"><h2>${esc(col.page ? col.page.title : 'Sans sous-projet')}</h2><span class="v-col-n">${tasks.length}</span>
+            <button type="button" class="v-icon-btn" data-v-padd="${col.page ? col.page.id : ''}" aria-label="Ajouter une tâche">${I.plus}</button></div>
+          ${tasks.map(t => mCardHtml(t, { key: !t.is_done && bucket(t) === 'o' ? 'o' : 'x' })).join('') || '<div class="vm-empty" style="padding:32px 0">Aucune tâche</div>'}
+        </div></div>`).join('');
+    } else if (V.view === 'kanban') {
       const cols = kanbanCols(true).map(col => ({ col, tasks: colTasks(col, all) }));
       const cnt = { o: cols[1].tasks.length, t: cols[2].tasks.length, d: cols[3].tasks.length, w: cols.slice(4, 9).reduce((n, c) => n + c.tasks.length, 0) };
       const cur = kColToTab(V.mKcol);
@@ -12535,13 +12552,15 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => { const n = rows[i + 1]; const h = mRowHtml(t, k); return sep && n && !t.is_done && !n.is_done && isLate(t) !== isLate(n) ? h.replace('class="vm-row', 'class="vm-row v-cut') : h; }).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
       }).join('');
     }
-    mroot.querySelector('[data-vm-tabs]').innerHTML = `<div class="v-seg" role="tablist" aria-label="Échéance">${tabsHtml}</div>`;
+    const kSwitch = V.view === 'kanban' && ctxProj() && !V.page ? `<div class="vm-kswitch">${groupBtnHtml(true)}</div>` : '';
+    mroot.querySelector('[data-vm-tabs]').innerHTML = `${kSwitch}<div class="v-seg${mPg ? ' vm-pseg' : ''}" role="tablist" aria-label="${mPg ? 'Sous-projets' : 'Échéance'}">${tabsHtml}</div>`;
     track.innerHTML = pages;
     alignTrack();
   }
 
   // ----- swipe entre onglets -----
   function currentPageIndex() {
+    if (V.view === 'kanban' && kmode() === 'page') return V.mPcol;
     return V.view === 'kanban' ? V.mKcol : Math.max(0, MTABS.findIndex(([k]) => k === V.mTab));
   }
   function alignTrack() {
@@ -12559,7 +12578,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     let best = 0, dist = Infinity;
     kids.forEach((el, i) => { const d = Math.abs(el.offsetLeft - track.scrollLeft); if (d < dist) { dist = d; best = i; } });
     let tab;
-    if (V.view === 'kanban') { V.mKcol = best; tab = kColToTab(best); }
+    if (V.view === 'kanban' && kmode() === 'page') { V.mPcol = best; tab = 'p' + best; mroot.querySelector(`[data-v-mtab="${tab}"]`)?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' }); }
+    else if (V.view === 'kanban') { V.mKcol = best; tab = kColToTab(best); }
     else { V.mTab = MTABS[best][0]; tab = V.mTab; }
     mroot.querySelectorAll('[data-v-mtab]').forEach(b => {
       const on = b.dataset.vMtab === tab;
@@ -12736,6 +12756,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       if (V.cz === 'recettes') { mroot.querySelector('[data-cz-newrecipe]')?.click(); return; }
       const q = mroot.querySelector('[data-cz-q]'); if (q) { q.focus(); q.scrollIntoView({ block: 'center' }); } return;
     }
+    if (V.view === 'kanban' && kmode() === 'page') { openNew(null, ctxProj(), pageCols().filter(c => c.page)[V.mPcol]?.page?.id || null); return; }
     openNew(contextDate(), ctxProj() || null, V.page || null);
   });
   function setFilter(f) {
@@ -13066,7 +13087,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       const row = e.target.closest('#v2 .v-row[data-v-open]');
       if (row) { e.preventDefault(); e.stopPropagation(); selClick(row.dataset.vOpen, e.shiftKey); return; }
     } else if (e.target.closest('[data-v-selmode]')) { selToggleMode(true); return; }
-    const el = e.target.closest('[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-home],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-prio],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
+    const el = e.target.closest('[data-v-padd],[data-v-chk],[data-v-due],[data-v-proj],[data-v-page],[data-v-favtodo],[data-v-togglecat],[data-v-togglefav],[data-v-editproj],[data-v-addcat],[data-v-quick],[data-v-home],[data-v-view],[data-v-dtab],[data-v-mtab],[data-v-sort],[data-v-togglefilters],[data-v-set],[data-v-reset],[data-v-new],[data-v-new-date],[data-v-new-proj],[data-v-clear],[data-v-catday],[data-v-latein],[data-vm-menu],[data-vm-drawer-bd],[data-vm-filter],[data-vm-sheet-bd],[data-vm-sheet-close],[data-vm-search],[data-vm-plus],[data-vm-plus-close],[data-vm-plus-new],[data-v-st],[data-v-prio],[data-v-tcat],[data-v-group],[data-v-gadd],[data-v-tcmanage],[data-v-tcedit],[data-vm-group],[data-v-open]');
     if (!el) return;
     const d = el.dataset;
     if (d.vChk) { e.stopPropagation(); toggleDone(d.vChk, el); return; }
@@ -13112,7 +13133,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (d.vView) { V.space = null; V.view = d.vView; LS.set('view', V.view); v2Render(); return; }
     if (d.vDtab) { V.dTab = d.vDtab; LS.set('dtab', V.dTab); v2Render(); return; }
     if (d.vMtab) {
-      if (V.view === 'kanban') V.mKcol = KTAB_COL[d.vMtab];
+      if (d.vMtab[0] === 'p') V.mPcol = +d.vMtab.slice(1);
+      else if (V.view === 'kanban') V.mKcol = KTAB_COL[d.vMtab];
       else V.mTab = d.vMtab;
       mroot.querySelectorAll('[data-v-mtab]').forEach(b => b.classList.toggle('on', b === el));
       alignTrack();
