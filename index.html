@@ -2078,16 +2078,16 @@
 
   /* ---------- checkbox carré ---------- */
   .v-chk {
-    width: 18px; height: 18px; border-radius: 5px; background: transparent; box-shadow: inset 0 0 0 1.75px var(--v-chk-ring, #C4C3BD); border: none; padding: 0;
+    width: 18px; height: 18px; border-radius: 5px; background: transparent; box-sizing: border-box; border: 1.5px solid var(--v-chk-ring, #C4C3BD); padding: 0;
     flex-shrink: 0; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .15s ease;
   }
   .v-chk:hover { background: color-mix(in srgb, var(--v-chk-ring, #C4C3BD) 22%, transparent); }
   .v-chk svg { width: 12px; height: 12px; opacity: 0; color: #fff; }
-  /* contour selon la priorité (la case garde son fond, l'anneau est intérieur) */
+  /* contour selon la priorité (vraie bordure : même épaisseur sur les 4 côtés) */
   .v-chk.p-high { --v-chk-ring: var(--danger); }
   .v-chk.p-med { --v-chk-ring: var(--accent-pvpp); }
   .v-chk.p-low { --v-chk-ring: var(--accent-manga-blue); }
-  .is-done .v-chk, .v-chk.done { background: var(--v-green); box-shadow: none; }
+  .is-done .v-chk, .v-chk.done { background: var(--v-green); border-color: var(--v-green); }
   .is-done .v-chk svg, .v-chk.done svg { opacity: 1; }
   .is-done .v-ttl { color: var(--v-faint); text-decoration: line-through; }
 
@@ -4020,6 +4020,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4102,6 +4103,7 @@ html[data-theme="dark"] .v-search kbd { background: #242426; }
 html[data-theme="dark"] .v-btn.primary { background: #f2f2f3; color: #111111; }
 html[data-theme="dark"] .v-btn.primary:hover { background: #f2f2f3; }
 html[data-theme="dark"] .v-filters { background: #242426; }
+html[data-theme="dark"] .v-chk { border: 1.5px solid var(--v-chk-ring, #2a2a2c); }
 html[data-theme="dark"] .v-chk:hover { background: color-mix(in srgb, var(--v-chk-ring, #3a3a3c) 22%, transparent); }
 html[data-theme="dark"] .v-row:hover { background: #242426; }
 html[data-theme="dark"] .v-pill.prio { background: rgba(255,107,94,0.09); }
