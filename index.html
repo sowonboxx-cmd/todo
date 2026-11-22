@@ -2573,7 +2573,7 @@
   .vm-fab svg { width: 27px; height: 27px; }
   /* barre de navigation en verre (téléphone) : Tâches · Collection · Recherche · Courses · + */
   .vm-bar {
-    position: fixed; left: 22px; right: 22px; bottom: calc(env(safe-area-inset-bottom) + 14px); z-index: 80;
+    position: fixed; left: 22px; right: 22px; bottom: max(8px, calc(env(safe-area-inset-bottom) - 14px)); z-index: 80; /* posée juste au-dessus du bas, comme Instagram */
     height: 52px; border-radius: 20px; padding: 0 6px; display: flex; align-items: center; justify-content: space-between;
     background: rgba(255,255,255,.62); -webkit-backdrop-filter: blur(22px) saturate(1.6); backdrop-filter: blur(22px) saturate(1.6);
     box-shadow: 0 6px 18px rgba(0,0,0,.08), inset 0 1px 0 rgba(255,255,255,.8);
@@ -3991,6 +3991,7 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
 
 
 
