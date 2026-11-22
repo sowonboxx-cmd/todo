@@ -9,8 +9,11 @@
 <script>
   // mode sombre : suit le réglage de l'iPhone / du Mac (palette Noir)
   (function () {
+    // choix dans Options (roue) : 'system' (défaut), 'light' ou 'dark', gardé sur l'appareil
     var mq = window.matchMedia && matchMedia('(prefers-color-scheme: dark)');
-    function set() { document.documentElement.setAttribute('data-theme', mq && mq.matches ? 'dark' : 'light'); var m = document.getElementById('theme-color-meta'); if (m) m.setAttribute('content', mq && mq.matches ? '#000000' : '#F3F1EC'); }
+    function pref() { try { return localStorage.getItem('theme_pref') || 'system'; } catch (_) { return 'system'; } }
+    function set() { var p = pref(), d = p === 'dark' || (p !== 'light' && !!(mq && mq.matches)); document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light'); var m = document.getElementById('theme-color-meta'); if (m) m.setAttribute('content', d ? '#000000' : '#F3F1EC'); }
+    window.themePref = pref; window.setThemePref = function (p) { try { localStorage.setItem('theme_pref', p); } catch (_) {} set(); };
     set(); if (mq) (mq.addEventListener ? mq.addEventListener('change', set) : mq.addListener(set));
   })();
 </script>
@@ -2720,6 +2723,8 @@
   .v-radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #CFCFCB; flex-shrink: 0; margin-top: 1px; box-sizing: border-box; }
   .v-opt.on .v-radio { border: 5px solid var(--v-ink); }
   .v-opts-note { font-size: 12px; color: var(--v-faint); padding: 6px 4px 0; }
+  .v-theme-seg { display: flex; margin: 0 2px; }
+  .v-theme-seg button { flex: 1; }
   .td-sidebar { display: none; }
   .v-row.v-sel { background: #F3F6FF; box-shadow: inset 3px 0 0 #2F62C9; }
   .v-card.v-sel, .v-btask.v-sel { box-shadow: 0 0 0 2px #2F62C9; border-radius: 12px; }
@@ -4014,6 +4019,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4030,6 +4036,7 @@
   html[data-theme="dark"] .vm-bar button.add { background: #fff; color: #111; }
   html[data-theme="dark"] img { color-scheme: normal; }
   html[data-theme="dark"] .v-seg button.on { background: #3A3A3C; color: #fff; box-shadow: none; }
+  html[data-theme="dark"] .v-opts-btn.on { background: #3A3A3C; color: #fff; }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
   html[data-theme="dark"] .v-cat-name, html[data-theme="dark"] .v-cat-btn, html[data-theme="dark"] .v-page svg, html[data-theme="dark"] .v-block-head h2, html[data-theme="dark"] .v-count-sq, html[data-theme="dark"] .v-tcat { color: color-mix(in srgb, var(--c-fg) 45%, #fff); }
@@ -13366,7 +13373,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         ${opt('center', 'Aperçu centré', 'Grande fenêtre au centre, idéale pour les vidéos, images et recettes')}
         ${opt('popup', 'Fenêtre (pop-up)', 'La tâche s’ouvre au centre de l’écran')}
       </div>
-      <div class="v-opts-note">Sur téléphone, la tâche s’ouvre toujours en plein écran par le bas.</div>`;
+      <div class="v-opts-note">Sur téléphone, la tâche s’ouvre toujours en plein écran par le bas.</div>
+      <div class="v-opts-sec">Apparence</div>
+      <div class="v-seg v-theme-seg" role="radiogroup" aria-label="Apparence">${[['system', 'Système'], ['light', 'Clair'], ['dark', 'Sombre']].map(([k, l]) => { const on = (window.themePref ? window.themePref() : 'system') === k; return `<button type="button" class="${on ? 'on' : ''}" role="radio" aria-checked="${on}" data-v-theme="${k}">${l}</button>`; }).join('')}</div>`;
   }
   function setTaskOpen(mode) {
     V.taskOpen = mode; LS.set('taskOpen', mode); applyTaskOpenMode();
@@ -13423,6 +13432,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (b) { menu.hidden = !menu.hidden; if (!menu.hidden) menu.innerHTML = optsHtml(); b.classList.toggle('on', !menu.hidden); return; }
     const o = e.target.closest('[data-v-taskopen]');
     if (o) { setTaskOpen(o.dataset.vTaskopen); return; }
+    const th = e.target.closest('[data-v-theme]');
+    if (th) { window.setThemePref && window.setThemePref(th.dataset.vTheme); if (menu) menu.innerHTML = optsHtml(); return; }
     if (menu && !menu.hidden && !menu.contains(e.target)) { menu.hidden = true; root.querySelector('[data-v-opts]')?.classList.remove('on'); }
   });
   document.addEventListener('keydown', (e) => {
