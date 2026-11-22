@@ -2080,7 +2080,11 @@
   }
   .v-chk:hover { background: #D9D8D2; }
   .v-chk svg { width: 12px; height: 12px; opacity: 0; color: #fff; }
-  .is-done .v-chk, .v-chk.done { background: var(--v-green); }
+  /* contour selon la priorité (la case garde son fond, l'anneau est intérieur) */
+  .v-chk.p-high { box-shadow: inset 0 0 0 1.75px var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
+  .v-chk.p-med { box-shadow: inset 0 0 0 1.75px var(--accent-pvpp); background: color-mix(in srgb, var(--accent-pvpp) 12%, transparent); }
+  .v-chk.p-low { box-shadow: inset 0 0 0 1.75px var(--accent-manga-blue); background: color-mix(in srgb, var(--accent-manga-blue) 10%, transparent); }
+  .is-done .v-chk, .v-chk.done { background: var(--v-green); box-shadow: none; }
   .is-done .v-chk svg, .v-chk.done svg { opacity: 1; }
   .is-done .v-ttl { color: var(--v-faint); text-decoration: line-through; }
 
@@ -3997,6 +4001,7 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
 
 
 
@@ -11551,7 +11556,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const pct = Math.round((s.d / s.n) * 100);
     return `<div class="v-subrow"><span class="v-bar"><span style="width:${pct}%"></span></span><small>${s.d}/${s.n}</small></div>`;
   }
-  const chk = t => `<button type="button" class="v-chk${t.is_done ? ' done' : ''}" data-v-chk="${t.id}" aria-label="${t.is_done ? 'Rouvrir' : 'Terminer'} : ${esc(t.title)}">${I.check}</button>`;
+  const chk = t => `<button type="button" class="v-chk${t.is_done ? ' done' : ''}${PRIO_LBL[t.priority] ? ' p-' + t.priority : ''}" data-v-chk="${t.id}" aria-label="${t.is_done ? 'Rouvrir' : 'Terminer'} : ${esc(t.title)}">${I.check}</button>`;
 
   // ---------------- catégories de tâches (propres à chaque projet, partagées par ses pages) ----------------
   // table task_categories + colonne todos.category_id (migration_categories.sql). Tant que la migration
