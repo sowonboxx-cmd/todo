@@ -3711,6 +3711,9 @@
   .czi-inp input { flex: 1; min-width: 0; border: none; background: none; outline: none; font: 400 14px 'Inter', sans-serif; color: var(--v-ink); padding: 12px 0; }
   .czi-go { border: none; border-radius: 12px; background: var(--v-ink); color: #fff; font: 600 14px 'Inter', sans-serif; padding: 0 16px; cursor: pointer; }
   .czi-go:disabled { opacity: .6; }
+  .czv-fill { display: flex; gap: 8px; margin: 4px 0 10px; }
+  .czv-fill .cz-inline-add { flex: 1; min-width: 0; }
+  .czv-fill .czi-go { height: 40px; flex-shrink: 0; }
   .czi-err { font-size: 13px; color: #C8342B; margin: 0; }
   .czi-blank { align-self: center; border: none; background: none; font: 500 13.5px 'Inter', sans-serif; color: #8a8a87; text-decoration: underline; cursor: pointer; padding: 4px; }
   .czi-prev { display: flex; gap: 12px; }
@@ -4009,6 +4012,7 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
 
 
 
@@ -14328,7 +14332,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         <section class="czv-card">
           <div class="czv-sh"><span>Recette${steps.length ? ` · ${done.filter(i => i < steps.length).length} / ${steps.length}` : ''}</span>${done.length ? '<button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</div>
           ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}${r.media?.['step:' + i] ? `<img class="czv-stimg" src="${esc(r.media['step:' + i])}" alt="" loading="lazy" data-czv-stepimg="${i}">` : ''}</span></button>`).join('')
-            : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
+            : czFillHtml(r)}
         </section>
         ${r.description ? `<details class="czv-card czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
       </div>`;
@@ -14369,7 +14373,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         <section>
           <div class="czv-sh"><span>Recette</span>${steps.length ? `<span class="czd-cnt">${done.filter(i => i < steps.length).length} / ${steps.length} faites${done.length ? ' · <button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</span>` : ''}</div>
           ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}${r.media?.['step:' + i] ? `<img class="czv-stimg" src="${esc(r.media['step:' + i])}" alt="" loading="lazy" data-czv-stepimg="${i}">` : ''}</span></button>`).join('')
-            : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
+            : czFillHtml(r)}
         </section>
       </div>
       <section class="czm-sec">
@@ -14689,6 +14693,44 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const { error } = await sb.from('cuisine_recipe_items').insert({ recipe_id: r.id, product_id: p.id });
     if (error) alert(error.message);
   }
+  // remplir une fiche existante depuis le lien d'un site de recettes : étapes (+ photos), ingrédients, temps
+  const CZF = { busy: '', err: '' };
+  async function czFillFromSite(r, url) {
+    if (CZF.busy) return; CZF.busy = r.id; CZF.err = ''; czRenderPage();
+    try {
+      const d = (await lbLib({ meta: url }))?.[0], rc = d?.recipe;
+      if (!rc || !(rc.steps?.length || rc.ings?.length)) throw new Error('ce site ne publie pas sa recette dans un format lisible');
+      const patch = {};
+      if (!(r.links || []).includes(url)) patch.links = [...(r.links || []), url];
+      if (!czSteps(r).length && rc.steps.length) patch.notes = rc.steps.map((x, i) => `${i + 1}. ${x.text}`).join('\n');
+      if (rc.minutes && !r.minutes) patch.minutes = rc.minutes;
+      if (patch.notes) {
+        const media = { ...(r.media || {}) };
+        for (const [i, x] of rc.steps.entries()) if (x.img) { try { media['step:' + i] = await lbStoreImage(await (await fetch(x.img)).blob(), `cuisine/${r.id}/step-${i}`); } catch (e) { console.info('étape', i, e); } }
+        patch.media = media;
+      }
+      if (!r.cover_url && !(r.images || [])[0] && d.image) { try { patch.cover_url = await lbStoreImage(await (await fetch(d.image)).blob(), `cuisine/${r.id}/cover`); } catch (_) {} }
+      let up = await sb.from('cuisine_recipes').update(patch).eq('id', r.id);
+      if (up.error && /minutes|media|cover_url|column/i.test(up.error.message || '')) { delete patch.minutes; up = await sb.from('cuisine_recipes').update(patch).eq('id', r.id); }
+      if (up.error) throw new Error(up.error.message);
+      Object.assign(r, patch);
+      // ingrédients absents de la fiche
+      const { ings } = czParseCaption('Ingrédients\n' + rc.ings.map(x => '- ' + x).join('\n'));
+      const items = [];
+      for (const i of ings) {
+        const m = czMatchProduct(i.name); let p = m && (m.exact || m.close) ? m.p : null;
+        if (!p) { const { data, error } = await sb.from('cuisine_products').insert({ name: i.name, to_buy: false, rayons: [], kind: 'Alimentation' }).select().single(); if (error) continue; CZ.products.push(data); p = data; }
+        if (!CZ.items.some(x => x.recipe_id === r.id && x.product_id === p.id) && !items.some(x => x.product_id === p.id)) items.push({ recipe_id: r.id, product_id: p.id, qty: i.qty || null });
+      }
+      if (items.length) {
+        let res = await sb.from('cuisine_recipe_items').insert(items);
+        if (res.error && /qty|column/i.test(res.error.message || '')) res = await sb.from('cuisine_recipe_items').insert(items.map(({ qty, ...x }) => x));
+        if (!res.error) CZ.items.push(...items);
+      }
+    } catch (e) { CZF.err = 'Lecture impossible : ' + (e.message || e) + '.'; }
+    CZF.busy = ''; czRefreshAll(); czRenderPage();
+  }
+  const czFillHtml = r => `<form class="czv-fill" data-czv-fill><input type="url" class="cz-inline-add" data-czv-fillurl placeholder="Coller le lien d’une recette (site)" enterkeyhint="go" aria-label="Lien d’un site de recettes"><button type="submit" class="czi-go"${CZF.busy === r.id ? ' disabled' : ''}>${CZF.busy === r.id ? 'Lecture…' : 'Remplir'}</button></form>${CZF.err ? `<p class="czi-err">${esc(CZF.err)}</p>` : ''}<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>`;
   async function czUploadImages(r) {
     const cfg = getUploadCfg() || askUploadCfg();
     if (!cfg) return;
@@ -14863,7 +14905,16 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       r.links = [...(r.links || []), v];
       czRenderPage();
       await czUpd('cuisine_recipes', r.id, { links: r.links });
+      if (!czSteps(r).length && czSrc(v)?.t === 'web') czFillFromSite(r, v);
     }
+  });
+  czPage.addEventListener('submit', (e) => {
+    const f = e.target.closest('[data-czv-fill]'); if (!f) return;
+    e.preventDefault();
+    const r = czById(CZ.open), v = (f.querySelector('[data-czv-fillurl]')?.value || '').trim();
+    if (!r) return;
+    if (!/^https?:\/\//i.test(v)) { CZF.err = 'Collez un lien complet (https://…).'; czRenderPage(); return; }
+    czFillFromSite(r, v);
   });
   // collage d'une photo directement dans la page recette
   czPage.addEventListener('paste', async (e) => {
