@@ -23,6 +23,7 @@ tokens = '''html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-them
   html[data-theme="dark"] img { color-scheme: normal; }
   html[data-theme="dark"] .v-seg button.on { background: #3A3A3C; color: #fff; box-shadow: none; }
   html[data-theme="dark"] .v-opts-btn.on { background: #3A3A3C; color: #fff; }
+  html[data-theme="dark"] .czi-go, html[data-theme="dark"] .cz-addbtn, html[data-theme="dark"] .cz-chip.on { color: #111; }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
   html[data-theme="dark"] .v-cat-name, html[data-theme="dark"] .v-cat-btn, html[data-theme="dark"] .v-page svg, html[data-theme="dark"] .v-block-head h2, html[data-theme="dark"] .v-count-sq, html[data-theme="dark"] .v-tcat { color: color-mix(in srgb, var(--c-fg) 45%, #fff); }
