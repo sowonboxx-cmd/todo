@@ -3844,6 +3844,9 @@
   .czv-step b { width: 24px; height: 24px; border-radius: 50%; background: #1f1f1f; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
   .czv-step b svg { width: 13px; height: 13px; }
   .czv-step.done { color: #aaa; text-decoration: line-through; }
+  .czv-step > span { flex: 1; min-width: 0; }
+  .czv-stimg { display: block; width: 100%; max-width: 420px; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 12px; margin-top: 8px; cursor: zoom-in; }
+  .czv-step.done .czv-stimg { opacity: .55; }
   .czv-step.done b { background: #2F9E5B; }
   .czv-desc summary { cursor: pointer; font: 700 11.5px 'Inter', sans-serif; letter-spacing: .06em; text-transform: uppercase; color: #8b8b8b; }
   .czv-desc p { white-space: pre-wrap; font-size: 14px; line-height: 1.5; color: #444; margin: 10px 0 0; }
@@ -14110,7 +14113,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   const CZM = { open: false, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: 'next', saving: false };
   const czMod = document.createElement('div'); czMod.className = 'cz-modal-bd cz-imp-bd'; czMod.hidden = true; document.body.appendChild(czMod);
   function czImport() {
-    Object.assign(CZM, { open: true, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], kind: 'recipe', saving: false });
+    Object.assign(CZM, { open: true, url: '', busy: false, err: '', d: null, title: '', ings: [], steps: [], stepImgs: [], minutes: 0, kind: 'recipe', saving: false });
     czImpRender(); setTimeout(() => czMod.querySelector('[data-czi-url]')?.focus(), 30);
   }
   function czImpClose() { CZM.open = false; czMod.hidden = true; czMod.innerHTML = ''; }
@@ -14134,7 +14137,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
             return `<div class="czi-r${i.on ? '' : ' off'}"><button type="button" class="czv-ck${i.on ? ' on' : ''}" data-czi-on="${n}" aria-label="Garder">${I.check}</button><span class="czi-n">${esc(m && m.exact ? m.p.name : i.name)}</span>${note}<small>${esc(i.qty)}</small></div>${sim}`;
           }).join('') : '<p class="czi-empty">Aucun ingrédient repéré : vous pourrez les ajouter sur la fiche.</p>'}
         </div>
-        <div class="czi-sec"><div class="czi-sh">Étapes trouvées · ${CZM.steps.length}</div><p class="czi-empty">${CZM.steps.length ? 'Copiées dans « Recette », modifiables ensuite.' : 'Aucune étape repérée.'}${d.caption ? ' La description complète est gardée sur la fiche.' : ''}</p></div>
+        <div class="czi-sec"><div class="czi-sh">Étapes trouvées · ${CZM.steps.length}</div><p class="czi-empty">${CZM.steps.length ? `Copiées dans « Recette »${(CZM.stepImgs || []).filter(Boolean).length ? ` avec ${(CZM.stepImgs || []).filter(Boolean).length} photo${(CZM.stepImgs || []).filter(Boolean).length > 1 ? 's' : ''}` : ''}, modifiables ensuite.` : 'Aucune étape repérée.'}${d.caption ? ' La description complète est gardée sur la fiche.' : ''}</p></div>
         <button type="button" class="cz-addbtn green" data-czi-create${CZM.saving ? ' disabled' : ''}>${CZM.saving ? 'Création…' : `Créer ${word}${on.length ? ` avec ${on.length} ingrédient${on.length > 1 ? 's' : ''}` : ''}`}</button>`;
     }
     czMod.innerHTML = `<div class="cz-modal czi" role="dialog" aria-label="Importer un lien">
@@ -14153,7 +14156,11 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     try {
       const d = (await lbLib({ meta: u }))?.[0];
       if (!d) throw new Error('rien trouvé');
-      const { ings, steps } = czParseCaption(d.caption || '');
+      // site de cuisine avec recette structurée : ingrédients et étapes (avec leurs photos) pris tels quels
+      const rc = d.recipe && (d.recipe.ings?.length || d.recipe.steps?.length) ? d.recipe : null;
+      const { ings } = czParseCaption(rc ? 'Ingrédients\n' + rc.ings.map(x => '- ' + x).join('\n') : (d.caption || ''));
+      const steps = rc ? rc.steps.map(x => x.text) : czParseCaption(d.caption || '').steps;
+      CZM.stepImgs = rc ? rc.steps.map(x => x.img || '') : []; CZM.minutes = rc?.minutes || 0;
       const seen = new Set();
       CZM.d = d; CZM.title = (d.title || '').replace(/\s+on Instagram.*$/i, '').replace(CZ_EMO, ' ').replace(/\s+/g, ' ').trim() || 'Nouvelle recette';
       CZM.ings = ings.filter(i => { const k = czKey(i.name); if (!k || seen.has(k)) return false; seen.add(k); return true; }).map(i => { const match = czMatchProduct(i.name); return { ...i, match, on: true, use: match && (match.exact || match.close) ? 'old' : 'new' }; });
@@ -14193,6 +14200,14 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         if (!up.error) Object.assign(r, patch);
         else { r.images = [url]; await czUpd('cuisine_recipes', r.id, { images: r.images }); }
       } catch (e) { console.info('couverture', e); }
+    }
+    // photos des étapes : rangées dans media sous « step:N » (affichées sous chaque étape)
+    const sImgs = (CZM.stepImgs || []).map((u, i) => [u, i]).filter(([u]) => u);
+    if (sImgs.length || CZM.minutes) {
+      const media = { ...(r.media || {}) };
+      for (const [u, i] of sImgs) { try { media['step:' + i] = await lbStoreImage(await (await fetch(u)).blob(), `cuisine/${r.id}/step-${i}`); } catch (e) { console.info('étape', i, e); } }
+      if (sImgs.length) { const up = await sb.from('cuisine_recipes').update({ media }).eq('id', r.id); if (!up.error) r.media = media; }
+      if (CZM.minutes && !r.minutes) { const up = await sb.from('cuisine_recipes').update({ minutes: CZM.minutes }).eq('id', r.id); if (!up.error) r.minutes = CZM.minutes; }
     }
     czImpClose();
     czRefreshAll(); if (V.space === 'cuisine') v2Render();
@@ -14312,7 +14327,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         </section>
         <section class="czv-card">
           <div class="czv-sh"><span>Recette${steps.length ? ` · ${done.filter(i => i < steps.length).length} / ${steps.length}` : ''}</span>${done.length ? '<button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</div>
-          ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}</span></button>`).join('')
+          ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}${r.media?.['step:' + i] ? `<img class="czv-stimg" src="${esc(r.media['step:' + i])}" alt="" loading="lazy" data-czv-stepimg="${i}">` : ''}</span></button>`).join('')
             : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
         </section>
         ${r.description ? `<details class="czv-card czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
@@ -14353,7 +14368,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         </section>
         <section>
           <div class="czv-sh"><span>Recette</span>${steps.length ? `<span class="czd-cnt">${done.filter(i => i < steps.length).length} / ${steps.length} faites${done.length ? ' · <button type="button" data-czv-reset="steps">Recommencer</button>' : ''}</span>` : ''}</div>
-          ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}</span></button>`).join('')
+          ${steps.length ? steps.map((t, i) => `<button type="button" class="czv-step${done.includes(i) ? ' done' : ''}" data-czv-step="${i}"><b>${done.includes(i) ? I.check : i + 1}</b><span>${esc(t)}${r.media?.['step:' + i] ? `<img class="czv-stimg" src="${esc(r.media['step:' + i])}" alt="" loading="lazy" data-czv-stepimg="${i}">` : ''}</span></button>`).join('')
             : '<button type="button" class="cz-ghost" data-czv-edit>Écrire la recette</button>'}
         </section>
       </div>
@@ -14775,6 +14790,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const mt = t.closest('[data-czv-mtab]'); if (mt) { CZ.mtab = mt.dataset.czvMtab; czRenderPage(); return; }
     const pl = t.closest('[data-czv-play]'); if (pl) { czPlayer(r.id, +pl.dataset.czvPlay); return; }
     const us = t.closest('[data-czv-used]'); if (us) { const k = 'cz_used_' + r.id, a = czLsArr(k), id = us.dataset.czvUsed; LS.set(k, a.includes(id) ? a.filter(x => x !== id) : [...a, id]); czRenderPage(); return; }
+    const si = t.closest('[data-czv-stepimg]'); if (si) { const urls = czSteps(r).map((_, i) => r.media?.['step:' + i]).filter(Boolean); openLightbox(getActiveContainer(), urls, Math.max(0, urls.indexOf(si.getAttribute('src')))); return; }
     const sp = t.closest('[data-czv-step]'); if (sp) { const k = 'cz_steps_' + r.id, a = czLsArr(k), i = +sp.dataset.czvStep; LS.set(k, a.includes(i) ? a.filter(x => x !== i) : [...a, i]); czRenderPage(); return; }
     const rs = t.closest('[data-czv-reset]'); if (rs) { LS.set((rs.dataset.czvReset === 'used' ? 'cz_used_' : 'cz_steps_') + r.id, []); czRenderPage(); return; }
     const ul = t.closest('[data-czp-unlink]');

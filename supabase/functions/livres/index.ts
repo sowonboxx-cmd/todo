@@ -106,6 +106,36 @@ async function asDataUrl(url: string) {
     return `data:${r.headers.get('content-type') || 'image/jpeg'};base64,${btoa(bin)}`;
   } catch (_) { return ''; }
 }
+// recette « structurée » (schema.org Recipe en JSON-LD) : presque tous les sites de cuisine la publient
+function recipeLD(html: string, base: string) {
+  const strip = (x: any) => H(String(x || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+  const abs = (u: string) => { try { return new URL(u, base).href; } catch (_) { return ''; } };
+  const img = (x: any): string => !x ? '' : typeof x === 'string' ? abs(x) : Array.isArray(x) ? img(x[0]) : abs(x.url || x.contentUrl || '');
+  const isR = (o: any) => o && [].concat(o['@type'] || []).some((t: string) => /^(schema:)?Recipe$/i.test(t));
+  const find = (o: any): any => { if (!o || typeof o !== 'object') return null; if (isR(o)) return o; for (const v of Array.isArray(o) ? o : [o['@graph'], o.mainEntity, ...Object.values(o)]) { const f = find(v); if (f) return f; } return null; };
+  let r: any = null;
+  for (const m of html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    try { r = find(JSON.parse(m[1].trim().replace(/^<!\[CDATA\[|\]\]>$/g, ''))); } catch (_) { r = null; }
+    if (r) break;
+  }
+  if (!r) return null;
+  const steps: { text: string, img: string }[] = [];
+  const walk = (x: any) => {
+    if (!x) return;
+    if (typeof x === 'string') { strip(x).split(/\s*(?:\n|(?<=\.)\s+(?=\d+[.)]\s))\s*/).forEach(t => t && steps.push({ text: t.replace(/^\d+[.)]\s*/, ''), img: '' })); return; }
+    if (Array.isArray(x)) { x.forEach(walk); return; }
+    if (x.itemListElement) { walk(x.itemListElement); return; } // HowToSection
+    const t = strip(x.text || x.name || x.description); if (t) steps.push({ text: t, img: img(x.image) });
+  };
+  walk(r.recipeInstructions);
+  const mins = (d: string) => { const m = String(d || '').match(/PT(?:(\d+)H)?(?:(\d+)M)?/); return m ? (+(m[1] || 0)) * 60 + (+(m[2] || 0)) : 0; };
+  return {
+    name: strip(r.name), image: img(r.image), yield: strip([].concat(r.recipeYield || [])[0]),
+    minutes: mins(r.totalTime) || (mins(r.prepTime) + mins(r.cookTime)) || 0,
+    ings: [].concat(r.recipeIngredient || r.ingredients || []).map(strip).filter(Boolean),
+    steps: steps.filter(x => x.text).slice(0, 40),
+  };
+}
 async function linkMeta(url: string) {
   const ig = url.match(/instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(p|reels?|tv)\/([A-Za-z0-9_-]+)/);
   if (ig) {
@@ -135,7 +165,12 @@ async function linkMeta(url: string) {
   const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15', 'Accept': 'text/html,image/*,*/*' } });
   if (/^image\//.test(res.headers.get('content-type') || '')) { await res.body?.cancel(); return { src: 'web', title: '', author: '', caption: '', image: await asDataUrl(url) }; } // lien direct vers une image
   const h = await res.text();
-  return { src: 'web', title: og(h, 'og:title') || tag(h, 'title'), author: og(h, 'og:site_name'), caption: og(h, 'og:description') || og(h, 'description'), image: await asDataUrl(og(h, 'og:image')) };
+  const rc = recipeLD(h, res.url || url);
+  if (rc) { // images des étapes (12 au plus), copiées pour ne pas dépendre du site
+    const ims = await Promise.all(rc.steps.map((st, i) => i < 30 && st.img ? asDataUrl(st.img) : Promise.resolve('')));
+    let n = 0; rc.steps.forEach((st: any, i) => { st.img = ims[i] && n++ < 12 ? ims[i] : ''; });
+  }
+  return { src: 'web', title: rc?.name || og(h, 'og:title') || tag(h, 'title'), author: og(h, 'og:site_name'), caption: og(h, 'og:description') || og(h, 'description'), image: await asDataUrl(og(h, 'og:image') || rc?.image || ''), recipe: rc };
 }
 
 // Mise à jour du schéma Cuisine, faite par la fonction elle-même (rien à lancer à la main dans le SQL Editor).
