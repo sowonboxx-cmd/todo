@@ -4046,6 +4046,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -5164,6 +5165,10 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
                       <button type="button" role="menuitem" data-td-more="fav">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg>
                         <span data-td-more-fav-label>Ajouter en favori</span>
+                      </button>
+                      <button type="button" role="menuitem" data-td-more="dup">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="11" height="11" rx="2.4"/><path d="M15.5 8.5V6.9A2.4 2.4 0 0 0 13.1 4.5H6.9A2.4 2.4 0 0 0 4.5 6.9v6.2a2.4 2.4 0 0 0 2.4 2.4h1.6"/></svg>
+                        <span>Dupliquer</span>
                       </button>
                       <button type="button" role="menuitem" class="danger" data-td-more="delete">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13"/></svg>
@@ -7388,6 +7393,30 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     }
   }
 
+  // ⋯ › Dupliquer : copie exacte de la tâche (contenu, date, priorité, sources…) et de ses sous-tâches
+  async function duplicateTodo(sheet) {
+    if (sheet.dataset.recordKind === 'subtask') return;
+    const id = sheet.dataset.recordId, t = cachedTodos.find(x => x.id === id);
+    if (!t || duplicateTodo.busy) return;
+    duplicateTodo.busy = true;
+    try {
+      const row = { ...t };
+      ['id', 'created_at', 'updated_at', 'completed_at', 'done_at'].forEach(k => delete row[k]);
+      row.is_done = false;
+      if (typeof row.position === 'number') row.position += 0.5;
+      const { data: nt, error } = await sb.from('todos').insert(row).select().single();
+      if (error) throw error;
+      const subs = cachedSubtasks.filter(x => x.todo_id === id && !x.is_archived);
+      if (subs.length) {
+        const rows = subs.map(x => { const r = { ...x }; ['id', 'created_at', 'updated_at', 'completed_at'].forEach(k => delete r[k]); r.todo_id = nt.id; return r; });
+        const res = await sb.from('subtasks').insert(rows);
+        if (res.error) console.error('duplication sous-tâches', res.error);
+      }
+      await loadData();
+      openTaskSheet(getActiveContainer(), nt.id); // on ouvre la copie
+    } catch (e) { alert('Duplication impossible : ' + (e.message || e)); }
+    duplicateTodo.busy = false;
+  }
   function openTaskSheet(phone, todoId) {
     const sheet = document.querySelector('[data-task-sheet]');
     const backdrop = document.querySelector('[data-sheet-backdrop]');
@@ -7477,6 +7506,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         else if (act === 'delete') sheet.querySelector('[data-td-goto-delete-task]')?.click();
         else if (act === 'subtask') setTimeout(() => tdStFocusAdd(sheet), 0);
         else if (act === 'source') sheet.querySelector('[data-td-add-source-row]')?.click();
+        else if (act === 'dup') duplicateTodo(sheet);
       });
     })();
     sheet.querySelector('[data-td-favorite-btn]')?.addEventListener('click', async () => {
@@ -11576,7 +11606,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     else if (key === 'tcat') cmp = (a, b) => ((catOf(a)?.position ?? 9999) - (catOf(b)?.position ?? 9999)) || ((PR[a.priority] ?? 3) - (PR[b.priority] ?? 3)) || byDue(a, b);
     arr.sort(rev ? (a, b) => cmp(b, a) : cmp);
     if (key === 'due') arr.sort((a, b) => (a.due_date ? 0 : 1) - (b.due_date ? 0 : 1)); // sans date toujours en bas
-    if (key === 'due' && tab === 'all') {   // « Tout » : aujourd'hui d'abord, puis le retard (comme l'onglet Overdue), puis la suite par date
+    if (key === 'due' && tab === 'all' && !livresCtx()) {   // « Tout » : aujourd'hui d'abord, puis le retard (comme l'onglet Overdue), puis la suite par date
       const rank = t => { const b = bucket(t); return b === 't' ? 0 : b === 'o' ? 1 : b === 'n' ? 3 : 2; };
       arr.sort((a, b) => rank(a) - rank(b) || (rank(a) === 1 ? (rev ? byLate(b, a) : byLate(a, b)) : 0));
     }
@@ -11622,6 +11652,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     v2Render();
   }
   const ctxProj = () => V.page ? (M.pageById.get(V.page)?.project_id || null) : (V.proj || null);
+  // projet Livres (prépublications, sorties) : toujours en liste, « Tout », par ordre chronologique
+  const isLivresProj = id => { const p = id && M.projById?.get ? M.projById.get(id) : cachedProjects.find(x => x.id === id); return !!p && /^livres?$/i.test((p.name || '').trim()); };
+  const livresCtx = () => isLivresProj(ctxProj());
   const catsOf = pid => TC.list.filter(c => c.project_id === pid).sort((a, b) => (a.position || 0) - (b.position || 0) || String(a.name).localeCompare(String(b.name), 'fr'));
   function catOf(t) {
     if (!t || !t.category_id) return null;
@@ -11657,7 +11690,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   const GROUP_LBL = { none: 'Aucun', cat: 'Catégorie', prio: 'Priorité', status: 'Statut' };
   function effGroup() {
     const g = V.group;
-    if (!ctxProj()) return 'none';                     // hors projet : la liste reste comme avant
+    if (!ctxProj() || livresCtx()) return 'none';      // hors projet (ou Livres) : liste simple
     if (g === 'cat' && !catOn()) return 'none';
     return GROUP_LBL[g] ? g : 'none';
   }
@@ -12277,7 +12310,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const all = cachedTodos.filter(passFilters);
     const count = k => all.filter(t => inTab(t, k) && !t.is_done).length;
     const grp = effGroup() !== 'none';
-    const sKey = grp ? V.gsort : V.sort, sRev = grp ? V.gsortRev : V.sortRev;
+    const lv = livresCtx();
+    const sKey = lv ? 'due' : grp ? V.gsort : V.sort, sRev = lv ? false : grp ? V.gsortRev : V.sortRev;
     const rows = sortTasks(all.filter(t => inTab(t, V.dTab) && doneOk(t, V.dTab)), V.dTab, sKey, sRev);
     const th = (k, l) => `<button type="button" class="v-th${sKey === k ? ' on' : ''}" data-v-sort="${k}" title="Trier par ${l.toLowerCase()} (re-cliquer pour inverser)">${l}${sKey === k ? ` <span aria-hidden="true">${sRev ? '↑' : '↓'}</span>` : ''}</button>`;
     const inCtx = catOn();
@@ -12603,7 +12637,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
           const groups = groupsOf(sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k, V.gsort, V.gsortRev));
           return `<div class="vm-page" data-v-scroll="mg-${k}">${groups.length ? `<div class="vm-gcard">${groups.map(g => `<div class="vm-ghead" style="color:${g.cat ? catColors(g.cat).fg : '#6b6b6b'}">${g.cat ? esc(g.cat.name) : g.key === '' ? 'Sans catégorie' : g.chip}<small>${g.tasks.length}</small>${g.cat ? tcEditBtn(g.cat) : ''}</div>${g.tasks.map(t => mRowHtml(t, k, true)).join('')}`).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
         }
-        const rows = sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
+        const rows = livresCtx() ? sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k, 'due', false) : sortTasks(all.filter(t => inTab(t, k) && doneOk(t, k)), k);
         const isLate = t => !t.is_done && bucket(t) === 'o';
         const sep = false;
         return `<div class="vm-page" data-v-scroll="ml-${k}">${rows.length ? `<div class="vm-list">${rows.map((t, i) => { const n = rows[i + 1]; const h = mRowHtml(t, k); return sep && n && !t.is_done && !n.is_done && isLate(t) !== isLate(n) ? h.replace('class="vm-row', 'class="vm-row v-cut') : h; }).join('')}</div>` : '<div class="vm-empty">Rien ici.</div>'}</div>`;
@@ -13164,7 +13198,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       V.view = 'list'; LS.set('view', 'list'); V.dTab = 'all'; V.mTab = 'all'; LS.set('dtab', 'all');
       setFilter({ proj: d.vProj }); return;
     }
-    if (d.vPage) { const pg = M.pageById.get(d.vPage); setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
+    if (d.vPage) { const pg = M.pageById.get(d.vPage); if (V.page !== d.vPage && isLivresProj(pg?.project_id)) { V.view = 'list'; LS.set('view', 'list'); V.dTab = 'all'; V.mTab = 'all'; LS.set('dtab', 'all'); } setFilter(V.page === d.vPage ? {} : { page: d.vPage, proj: pg?.project_id }); return; }
     if (d.vFavtodo) { closeDrawer(); openTaskSheet(container(), d.vFavtodo); return; }
     if (d.vTogglecat) {
       const id = d.vTogglecat;
