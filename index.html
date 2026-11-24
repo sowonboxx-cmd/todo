@@ -12796,6 +12796,10 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (V.page && cachedPages.length && !cachedPages.some(p => p.id === V.page)) V.page = null;
     if (V.proj && cachedProjects.length && !cachedProjects.some(p => p.id === V.proj)) V.proj = null;
     LS.set('loc', { space: V.space, proj: V.proj, page: V.page, fav: V.fav, lbOpen: typeof LB !== 'undefined' ? LB.open : null });
+    // en arrivant dans Livres (projet ou page, par n'importe quel chemin, rechargement compris) : liste, « Tout », ordre chronologique
+    { const k = livresCtx() ? (V.page || V.proj) : null;
+      if (k && k !== v2Render.lvKey) { V.view = 'list'; V.dTab = 'all'; V.mTab = 'all'; }
+      v2Render.lvKey = k; }
     if (!TC.loaded && !TC.loading) tcLoad();
     const mobile = isMobile();
     const scope = mobile ? mroot : root;
