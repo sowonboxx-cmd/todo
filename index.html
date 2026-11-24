@@ -1515,6 +1515,18 @@
     font-size: 13px; font-weight: 700; color: var(--ink); padding: 6px 8px; outline: none;
   }
   .week-picker[data-td-week-picker].hidden-nest { display: none; }
+  /* Custom Repeat : fond crème du site, listes déroulantes à la taille du « 1 » */
+  [data-view="custom-repeat"] .dd-list, [data-view="custom-repeat"] .week-picker { background: #F3F1EC; }
+  [data-view="custom-repeat"] .td-freq-n { width: 56px; height: 42px; font-size: 17px; border-radius: 12px; padding: 0 4px; }
+  [data-view="custom-repeat"] .td-freq-unit {
+    -webkit-appearance: none; appearance: none; height: 42px; min-width: 120px; border-radius: 12px; padding: 0 38px 0 14px;
+    font-size: 17px; font-weight: 700; color: #1f1f1f; background-color: #fff; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
+  }
+  [data-view="custom-repeat"] [data-td-month-onthe] .dd-row { padding: 0; background: none; }
+  [data-view="custom-repeat"] [data-td-month-onthe] .td-freq-unit { min-width: 0; width: 100%; }
+  html[data-theme="dark"] [data-view="custom-repeat"] .td-freq-unit { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1a6' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 10l5 5 5-5'/%3E%3C/svg%3E"); }
 
   /* ================= quick add task ================= */
   .at-title {
@@ -4047,6 +4059,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4109,6 +4122,8 @@ html[data-theme="dark"] .qp-optmenu { background: #1c1c1e; }
 html[data-theme="dark"] .qp-optmenu button { color: #f2f2f3; }
 html[data-theme="dark"] .qp-optmenu button:hover { background: #242426; }
 html[data-theme="dark"] .qp-optmenu button.on { background: #242426; }
+html[data-theme="dark"] [data-view="custom-repeat"] .dd-list, html[data-theme="dark"] [data-view="custom-repeat"] .week-picker { background: #000000; }
+html[data-theme="dark"] [data-view="custom-repeat"] .td-freq-unit { color: #f2f2f3; background-color: #1c1c1e; }
 html[data-theme="dark"] .docs-media-thumb .td-img-remove { color: #111111; }
 @media (min-width: 900px) { html[data-theme="dark"] .docs-toolbar { border: 1px solid rgba(42,42,44,0.08); background: #2c2c2e; } }
 @media (min-width: 900px) { html[data-theme="dark"] [data-theme="light"] .docs-editor { background: #1c1c1e; } }
