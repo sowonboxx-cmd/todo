@@ -15826,14 +15826,14 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const grid = (vs, isPast) => lbVolGrid(vs, v => lbFmtDate(v.release_date), v => isPast
       ? `<button type="button" class="lb-buyck" data-lb-own="${v.id}" title="Marquer comme acheté" aria-label="Marquer comme acheté">${LBI.cart}</button>`
       : `<button type="button" class="lb-buyck${v.wish ? '' : ' off'}" data-lb-wish="${v.id}" title="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}" aria-label="${v.wish ? 'Retirer du panier' : 'Mettre au panier'}">${LBI.cart}</button>`);
-    // déjà sortis d'abord ; à venir : seulement ceux qui ont leur couverture, les autres repliés sous « Sans couverture »
+    // à venir (avec couverture) d'abord, puis déjà sortis ; à venir : seulement ceux qui ont leur couverture, les autres repliés sous « Sans couverture »
     const hasCov = v => !!(v.cover_url || (+v.number === 1 && lbSer(v.series_id)?.cover_url));
     const upC = up.filter(hasCov), upN = up.filter(v => !hasCov(v));
     const block = (vs, isPast) => g ? grid(vs, isPast) : `<div class="lb-list">${vs.map(v => row(v, isPast)).join('')}</div>`;
     const pastH = past.length ? `<div class="lb-sec">DÉJÀ SORTIS · PAS ENCORE ACHETÉS</div>${block(past, true)}` : '';
     const upH = upC.length ? `<div class="lb-sec">À VENIR</div>${block(upC)}` : '';
     const noCov = upN.length ? `<button type="button" class="lb-fold${LB.outNoCov ? ' open' : ''}" data-lb-outnocov><span>À venir · sans couverture pour l'instant</span><b>${upN.length}</b>${I.chevD || '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>'}</button>${LB.outNoCov ? block(upN) : ''}` : '';
-    return (pastH + upH + noCov) || '<div class="lb-empty sm"><p>Aucune sortie à suivre pour le moment.</p></div>';
+    return (upH + pastH + noCov) || '<div class="lb-empty sm"><p>Aucune sortie à suivre pour le moment.</p></div>';
   }
   function lbPreHtml() {
     const list = [...LB.prepub].sort((a, b) => (a.read - b.read) || String(a.issue_date || '9999').localeCompare(String(b.issue_date || '9999')) || String(a.magazine || '').localeCompare(String(b.magazine || ''), 'fr'));
