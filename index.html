@@ -3074,6 +3074,20 @@
   .lb-tread, .lb-tsig { position: absolute; top: 6px; left: 5px; background: #fff; color: #2F62C9; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 5px; }
   .lb-tsig { top: 26px; color: #946200; }
   .lb-tm:not(:has(.lb-tread)) .lb-tsig { top: 6px; }
+  .lb-cur { margin: 0 0 16px; }
+  .lb-cur-h { display: flex; align-items: center; gap: 8px; font: 700 13px 'Inter', sans-serif; letter-spacing: .02em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 10px; }
+  .lb-cur-h small { font-weight: 600; color: #a3a3a3; }
+  .lb-cur-dot { width: 8px; height: 8px; border-radius: 50%; background: #E8862A; box-shadow: 0 0 0 4px rgba(232,134,42,.18); }
+  .lb-cur-row { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+  .lb-cur-row::-webkit-scrollbar { display: none; }
+  .lb-cur-it { display: flex; gap: 12px; align-items: center; background: #fff; border-radius: 16px; padding: 10px 14px 10px 10px; flex: 0 0 auto; min-width: 260px; max-width: 340px; }
+  .lb-cur-cv { border: none; background: none; padding: 0; cursor: pointer; width: 52px; flex-shrink: 0; }
+  .lb-cur-cv img, .lb-cur-cv > * { width: 52px !important; height: 74px !important; object-fit: cover; border-radius: 6px; }
+  .lb-cur-t { display: flex; flex-direction: column; gap: 3px; min-width: 0; align-items: flex-start; }
+  .lb-cur-t b { font: 700 14px 'Inter', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+  .lb-cur-t span { font-size: 12px; color: #8a8a8a; }
+  .lb-cur-t .lb-btn { margin-top: 4px; }
+  .lb-curtag { font-style: normal; font-weight: 700; color: #E8862A; }
   .lb-tl { display: flex; justify-content: space-between; gap: 4px; font-size: 11.5px; margin-top: 4px; }
   .lb-tl span { color: #8b8b8b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lb-tadd { aspect-ratio: 2/3; border-radius: 10px; border: 1.5px dashed #CFCDC6; background: transparent; color: #8b8b8b; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font: 600 12.5px 'Inter', sans-serif; cursor: pointer; }
@@ -4065,6 +4079,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4335,6 +4350,9 @@ html[data-theme="dark"] .lb-tck { background: #4cc27a; }
 html[data-theme="dark"] .lb-tck.half, html[data-theme="dark"] .lb-mtb.own.half { background: linear-gradient(90deg, #4cc27a 50%, #3a3a3c 50%); }
 html[data-theme="dark"] .lb-tm.miss .lb-tck { background: rgba(28,28,30,0.92); }
 html[data-theme="dark"] .lb-tread, html[data-theme="dark"] .lb-tsig { background: #1c1c1e; }
+html[data-theme="dark"] .lb-cur-h { color: #d2d2d6; }
+html[data-theme="dark"] .lb-cur-it { background: #1c1c1e; }
+html[data-theme="dark"] .lb-cur-t span { color: #9a9aa0; }
 html[data-theme="dark"] .lb-tl span { color: #9a9aa0; }
 html[data-theme="dark"] .lb-tadd { border: 1.5px dashed #2a2a2c; color: #9a9aa0; }
 html[data-theme="dark"] .lb-tadd:hover { color: #f2f2f3; }
@@ -12242,9 +12260,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     <div class="vm-track" data-vm-track></div>
     <nav class="vm-bar" data-vm-bar aria-label="Navigation">
       <button type="button" data-vm-bar-go="tasks" aria-label="Tâches"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><path d="M8 12.2l2.7 2.6L16 9.5"/></svg></button>
-      <button type="button" data-vm-bar-go="col" aria-label="Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 6.5C10 5 7 4.6 3.5 5v13.5C7 18 10 18.5 12 20c2-1.5 5-2 8.5-1.5V5C17 4.6 14 5 12 6.5z"/><path d="M12 6.5V20"/></svg></button>
-      <button type="button" data-vm-bar-go="search" aria-label="Recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
       <button type="button" data-vm-bar-go="courses" aria-label="Courses"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2.2l2.1 10.2a1.6 1.6 0 0 0 1.6 1.3h8.3a1.6 1.6 0 0 0 1.6-1.2L20.5 8H6.1"/><circle cx="9.5" cy="19.5" r="1.3"/><circle cx="17" cy="19.5" r="1.3"/></svg></button>
+      <button type="button" data-vm-bar-go="search" aria-label="Recherche"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg></button>
+      <button type="button" data-vm-bar-go="col" aria-label="Collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 6.5C10 5 7 4.6 3.5 5v13.5C7 18 10 18.5 12 20c2-1.5 5-2 8.5-1.5V5C17 4.6 14 5 12 6.5z"/><path d="M12 6.5V20"/></svg></button>
       <button type="button" class="add" data-vm-bar-go="plus" aria-label="Ajouter"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
     </nav>
     <div class="vm-edge" data-vm-edge aria-hidden="true"></div>
@@ -15248,17 +15266,26 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const tabs = isMobile() ? LB_TABS.filter(([k]) => k !== 'pre') : LB_TABS;
     return `<div class="v-seg cz-tabs lb-tabs" role="tablist" aria-label="Bibliothèque">${tabs.map(([k, l]) => `<button type="button" role="tab" aria-selected="${LB.tab === k || (isMobile() && k === 'out' && LB.tab === 'pre')}" class="${LB.tab === k || (isMobile() && k === 'out' && LB.tab === 'pre') ? 'on' : ''}" data-lb-tab="${k}">${l} <small>${LB.loaded && n[k] ? n[k] : ''}</small></button>`).join('')}</div>`;
   }
+  // « en cours » = commencé mais pas fini : pas lu, avec une date de début (read_at) ; une fois lu, read_at devient la date de fin
+  const lbReading = v => !!v && !v.read && !!v.read_at;
+  function lbReadingHtml() {
+    const vs = LB.vols.filter(v => lbReading(v) && lbSer(v.series_id)).sort((a, b) => String(b.read_at).localeCompare(String(a.read_at)));
+    if (!vs.length) return '';
+    return `<div class="lb-cur"><div class="lb-cur-h"><span class="lb-cur-dot"></span>En cours de lecture<small>${vs.length}</small></div><div class="lb-cur-row">${vs.map(v => { const s = lbSer(v.series_id); return `<div class="lb-cur-it">
+      <button type="button" class="lb-cur-cv" data-lb-vol="${v.id}" aria-label="Ouvrir ${esc(s.title)} ${esc(lbTn(v))}">${lbCover(s, v, 'xs')}</button>
+      <div class="lb-cur-t"><b>${lbJ(s)}${esc(s.title)}</b><span>${esc(lbTn(v))} · depuis le ${lbFmtDate(v.read_at)}</span><button type="button" class="lb-btn sm" data-lb-readnext="${v.id}">${I.check}Fini</button></div></div>`; }).join('')}</div></div>`;
+  }
   function lbBodyHtml(mobile) {
     if (!LB.loaded) return '<div class="v-empty">Chargement…</div>';
     if (LB.err) return `<div class="cz-install"><b>L'espace Bibliothèque n'est pas encore installé.</b><p>Ouvrez Supabase → SQL Editor, collez le fichier <code>library_schema.sql</code> et lancez-le, puis rechargez la page.</p><p class="cz-err">${esc(LB.err)}</p></div>`;
     if (mobile && LB.vol && lbVol(LB.vol) && lbSer(lbVol(LB.vol).series_id)) return lbTomeMobHtml(lbVol(LB.vol));
     if (mobile && LB.open && lbSer(LB.open)) return lbSeriesMobHtml(lbSer(LB.open));
     const bar = () => `<div class="lb-listbar">${lbKindBar(mobile)}${lbDispHtml()}</div>`, sh = mobile ? lbSearchHtml(true) : '';
-    if (LB.tab === 'read') return sh + bar() + lbReadHtml();
+    if (LB.tab === 'read') return sh + lbReadingHtml() + bar() + lbReadHtml();
     if (LB.tab === 'buy') return sh + bar() + lbBuyHtml();
     if (LB.tab === 'out') return sh + lbBdgestHtml() + bar() + lbOutHtml(mobile);
     if (LB.tab === 'pre') LB.tab = 'col'; // onglet retiré (ancienne page mémorisée)
-    return sh + lbCollectionHtml(mobile);
+    return sh + lbReadingHtml() + lbCollectionHtml(mobile);
   }
   // ---------- Collection ----------
   function lbFiltered() {
@@ -15728,6 +15755,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
               <div class="lb-r"><span>Je l'ai</span><span class="vm-switch${v.owned ? ' on' : ''}" data-lbv-tog="owned" role="switch" aria-checked="${!!v.owned}"></span></div>
               ${v.owned ? `<div class="lb-r"><span>Format</span>${lbFmtSeg(fmt, 'data-lbv-fmt')}</div>
               <div class="lb-r"><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbFmtDate(v.bought_at) + ' ' + v.bought_at.slice(0, 4) : 'Choisir'}</button></div>
+              <div class="lb-r"><span>En cours</span><span class="lb-rr">${lbReading(v) ? `<small>depuis le ${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${lbReading(v) ? ' on' : ''}" data-lbv-tog="reading" role="switch" aria-checked="${lbReading(v)}"></span></span></div>
               <div class="lb-r"><span>Lu</span><span class="lb-rr">${v.read && v.read_at ? `<small>${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${v.read ? ' on' : ''}" data-lbv-tog="read" role="switch" aria-checked="${!!v.read}"></span></span></div>`
               : `<div class="lb-r"><span>À acheter</span><span class="vm-switch${v.wish ? ' on' : ''}" data-lbv-tog="wish" role="switch" aria-checked="${!!v.wish}"></span></div>`}
             </div>
@@ -15746,10 +15774,10 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       return `<div class="lb-tm${v.read ? ' rd' : ' unrd'}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
       <button type="button" class="lb-tck rdck" data-lb-rd="${v.id}" aria-label="${v.read ? 'Lu — décocher' : 'Marquer comme lu'}">${v.read ? I.check : ''}</button>
-      <div class="lb-tl"><b title="${esc(lbTome(v))}">${esc(lbTn(v))}</b><span>${v.read ? (v.read_at ? lbFmtDate(v.read_at) : 'Lu') : 'Pas lu'}</span></div></div>`;
+      <div class="lb-tl"><b title="${esc(lbTome(v))}">${esc(lbTn(v))}</b><span>${v.read ? (v.read_at ? lbFmtDate(v.read_at) : 'Lu') : lbReading(v) ? '<i class="lb-curtag">En cours</i>' : 'Pas lu'}</span></div></div>`;
     }
-    const lab = v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
-    return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}">
+    const lab = lbReading(v) ? '<i class="lb-curtag">En cours</i>' : v.owned ? lbFmtLabel(v.format || s.format) : up ? lbFmtDate(v.release_date) : v.wish ? 'À acheter' : 'Manquant';
+    return `<div class="lb-tm${v.owned ? ' own' : ' miss'}${LB.vol === v.id ? ' sel' : ''}${lbReading(v) ? ' cur' : ''}">
       <button type="button" class="lb-tcv" data-lb-vol="${v.id}">${lbCover(s, v)}</button>
       <button type="button" class="lb-tck${v.owned && !v.read ? ' half' : ''}" data-lb-own="${v.id}" aria-label="${v.owned ? 'Possédé — décocher' : 'Marquer comme possédé'}">${v.owned ? I.check : ''}</button>
       <div class="lb-tl"><b title="${esc(lbTome(v))}">${esc(lbTn(v))}</b><span>${lab}</span></div></div>`;
@@ -15776,7 +15804,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   function lbReadHtml() {
     const rows = LB.series.filter(lbKindOk).map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
     if (!rows.length) return '<div class="lb-empty"><b>Rien à lire.</b><p>Tous vos tomes possédés sont lus.</p></div>';
-    if (LB.disp === 'grid') return lbVolGrid(rows.flatMap(x => x.vs), v => v.bought_at ? lbFmtDate(v.bought_at) : '', v => `<button type="button" class="lb-btn sm lb-vact" data-lb-readnext="${v.id}">${I.check}Lu</button>`);
+    if (LB.disp === 'grid') return lbVolGrid(rows.flatMap(x => x.vs).sort((a, b) => lbReading(b) - lbReading(a)), v => lbReading(v) ? '<span class="lb-curtag">En cours</span>' : v.bought_at ? lbFmtDate(v.bought_at) : '', v => lbReading(v) ? `<button type="button" class="lb-btn sm lb-vact" data-lb-readnext="${v.id}">${I.check}Fini</button>` : `<button type="button" class="lb-btn sm lb-vact" data-lb-startread="${v.id}">Commencer</button>`);
     return `<div class="lb-list">${rows.map(({ s, vs }) => lbRowHtml(s, esc(s.title), `${[lbRange(lbReg(vs).map(v => +v.number)), ...vs.filter(lbHS).map(lbCode)].filter(Boolean).join(', ')} · ${vs.length} tome${vs.length > 1 ? 's' : ''}`, `<button type="button" class="lb-btn sm" data-lb-readnext="${vs[0].id}">${I.check}${esc(lbTn(vs[0]))} lu</button>`)).join('')}</div>`;
   }
   function lbBuyHtml() {
@@ -15846,7 +15874,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         <div class="lb-r"><span>Je l'ai</span><span class="vm-switch${v.owned ? ' on' : ''}" data-lbv-tog="owned" role="switch" aria-checked="${!!v.owned}"></span></div>
         ${v.owned ? `<div class="lb-r"><span>Format</span>${lbFmtSeg(fmt, 'data-lbv-fmt')}</div>
         <div class="lb-r"><span>Acheté le</span><button type="button" class="lb-link" data-lbv-date="bought_at">${v.bought_at ? lbFmtDate(v.bought_at) + ' ' + v.bought_at.slice(0, 4) : 'Choisir'}</button></div>
-        <div class="lb-r"><span>Lu</span><span class="lb-rr">${v.read && v.read_at ? `<small>${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${v.read ? ' on' : ''}" data-lbv-tog="read" role="switch" aria-checked="${!!v.read}"></span></span></div>
+        <div class="lb-r"><span>En cours</span><span class="lb-rr">${lbReading(v) ? `<small>depuis le ${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${lbReading(v) ? ' on' : ''}" data-lbv-tog="reading" role="switch" aria-checked="${lbReading(v)}"></span></span></div>
+              <div class="lb-r"><span>Lu</span><span class="lb-rr">${v.read && v.read_at ? `<small>${lbFmtDate(v.read_at)}</small>` : ''}<span class="vm-switch${v.read ? ' on' : ''}" data-lbv-tog="read" role="switch" aria-checked="${!!v.read}"></span></span></div>
         `
         : `<div class="lb-r"><span>À acheter</span><span class="vm-switch${v.wish ? ' on' : ''}" data-lbv-tog="wish" role="switch" aria-checked="${!!v.wish}"></span></div>`}
       </div>
@@ -16401,6 +16430,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     }
     if ((el = d('[data-lb-rd]'))) { e.stopPropagation(); const v = lbVol(el.dataset.lbRd); if (v) await lbVolSet(v, { read: !v.read, read_at: v.read ? null : lbToday() }); return; }
     if ((el = d('[data-lb-readall]'))) { lbReadAll(el, lbSer(LB.open)); return; }
+    if ((el = d('[data-lb-startread]'))) { const v = lbVol(el.dataset.lbStartread); if (v) await lbVolSet(v, { read: false, read_at: lbToday() }); return; }
     if ((el = d('[data-lb-readnext]'))) { const v = lbVol(el.dataset.lbReadnext); if (v) await lbVolSet(v, { read: true, read_at: lbToday() }); return; }
     if (d('[data-lb-outnocov]')) { LB.outNoCov = !LB.outNoCov; v2Render(); return; }
     if ((el = d('[data-lb-wish]'))) { const v = lbVol(el.dataset.lbWish); if (v) await lbVolSet(v, { wish: el.classList.contains('lb-buyck') ? !v.wish : true }); return; } // pastille : bascule panier
@@ -16415,7 +16445,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (v && (t.closest('.lb-panel, .lb-smod') || (isMobile() && t.closest('.lb-mser')))) {
       if (d('[data-lbv-close]')) { LB.vol = null; lbVolPanel(); v2Render(); return; }
       if ((el = d('[data-lbv-tog]'))) {
-        const k = el.dataset.lbvTog, val = !v[k];
+        const k = el.dataset.lbvTog;
+        if (k === 'reading') { await lbVolSet(v, lbReading(v) ? { read_at: null } : { read: false, read_at: lbToday() }); return; }
+        const val = !v[k];
         const patch = { [k]: val };
         if (k === 'read') patch.read_at = val ? lbToday() : null;
         if (k === 'owned') { if (val) { patch.wish = false; if (!v.bought_at) patch.bought_at = lbToday(); } else Object.assign(patch, { read: false, read_at: null, bought_at: null, wish: true }); } // décoché = repasse « à acheter »
