@@ -16518,6 +16518,12 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   }
   async function ciApply(row) {
     const d = row.payload || {};
+    if (row.kind === 'task' && d.delete) { // retrait d'une tâche déposée par erreur : titre exact (et date si donnée), tâches non faites seulement
+      let q = sb.from('todos').delete().eq('title', d.title).eq('is_done', false);
+      if (d.due_date) q = q.eq('due_date', d.due_date);
+      const { error } = await q; if (error) throw error;
+      return 'tâche retirée';
+    }
     if (row.kind === 'task') {
       const pg = ciPage(d.project, d.page);
       if (!pg) throw new Error('page introuvable');
