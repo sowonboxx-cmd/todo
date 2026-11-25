@@ -3074,6 +3074,7 @@
   .lb-tread, .lb-tsig { position: absolute; top: 6px; left: 5px; background: #fff; color: #2F62C9; font-size: 10px; font-weight: 700; padding: 2px 5px; border-radius: 5px; }
   .lb-tsig { top: 26px; color: #946200; }
   .lb-tm:not(:has(.lb-tread)) .lb-tsig { top: 6px; }
+  .lb-ribbon.ab, .lb-pill.ab, .lb-mtop.ab { background: #8E8E93 !important; color: #fff !important; }
   .lb-cur { margin: 0 0 16px; }
   .lb-cur-h { display: flex; align-items: center; gap: 8px; font: 700 13px 'Inter', sans-serif; letter-spacing: .02em; text-transform: uppercase; color: #6b6b6b; margin-bottom: 10px; }
   .lb-cur-h small { font-weight: 600; color: #a3a3a3; }
@@ -4058,6 +4059,7 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
 
 
 
@@ -15139,7 +15141,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   };
   const LB_TABS = [['col', 'Collection'], ['read', 'À lire'], ['buy', 'À acheter'], ['out', 'Sorties']]; // « Prépublication » retirée : suivie dans les tâches
   const LB_KINDS = [['manga', 'Manga'], ['bd', 'BD'], ['comics', 'Comics'], ['magazine', 'Magazines'], ['livre', 'Livres']];
-  const LB_TOPS = [['indispensable', 'Indispensable'], ['prefere', 'Préféré']];
+  const LB_TOPS = [['indispensable', 'Indispensable'], ['prefere', 'Préféré'], ['abandon', 'Abandonnée']]; // abandonnée : commencée, pas aimée, on ne lit pas la suite
   const LBI = {
     filter: svg('<path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/>'),
     book: svg('<path d="M5 4.5h10a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h10"/>'),
@@ -15365,7 +15367,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const fmt = s.format || 'paper';
     const top = LB_TOPS.find(([k]) => k === s.top);
     return `<button type="button" class="lb-card" data-lb-open="${s.id}">
-      <div class="lb-cvw">${lbCover(s)}${top ? `<span class="lb-ribbon">${top[1]}</span>` : ''}</div>
+      <div class="lb-cvw">${lbCover(s)}${top ? `<span class="lb-ribbon${s.top === 'abandon' ? ' ab' : ''}">${top[1]}</span>` : ''}</div>
       <div class="lb-ct">${lbJ(s)}${esc(s.title)}</div>
       <div class="lb-cm"><span class="lb-bar"><i style="width:${pct}%"></i></span>${st.own}/${st.total || '?'}</div>
     </button>`;
@@ -15533,7 +15535,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
           ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
           ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : LB.hasSummary ? '<button type="button" class="lb-btn sm lb-findsum" data-lb-findsum>Chercher le résumé</button>' : ''}
           <div class="lb-pills">
-            <button type="button" class="lb-pill${top ? ' gold' : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
+            <button type="button" class="lb-pill${top ? (s.top === 'abandon' ? ' ab' : ' gold') : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
             <button type="button" class="lb-pill lb-rate${s.rating ? ' set' + (s.rating >= 8 ? ' hi' : '') : ''}" data-lb-srate>${LB_STAR}${s.rating ? `<b>${lbNote(s.rating)}</b>` : 'Noter'}</button>
             ${s.source_url ? `<a class="lb-pill" href="${esc(s.source_url)}" target="_blank" rel="noopener">${LBI.link}Fiche</a>` : ''}
             ${(() => { const pv = all.find(v => Array.isArray(v.previews) && v.previews.length); return pv ? `<button type="button" class="lb-pill" data-lb-planches="${pv.id}">${LBI.img}Planches <b>${pv.previews.length}</b></button>` : ''; })()}
@@ -15639,7 +15641,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
             ${nxt ? `<div><span>Prochaine sortie</span><b>${esc(lbTn(nxt))} · ${lbDmy(nxt.release_date)} <em class="lb-mdays">${lbDaysTxt(lbDays(nxt.release_date))}</em></b></div>` : ''}
             <div><span>Suivre les sorties</span><span class="vm-switch${s.follow ? ' on' : ''}" data-lb-follow role="switch" aria-checked="${!!s.follow}"></span></div>
             <div class="lb-mprio"><span>À lire prochainement</span>${lbPrioHtml(s).replace(/<span>À lire prochainement<\/span>/, '')}</div>
-            <div><span>Top</span><button type="button" class="lb-mtop${top ? ' on' : ''}" data-lb-top>${top ? top[1] : 'Aucun'}</button></div>
+            <div><span>Top</span><button type="button" class="lb-mtop${top ? (s.top === 'abandon' ? ' ab' : ' on') : ''}" data-lb-top>${top ? top[1] : 'Aucun'}</button></div>
           </div>
           ${all.some(v => !v.read && (v.owned || !v.release_date || v.release_date <= lbToday())) ? `<button type="button" class="lb-mwide lb-readall" data-lb-readall>J’ai lu toute la série</button>` : ''}
           <button type="button" class="lb-mwide" data-lb-sync>Chercher les nouveaux tomes</button></div>
@@ -15802,7 +15804,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       + `<a class="lb-ext" href="https://www.bdgest.com/sorties_bd" target="_blank" rel="noopener">${LBI.cal}<span><b>Calendrier des sorties en France</b><small>BDGest · Franco-Belge, Manga, Comics, par mois et par éditeur</small></span>${LBI.link}</a>`;
   }
   function lbReadHtml() {
-    const rows = LB.series.filter(lbKindOk).map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
+    const rows = LB.series.filter(s => lbKindOk(s) && s.top !== 'abandon').map(s => ({ s, vs: lbVolsOf(s.id).filter(v => v.owned && !v.read) })).filter(x => x.vs.length).sort((a, b) => a.s.title.localeCompare(b.s.title, 'fr'));
     if (!rows.length) return '<div class="lb-empty"><b>Rien à lire.</b><p>Tous vos tomes possédés sont lus.</p></div>';
     if (LB.disp === 'grid') return lbVolGrid(rows.flatMap(x => x.vs).sort((a, b) => lbReading(b) - lbReading(a)), v => lbReading(v) ? '<span class="lb-curtag">En cours</span>' : v.bought_at ? lbFmtDate(v.bought_at) : '', v => lbReading(v) ? `<button type="button" class="lb-btn sm lb-vact" data-lb-readnext="${v.id}">${I.check}Fini</button>` : `<button type="button" class="lb-btn sm lb-vact" data-lb-startread="${v.id}">Commencer</button>`);
     return `<div class="lb-list">${rows.map(({ s, vs }) => lbRowHtml(s, esc(s.title), `${[lbRange(lbReg(vs).map(v => +v.number)), ...vs.filter(lbHS).map(lbCode)].filter(Boolean).join(', ')} · ${vs.length} tome${vs.length > 1 ? 's' : ''}`, `<button type="button" class="lb-btn sm" data-lb-readnext="${vs[0].id}">${I.check}${esc(lbTn(vs[0]))} lu</button>`)).join('')}</div>`;
@@ -15816,7 +15818,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   }
   function lbOutHtml(mobile) {
     const today = lbToday();
-    const dated = LB.vols.filter(v => v.release_date && !v.owned && lbKindOk(lbSer(v.series_id)));
+    const dated = LB.vols.filter(v => v.release_date && !v.owned && lbKindOk(lbSer(v.series_id)) && lbSer(v.series_id)?.top !== 'abandon');
     const up = dated.filter(v => v.release_date >= today).sort((a, b) => a.release_date.localeCompare(b.release_date));
     const past = dated.filter(v => v.release_date < today).sort((a, b) => b.release_date.localeCompare(a.release_date));
     const row = (v, isPast) => { const s = lbSer(v.series_id); return lbRowHtml(s, `${esc(s.title)} · ${esc(lbTn(v))}`, `${lbFmtDate(v.release_date)}`,
