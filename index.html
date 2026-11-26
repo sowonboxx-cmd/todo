@@ -3890,6 +3890,13 @@
   .czv-paste:empty::before, .czv-paste::before { content: attr(data-ph); color: #8a8a8a; }
   .czv-paste:focus { box-shadow: inset 0 0 0 1.5px #c4c3bd; }
   .czv-pastew { display: flex; gap: 8px; align-items: stretch; }
+  .czv-madd { display: flex; gap: 8px; align-items: stretch; margin-top: 12px; width: 100%; }
+  .czv-madd .cz-inline-add { flex: 1; min-width: 0; height: 46px; font-size: 15px; }
+  .czv-madd .czi-go { height: 46px; flex-shrink: 0; padding: 0 16px; }
+  .czv-mup { width: 46px; height: 46px; flex-shrink: 0; border: none; border-radius: 12px; background: var(--v-soft2, #F1F0EC); color: #555; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+  .czv-mup svg { width: 20px; height: 20px; }
+  .czv-vid { position: relative; overflow: hidden; }
+  .czv-vfile { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
   .czv-pastew .czv-paste { flex: 1; margin-top: 0; }
   .czv-step b { width: 24px; height: 24px; border-radius: 50%; background: #1f1f1f; color: #fff; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
   .czv-step b svg { width: 13px; height: 13px; }
@@ -4059,6 +4066,7 @@
   .v-btop { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
   .v-btop .v-ttl { flex: 1; }
   .v-btop .v-when { font-size: 12.5px; }
+
 
 
 
@@ -4645,6 +4653,7 @@ html[data-theme="dark"] .czv-step { border-top: 1px solid #2a2a2c; color: #f2f2f
 html[data-theme="dark"] [data-czv-name]:focus { background: rgba(255,255,255,0.18); }
 html[data-theme="dark"] .czv-paste { background: var(--v-soft2, #242426); }
 html[data-theme="dark"] .czv-paste:empty::before, html[data-theme="dark"] .czv-paste::before { color: #9a9aa0; }
+html[data-theme="dark"] .czv-mup { background: var(--v-soft2, #242426); color: #d2d2d6; }
 html[data-theme="dark"] .czv-step b { background: #f2f2f3; color: #111111; }
 html[data-theme="dark"] .czv-step.done b { background: #4cc27a; }
 html[data-theme="dark"] .czv-desc summary { color: #9a9aa0; }
@@ -13611,6 +13620,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (m) return { t: 'ig', kind: m[1] === 'reels' ? 'reel' : m[1], id: m[2], label: 'Insta' };
     TWEET_RE.lastIndex = 0; m = TWEET_RE.exec(url); TWEET_RE.lastIndex = 0;
     if (m) return { t: 'x', id: m[1], label: 'X' };
+    if (/\.(mp4|mov|m4v|webm)(\?|#|$)/i.test(url)) return { t: 'file', label: 'Vidéo' }; // vidéo importée (fichier)
     let host = ''; try { host = new URL(url).hostname.replace(/^www\./, ''); } catch (e) {}
     return { t: 'web', host, label: host || 'Lien' };
   }
@@ -14371,7 +14381,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   }
   // ---------- fiche recette « lecture » (mobile) ----------
   const czLinkSrc = u => czSrc(u) || { t: 'web', host: '', label: 'Lien' };
-  const czVideos = r => (r.links || []).filter(u => ['yt', 'ig', 'x'].includes(czSrc(u)?.t));
+  const czVideos = r => (r.links || []).filter(u => ['yt', 'ig', 'x', 'file'].includes(czSrc(u)?.t));
+  // barre unique (vidéos et photos) : un lien YouTube / Insta / site / image, ou une photo / vidéo importée
+  const czMediaBar = () => `<div class="czv-madd"><input type="url" class="cz-inline-add" data-czp-mediaadd placeholder="Coller un lien : YouTube, Insta, TikTok, site, image…" enterkeyhint="go" autocomplete="off" aria-label="Ajouter une vidéo ou une photo"><button type="button" class="czi-go" data-czp-mediago>Ajouter</button><button type="button" class="czv-mup" data-czp-upmedia title="Importer une photo ou une vidéo" aria-label="Importer une photo ou une vidéo">${CZI.photo}</button></div>`;
   const czWebLinks = r => (r.links || []).filter(u => czSrc(u)?.t === 'web');
   function czThumbOf(r, u) {
     const s = czSrc(u); if (!s) return '';
@@ -14400,7 +14412,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const cover = czCoverOf(r), steps = czSteps(r);
     const chips = [isNext && r.importance ? `<span class="imp">${esc(r.importance)}</span>` : '', r.origin ? `<span>${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).slice(0, 2).map(t => `<span>${esc(t)}</span>`)].join('');
     const tab = CZ.mtab === 'p' && imgs.length ? 'p' : (vids.length ? 'v' : (imgs.length ? 'p' : 'v'));
-    const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"></button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
+    const vidHtml = vids.length ? `<div class="czv-strip">${vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}">${s.t === 'file' ? `<video class="czv-vfile" src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : ''}</button>`; }).join('')}</div>` : '<p class="czv-empty">Aucune vidéo pour l\'instant.</p>';
     if (!isMobile()) return czDeskViewHtml(r, { isNext, ings, used, done, notBuy, vids, web, imgs, steps });
     const phHtml = imgs.length ? `<div class="czv-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : '<p class="czv-empty">Aucune photo pour l\'instant.</p>';
     return `
@@ -14424,7 +14436,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
           <div class="czv-seg"><button type="button" class="${tab === 'v' ? 'on' : ''}" data-czv-mtab="v">Vidéos${vids.length ? ` <small>${vids.length}</small>` : ''}</button><button type="button" class="${tab === 'p' ? 'on' : ''}" data-czv-mtab="p">Photos${imgs.length ? ` <small>${imgs.length}</small>` : ''}</button></div>
           ${tab === 'v' ? vidHtml : phHtml}
           ${web.length ? `<div class="czv-web">${web.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${CZI.link}<span>${esc(czSrc(u).host)}</span></a>`).join('')}</div>` : ''}
-          <div class="czv-add">${tab === 'v' ? `<input type="url" class="cz-inline-add" data-czp-linkadd placeholder="+ Coller un lien YouTube, Insta, site…" enterkeyhint="done">` : `<div class="czv-pastew"><div class="czv-paste" contenteditable="plaintext-only" data-czv-paste data-ph="Coller une photo ou un lien d’image ici" aria-label="Coller une photo"></div><button type="button" class="cz-ghost" data-czp-upimg>${CZI.photo}Ajouter</button></div>`}</div>
+          <div class="czv-add">${czMediaBar()}</div>
         </section>
         <section class="czv-card">
           <div class="czv-sh"><span>Ingrédients${ings.length ? ` · ${ings.length}` : ''}</span>${used.length ? '<button type="button" data-czv-reset="used">Tout décocher</button>' : ''}</div>
@@ -14448,7 +14460,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const { isNext, ings, used, done, notBuy, vids, web, imgs, steps } = o;
     const cover = czCoverOf(r);
     const chips = [isNext && r.importance ? `<span class="imp imp-${czNorm(r.importance).replace(/[^a-z]/g, '')}">${esc(r.importance)}</span>` : '', r.origin ? `<span>${czFlag(r.origin)}${esc(r.origin)}</span>` : '', r.minutes ? `<span>${r.minutes} min</span>` : '', ...(r.types || []).map(t => `<span>${esc(t)}</span>`), ...(r.tags || []).map(t => `<span>${esc(t)}</span>`)].join('');
-    const vcards = vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}"></button>`; }).join('');
+    const vcards = vids.map((u, i) => { const s = czLinkSrc(u), th = czThumbOf(r, u); return `<button type="button" class="czv-vid" data-czv-play="${i}" style="${th ? `background-image:url('${esc(th)}')` : `background:${czGrad(r.name + i)}`}" aria-label="Lire la vidéo ${i + 1}">${s.t === 'file' ? `<video class="czv-vfile" src="${esc(u)}#t=0.5" muted playsinline preload="metadata"></video>` : ''}</button>`; }).join('');
     return `<div class="czm" role="document">
       <div class="czm-bn${CZ.repos ? ' czrp' : ''}" data-czm-bn${cover ? ` style="background-image:url('${esc(cover)}');background-position:center ${czCoverY(r)}%"` : ` style="background:${czGrad(r.name)}"`}>${czReposBar()}
         <div class="czm-btns">
@@ -14483,12 +14495,13 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       <section class="czm-sec">
         <div class="czv-sh"><span>Vidéos${vids.length ? ` · ${vids.length}` : ''}</span><button type="button" class="czd-allbuy" data-czd-addvid>+ Ajouter un lien</button></div>
         ${vids.length ? `<div class="czm-vids">${vcards}</div>` : ''}
-        <div class="czd-links">${web.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${CZI.link}<span>${esc(czSrc(u).host)}</span></a>`).join('')}<input type="url" class="cz-inline-add" data-czp-linkadd placeholder="+ Coller un lien YouTube, Insta, site…" enterkeyhint="done"></div>
+        <div class="czd-links">${web.map(u => `<a href="${esc(u)}" target="_blank" rel="noopener">${CZI.link}<span>${esc(czSrc(u).host)}</span></a>`).join('')}</div>
+        ${czMediaBar()}
       </section>
       <section class="czm-sec">
         <div class="czv-sh"><span>Photos${imgs.length ? ` · ${imgs.length}` : ''}</span><button type="button" class="czd-allbuy" data-czp-upimg>+ Ajouter</button></div>
         ${imgs.length ? `<div class="czm-mas">${imgs.map((u, i) => `<img src="${esc(u)}" alt="" loading="lazy" data-czp-img="${i}">`).join('')}</div>` : ''}
-        <div class="czv-paste" contenteditable="plaintext-only" data-czv-paste data-ph="Coller une photo ou un lien d’image ici" aria-label="Coller une photo"></div>
+        ${czMediaBar()}
       </section>
       ${r.description ? `<details class="czm-sec czv-desc"><summary>Description d'origine</summary><p>${esc(r.description)}</p></details>` : ''}
     </div>`;
@@ -14573,6 +14586,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     let frame = '';
     if (s.t === 'yt') frame = `<div class="czpl-f ${/\/shorts\//.test(u) ? 'v' : 'h'}"><iframe src="https://www.youtube.com/embed/${s.id}?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen title="YouTube"></iframe></div>`;
     else if (s.t === 'ig') frame = `<div class="czpl-f v ig"><iframe src="https://www.instagram.com/${s.kind}/${s.id}/embed/" scrolling="no" allowtransparency="true" allowfullscreen title="Instagram"></iframe></div>`;
+    else if (s.t === 'file') frame = `<div class="czpl-f v"><video src="${esc(u)}" controls autoplay playsinline style="width:100%;height:100%;object-fit:contain;background:#000"></video></div>`;
     else frame = `<div class="czpl-f h x"><div class="td-tweet" data-tweet-id="${s.id}"></div></div>`;
     czPl.innerHTML = `<button type="button" class="czpl-x" data-czpl-close aria-label="Fermer">${I.x}</button>
       ${vids.length > 1 ? `<button type="button" class="czpl-nav l" data-czpl-step="-1" aria-label="Précédente"${i ? '' : ' disabled'}>${CZI.back}</button>` : ''}
@@ -14854,6 +14868,50 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     await czUpd('cuisine_recipes', r.id, patch);
   }
   const czFillHtml = r => `<form class="czv-fill" data-czv-fill><input type="url" class="cz-inline-add" data-czv-fillurl placeholder="Coller le lien d’une recette (site)" enterkeyhint="go" aria-label="Lien d’un site de recettes"><button type="submit" class="czi-go"${CZF.busy === r.id ? ' disabled' : ''}>${CZF.busy === r.id ? 'Lecture…' : 'Remplir'}</button></form>${CZF.err ? `<p class="czi-err">${esc(CZF.err)}</p>` : ''}`;
+  // lien collé dans la barre : vidéo (YouTube, Insta, X, fichier) → Vidéos ; image directe → Photos ; autre site → lien (+ recette lue si la fiche est vide)
+  const czImgLoads = u => new Promise(ok => { const i = new Image(); const t = setTimeout(() => ok(false), 5000); i.onload = () => { clearTimeout(t); ok(i.naturalWidth > 0); }; i.onerror = () => { clearTimeout(t); ok(false); }; i.src = u; });
+  async function czMediaAdd(r, v) {
+    v = (v || '').trim(); if (!/^https?:\/\//i.test(v)) return;
+    const s = czSrc(v);
+    let img = false;
+    if (s.t === 'web') { try { const q = new URL(v).searchParams; img = !!(/google\.|bing\.|pinterest\./.test(v) && (q.get('imgurl') || q.get('mediaurl'))); } catch (_) {} if (!img) img = /\.(jpe?g|png|webp|gif|avif)(\?|#|$)/i.test(v) || await czImgLoads(v); }
+    if (img) {
+      const url = await czImageFromLink(v, r.id); if (!url) return;
+      r.images = [...(r.images || []), url]; CZ.mtab = 'p'; czRenderPage();
+      await czUpd('cuisine_recipes', r.id, { images: r.images }); return;
+    }
+    if ((r.links || []).includes(v)) return;
+    r.links = [...(r.links || []), v]; if (s.t !== 'web') CZ.mtab = 'v';
+    czRenderPage();
+    await czUpd('cuisine_recipes', r.id, { links: r.links });
+    if (s.t === 'web' && !czSteps(r).length) czFillFromSite(r, v);
+  }
+  // bouton importer : photos → Photos, vidéos → Vidéos (stockées chez vous)
+  function czUploadMedia(r) {
+    const inp = document.createElement('input'); inp.type = 'file'; inp.accept = 'image/*,video/*'; inp.multiple = true;
+    inp.style.cssText = 'position:fixed;left:-9999px;opacity:0'; document.body.appendChild(inp);
+    inp.addEventListener('change', async () => {
+      const files = [...(inp.files || [])]; inp.remove(); if (!files.length) return;
+      const imgs = [], vids = [];
+      for (const f of files.slice(0, 10)) {
+        try {
+          if (/^video\//.test(f.type)) {
+            const ext = /quicktime/.test(f.type) ? 'mov' : /webm/.test(f.type) ? 'webm' : 'mp4';
+            const path = `cuisine/${r.id}/video-${Date.now().toString(36)}.${ext}`;
+            const { error } = await sb.storage.from('bibliotheque').upload(path, f, { contentType: f.type || 'video/mp4', upsert: true });
+            if (error) throw new Error('Envoi de la vidéo impossible : ' + error.message);
+            vids.push(sb.storage.from('bibliotheque').getPublicUrl(path).data.publicUrl);
+          } else if (/^image\//.test(f.type)) imgs.push(await uploadImageFile(f, getUploadCfg() || {}));
+        } catch (e) { alert(e.message || e); break; }
+      }
+      const patch = {};
+      if (imgs.length) { r.images = [...(r.images || []), ...imgs]; patch.images = r.images; CZ.mtab = 'p'; }
+      if (vids.length) { r.links = [...(r.links || []), ...vids]; patch.links = r.links; CZ.mtab = 'v'; }
+      if (!Object.keys(patch).length) return;
+      czRenderPage(); await czUpd('cuisine_recipes', r.id, patch);
+    }, { once: true });
+    inp.click();
+  }
   async function czUploadImages(r) {
     const cfg = getUploadCfg() || {};
     if (!cfg) return;
@@ -14949,7 +15007,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (t.closest('[data-czp-upimg]')) { if (menu) menu.hidden = true; czUploadImages(r); return; }
     if (t === czPage && czPage.classList.contains('czd')) { czClose(); return; } // clic sur le fond flouté
     const cov = t.closest('[data-czm-cover]'); if (cov) { czCoverMenu(cov, r); return; }
-    if (t.closest('[data-czd-addvid]')) { const i = czPage.querySelector('[data-czp-linkadd]'); i?.focus(); return; }
+    if (t.closest('[data-czd-addvid]')) { const i = czPage.querySelector('[data-czp-mediaadd]'); i?.focus(); return; }
+    if (t.closest('[data-czp-mediago]')) { const i = t.closest('.czv-madd')?.querySelector('[data-czp-mediaadd]'); if (i) { const v = i.value; i.value = ''; czMediaAdd(r, v); } return; }
+    if (t.closest('[data-czp-upmedia]')) { czUploadMedia(r); return; }
     const dsc = t.closest('[data-czd-scroll]'); if (dsc) { const st = czPage.querySelector('[data-czd-strip]'); st?.scrollBy({ left: +dsc.dataset.czdScroll * st.clientWidth * .75, behavior: 'smooth' }); return; }
     if (t.closest('[data-czv-edit]')) { CZ.edit = !CZ.edit; czRenderPage(); czPage.scrollTop = 0; return; }
     const mt = t.closest('[data-czv-mtab]'); if (mt) { CZ.mtab = mt.dataset.czvMtab; czRenderPage(); return; }
@@ -15023,6 +15083,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const r = czById(CZ.open); if (!r) return;
     if (t.matches('[data-czp-name]')) { e.preventDefault(); t.blur(); return; }
     if (t.matches('[data-czp-ingadd]')) { e.preventDefault(); const v = t.value; t.value = ''; await czAddIngredient(r, v); return; }
+    if (t.matches('[data-czp-mediaadd]')) { e.preventDefault(); const v = t.value; t.value = ''; await czMediaAdd(r, v); return; }
     if (t.matches('[data-czp-linkadd]')) {
       e.preventDefault();
       const v = t.value.trim(); if (!/^https?:\/\//i.test(v)) return;
