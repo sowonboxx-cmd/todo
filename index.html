@@ -15283,7 +15283,9 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     LB.loading = true;
     let r;
     try {
-      r = await Promise.all([sb.from('lib_series').select('*'), sb.from('lib_volumes').select('*'), sb.from('lib_prepub').select('*')]);
+      // Supabase renvoie 1000 lignes au plus par requête : on lit par pages pour tout avoir
+      const all = async t => { let out = [], from = 0; for (;;) { const { data, error } = await sb.from(t).select('*').order('id').range(from, from + 999); if (error) return { error }; out = out.concat(data || []); if (!data || data.length < 1000) return { data: out }; from += 1000; } };
+      r = await Promise.all([all('lib_series'), all('lib_volumes'), all('lib_prepub')]);
     } catch (e) { r = [{ error: e }, {}, {}]; }
     LB.loading = false; LB.loaded = true;
     const err = r[0].error || r[1].error || r[2].error;
