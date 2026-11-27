@@ -3037,6 +3037,8 @@
   .lb-edit { width: 30px; height: 30px; border: none; background: transparent; border-radius: 8px; color: #9A9890; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
   .lb-edit:hover { background: #F3F2EE; color: #1f1f1f; }
   .lb-jp { color: #8b8b8b; font-size: 15px; margin-top: 4px; }
+  /* titre original (japonais) sous le titre, sélectionnable pour le copier */
+  .lb-jpt, .lb-mjp { font-size: 19px; font-weight: 600; color: #4a4a4a; margin-top: 4px; letter-spacing: .02em; user-select: text; -webkit-user-select: text; cursor: text; }
   .lb-meta { display: grid; grid-template-columns: 110px 1fr; gap: 6px 10px; font-size: 14px; margin-top: 12px; }
   .lb-meta span { color: #8b8b8b; }
   .lb-sum { margin: 12px 0 0; font-size: 14px; line-height: 1.55; color: #3d3d3a; white-space: pre-line; max-width: 720px; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
@@ -3335,7 +3337,7 @@
   .lb-mhcv .lb-cvhint { opacity: .92; font-size: 10.5px; }
   .lb-mhi { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
   .lb-mhi h1 { font-size: 22px; letter-spacing: -.02em; line-height: 1.12; margin: 0; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-  .lb-mjp { font-size: 14px; color: #8b8b8b; margin-top: -2px; }
+  .lb-mjp { font-size: 16px; margin-top: 0; }
   .lb-mau { font-size: 13px; display: flex; gap: 6px; min-width: 0; }
   .lb-mau span { color: #8b8b8b; flex: none; }
   .lb-mau b { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -4107,6 +4109,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4125,6 +4128,7 @@
   html[data-theme="dark"] .v-seg button.on { background: #3A3A3C; color: #fff; box-shadow: none; }
   html[data-theme="dark"] .v-opts-btn.on { background: #3A3A3C; color: #fff; }
   html[data-theme="dark"] .czi-go, html[data-theme="dark"] .cz-addbtn, html[data-theme="dark"] .cz-chip.on { color: #111; }
+  html[data-theme="dark"] .lb-jpt, html[data-theme="dark"] .lb-mjp { color: #d2d2d6; }
   html[data-theme="dark"] .lb-sqs .lb-sq.img, html[data-theme="dark"] .lb-sqs .lb-sq.img:hover { background: #1f1f1f; border-color: transparent; color: #fff; }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
@@ -4362,6 +4366,7 @@ html[data-theme="dark"] .lb-link.late { color: #ff6b5e; }
 html[data-theme="dark"] .lb-edit { color: #9a9aa0; }
 html[data-theme="dark"] .lb-edit:hover { background: #242426; color: #f2f2f3; }
 html[data-theme="dark"] .lb-jp { color: #9a9aa0; }
+html[data-theme="dark"] .lb-jpt, html[data-theme="dark"] .lb-mjp { color: #d2d2d6; }
 html[data-theme="dark"] .lb-meta span { color: #9a9aa0; }
 html[data-theme="dark"] .lb-sum { color: #d2d2d6; }
 html[data-theme="dark"] .lb-pill { background: #1c1c1e; border: 1px solid #2a2a2c; color: #f2f2f3; }
@@ -4463,7 +4468,6 @@ html[data-theme="dark"] .lb-stabs em { background: #2c2c2e; color: #d2d2d6; }
 html[data-theme="dark"] .lb-stabs button.on em { background: #f2f2f3; color: #111111; }
 html[data-theme="dark"] .lb-cvhint:hover { background: #2c2c2e; }
 html[data-theme="dark"] .lb-mcard { background: #1c1c1e; }
-html[data-theme="dark"] .lb-mjp { color: #9a9aa0; }
 html[data-theme="dark"] .lb-mau span { color: #9a9aa0; }
 html[data-theme="dark"] .lb-msr em { color: #d2d2d6; }
 html[data-theme="dark"] .lb-msr em.g { color: #4cc27a; }
@@ -15627,7 +15631,8 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         <div class="lb-hi">
           ${kick ? `<div class="lb-kick">${esc(kick)}</div>` : ''}
           <div class="lb-htitle"><h2>${esc(s.title)}</h2>${mobile ? `<button type="button" class="v-tcedit lb-edit" data-lb-editseries title="Modifier la fiche">${LBI.pen}</button>` : ''}</div>
-          ${s.title_original || people ? `<div class="lb-jp">${esc([s.title_original, people].filter(Boolean).join(' · '))}</div>` : ''}
+          ${s.title_original ? `<div class="lb-jpt" lang="ja">${esc(s.title_original)}</div>` : ''}
+          ${people ? `<div class="lb-jp">${esc(people)}</div>` : ''}
           ${sum ? `<p class="lb-sum">${esc(sum)}</p>` : LB.hasSummary ? '<button type="button" class="lb-btn sm lb-findsum" data-lb-findsum>Chercher le résumé</button>' : ''}
           <div class="lb-pills">
             <button type="button" class="lb-pill${top ? (s.top === 'abandon' ? ' ab' : ' gold') : ''}" data-lb-top>${top ? top[1] : '+ Top'}</button>
