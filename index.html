@@ -16810,7 +16810,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         const { data: r, error: e1 } = await sb.from('claude_inbox').select('*').eq('id', id).maybeSingle();
         if (e1) { console.error('claude_inbox', id, e1); break; } // réseau coupé : on reprendra plus tard
         if (!r || r.applied_at) continue;
-        try { const k = await ciApply(r); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); if ((k === 'livre' || k === 'prépublication') && (done.livre + done.prépublication) % 10 === 0) lbLoad(true); } // gros import : la bibliothèque se met à jour au fur et à mesure
+        try { const k = await Promise.race([ciApply(r), new Promise((_, ko) => setTimeout(() => ko(new Error('délai dépassé, nouvel essai à la prochaine ouverture')), 90000))]); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); if ((k === 'livre' || k === 'prépublication') && (done.livre + done.prépublication) % 10 === 0) lbLoad(true); } // gros import : la bibliothèque se met à jour au fur et à mesure
         catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
       }
       const czTouched = done.photo > 0;
