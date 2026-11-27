@@ -25,6 +25,7 @@ tokens = '''html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-them
   html[data-theme="dark"] .v-opts-btn.on { background: #3A3A3C; color: #fff; }
   html[data-theme="dark"] .czi-go, html[data-theme="dark"] .cz-addbtn, html[data-theme="dark"] .cz-chip.on { color: #111; }
   html[data-theme="dark"] .lb-sq.img { background-color: #242426; background-image: linear-gradient(180deg, rgba(18,18,17,.25) 0%, rgba(18,18,17,.55) 45%, rgba(18,18,17,.9) 100%), var(--sq-bg); background-size: cover; background-position: center 30%; border-color: transparent; }
+  html[data-theme="dark"] .lb-sqs .lb-sq.img:hover { background-image: linear-gradient(180deg, rgba(18,18,17,.15) 0%, rgba(18,18,17,.45) 45%, rgba(18,18,17,.88) 100%), var(--sq-bg); }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
   html[data-theme="dark"] .v-cat-name, html[data-theme="dark"] .v-cat-btn, html[data-theme="dark"] .v-page svg, html[data-theme="dark"] .v-block-head h2, html[data-theme="dark"] .v-count-sq, html[data-theme="dark"] .v-tcat { color: color-mix(in srgb, var(--c-fg) 45%, #fff); }
