@@ -3184,6 +3184,12 @@
   .lb-mc-pct { font-size: 12.5px; font-weight: 600; position: relative; top: -20px; width: 0; white-space: nowrap; }
   .lb-mc-l { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #d6d4ce; flex: 1; }
   .lb-mc-tot { font-size: 21px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .lb-mc-fmt, .lb-ms-fmt { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; font-weight: 600; }
+  .lb-mc-fmt { border-top: 1px solid #3a3a38; padding-top: 10px; color: #d6d4ce; }
+  .lb-mc-fmt b, .lb-ms-fmt b { font-size: 15px; font-weight: 700; margin-right: 5px; font-variant-numeric: tabular-nums; color: inherit; }
+  .lb-mc-fmt b { color: #fff; }
+  .lb-ms-fmt { padding: 8px 10px 12px; border-top: 1px solid #F0EFEB; color: #6b6b6b; }
+  .lb-ms-fmt b { color: #1a1a1a; }
   .lb-mc-bar { display: block; height: 5px; border-radius: 3px; background: #3a3a38; margin-top: 6px; overflow: hidden; }
   .lb-mc-bar i { display: block; height: 100%; background: #E8B339; border-radius: 3px; }
   .lb-nxb { background: #F7F6F3; border: 1px solid #EFEEEA; border-radius: 18px; padding: 12px 14px; }
@@ -4093,6 +4099,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4393,6 +4400,8 @@ html[data-theme="dark"] .lb-sq small { color: #9a9aa0; }
 html[data-theme="dark"] .lb-sq-bar { background: #3a3a3c; }
 html[data-theme="dark"] .lb-sq-bar i { background: #4cc27a; }
 html[data-theme="dark"] .lb-mc { background: #2c2c2e; }
+html[data-theme="dark"] .lb-ms-fmt { border-top: 1px solid #2a2a2c; color: #d2d2d6; }
+html[data-theme="dark"] .lb-ms-fmt b { color: #f2f2f3; }
 html[data-theme="dark"] .lb-mc-bar i { background: #f0c45a; }
 html[data-theme="dark"] .lb-nxb { background: #242426; border: 1px solid #2a2a2c; }
 html[data-theme="dark"] .lb-nxh span { color: #9a9aa0; }
@@ -15457,6 +15466,17 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const changed = JSON.stringify(next) !== JSON.stringify(LB.bg);
     LB.bg = next; if (changed) v2Render();
   }
+  // tomes possédés par format : papier (dont « les deux »), numérique (dont « les deux »), les deux
+  function lbFmtCounts(owned) {
+    const c = { paper: 0, digital: 0, both: 0 };
+    owned.forEach(v => { const f = v.format || lbSer(v.series_id)?.format || 'paper'; if (f === 'both') { c.both++; c.paper++; c.digital++; } else if (f === 'digital') c.digital++; else c.paper++; });
+    return c;
+  }
+  function lbFmtHtml(owned, cls) {
+    const c = lbFmtCounts(owned);
+    const it = (n, l) => `<span><b>${n}</b>${l}</span>`;
+    return `<div class="${cls}">${it(c.paper, 'en papier')}${it(c.digital, 'en numérique')}${it(c.both, 'dans les deux formats')}</div>`;
+  }
   function lbDashHtml() {
     lbLoadBg();
     const today = lbToday();
@@ -15493,6 +15513,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         ${row(owned.length, pct(owned.length, total), 'tomes possédés', total, pc(owned.length, total))}
         ${row(read, pct(read, owned.length), 'tomes lus', owned.length, pc(read, owned.length))}
         ${row(complete, pct(complete, LB.series.length), 'séries complètes', LB.series.length, pc(complete, LB.series.length))}
+        ${lbFmtHtml(owned, 'lb-mc-fmt')}
       </div>
     </div>`;
   }
@@ -15507,7 +15528,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const pct = owned.length ? Math.round(read / owned.length * 100) : 0;
     const seg = (k, ic, col, l, n) => `<button type="button" class="lb-ms-seg" data-lb-stat="${k}"><span class="lb-sf" style="color:${col}">${LB_SF[ic]}</span><span class="lb-ms-l">${l}</span><b>${n}</b></button>`;
     return `<div class="lb-ms"><div class="lb-ms-segs">${seg('own', 'books', '#2F9E5B', 'Tomes', owned.length)}${seg('read', 'book', '#2F62C9', 'À lire', owned.length - read)}${seg('buy', 'cart', '#D9822B', 'Panier', lbBuyList().length)}</div>
-      <div class="lb-ms-bar"><i class="lb-ms-tr"><i style="width:${pct}%"></i></i><span><b>${pct} %</b> lus <em>(${read})</em></span></div></div>`;
+      <div class="lb-ms-bar"><i class="lb-ms-tr"><i style="width:${pct}%"></i></i><span><b>${pct} %</b> lus <em>(${read})</em></span></div>${lbFmtHtml(owned, 'lb-ms-fmt')}</div>`;
   }
   // séries taguées « À lire prochainement » P1 / P2 / P3
   function lbNextHtml(mobile) {
