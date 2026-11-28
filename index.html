@@ -1450,6 +1450,13 @@
   .qp-optmenu button { border: none; background: none; text-align: left; font: 13.5px 'Inter', sans-serif; color: #1f1f1f; padding: 9px 11px; border-radius: 8px; cursor: pointer; }
   .qp-optmenu button:hover { background: #F3F2EE; }
   .qp-optmenu button.on { font-weight: 600; background: #F3F2EE; }
+  /* rappels : activer les notifications de cet appareil */
+  .qp-optmenu .qp-push { display: flex; align-items: center; gap: 8px; margin-top: 4px; border-top: 1px solid #EFEEEA; border-radius: 0 0 8px 8px; padding-top: 11px; color: #2F62C9; font-weight: 600; }
+  .qp-optmenu .qp-push svg, .push-row svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .qp-optmenu .qp-push.info, .push-row.info { color: #6B6B6B; font-weight: 500; cursor: default; white-space: normal; max-width: 240px; line-height: 1.4; }
+  .push-row { display: flex; align-items: flex-start; gap: 8px; padding: 11px 14px; margin: -6px 0 14px; border-radius: 12px; background: var(--bg); font: 600 13px 'Inter', sans-serif; color: #2F62C9; cursor: pointer; border: none; width: 100%; text-align: left; }
+  .push-row.info { max-width: none; }
+  .push-row[hidden] { display: none; }
   .quick-popover .quick-dates { margin-bottom: 16px; }
   .quick-popover .quick-priority { margin-bottom: 0; }
 
@@ -4118,6 +4125,7 @@
 
 
 
+
 /* === MODE SOMBRE (généré par tools/dark-apply.py, ne pas modifier à la main) === */
   html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-theme="dark"] #v2m {
     color-scheme: dark;
@@ -4139,6 +4147,9 @@
   html[data-theme="dark"] .lb-jpt, html[data-theme="dark"] .lb-mjp { color: #d2d2d6; }
   html[data-theme="dark"] .czv-notes { color: #f2f2f3; }
   html[data-theme="dark"] .czv-snew b { box-shadow: inset 0 0 0 1.5px #5a5a5e; color: #a1a1a6 !important; }
+  html[data-theme="dark"] .qp-optmenu .qp-push { border-top-color: #2C2C2E; color: #7FA6F0; }
+  html[data-theme="dark"] .push-row { color: #7FA6F0; }
+  html[data-theme="dark"] .qp-optmenu .qp-push.info, html[data-theme="dark"] .push-row.info { color: #A1A1A6; }
   html[data-theme="dark"] .lb-sqs .lb-sq.img, html[data-theme="dark"] .lb-sqs .lb-sq.img:hover { background: #1f1f1f; border-color: transparent; color: #fff; }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
@@ -4184,6 +4195,8 @@ html[data-theme="dark"] .qp-optmenu { background: #1c1c1e; }
 html[data-theme="dark"] .qp-optmenu button { color: #f2f2f3; }
 html[data-theme="dark"] .qp-optmenu button:hover { background: #242426; }
 html[data-theme="dark"] .qp-optmenu button.on { background: #242426; }
+html[data-theme="dark"] .qp-optmenu .qp-push { border-top: 1px solid #2a2a2c; }
+html[data-theme="dark"] .qp-optmenu .qp-push.info, html[data-theme="dark"] .push-row.info { color: #d2d2d6; }
 html[data-theme="dark"] [data-view="custom-repeat"] .dd-list, html[data-theme="dark"] [data-view="custom-repeat"] .week-picker { background: #000000; }
 html[data-theme="dark"] [data-view="custom-repeat"] .td-freq-unit { color: #f2f2f3; background-color: #1c1c1e; }
 html[data-theme="dark"] [data-view="repeat"] .opt-list { background: #000000; }
@@ -8495,6 +8508,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     const m = document.createElement('div');
     m.className = 'qp-optmenu';
     m.innerHTML = opts.map(([v, l]) => `<button type="button" data-v="${v}" class="${(kind === 'reminder' ? cur === v : (v ? cur.startsWith(v === 'Every Weekday' ? 'Every Weekday' : v === 'Weekly' ? 'Every week' : v) : !cur)) ? 'on' : ''}">${l}</button>`).join('');
+    if (kind === 'reminder' && window.pushMenuRow) m.insertAdjacentHTML('beforeend', window.pushMenuRow());
     document.body.appendChild(m);
     const r = chip.getBoundingClientRect();
     m.style.left = Math.min(r.left, window.innerWidth - m.offsetWidth - 10) + 'px';
@@ -10007,6 +10021,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     if (window.tcLoad) window.tcLoad(); // catégories de tâches (rechargées en arrière-plan)
     if (typeof v2Render === 'function') v2Render();
     if (window.claudeInbox) window.claudeInbox();
+    if (window.pushAfterLoad) window.pushAfterLoad();
   }
 
   // ================================================================
@@ -16865,6 +16880,92 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       if (done.tâche && typeof loadData === 'function') { CI.running = false; await loadData(); }
     } finally { CI.running = false; }
   };
+
+  // ---------- Rappels : notifications de l'app (fonction Supabase « rappels » + sw.js) ----------
+  const PUSH = { fn: 'rappels', reg: null, on: false };
+  const pushIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></svg>';
+  const pushIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const pushStandalone = window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+  function pushState() {
+    if (pushIOS && !pushStandalone) return 'home'; // iPhone : seulement depuis l'icône de l'écran d'accueil
+    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'no';
+    if (Notification.permission === 'denied') return 'denied';
+    return PUSH.on ? 'on' : 'off';
+  }
+  function pushLabel(st) {
+    return st === 'home' ? 'Pour recevoir les rappels sur iPhone : Partager › « Sur l’écran d’accueil », puis ouvrez le dashboard depuis l’icône.'
+      : st === 'denied' ? 'Notifications refusées sur cet appareil : autorisez-les dans les réglages du navigateur.'
+      : st === 'no' ? 'Ce navigateur ne reçoit pas les notifications.'
+      : st === 'busy' ? 'Activation…' : 'Activer les notifications sur cet appareil';
+  }
+  async function pushCall(body) {
+    const { data, error } = await sb.functions.invoke(PUSH.fn, { body });
+    if (error || data?.error) throw new Error(data?.error || error?.message || 'erreur');
+    return data;
+  }
+  const pushB64 = s => { const p = '='.repeat((4 - s.length % 4) % 4), b = atob((s + p).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(b, c => c.charCodeAt(0)); };
+  async function pushRegister() {
+    if (PUSH.reg || !('serviceWorker' in navigator)) return PUSH.reg;
+    try {
+      PUSH.reg = await navigator.serviceWorker.register('sw.js');
+      const sub = await PUSH.reg.pushManager?.getSubscription();
+      PUSH.on = !!sub && Notification.permission === 'granted';
+    } catch (e) { console.info('rappels : sw.js absent', e); PUSH.reg = null; }
+    pushDecorate();
+    return PUSH.reg;
+  }
+  async function pushEnable() {
+    const st = pushState(); if (st !== 'off') return;
+    PUSH.busy = true; pushDecorate();
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') throw new Error('autorisation refusée');
+      const reg = await pushRegister();
+      if (!reg) throw new Error('le fichier sw.js n’est pas encore en ligne sur ce site');
+      await navigator.serviceWorker.ready;
+      const { key } = await pushCall({ key: 1 });
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pushB64(key) });
+      await pushCall({ subscribe: sub.toJSON(), ua: navigator.userAgent });
+      PUSH.on = true;
+      await pushCall({ test: 1 }).catch(() => {});
+      alertBubble('Notifications activées sur cet appareil');
+    } catch (e) {
+      alertBubble('Notifications : ' + (/Failed to send|FunctionsFetchError|404/.test(String(e?.message || e)) ? 'la fonction « rappels » n’est pas encore en ligne' : (e?.message || e)));
+    } finally { PUSH.busy = false; pushDecorate(); }
+  }
+  function pushDecorate() {
+    const st = PUSH.busy ? 'busy' : pushState();
+    document.querySelectorAll('[data-td-reminder-options]').forEach(list => {
+      let row = list.nextElementSibling?.matches?.('[data-push-row]') ? list.nextElementSibling : null;
+      if (!row) { row = document.createElement('button'); row.type = 'button'; row.className = 'push-row'; row.setAttribute('data-push-row', ''); list.after(row); }
+      row.hidden = st === 'on';
+      row.classList.toggle('info', st !== 'off' && st !== 'busy');
+      row.innerHTML = pushIcon + '<span>' + pushLabel(st) + '</span>';
+    });
+  }
+  window.pushMenuRow = () => { const st = PUSH.busy ? 'busy' : pushState(); return st === 'on' ? '' : `<button type="button" class="qp-push${st === 'off' || st === 'busy' ? '' : ' info'}" data-push-on>${pushIcon}<span>${pushLabel(st)}</span></button>`; };
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest?.('[data-push-row], [data-push-on]'); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (b.matches('[data-push-on]')) b.closest('.qp-optmenu')?.remove();
+    pushEnable();
+  }, true);
+  // toucher la notification : ouvrir la tâche
+  function pushOpen(id) {
+    if (!id) return false;
+    if (!cachedTodos.some(t => t.id === id)) return false;
+    try { openTaskSheet(getActiveContainer(), id); } catch (e) { console.info('rappels', e); }
+    return true;
+  }
+  const pushParam = new URLSearchParams(location.search).get('tache');
+  if (pushParam) history.replaceState(null, '', location.pathname + location.hash);
+  PUSH.pending = pushParam;
+  window.pushAfterLoad = () => { if (PUSH.pending && pushOpen(PUSH.pending)) PUSH.pending = null; };
+  navigator.serviceWorker?.addEventListener('message', (e) => { if (e.data?.openTodo && !pushOpen(e.data.openTodo)) PUSH.pending = e.data.openTodo; });
+  pushDecorate();
+  pushRegister();
+  window.pushAfterLoad();
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && cachedProjects.length) window.claudeInbox(); });
   if (cachedProjects.length) window.claudeInbox();
 

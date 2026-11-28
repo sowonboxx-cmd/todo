@@ -27,6 +27,9 @@ tokens = '''html[data-theme="dark"], html[data-theme="dark"] #v2, html[data-them
   html[data-theme="dark"] .lb-jpt, html[data-theme="dark"] .lb-mjp { color: #d2d2d6; }
   html[data-theme="dark"] .czv-notes { color: #f2f2f3; }
   html[data-theme="dark"] .czv-snew b { box-shadow: inset 0 0 0 1.5px #5a5a5e; color: #a1a1a6 !important; }
+  html[data-theme="dark"] .qp-optmenu .qp-push { border-top-color: #2C2C2E; color: #7FA6F0; }
+  html[data-theme="dark"] .push-row { color: #7FA6F0; }
+  html[data-theme="dark"] .qp-optmenu .qp-push.info, html[data-theme="dark"] .push-row.info { color: #A1A1A6; }
   html[data-theme="dark"] .lb-sqs .lb-sq.img, html[data-theme="dark"] .lb-sqs .lb-sq.img:hover { background: #1f1f1f; border-color: transparent; color: #fff; }
   html[data-theme="dark"] .v-cat, html[data-theme="dark"] .v-block, html[data-theme="dark"] .v-tcat { background: color-mix(in srgb, var(--c-bg) 9%, #1C1C1E); }
   html[data-theme="dark"] .v-cat.active-cat { background: color-mix(in srgb, var(--c-fg) 24%, #1C1C1E); }
