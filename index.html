@@ -9983,7 +9983,14 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
     bd.addEventListener('click', () => closeProjectAdmin(bd.closest('.phone')));
   });
 
-  async function loadData() {
+  // plusieurs rechargements demandés en même temps (fermer une fiche, cocher…) = une seule relecture
+  const LD = { p: null, again: false };
+  function loadData() {
+    if (LD.p) { LD.again = true; return LD.p; }
+    LD.p = (async () => { try { do { LD.again = false; await loadDataNow(); } while (LD.again); } finally { LD.p = null; } })();
+    return LD.p;
+  }
+  async function loadDataNow() {
     const results = await Promise.allSettled([
       sb.from('projects').select('*').eq('is_archived', false).order('position'),
       sb.from('pages').select('*').eq('is_archived', false),
@@ -16632,9 +16639,12 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
   // regroupe les doublons d'une série (même titre, aux accents / apostrophes près) et les tomes en double
   async function ciMergeSeries(title, others = [], like = null) {
     const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
-    const { data: all } = await sb.from('lib_series').select('*');
+    const { data: all } = await sb.from('lib_series').select('id,title'); // liste légère (économise la bande passante Supabase)
     const keys = [title, ...others].map(tn);
-    const same = (all || []).filter(x => keys.includes(tn(x.title)) || (like && tn(x.title).includes(tn(like))));
+    const sid = (all || []).filter(x => keys.includes(tn(x.title)) || (like && tn(x.title).includes(tn(like)))).map(x => x.id);
+    if (!sid.length) return;
+    const { data: same0 } = await sb.from('lib_series').select('*').in('id', sid);
+    const same = same0 || [];
     if (!same.length) return;
     const score = x => (x.cover_url ? 4 : 0) + ['authors', 'publisher', 'genre', 'kind', 'top', 'rating'].filter(k => x[k]).length;
     same.sort((a, b) => (tn(b.title) === tn(title)) - (tn(a.title) === tn(title)) || score(b) - score(a) || String(a.created_at || '').localeCompare(String(b.created_at || '')));
@@ -16793,9 +16803,10 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
       if (!CI.hasSum) { delete sd.summary; (d.volumes || []).forEach(v => delete v.summary); } // colonne pas encore créée
       if ((d.volumes || []).some(v => v.previews_data || v.previews) && (await sb.from('lib_volumes').select('previews').limit(1)).error) throw new Error('lancez library_previews.sql');
       const tn = x => (x || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[’‘`´]/g, "'").replace(/[^a-z0-9']+/g, ' ').trim();
-      const { data: found } = await sb.from('lib_series').select('*');
+      const { data: found } = await sb.from('lib_series').select('id,title'); // liste légère, puis la fiche complète de la série trouvée
       let ser = (found || []).find(x => tn(x.title) === tn(sd.title));
       if (!ser && sd.like) { const c = (found || []).filter(x => tn(x.title).includes(tn(sd.like))); if (c.length === 1) ser = c[0]; else if (c.length > 1) throw new Error(`plusieurs séries contiennent « ${sd.like} »`); } // like : série dont le titre contient ce texte
+      if (ser) { const { data: full } = await sb.from('lib_series').select('*').eq('id', ser.id).maybeSingle(); if (full) ser = full; }
       if (!ser && sd.only_existing) throw new Error(`série introuvable : ${sd.like || sd.title}`); // ne pas créer de série
       if (ser && !sd.title) sd.title = ser.title;
       if (sd.cover_data) { // couverture de la série envoyée en image : remplace l'ancienne
@@ -16868,7 +16879,7 @@ html[data-theme="dark"] iframe.cz-ig { background: #1c1c1e; }
         const { data: r, error: e1 } = await sb.from('claude_inbox').select('*').eq('id', id).maybeSingle();
         if (e1) { console.error('claude_inbox', id, e1); break; } // réseau coupé : on reprendra plus tard
         if (!r || r.applied_at) continue;
-        try { const k = await Promise.race([ciApply(r), new Promise((_, ko) => setTimeout(() => ko(new Error('délai dépassé, nouvel essai à la prochaine ouverture')), 90000))]); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); if ((k === 'livre' || k === 'prépublication') && (done.livre + done.prépublication) % 10 === 0) lbLoad(true); } // gros import : la bibliothèque se met à jour au fur et à mesure
+        try { const k = await Promise.race([ciApply(r), new Promise((_, ko) => setTimeout(() => ko(new Error('délai dépassé, nouvel essai à la prochaine ouverture')), 90000))]); done[k]++; await sb.from('claude_inbox').update({ applied_at: new Date().toISOString(), error: null }).eq('id', r.id); if ((k === 'livre' || k === 'prépublication') && Date.now() - (CI.lbAt || 0) > 90000) { CI.lbAt = Date.now(); lbLoad(true); } } // gros import : la bibliothèque se met à jour au fur et à mesure
         catch (e) { console.error('claude_inbox', r, e); await sb.from('claude_inbox').update({ error: String(e.message || e) }).eq('id', r.id); }
       }
       const czTouched = done.photo > 0;
